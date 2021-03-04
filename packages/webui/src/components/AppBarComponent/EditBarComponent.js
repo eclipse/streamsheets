@@ -10,30 +10,24 @@
  ********************************************************************************/
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react';
-import { FuncTerm, Term } from '@cedalo/parser';
 import JSG from '@cedalo/jsg-ui';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { graphManager } from '../../GraphManager';
 import * as Actions from '../../actions/actions';
-// import {Notification, NotificationCenter} from '@cedalo/jsg-core';
 import AppBar from '@material-ui/core/AppBar';
 import {withStyles} from '@material-ui/core/styles';
 
 const {
-	ItemAttributes,
-	AttributeUtils,
 	StreamSheet,
 	StreamSheetView,
 	StreamSheetContainerView,
 	WorksheetNode,
 	RemoveSelectionCommand,
 	DeleteCellContentCommand,
-	SetAttributeAtPathCommand,
 	SetCellDataCommand,
 	SetChartFormulaCommand,
 	CellEditor,
-	Expression,
 	Strings,
 	SelectionProvider,
 } = JSG;
@@ -439,48 +433,19 @@ export class EditBarComponent extends Component {
 		if (selection.hasSelection()) {
 			const graphItem = selection.getFirstSelection().getModel();
 			const expr = data.expression;
-			let formula = expr.getFormula();
 			expr.evaluate(item);
-			const term = expr.getTerm();
 
-			if (term && term instanceof FuncTerm) {
-				// encode html for label
-				if ((graphItem instanceof JSG.TextNode) && term.params.length > 13) {
-					const param = term.params[13];
-					if (param.isStatic && param.operand._value) {
-						term.params[13] = Term.fromString(
-							Strings.encodeXML(param.operand._value),
-						);
-						formula = term
-							? term.toLocaleString('en', {
-								item,
-								useName: true,
-							})
-							: '';
-					}
-				}
-			}
 			const chartView = selection.getFirstSelection().getView();
 			if ((chartView.isNewChart) && chartView.hasSelectedFormula()) {
 				if (chartView.chartSelection.element === 'plot') {
 					const chart = chartView.getItem();
 					const cmdChart = chart.prepareCommand('chart');
-					chart.updateFormulas(graphManager.getGraphViewer(), formula, cmdChart);
+					chart.updateFormulas(graphManager.getGraphViewer(), expr.getFormula(), cmdChart);
 				} else {
 					cmd = new SetChartFormulaCommand(graphItem, chartView.chartSelection, data.expression);
 				}
 			} else {
-				const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
-
-				if (term) {
-					formula = term.toLocaleString('en', {item, useName: true, forceName: true});
-				}
-
-				cmd = new SetAttributeAtPathCommand(graphItem, path, new Expression(0, formula));
-				// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
-				graphItem.setAttributeAtPath(path, new Expression(0, formula));
-				graphItem._noFormulaUpdate = true;
-				graphItem._editBarChange = true;
+				cmd = graphItem.termToPropertiesCommands(item, expr.getTerm());
 			}
 		} else {
 			const ref = item.getOwnSelection().activeCellToString();

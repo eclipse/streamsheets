@@ -888,15 +888,13 @@ class GraphItemView extends View {
 
 		let formula = `=DRAW.${type.toUpperCase()}(`;
 		let param;
-		const digits = 0; // this.getDigits(item.getParent());
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
 		if (type === JSG.LineShape.TYPE) {
-			const pStart = item.getStartPoint();
-			const pEnd = item.getEndPoint();
-			// pEnd = this.convertToContainerPos(pEnd, item.getParent());
-			formula += `${MathUtils.roundTo(pStart.x, digits)},${MathUtils.roundTo(pStart.y, digits)},`;
-			formula += `${MathUtils.roundTo(pEnd.x, digits)},${MathUtils.roundTo(pEnd.y, digits)}`;
+			let coor = item.getStartCoordinate();
+			formula += `${coor.getX().toParamString(sheet, 0)}${sep}${coor.getY().toParamString(sheet, 0)}${sep}`;
+			coor = item.getEndCoordinate();
+			formula += `${coor.getX().toParamString(sheet, 0)}${sep}${coor.getY().toParamString(sheet, 0)}${sep}`;
 			param = item.getFormat().getLineColor().toParamString(sheet, 0);
 			if (param !== '') {
 				formula += `${sep}${param}`;

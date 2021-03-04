@@ -821,7 +821,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		});
 
-		// TODO		container.getStreamSheet()._addImageCmds.forEach(cmd => {
+		NotificationCenter.getInstance().send(
+			new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {
+				item: this,
+				updateFinal: false
+			})
+		);
 	}
 
 	setGraphItems(graphItems) {
@@ -1143,12 +1148,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 		});
 
-		NotificationCenter.getInstance().send(
-			new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {
-				item: this,
-				updateFinal: false
-			})
-		);
 	}
 
 	convertToContainerPos(point, parent) {

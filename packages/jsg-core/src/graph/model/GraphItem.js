@@ -8,6 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+
+const { FuncTerm } = require('@cedalo/parser');
+
 const JSG = require('../../JSG');
 const Strings = require('../../commons/Strings');
 const Arrays = require('../../commons/Arrays');
@@ -39,6 +42,7 @@ const AttributeChangeEvent = require('./events/AttributeChangeEvent');
 const Event = require('./events/Event');
 const GraphItemProperties = require('../properties/GraphItemProperties');
 const Properties = require('../properties/Properties');
+const CompoundCommand = require('../command/CompoundCommand');
 
 const _tmpEvent = new Event(Event.ALL);
 
@@ -3484,6 +3488,92 @@ class GraphItem extends Model {
 		}, false);
 
 		return json;
+	}
+
+	termToPropertiesCommands(sheet, term) {
+
+		if (!term || !(term instanceof FuncTerm)) {
+			return undefined;
+		}
+
+		const cmp = new CompoundCommand();
+		const pin = this.getPin().copy();
+		const size = this.getSize().copy();
+		let lineColor;
+		let fillColor;
+		let path;
+		let rotate;
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 0:
+					pin.getX().setTerm(param);
+					pin.getX().correctFormula(sheet);
+					break;
+				case 1:
+					pin.getY().setTerm(param);
+					pin.getY().correctFormula(sheet);
+					break;
+				case 2:
+					size.getWidth().setTerm(param);
+					size.getWidth().correctFormula(sheet);
+					break;
+				case 3:
+					size.getHeight().setTerm(param);
+					size.getHeight().correctFormula(sheet);
+					break;
+				case 4:
+					lineColor = new StringExpression(param.value, param.toString());
+					lineColor.evaluate(this);
+					break;
+				case 5:
+					fillColor = new StringExpression(param.value, param.toString());
+					fillColor.evaluate(this);
+					break;
+				case 6:
+					rotate = new NumberExpression(param.value, param.toString());
+					rotate.evaluate(this);
+					break;
+				default:
+					break;
+			}
+		});
+
+		cmp.add(new JSG.SetPinCommand(this, pin));
+		cmp.add(new JSG.SetSizeCommand(this, size));
+		if (lineColor) {
+			path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, lineColor));
+		}
+		if (fillColor) {
+			path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.FILLCOLOR);
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, fillColor));
+		}
+		if (rotate) {
+			cmp.add(new JSG.RotateItemCommand(this, rotate));
+		}
+
+		return cmp;
+
+
+		// if (term && term instanceof FuncTerm) {
+		// 	// encode html for label
+		// 	if ((graphItem instanceof JSG.TextNode) && term.params.length > 13) {
+		// 		const param = term.params[13];
+		// 		if (param.isStatic && param.operand._value) {
+		// 			term.params[13] = Term.fromString(
+		// 				Strings.encodeXML(param.operand._value),
+		// 			);
+		// 			formula = term
+		// 				? term.toLocaleString('en', {
+		// 					item,
+		// 					useName: true,
+		// 				})
+		// 				: '';
+		// 		}
+		// 	}
+		// }
+
 	}
 
 	get expressions() {
