@@ -129,7 +129,7 @@ export default class ChartInfoFeedbackView extends View {
 				} else if (map && xValue) {
 					if (value.x >= 0 && value.x < serie.map.mapData.features.length) {
 						const feature = serie.map.mapData.features[value.x];
-						label = feature.properties[serie.map.label];
+						label = feature.properties[serie.map.label] || '';
 					}
 				} else {
 					if (xValue) {
