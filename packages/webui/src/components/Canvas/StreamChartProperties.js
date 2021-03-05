@@ -896,7 +896,7 @@ export class StreamChartProperties extends Component {
 		const names = [];
 
 		features.forEach((feature) => {
-			const name = feature.properties[data.map.label];
+			const name = feature.properties[data.map.label] || '';
 			if (name && names.indexOf(name) === -1) {
 				names.push(name);
 			}

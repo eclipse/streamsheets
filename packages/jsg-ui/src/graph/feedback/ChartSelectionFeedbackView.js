@@ -445,7 +445,7 @@ export default class ChartSelectionFeedbackView extends View {
 								}
 								features.forEach((feature, mapIndex) => {
 									index = item.findMapIndex(feature.properties, serie, mapInfo.labels);
-									let text = feature.properties[serie.map.label];
+									let text = feature.properties[serie.map.label] || '';
 									if (index !== -1 && item.getValue(ref, index, value)) {
 										value.x = text;
 										text = item.getDataLabel(value, axes.x, ref, serie, legendData);
