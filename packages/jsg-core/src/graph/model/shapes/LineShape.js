@@ -41,6 +41,11 @@ class LineShape extends Shape {
 		this._coordinates.push(new Coordinate(this._newExpression(0), this._newExpression(0)));
 		this._coordinates.push(new Coordinate(this._newExpression(0), this._newExpression(0)));
 
+		this.shapeCoordinates = [
+			Coordinate.fromXY(0, 0),
+			Coordinate.fromXY(0, 0),
+		];
+
 		this._sc = false;
 		this._tc = false;
 		this._vlPoints = undefined;

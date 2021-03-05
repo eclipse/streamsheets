@@ -3507,6 +3507,7 @@ class GraphItem extends Model {
 		term.iterateParams((param, index) => {
 			switch (index) {
 				case 0:
+					// if ()
 					pin.getX().setTerm(param);
 					pin.getX().correctFormula(sheet);
 					break;

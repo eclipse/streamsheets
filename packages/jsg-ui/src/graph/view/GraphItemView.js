@@ -892,9 +892,30 @@ class GraphItemView extends View {
 
 		if (type === JSG.LineShape.TYPE) {
 			let coor = item.getStartCoordinate();
-			formula += `${coor.getX().toParamString(sheet, 0)}${sep}${coor.getY().toParamString(sheet, 0)}${sep}`;
+			let pt = item.getStartPoint();
+			if (coor.getX().hasFormula()) {
+				formula += `${coor.getX().toParamString(sheet, 0)}${sep}`;
+			} else {
+				formula += `${Math.round(pt.x)}${sep}`;
+			}
+			if (coor.getY().hasFormula()) {
+				formula += `${coor.getY().toParamString(sheet, 0)}${sep}`;
+			} else {
+				formula += `${Math.round(pt.y)}${sep}`;
+			}
 			coor = item.getEndCoordinate();
-			formula += `${coor.getX().toParamString(sheet, 0)}${sep}${coor.getY().toParamString(sheet, 0)}${sep}`;
+			pt = item.getEndPoint();
+			if (coor.getX().hasFormula()) {
+				formula += `${coor.getX().toParamString(sheet, 0)}${sep}`;
+			} else {
+				formula += `${Math.round(pt.x)}${sep}`;
+			}
+			if (coor.getY().hasFormula()) {
+				formula += `${coor.getY().toParamString(sheet, 0)}`;
+			} else {
+				formula += `${Math.round(pt.y)}`;
+			}
+
 			param = item.getFormat().getLineColor().toParamString(sheet, 0);
 			if (param !== '') {
 				formula += `${sep}${param}`;
