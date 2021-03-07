@@ -66,8 +66,8 @@ module.exports = class AuthRoutes {
 					const sharedLink = await getSharedLink(pathname, sharedMachineRepo);
 
 					if (sharedLink) {
-						const { machineId, isPublic = true } = sharedLink;
-						if (isPublic) {
+						const { machineId, visibility } = sharedLink;
+						if (visibility === 'public') {
 							const machine = await request.app.locals.globalContext.machineRepo.findMachine(machineId);
 							const user = {
 								id: 'sharedmachine',
