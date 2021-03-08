@@ -32,7 +32,7 @@ const TYPE = {
 
 const toArray = (sheet, term, byRow, forceFlatOr2d) => {
 	if (term && term.value) {
-		if (isFuncTerm('array')) {
+		if (isFuncTerm(term, 'array')) {
 			return term.value;
 		}
 		return array(sheet, term, byRow, forceFlatOr2d);
@@ -245,7 +245,7 @@ const termAsJSON = (term, config, sheet) => {
 
 const termAsList = (term, config, sheet) => {
 	const sybtypeConfig = config.type;
-	const mode = sybtypeConfig.name === TYPE.RECORD || sybtypeConfig.name === TYPE.LIST ? '2d' : 'flat';
+	const mode = sybtypeConfig.name === TYPE.JSON || sybtypeConfig.name === TYPE.LIST ? '2d' : 'flat';
 	let value = toArray(sheet, term, null, Term.fromString(mode));
 	if (FunctionErrors.isError(value)) {
 		// eslint-disable-next-line
