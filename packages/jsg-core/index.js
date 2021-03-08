@@ -203,6 +203,7 @@ JSG.RemoveShapeCoordinateAtCommand = require('./src/graph/command/RemoveShapeCoo
 JSG.SetPinCommand = require('./src/graph/command/SetPinCommand');
 JSG.SetSizeCommand = require('./src/graph/command/SetSizeCommand');
 JSG.SetLinePointAtCommand = require('./src/graph/command/SetLinePointAtCommand');
+JSG.SetLineCoordinateAtCommand = require('./src/graph/command/SetLineCoordinateAtCommand');
 JSG.SetLineShapePointsCommand = require('./src/graph/command/SetLineShapePointsCommand');
 JSG.SetBezierShapePointsCommand = require('./src/graph/command/SetBezierShapePointsCommand');
 const UpdateNamesCommands = require('./src/graph/command/UpdateNamesCommands');

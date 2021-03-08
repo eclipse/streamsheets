@@ -643,22 +643,27 @@ class Expression {
 		}
 
 		const type = json.t || 'n';
-		let value = json.v;
 
-		if (value === undefined) {
-			value = 0;
-		} else if (type === 'n') {
-			value = Number(value);
-		} else if (type === 'b') {
-			value = value === 'true';
-		} else {
-			value = Strings.decode(value);
-		}
+		const toValue = (input) => {
+			let out = input;
+			if (input === undefined) {
+				out = 0;
+			} else if (type === 'n') {
+				out = Number(input);
+			} else if (type === 'b') {
+				out = input === 'true';
+			} else {
+				out = Strings.decode(String(input));
+			}
+
+			return out;
+		};
 
 		const formula = json.f ? Strings.decode(json.f) : undefined;
 
-		this.set(value, formula);
-		this.setTermValue(json.sv);
+		this.set(toValue(json.v), formula);
+		this.setTermValue(toValue(json.sv));
+
 		if (json.ref) {
 			this._cellref = json.ref;
 		}

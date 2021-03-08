@@ -60,11 +60,10 @@ class LineShape extends Shape {
 		const ret = super.fromJSON(json);
 
 		this._coordinates = [];
-		json.points.forEach(point => {
+		json.points.forEach((point, index) => {
 			const coordinate = new Coordinate();
 			coordinate.fromJSON(point);
 			this._coordinates.push(coordinate);
-
 		});
 
 		return ret;
@@ -77,7 +76,7 @@ class LineShape extends Shape {
 		};
 
 		this._coordinates.forEach((coor) => {
-			json.points.push(coor.toJSON());
+			json.points.push(coor.toJSON(true));
 		});
 
 		return json;
@@ -123,6 +122,58 @@ class LineShape extends Shape {
 		// note: it is important that no layout is involved, take saved values!!
 		this._fillPointList(this._coordpointlist, this._coordinates);
 	}
+
+	formulasToValues() {
+		const pointForm = JSG.ptCache.get();
+
+		for (let i = 0; i < this._coordinates.length; i += 1) {
+			const coordinate = this._coordinates[i];
+			if (coordinate.getX().hasFormula()) {
+				pointForm.set(coordinate.getX().getValue(), 0);
+				this._item.translateFromParent(pointForm);
+				coordinate.getX().set(pointForm.x);
+			}
+			if (coordinate.getY().hasFormula()) {
+				pointForm.set(0, coordinate.getY().getValue());
+				this._item.translateFromParent(pointForm);
+				coordinate.getY().set(pointForm.y);
+			}
+		}
+		JSG.ptCache.release(pointForm);
+	}
+
+	_fillPointList(list, coordinates) {
+		list.keepPoints(coordinates.length);
+		// reuse points
+		const tmppoint = JSG.ptCache.get();
+		const pointForm = JSG.ptCache.get();
+		let i;
+
+		if (!this._item) {
+			return;
+		}
+
+		for (i = 0; i < coordinates.length; i += 1) {
+			const coordinate = coordinates[i];
+
+			tmppoint.x = coordinate.getX().getValue();
+			if (!this._item._isFeedback && coordinate.getX().hasFormula()) {
+				pointForm.set(tmppoint.x, 0);
+				this._item.translateFromParent(pointForm);
+				tmppoint.x = pointForm.x;
+			}
+			tmppoint.y = coordinate.getY().getValue();
+			if (!this._item._isFeedback && coordinate.getY().hasFormula()) {
+				pointForm.set(0, tmppoint.y);
+				this._item.translateFromParent(pointForm);
+				tmppoint.y = pointForm.y;
+			}
+
+			list.setPointAtTo(i, tmppoint);
+		}
+		JSG.ptCache.release(tmppoint, pointForm);
+	}
+
 
 	/**
 	 * Reads and returns a new <code>Coordinate</code> instance from given <code>XML</code> node.</br>

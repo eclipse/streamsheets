@@ -126,6 +126,7 @@ class TextNode extends Node {
 	fromJSON(json) {
 		super.fromJSON(json);
 
+		json.text.t = 's';
 		this._text.fromJSON(json.text);
 	}
 
@@ -189,23 +190,23 @@ class TextNode extends Node {
 	setText(text) {
 		let changed = false;
 
-		function getReferencedAttribute(term) {
-			const operand = term && term.operand;
-			return operand && operand.type === Operand.TYPE.REFERENCE ? operand.getAttribute() : undefined;
-		}
+		// function getReferencedAttribute(term) {
+		// 	const operand = term && term.operand;
+		// 	return operand && operand.type === Operand.TYPE.REFERENCE ? operand.getAttribute() : undefined;
+		// }
 
 		if (text instanceof Expression) {
 			// simply apply new expression
 			changed = this._text.setExpressionOrValue(text);
 		} else if (text !== undefined) {
 			// we might have to change an attribute value:
-			const attribute = getReferencedAttribute(this._text.getTerm());
-			if (attribute !== undefined) {
-				attribute.setExpressionOrValue(text);
-				changed = true;
-			} else {
+			// const attribute = getReferencedAttribute(this._text.getTerm());
+			// if (attribute !== undefined) {
+			// 	attribute.setExpressionOrValue(text);
+			// 	changed = true;
+			// } else {
 				changed = this._text.setExpressionOrValue(text);
-			}
+			// }
 		}
 
 		this.invalidateSize();

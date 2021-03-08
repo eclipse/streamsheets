@@ -45,6 +45,7 @@ const ResizeEdgeCommand = require('./ResizeEdgeCommand');
 const ReshapeItemCommand = require('./ReshapeItemCommand');
 const SetLineShapePointsCommand = require('./SetLineShapePointsCommand');
 const SetLinePointAtCommand = require('./SetLinePointAtCommand');
+const SetLineCoordinateAtCommand = require('./SetLineCoordinateAtCommand');
 const RotateItemCommand = require('./RotateItemCommand');
 const RotateEdgeCommand = require('./RotateEdgeCommand');
 const RotateNodeCommand = require('./RotateNodeCommand');
@@ -104,6 +105,7 @@ const Registry = {
 	'command.ReshapeItemCommand': ReshapeItemCommand,
 	'command.SetLineShapePointsCommand': SetLineShapePointsCommand,
 	'command.SetLinePointAtCommand': SetLinePointAtCommand,
+	'command.SetLineCoordinateAtCommand': SetLineCoordinateAtCommand,
 	'command.RotateItemCommand': RotateItemCommand,
 	'command.RotateEdgeCommand': RotateEdgeCommand,
 	'command.RotateNodeCommand': RotateNodeCommand,

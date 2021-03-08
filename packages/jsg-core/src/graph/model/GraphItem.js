@@ -233,6 +233,7 @@ class GraphItem extends Model {
 
 		if (this._shape) {
 			copy.setShapeTo(this._shape.copy());
+			copy._shape._item = copy;
 		}
 
 		if (this._layout) {
@@ -3491,7 +3492,6 @@ class GraphItem extends Model {
 	}
 
 	termToPropertiesCommands(sheet, term) {
-
 		if (!term || !(term instanceof FuncTerm)) {
 			return undefined;
 		}
@@ -3503,11 +3503,11 @@ class GraphItem extends Model {
 		let fillColor;
 		let path;
 		let rotate;
+		let label;
 
 		term.iterateParams((param, index) => {
 			switch (index) {
 				case 0:
-					// if ()
 					pin.getX().setTerm(param);
 					pin.getX().correctFormula(sheet);
 					break;
@@ -3535,6 +3535,10 @@ class GraphItem extends Model {
 					rotate = new NumberExpression(param.value, param.toString());
 					rotate.evaluate(this);
 					break;
+				case 7:
+					label = new StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
+					label.evaluate(this);
+					break;
 				default:
 					break;
 			}
@@ -3553,28 +3557,11 @@ class GraphItem extends Model {
 		if (rotate) {
 			cmp.add(new JSG.RotateItemCommand(this, rotate));
 		}
+		if (label) {
+			cmp.add(new JSG.SetTextCommand(this, this.getText(), label));
+		}
 
 		return cmp;
-
-
-		// if (term && term instanceof FuncTerm) {
-		// 	// encode html for label
-		// 	if ((graphItem instanceof JSG.TextNode) && term.params.length > 13) {
-		// 		const param = term.params[13];
-		// 		if (param.isStatic && param.operand._value) {
-		// 			term.params[13] = Term.fromString(
-		// 				Strings.encodeXML(param.operand._value),
-		// 			);
-		// 			formula = term
-		// 				? term.toLocaleString('en', {
-		// 					item,
-		// 					useName: true,
-		// 				})
-		// 				: '';
-		// 		}
-		// 	}
-		// }
-
 	}
 
 	get expressions() {

@@ -78,6 +78,11 @@ module.exports = class CellsNode extends Node {
 	}
 
 	_saveSubItems(file) {
+		const serverMode = file.getMode() === 'machineserver';
+		if (serverMode) {
+			// save once to give client chance to convert old files
+			super._saveSubItems(file);
+		}
 		// do not save subitems, they are saved in machine server
 	}
 

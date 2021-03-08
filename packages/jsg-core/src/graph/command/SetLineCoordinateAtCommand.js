@@ -8,58 +8,58 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const Point = require('../../geometry/Point');
 const AbstractItemCommand = require('./AbstractItemCommand');
+const Coordinate = require('../Coordinate');
+const { readObject, writeJSON } = require('./utils');
 
 /**
  * Command to insert a point into a polyline or polygon.
  *
  * @example
  *     // interactionhandler and item given
- *     var cmd = new SetLinePointAtCommand(item, 2, new Point(300, 300));
+ *     var cmd = new SetLineCoordinateAtCommand(item, 2, new Point(300, 300));
  *     interactionHandler.execute(cmd);
  *     //undo command
  *     interactionHandler.undo();
  *     //redo it again
  *     interactionHandler.redo();
  *
- * @class SetLinePointAtCommand
+ * @class SetLineCoordinateAtCommand
  * @extends AbstractGroupUngroupCommand
  * @constructor
  * @param {GraphItem} item GraphItem to be formatted.
  * @param {Number} index Index, where the point shall be inserted.
- * @param {Point} point New point in parent coordinate system.
+ * @param {Coordinate} coordinate New coordinate.
  */
-class SetLinePointAtCommand extends AbstractItemCommand {
+class SetLineCoordinateAtCommand extends AbstractItemCommand {
 	static createFromObject(data = {}, context) {
 		let cmd;
 		const item = context.graph.getItemById(data.itemId);
 		if (item) {
-			const point = new Point(data.point.x, data.point.y);
-			cmd = new SetLinePointAtCommand(
+			cmd = new SetLineCoordinateAtCommand(
 				item,
 				data.index,
-				point
+				readObject('coor', data.newCoor, new Coordinate())
 			).initWithObject(data);
-			if (data.oldPoint)
-				cmd._oldPoint = new Point(data.oldPoint.x, data.oldPoint.y);
+			if (data.oldCoor)
+				cmd._oldCoor = readObject('coor', data.oldCoor, new Coordinate());
 		}
 		return cmd;
 	}
 
-	constructor(item, index, point) {
+	constructor(item, index, coordinate) {
 		super(item);
 
 		this._index = index;
-		this._newpoint = point.copy();
-		this._oldpoint = undefined;
+		this._newCoor = coordinate.copy();
+		this._oldCoor = undefined;
 	}
 
 	toObject() {
 		const data = super.toObject();
 		data.index = this._index;
-		data.point = this._newpoint;
-		if (this._oldpoint) data.oldPoint = this._oldpoint;
+		data.newCoor = writeJSON('coor', this._newCoor);
+		if (this._oldCoor) data.oldCoor = writeJSON('coor', this._oldCoor);
 		return data;
 	}
 	/**
@@ -68,7 +68,7 @@ class SetLinePointAtCommand extends AbstractItemCommand {
 	 * @method execute
 	 */
 	execute() {
-		this._oldpoint = this._graphItem.getPointAt(this._index);
+		this._oldCoor = this._graphItem.getShape().getCoordinateAt(this._index);
 		this.redo();
 	}
 
@@ -78,8 +78,8 @@ class SetLinePointAtCommand extends AbstractItemCommand {
 	 * @method undo
 	 */
 	undo() {
-		if (this._oldpoint !== undefined) {
-			this._graphItem.setPointAt(this._index, this._oldpoint.copy());
+		if (this._oldCoor !== undefined) {
+			this._graphItem.getShape().setCoordinateAtTo(this._index, this._oldCoor);
 		}
 	}
 
@@ -89,8 +89,8 @@ class SetLinePointAtCommand extends AbstractItemCommand {
 	 * @method redo
 	 */
 	redo() {
-		this._graphItem.setPointAt(this._index, this._newpoint.copy());
+		this._graphItem.getShape().setCoordinateAtTo(this._index, this._newCoor);
 	}
 }
 
-module.exports = SetLinePointAtCommand;
+module.exports = SetLineCoordinateAtCommand;

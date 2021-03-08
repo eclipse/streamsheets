@@ -8,8 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const JSG = require('../../JSG');
-const Point = require('../../geometry/Point');
 const { readObject, writeJSON } = require('./utils');
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Pin = require('../Pin');

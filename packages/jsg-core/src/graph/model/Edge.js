@@ -8,15 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { FuncTerm } = require('@cedalo/parser');
+
 const JSG = require('../../JSG');
 const LineConnection = require('./LineConnection');
 const Arrays = require('../../commons/Arrays');
 const Coordinate = require('../Coordinate');
+const StringExpression = require('../expr/StringExpression');
 const CoordinateProxy = require('../CoordinateProxy');
+const FormatAttributes = require('../attr/FormatAttributes');
 const GraphUtils = require('../GraphUtils');
 const PortCoordinateProxy = require('../PortCoordinateProxy');
 const Event = require('./events/Event');
 const ShapeEvent = require('./events/ShapeEvent');
+const CompoundCommand = require('../command/CompoundCommand');
+const Point = require('../../geometry/Point');
 
 /**
  * An edge connects two {{#crossLink "Node"}}{{/crossLink}}s by establishing a
@@ -451,6 +457,78 @@ class Edge extends LineConnection {
 		GraphUtils.translatePointDown(center, graph, this.getParent());
 		return center;
 	}
+
+	termToPropertiesCommands(sheet, term) {
+		if (!term || !(term instanceof FuncTerm)) {
+			return undefined;
+		}
+
+		const cmp = new CompoundCommand();
+		let lineColor;
+		const startCoor = this.getStartCoordinate();
+		const endCoor = this.getEndCoordinate();
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 0:
+					if (param.isStatic) {
+						const point = new Point(param.value, 0);
+						this.translateFromParent(point);
+						startCoor.getX().set(point.x);
+					} else {
+						startCoor.getX().setTerm(param);
+						startCoor.getX().correctFormula(sheet);
+					}
+					break;
+				case 1:
+					if (param.isStatic) {
+						const point = new Point(0, param.value);
+						this.translateFromParent(point);
+						startCoor.getY().set(point.y);
+					} else {
+						startCoor.getY().setTerm(param);
+						startCoor.getY().correctFormula(sheet);
+					}
+					break;
+				case 2:
+					if (param.isStatic) {
+						const point = new Point(param.value, 0);
+						this.translateFromParent(point);
+						endCoor.getX().set(point.x);
+					} else {
+						endCoor.getX().setTerm(param);
+						endCoor.getX().correctFormula(sheet);
+					}
+					break;
+				case 3:
+					if (param.isStatic) {
+						const point = new Point(0, param.value);
+						this.translateFromParent(point);
+						endCoor.getY().set(point.y);
+					} else {
+						endCoor.getY().setTerm(param);
+						endCoor.getY().correctFormula(sheet);
+					}
+					break;
+				case 4:
+					lineColor = new StringExpression(param.value, param.toString());
+					lineColor.evaluate(this);
+					break;
+				default:
+					break;
+			}
+		});
+
+		if (lineColor) {
+			cmp.add(new JSG.SetLineCoordinateAtCommand(this, 0, startCoor));
+			cmp.add(new JSG.SetLineCoordinateAtCommand(this, 1, endCoor));
+			const path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, lineColor));
+		}
+
+		return cmp;
+	}
+
 }
 
 module.exports = Edge;

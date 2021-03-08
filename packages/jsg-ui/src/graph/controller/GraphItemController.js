@@ -542,6 +542,8 @@ class GraphItemController extends ModelController {
 
 		const pin = model.getPinPoint();
 		fbItem.setPinPointTo(pin);
+		fbItem.getShape().formulasToValues();
+
 		fbItem.evaluate();
 		// required? => yes because of copy()!!!
 

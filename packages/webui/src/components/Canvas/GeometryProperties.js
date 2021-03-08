@@ -133,31 +133,101 @@ export class GeometryProperties extends Component {
 
 	handleX = (event) => {
 		const item = this.props.view.getItem();
-		const expr = this.getExpression(item, event);
-		item.getPin().setX(expr.expression);
-		const cmd = new JSG.SetPinCommand(item, item.getPin());
+		const expr = this.getExpression(item, event).expression;
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
+		let cmd;
+
+		if (line) {
+			const startCoor = item.getStartCoordinate();
+
+			if (expr.hasFormula()) {
+				startCoor.setX(expr);
+			} else {
+				const point = new JSG.Point(expr.getValue(), 0);
+				item.translateFromParent(point);
+				startCoor.setX(new JSG.NumberExpression(point.x));
+			}
+
+			cmd = new JSG.SetLineCoordinateAtCommand(item, 0, startCoor);
+		} else {
+			item.getPin().setX(expr);
+			cmd = new JSG.SetPinCommand(item, item.getPin());
+		}
+
 		graphManager.synchronizedExecute(cmd);
 	}
 
 	handleY = (event) => {
 		const item = this.props.view.getItem();
-		const expr = this.getExpression(item, event);
-		item.getPin().setY(expr.expression);
-		const cmd = new JSG.SetPinCommand(item, item.getPin());
+		const expr = this.getExpression(item, event).expression;
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
+		let cmd;
+
+		if (line) {
+			const startCoor = item.getStartCoordinate();
+
+			if (expr.hasFormula()) {
+				startCoor.setY(expr);
+			} else {
+				const point = new JSG.Point(0, expr.getValue());
+				item.translateFromParent(point);
+				startCoor.setY(new JSG.NumberExpression(point.y));
+			}
+
+			cmd = new JSG.SetLineCoordinateAtCommand(item, 0, startCoor);
+		} else {
+			item.getPin().setY(expr);
+			cmd = new JSG.SetPinCommand(item, item.getPin());
+		}
+
 		graphManager.synchronizedExecute(cmd);
 	}
 
 	handleWidth = (event) => {
 		const item = this.props.view.getItem();
-		const expr = this.getExpression(item, event);
-		const cmd = new JSG.SetSizeCommand(item, new JSG.Size(expr.expression, item.getHeight()));
+		const expr = this.getExpression(item, event).expression;
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
+		let cmd;
+
+		if (line) {
+			const endCoor = item.getEndCoordinate();
+
+			if (expr.hasFormula()) {
+				endCoor.setX(expr);
+			} else {
+				const point = new JSG.Point(expr.getValue(), 0);
+				item.translateFromParent(point);
+				endCoor.setX(new JSG.NumberExpression(point.x));
+			}
+
+			cmd = new JSG.SetLineCoordinateAtCommand(item, 1, endCoor);
+		} else {
+			cmd = new JSG.SetSizeCommand(item, new JSG.Size(expr, item.getHeight()));
+		}
 		graphManager.synchronizedExecute(cmd);
 	}
 
 	handleHeight = (event) => {
 		const item = this.props.view.getItem();
-		const expr = this.getExpression(item, event);
-		const cmd = new JSG.SetSizeCommand(item, new JSG.Size(item.getWidth(), expr.expression));
+		const expr = this.getExpression(item, event).expression;
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
+		let cmd;
+
+		if (line) {
+			const endCoor = item.getEndCoordinate();
+
+			if (expr.hasFormula()) {
+				endCoor.setY(expr);
+			} else {
+				const point = new JSG.Point(0, expr.getValue());
+				item.translateFromParent(point);
+				endCoor.setY(new JSG.NumberExpression(point.y));
+			}
+
+			cmd = new JSG.SetLineCoordinateAtCommand(item, 1, endCoor);
+		} else {
+			cmd = new JSG.SetSizeCommand(item, new JSG.Size(item.getWidth(), expr));
+		}
 		graphManager.synchronizedExecute(cmd);
 	}
 
@@ -182,19 +252,81 @@ export class GeometryProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	getX() {
+		const item = this.props.view.getItem();
+		const type = item.getShape().getType();
+		let ret;
+
+		if (type === JSG.LineShape.TYPE) {
+			const coor = item.getStartCoordinate();
+			ret = coor.getX().hasFormula() ? coor.getX() : new JSG.NumberExpression(item.getStartPoint().x);
+		} else {
+			ret = item.getPin().getX();
+		}
+
+		return ret;
+	}
+
+	getY() {
+		const item = this.props.view.getItem();
+		const type = item.getShape().getType();
+		let ret;
+
+		if (type === JSG.LineShape.TYPE) {
+			const coor = item.getStartCoordinate();
+			ret = coor.getY().hasFormula() ? coor.getY() : new JSG.NumberExpression(item.getStartPoint().y);
+		} else {
+			ret = item.getPin().getY();
+		}
+
+		return ret;
+	}
+
+	getWidth() {
+		const item = this.props.view.getItem();
+		const type = item.getShape().getType();
+		let ret;
+
+		if (type === JSG.LineShape.TYPE) {
+			const coor = item.getEndCoordinate();
+			ret = coor.getX().hasFormula() ? coor.getX() : new JSG.NumberExpression(item.getEndPoint().x);
+		} else {
+			ret = item.getWidth();
+		}
+
+		return ret;
+	}
+
+	getHeight() {
+		const item = this.props.view.getItem();
+		const type = item.getShape().getType();
+		let ret;
+
+		if (type === JSG.LineShape.TYPE) {
+			const coor = item.getEndCoordinate();
+			ret = coor.getY().hasFormula() ? coor.getY() : new JSG.NumberExpression(item.getEndPoint().y);
+		} else {
+			ret = item.getHeight();
+		}
+
+		return ret;
+	}
+
 	render() {
 		const sheetView = this.getSheetView();
 		if (!sheetView) {
 			return <div />;
 		}
 		const item = this.props.view.getItem();
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		return (
 			<FormGroup>
-				{this.getPropertyHandler("GraphItemProperties.HorizontalPosition", this.handleX, item.getPin().getX())}
-				{this.getPropertyHandler("GraphItemProperties.VerticalPosition", this.handleY, item.getPin().getY())}
-				{this.getPropertyHandler("GraphItemProperties.Width", this.handleWidth, item.getWidth())}
-				{this.getPropertyHandler("GraphItemProperties.Height", this.handleHeight, item.getHeight())}
-				{this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), 2)}
+				{this.getPropertyHandler(line ? "GraphItemProperties.StartX" : "GraphItemProperties.HorizontalPosition", this.handleX, this.getX())}
+				{this.getPropertyHandler(line ? "GraphItemProperties.StartY" : "GraphItemProperties.VerticalPosition", this.handleY, this.getY())}
+				{this.getPropertyHandler(line ? "GraphItemProperties.EndX" : "GraphItemProperties.Width", this.handleWidth, this.getWidth())}
+				{this.getPropertyHandler(line ? "GraphItemProperties.EndY" : "GraphItemProperties.Height", this.handleHeight, this.getHeight())}
+				{line ? null : this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), 2)}
+				{line ? null : (
 				<TextField
 					variant="outlined"
 					key="RotationCenter"
@@ -225,7 +357,7 @@ export class GeometryProperties extends Component {
 							range: ''
 						}
 					}}
-				/>
+				/>)}
 				{item.getShape() instanceof JSG.PolygonShape ? (
 					this.getPropertyHandler("GraphItemProperties.PointRange", this.handlePointRange, item.getShape().getSource())
 				) : null}
