@@ -3319,7 +3319,7 @@ export class CanvasToolBar extends Component {
 						</IconButton>
 					</div>
 				</Tooltip>
-				<Tooltip
+				{/* <Tooltip
 					enterDelay={300}
 					title={
 						<FormattedMessage id="Tooltip.ConfigureViewMode" defaultMessage="Configure View Mode" />
@@ -3338,7 +3338,7 @@ export class CanvasToolBar extends Component {
 							</SvgIcon>
 						</IconButton>
 					</div>
-				</Tooltip>
+				</Tooltip> */}
 				<Tooltip
 					enterDelay={300}
 					title={<FormattedMessage id="Tooltip.EditNames" defaultMessage="Edit Names" />}
