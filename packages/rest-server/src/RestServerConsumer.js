@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -76,8 +76,10 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 	}
 
 	verify(user) {
-		return !this._hasCredentials()
-			|| (user && user.name === this.config.connector.userName && user.pass === this.config.connector.password);
+		return (
+			!this._hasCredentials() ||
+			(user && user.name === this.config.connector.userName && user.pass === this.config.connector.password)
+		);
 	}
 
 	onMessage(topic, restMessage) {
@@ -90,11 +92,12 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 			});
 			if (expectResponse) {
 				const timeoutId = setTimeout(
-					() => timeoutHandler(
-						requestId,
-						this._pendingRequests,
-						this.config.responseTimeout || DEFAULT_TIMEOUT
-					),
+					() =>
+						timeoutHandler(
+							requestId,
+							this._pendingRequests,
+							this.config.responseTimeout || DEFAULT_TIMEOUT
+						),
 					this.config.responseTimeout || DEFAULT_TIMEOUT
 				);
 				this._pendingRequests.set(requestId, { requestId, timeoutId, restServer: this._restServer });

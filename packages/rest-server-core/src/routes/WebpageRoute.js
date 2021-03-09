@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -18,10 +18,7 @@ const WebpageHelper = require('../helper/WebpageHelper');
 
 module.exports = class WebpageRoute {
 	static handleMessage(request, response, next) {
-		const targetPath = path.join(
-			process.env.WEBPAGE_BASE || __dirname,
-			request.path
-		);
+		const targetPath = path.join(process.env.WEBPAGE_BASE || __dirname, request.path);
 		const indexPath = path.join(targetPath, 'index.html');
 		const content = request.body.html;
 		const refresh = request.body.refresh;

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -19,8 +19,7 @@ const ImageHelper = require('../helper/ImageHelper');
 module.exports = class ImageRoute {
 	static handleMessage(request, response, next) {
 		const targetPath = path.join(
-			process.env.IMAGE_BASE ||
-				path.join(__dirname, '..', '..', 'images'),
+			process.env.IMAGE_BASE || path.join(__dirname, '..', '..', 'images'),
 			request.path
 		);
 		switch (request.method) {
@@ -37,9 +36,7 @@ module.exports = class ImageRoute {
 						})
 							.then(() => {
 								logger.info('Image saved');
-								const location = `/images${request.path}/${
-									request.body.name
-								}`;
+								const location = `/images${request.path}/${request.body.name}`;
 								response.location(location);
 								response.status(200).json({
 									message: 'Image created',
