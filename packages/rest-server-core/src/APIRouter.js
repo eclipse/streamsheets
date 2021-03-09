@@ -21,7 +21,7 @@ module.exports = class APIRouter extends Router {
 			['/*', '/v1.0/*'],
 			bodyParser.json({ inflate: true, strict: true }),
 			bodyParser.urlencoded({ extended: false }),
-			bodyParser.text(),
+			bodyParser.text({type: () => true}),
 			MessageRoute.handleMessage
 		);
 	}
