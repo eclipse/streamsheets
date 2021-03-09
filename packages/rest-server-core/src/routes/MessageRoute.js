@@ -25,12 +25,10 @@ const buildMessage = (payload) => {
 		message = payload;
 	} else if (typeof payload === 'string') {
 		// string payload
-		message = {
-			data: payload
-		}
+		message = payload;
 	}
-	return message;
-}
+	return { data: message };
+};
 
 module.exports = class MessageRoute {
 	static handleMessage(request, response, next) {

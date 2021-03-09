@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { ConsumerMixin, Message, Connector, Events } = require('@cedalo/sdk-streams');
+const { ConsumerMixin, Message, Connector, Events, Utils } = require('@cedalo/sdk-streams');
 const RestServerConnector = require('./RestServerConnector');
 const _ = require('lodash');
 
@@ -85,9 +85,9 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 		const requestId = restMessage.metadata.id;
 		const expectResponse = this.config.expectResponse || restMessage.metadata.expectResponse;
 		if (this.verify(user)) {
-			const restMessageCopy = _.cloneDeep(restMessage);
-			delete restMessageCopy.metadata;
-			const message = new Message(restMessageCopy);
+			const message = new Message({
+				data: Utils.transformToJSONObject(restMessage.data, this.config.mimeType)
+			});
 			if (expectResponse) {
 				const timeoutId = setTimeout(
 					() => timeoutHandler(

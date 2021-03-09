@@ -24,6 +24,7 @@ const Message = require('./src/helpers/Message');
 const StreamMonitor = require('./src/StreamMonitor');
 const RequestResponse = require('./src/helpers/RequestResponse');
 const TestHelper = require('./src/helpers/TestHelper');
+const Utils = require('./src/helpers/Utils')
 
 const getConfigurationClass = (config) => {
 	switch (config.className || config._className) {
@@ -56,6 +57,7 @@ module.exports = {
 	Message,
 	StreamMonitor,
 	TestHelper,
+	Utils,
 	getConfigurationClass,
 	RequestResponse,
 };
