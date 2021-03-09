@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 
-const { FuncTerm } = require('@cedalo/parser');
+const { FuncTerm, NullTerm } = require('@cedalo/parser');
 
 const JSG = require('../../JSG');
 const Strings = require('../../commons/Strings');
@@ -3398,6 +3398,8 @@ class GraphItem extends Model {
 		this._id = json.id;
 		this.getPin().getX().fromJSON(json.x);
 		this.getPin().getY().fromJSON(json.y);
+		this.getPin().getLocalX().fromJSON(json.localX);
+		this.getPin().getLocalY().fromJSON(json.localY);
 		this.getWidth().fromJSON(json.width);
 		this.getHeight().fromJSON(json.height);
 		if (json.angle !== undefined) {
@@ -3443,6 +3445,8 @@ class GraphItem extends Model {
 			itemType: this.getItemType(),
 			x: this.getPin().getX().toJSON(true),
 			y: this.getPin().getY().toJSON(true),
+			localX: this.getPin().getLocalX().toJSON(),
+			localY: this.getPin().getLocalY().toJSON(),
 			width: this.getWidth().toJSON(true),
 			height: this.getHeight().toJSON(true),
 		};
@@ -3491,6 +3495,60 @@ class GraphItem extends Model {
 		return json;
 	}
 
+	oldTermToProperties(sheet, term) {
+		if (!term || !(term instanceof FuncTerm)) {
+			return;
+		}
+
+		const pin = this.getPin();
+		const size = this.getSize();
+		let lineColor;
+		let fillColor;
+		let path;
+		let rotate;
+		let label;
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 3:
+					pin.getX().setTerm(param);
+					pin.getX().correctFormula(sheet);
+					break;
+				case 4:
+					pin.getY().setTerm(param);
+					pin.getY().correctFormula(sheet);
+					break;
+				case 5:
+					size.getWidth().setTerm(param);
+					size.getWidth().correctFormula(sheet);
+					break;
+				case 6:
+					size.getHeight().setTerm(param);
+					size.getHeight().correctFormula(sheet);
+					break;
+				// case 4:
+				// 	lineColor = new StringExpression(param.value, param.toString());
+				// 	lineColor.evaluate(this);
+				// 	break;
+				// case 5:
+				// 	fillColor = new StringExpression(param.value, param.toString());
+				// 	fillColor.evaluate(this);
+				// 	break;
+				case 11:
+					rotate = new NumberExpression(param.value, param.toString());
+					this.setAngle(rotate);
+					rotate.evaluate(this);
+					break;
+				// case 7:
+				// 	label = new StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
+				// 	label.evaluate(this);
+				// 	break;
+				default:
+					break;
+			}
+		});
+	}
+
 	termToPropertiesCommands(sheet, term) {
 		if (!term || !(term instanceof FuncTerm)) {
 			return undefined;
@@ -3503,41 +3561,83 @@ class GraphItem extends Model {
 		let fillColor;
 		let path;
 		let rotate;
-		let label;
+		let expr;
+		let points;
+		let closed;
 
 		term.iterateParams((param, index) => {
 			switch (index) {
 				case 0:
-					pin.getX().setTerm(param);
-					pin.getX().correctFormula(sheet);
+					if (param instanceof NullTerm) {
+						expr = new NumberExpression(0);
+					} else {
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					pin.setX(expr);
 					break;
 				case 1:
-					pin.getY().setTerm(param);
-					pin.getY().correctFormula(sheet);
+					if (param instanceof NullTerm) {
+						expr = new NumberExpression(0);
+					} else {
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					pin.setY(expr);
 					break;
 				case 2:
-					size.getWidth().setTerm(param);
-					size.getWidth().correctFormula(sheet);
+					if (param instanceof NullTerm) {
+						expr = new NumberExpression(0);
+					} else {
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					size.setWidth(expr);
 					break;
 				case 3:
-					size.getHeight().setTerm(param);
-					size.getHeight().correctFormula(sheet);
+					if (param instanceof NullTerm) {
+						expr = new NumberExpression(0);
+					} else {
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					size.setHeight(expr);
 					break;
 				case 4:
-					lineColor = new StringExpression(param.value, param.toString());
-					lineColor.evaluate(this);
+					if (!(param instanceof NullTerm)) {
+						lineColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString());
+						lineColor.evaluate(this);
+					}
 					break;
 				case 5:
-					fillColor = new StringExpression(param.value, param.toString());
-					fillColor.evaluate(this);
+					if (!(param instanceof NullTerm)) {
+						fillColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString());
+						fillColor.evaluate(this);
+					}
 					break;
 				case 6:
-					rotate = new NumberExpression(param.value, param.toString());
+					if (param instanceof NullTerm) {
+						rotate = new NumberExpression(0);
+					} else {
+						rotate = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+					}
 					rotate.evaluate(this);
 					break;
 				case 7:
-					label = new StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
-					label.evaluate(this);
+					if (this.getShape() instanceof JSG.PolygonShape) {
+						if (param instanceof NullTerm) {
+							points = new StringExpression('');
+						} else {
+							points = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						}
+						points.evaluate(this);
+					}
+					break;
+				case 8:
+					if (this.getShape() instanceof JSG.PolygonShape) {
+						if (param instanceof NullTerm) {
+							closed = new JSG.BooleanExpression(false);
+						} else {
+							closed = new JSG.BooleanExpression(param.value, param.isStatic ? undefined : param.toString());
+						}
+						closed.evaluate(this);
+					}
 					break;
 				default:
 					break;
@@ -3546,19 +3646,27 @@ class GraphItem extends Model {
 
 		cmp.add(new JSG.SetPinCommand(this, pin));
 		cmp.add(new JSG.SetSizeCommand(this, size));
+		path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
 		if (lineColor) {
-			path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
 			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, lineColor));
+		} else {
+			cmp.add(new JSG.RemoveAttributeCommand(this, path));
 		}
+		path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.FILLCOLOR);
 		if (fillColor) {
-			path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.FILLCOLOR);
 			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, fillColor));
+		} else {
+			cmp.add(new JSG.RemoveAttributeCommand(this, path));
 		}
-		if (rotate) {
+		if (rotate !== undefined) {
 			cmp.add(new JSG.RotateItemCommand(this, rotate));
 		}
-		if (label) {
-			cmp.add(new JSG.SetTextCommand(this, this.getText(), label));
+		if (points !== undefined) {
+			cmp.add(new JSG.SetPointSourceCommand(this, points));
+		}
+		path = JSG.AttributeUtils.createPath(ItemAttributes.NAME, ItemAttributes.CLOSED);
+		if (closed) {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, closed));
 		}
 
 		return cmp;

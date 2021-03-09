@@ -89,7 +89,7 @@ class Coordinate {
 		this._yExpression.fromJSON(json.y);
 	}
 
-	toJSON(serverCalc) {
+	toJSON(serverCalc = false) {
 		return {
 			x: this._xExpression.toJSON(serverCalc),
 			y: this._yExpression.toJSON(serverCalc),

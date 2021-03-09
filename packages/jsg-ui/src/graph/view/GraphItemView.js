@@ -890,111 +890,86 @@ class GraphItemView extends View {
 		let param;
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
-		if (type === JSG.LineShape.TYPE) {
-			let coor = item.getStartCoordinate();
-			let pt = item.getStartPoint();
-			if (coor.getX().hasFormula()) {
-				formula += `${coor.getX().toParamString(sheet, 0)}${sep}`;
-			} else {
-				formula += `${Math.round(pt.x)}${sep}`;
-			}
-			if (coor.getY().hasFormula()) {
-				formula += `${coor.getY().toParamString(sheet, 0)}${sep}`;
-			} else {
-				formula += `${Math.round(pt.y)}${sep}`;
-			}
-			coor = item.getEndCoordinate();
-			pt = item.getEndPoint();
-			if (coor.getX().hasFormula()) {
-				formula += `${coor.getX().toParamString(sheet, 0)}${sep}`;
-			} else {
-				formula += `${Math.round(pt.x)}${sep}`;
-			}
-			if (coor.getY().hasFormula()) {
-				formula += `${coor.getY().toParamString(sheet, 0)}`;
-			} else {
-				formula += `${Math.round(pt.y)}`;
-			}
+		// DRAW.*(X, Y, Width, Height, LineFormat, FillFormat...)
+		formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY().toParamString(sheet, 0)}${sep}`;
+		formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}`;
 
-			param = item.getFormat().getLineColor().toParamString(sheet, 0);
-			if (param !== '') {
-				formula += `${sep}${param}`;
-			}
-		} else {
-			// DRAW.*(X, Y, Width, Height, LineFormat, FillFormat, Attributes, Events, Angle, RotCenter)
-			formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY().toParamString(sheet, 0)}${sep}`;
-			formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}`;
+		const options = [];
 
-			const options = [];
-
+		if (item.getFormat().hasAttribute(JSG.FormatAttributes.LINECOLOR)) {
 			param = item.getFormat().getLineColor().toParamString(sheet, 0);
 			if (param !== '') {
 				options[0] = param;
 			}
+		}
+		if (item.getFormat().hasAttribute(JSG.FormatAttributes.FILLCOLOR)) {
 			param = item.getFormat().getFillColor().toParamString(sheet, 0);
 			if (param !== '') {
 				options[1] = param;
 			}
+		}
 
-			param = item.getAngle().toParamString(sheet, 2);
-			if (param !== '0') {
-				options[2] = param;
-			}
+		param = item.getAngle().toParamString(sheet, 2);
+		if (param !== '0') {
+			options[2] = param;
+		}
 
-			switch (type) {
-				case 'label':
-					options[3] = item.getText().toParamString(sheet);
-					item.getTextFormat().setRichText(false);
-					break;
-				case 'checkbox':
-				case 'button':
-					options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
-					param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
-					if (param !== '') {
-						options[4] = param;
-					}
-					break;
-				case 'slider':
-				case 'knob':
-					options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
-					param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
-					if (param !== '') {
-						options[4] = param;
-					}
-					options[5] = item.getAttributeAtPath('min').getExpression().toParamString(sheet);
-					options[6] = item.getAttributeAtPath('max').getExpression().toParamString(sheet);
-					options[7] = item.getAttributeAtPath('step').getExpression().toParamString(sheet);
-					param = item.getAttributeAtPath('marker').getExpression().toParamString(sheet);
-					if (param !== '') {
-						options[8] = param;
-					}
-					// 9 - formatrange
-					if (type === 'knob') {
-						options[10] = item.getAttributeAtPath('start').getExpression().toParamString(sheet, 2);
-						options[11] = item.getAttributeAtPath('end').getExpression().toParamString(sheet, 2);
-					}
-					break;
-				case 'bezier':
-				case 'polygon':
-					param = item.getShape().getSource().toParamString(sheet);
-					if (param !== '') {
-						options[3] = param;
-					}
-					param = item.getItemAttributes().getClosed().toParamString(sheet);
-					if (param !== 'TRUE') {
-						options[4] = param;
-					}
-					break;
-				default:
-					break;
-			}
-			for (let i = 0; i < options.length; i += 1) {
-				const option = options[i];
-				formula += sep;
-				if (option) {
-					formula += option;
+		switch (type) {
+			case 'label':
+				options[3] = item.getText().toParamString(sheet);
+				item.getTextFormat().setRichText(false);
+				break;
+			case 'checkbox':
+			case 'button':
+				options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+				param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+				if (param !== '') {
+					options[4] = param;
 				}
- 			}
+				break;
+			case 'slider':
+			case 'knob':
+				options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+				param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+				if (param !== '') {
+					options[4] = param;
+				}
+				options[5] = item.getAttributeAtPath('min').getExpression().toParamString(sheet);
+				options[6] = item.getAttributeAtPath('max').getExpression().toParamString(sheet);
+				options[7] = item.getAttributeAtPath('step').getExpression().toParamString(sheet);
+				param = item.getAttributeAtPath('marker').getExpression().toParamString(sheet);
+				if (param !== '') {
+					options[8] = param;
+				}
+				param = item.getAttributeAtPath('formatrange').getExpression().toParamString(sheet);
+				if (param !== '') {
+					options[9] = param;
+				}
+				if (type === 'knob') {
+					options[10] = item.getAttributeAtPath('start').getExpression().toParamString(sheet, 2);
+					options[11] = item.getAttributeAtPath('end').getExpression().toParamString(sheet, 2);
+				}
+				break;
+			case 'bezier':
+			case 'polygon':
+				param = item.getShape().getSource().toParamString(sheet);
+				if (param !== '') {
+					options[3] = param;
+				}
+				param = item.getItemAttributes().getClosed().toParamString(sheet);
+				if (param !== 'TRUE') {
+					options[4] = param;
+				}
+				break;
+			default:
+				break;
+		}
+		for (let i = 0; i < options.length; i += 1) {
+			const option = options[i];
+			formula += sep;
+			if (option) {
+				formula += option;
+			}
 		}
 
 		formula += ')';

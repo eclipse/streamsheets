@@ -8,11 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { NullTerm } = require('@cedalo/parser');
+
+const JSG = require('../../JSG');
 const Node = require('./Node');
 const Expression = require('../expr/Expression');
 const Attribute = require('../attr/Attribute');
 const StringAttribute = require('../attr/StringAttribute');
-const CellRange = require('./CellRange');
 
 module.exports = class SheetButtonNode extends Node {
 	constructor() {
@@ -78,4 +80,47 @@ module.exports = class SheetButtonNode extends Node {
 	isAddLabelAllowed() {
 		return false;
 	}
+
+	termToPropertiesCommands(sheet, term) {
+		const cmp = super.termToPropertiesCommands(sheet, term);
+		if (!cmp) {
+			return undefined;
+		}
+
+		let value;
+		let label;
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 7: // label
+					if (!(param instanceof NullTerm)) {
+						label = new JSG.StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
+						label.evaluate(this);
+					}
+					break;
+				case 8: // value
+					if (!(param instanceof NullTerm)) {
+						value = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						value.evaluate(this);
+					}
+					break;
+				default:
+					break;
+			}
+		});
+
+		if (label !== undefined) {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, 'title', label));
+		} else {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, 'title', new JSG.StringExpression('')));
+		}
+		if (value !== undefined) {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, 'value', value));
+		} else {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, 'value', new JSG.Expression(false)));
+		}
+
+		return cmp;
+	}
+
 };

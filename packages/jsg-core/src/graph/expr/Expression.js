@@ -651,7 +651,7 @@ class Expression {
 			} else if (type === 'n') {
 				out = Number(input);
 			} else if (type === 'b') {
-				out = input === 'true';
+				out = input === 'true' || input === true;
 			} else {
 				out = Strings.decode(String(input));
 			}
@@ -662,7 +662,9 @@ class Expression {
 		const formula = json.f ? Strings.decode(json.f) : undefined;
 
 		this.set(toValue(json.v), formula);
-		this.setTermValue(toValue(json.sv));
+		if (json.msc) {
+			this.setTermValue(toValue(json.sv));
+		}
 
 		if (json.ref) {
 			this._cellref = json.ref;

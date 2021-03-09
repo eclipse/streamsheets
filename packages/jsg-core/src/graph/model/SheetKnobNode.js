@@ -8,6 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { NullTerm } = require('@cedalo/parser');
+
+const JSG = require('../../JSG');
 const Node = require('./Node');
 const StringAttribute = require('../attr/StringAttribute');
 const Attribute = require('../attr/Attribute');
@@ -79,5 +82,104 @@ module.exports = class SheetKnobNode extends Node {
 
 	isAddLabelAllowed() {
 		return false;
+	}
+
+	termToPropertiesCommands(sheet, term) {
+		const cmp = super.termToPropertiesCommands(sheet, term);
+		if (!cmp) {
+			return undefined;
+		}
+
+		let expr;
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 7: // label
+					if (param instanceof NullTerm) {
+						expr = new JSG.StringExpression('');
+					} else {
+						expr = new JSG.StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'title', expr));
+					break;
+				case 8: // value
+					if (param instanceof NullTerm) {
+						expr = new JSG.NumberExpression(50);
+					} else {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'value', expr));
+					break;
+				case 9: // min
+					if (param instanceof NullTerm) {
+						expr = new JSG.NumberExpression(0);
+					} else {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'min', expr));
+					break;
+				case 10: // max
+					if (param instanceof NullTerm) {
+						expr = new JSG.NumberExpression(100);
+					} else {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'max', expr));
+					break;
+				case 11: // step
+					if (param instanceof NullTerm) {
+						expr = new JSG.NumberExpression(5);
+					} else {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'step', expr));
+					break;
+				case 12: // marker
+					if (param instanceof NullTerm) {
+						expr = new JSG.StringExpression('');
+					} else {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'marker', expr));
+					break;
+				case 13: // format range
+					if (param instanceof NullTerm) {
+						expr = new JSG.StringExpression('');
+					} else {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'formatrange', expr));
+					break;
+				case 14: // start angle
+					if (param instanceof NullTerm) {
+						expr = new JSG.NumberExpression(Math.PI / 6);
+					} else {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'start', expr));
+					break;
+				case 15: // end angle
+					if (param instanceof NullTerm) {
+						expr = new JSG.NumberExpression(Math.PI * 11 / 6);
+					} else {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+					}
+					expr.evaluate(this);
+					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'end', expr));
+					break;
+				default:
+					break;
+			}
+		});
+
+		return cmp;
 	}
 };

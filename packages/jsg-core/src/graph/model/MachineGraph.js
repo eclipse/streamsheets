@@ -388,6 +388,27 @@ module.exports = class MachineGraph extends Graph {
 
 		this.reassignIds();
 
+		let sheet;
+		GraphUtils.traverseItem(
+			this,
+			(item) => {
+				if (item.isStreamSheet) {
+					sheet = item;
+				}
+				if (sheet) {
+					const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
+					if (attrFormula) {
+						const expr = attrFormula.getExpression();
+						if (expr !== undefined && expr.hasFormula()) {
+							expr.evaluate(item);
+							item.oldTermToProperties(sheet, expr.getTerm());
+						}
+					}
+				}
+			},
+			false
+		);
+
 		this._restoreConnections(this);
 		this.invalidateTerms();
 		this.evaluate();

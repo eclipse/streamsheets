@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { FuncTerm } = require('@cedalo/parser');
+const { FuncTerm, NullTerm } = require('@cedalo/parser');
 
 const JSG = require('../../JSG');
 const LineConnection = require('./LineConnection');
@@ -511,19 +511,23 @@ class Edge extends LineConnection {
 					}
 					break;
 				case 4:
-					lineColor = new StringExpression(param.value, param.toString());
-					lineColor.evaluate(this);
+					if (!(param instanceof NullTerm)) {
+						lineColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString());
+						lineColor.evaluate(this);
+					}
 					break;
 				default:
 					break;
 			}
 		});
 
+		cmp.add(new JSG.SetLineCoordinateAtCommand(this, 0, startCoor));
+		cmp.add(new JSG.SetLineCoordinateAtCommand(this, 1, endCoor));
+		const path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
 		if (lineColor) {
-			cmp.add(new JSG.SetLineCoordinateAtCommand(this, 0, startCoor));
-			cmp.add(new JSG.SetLineCoordinateAtCommand(this, 1, endCoor));
-			const path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
 			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, lineColor));
+		} else {
+			cmp.add(new JSG.RemoveAttributeCommand(this, path));
 		}
 
 		return cmp;

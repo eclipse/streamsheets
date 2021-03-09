@@ -11,7 +11,7 @@
 /* global document NodeFilter window */
 
 
-const { Operand } = require('@cedalo/parser');
+const { NullTerm } = require('@cedalo/parser');
 
 const JSG = require('../../JSG');
 const Node = require('./Node');
@@ -728,6 +728,35 @@ class TextNode extends Node {
 		return undefined;
 	}
 
+	termToPropertiesCommands(sheet, term) {
+		const cmp = super.termToPropertiesCommands(sheet, term);
+		if (!cmp) {
+			return undefined;
+		}
+
+		let label;
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 7:
+					if (param instanceof NullTerm) {
+						label = new StringExpression('');
+					} else {
+						label = new StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
+					}
+					label.evaluate(this);
+					break;
+				default:
+					break;
+			}
+		});
+
+		if (label !== undefined) {
+			cmp.add(new JSG.SetTextCommand(this, this.getText(), label));
+		}
+
+		return cmp;
+	}
 }
 
 module.exports = TextNode;

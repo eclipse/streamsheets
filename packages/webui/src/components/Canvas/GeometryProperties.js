@@ -20,6 +20,7 @@ import JSG from '@cedalo/jsg-ui';
 import { graphManager } from '../../GraphManager';
 import CellRangeComponent from './CellRangeComponent';
 import {intl} from "../../helper/IntlGlobalProvider";
+import MenuItem from "@material-ui/core/MenuItem";
 
 function MyInputComponent(props) {
 	const { inputRef, ...other } = props;
@@ -33,6 +34,10 @@ function MyInputComponent(props) {
 }
 
 export class GeometryProperties extends Component {
+	state = {
+		dummy: 0,
+	}
+
 	getSheetView() {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection === undefined || selection.length !== 1) {
@@ -238,6 +243,69 @@ export class GeometryProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	handleRotationCenter = (event) => {
+		const item = this.props.view.getItem();
+		const pin = item.getPin();
+		const local = pin.getLocalPoint();
+
+		switch (event.target.value) {
+			case '0':
+				pin.setLocalCoordinate(new JSG.NumberExpression(0), new JSG.NumberExpression(0));
+				pin.evaluate();
+				break;
+			case '1':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH * 0.5'),
+					new JSG.NumberExpression(0)
+				);
+				break;
+			case '2':
+				pin.setLocalCoordinate(new JSG.NumberExpression(local.x, 'WIDTH'), new JSG.NumberExpression(0));
+				break;
+			case '3':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(0),
+					new JSG.NumberExpression(local.y, 'HEIGHT * 0.5')
+				);
+				break;
+			default:
+			case '4':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH * 0.5'),
+					new JSG.NumberExpression(local.y, 'HEIGHT * 0.5')
+				);
+				break;
+			case '5':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH'),
+					new JSG.NumberExpression(local.y, 'HEIGHT * 0.5')
+				);
+				break;
+			case '6':
+				pin.setLocalCoordinate(new JSG.NumberExpression(0), new JSG.NumberExpression(local.y, 'HEIGHT'));
+				break;
+			case '7':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH * 0.5'),
+					new JSG.NumberExpression(local.y, 'HEIGHT')
+				);
+				break;
+			case '8':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH'),
+					new JSG.NumberExpression(local.y, 'HEIGHT')
+				);
+				break;
+		}
+
+		const cmd = new JSG.SetPinCommand(item, pin);
+
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	}
+
 	handlePointRange = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
@@ -312,6 +380,40 @@ export class GeometryProperties extends Component {
 		return ret;
 	}
 
+	getRotationCenter() {
+		const item = this.props.view.getItem();
+		const pin = item.getPin();
+		const x = pin.getLocalX().getFormula();
+		const y = pin.getLocalY().getFormula();
+		let ret = 4;
+
+		if (x === undefined) {
+			if (y === undefined) {
+				ret = 0;
+			} else if (y === 'HEIGHT * 0.5') {
+				ret = 3;
+			} else {
+				ret = 6;
+			}
+		} else if (x === 'WIDTH * 0.5') {
+			if (y === undefined) {
+				ret = 1;
+			} else if (y === 'HEIGHT * 0.5') {
+				ret = 4;
+			} else {
+				ret = 7;
+			}
+		} else if (y === undefined) {
+			ret = 2;
+		} else if (y === 'HEIGHT * 0.5') {
+			ret = 5;
+		} else {
+			ret = 8;
+		}
+
+		return ret;
+	}
+
 	render() {
 		const sheetView = this.getSheetView();
 		if (!sheetView) {
@@ -327,37 +429,46 @@ export class GeometryProperties extends Component {
 				{this.getPropertyHandler(line ? "GraphItemProperties.EndY" : "GraphItemProperties.Height", this.handleHeight, this.getHeight())}
 				{line ? null : this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), 2)}
 				{line ? null : (
-				<TextField
-					variant="outlined"
-					key="RotationCenter"
-					size="small"
-					margin="normal"
-					label={
-						<FormattedMessage id="GraphItemProperties.RotationCenter" defaultMessage="Rotation Center" />
-					}
-					// onBlur={(event) => this.handleParameter(event, 12)}
-					InputLabelProps={{shrink: true}}
-					InputProps={{
-						inputComponent: MyInputComponent,
-						inputProps: {
-							component: CellRangeComponent,
-							inputEditorType: 'string',
-							inputEditorOptions: [
-								{ value: '0', label: 'GraphItemProperties.LeftTop' },
-								{ value: '1', label: 'GraphItemProperties.CenterTop' },
-								{ value: '2', label: 'GraphItemProperties.RightTop' },
-								{ value: '3', label: 'GraphItemProperties.LeftMiddle' },
-								{ value: '4', label: 'GraphItemProperties.Center' },
-								{ value: '5', label: 'GraphItemProperties.RightMiddle' },
-								{ value: '6', label: 'GraphItemProperties.LeftBottom' },
-								{ value: '7', label: 'GraphItemProperties.CenterBottom' },
-								{ value: '8', label: 'GraphItemProperties.RightBottom' }
-							],
-							sheetView,
-							range: ''
+					<TextField
+						variant="outlined"
+						size="small"
+						margin="normal"
+						select
+						value={this.getRotationCenter()}
+						onChange={event => this.handleRotationCenter(event)}
+						label={
+							<FormattedMessage id="GraphItemProperties.RotationCenter" defaultMessage="Rotation Center" />
 						}
-					}}
-				/>)}
+					>
+						<MenuItem value="0">
+							<FormattedMessage id="GraphItemProperties.LeftTop" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="1">
+							<FormattedMessage id="GraphItemProperties.CenterTop" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="2">
+							<FormattedMessage id="GraphItemProperties.RightTop" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="3">
+							<FormattedMessage id="GraphItemProperties.LeftMiddle" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="4">
+							<FormattedMessage id="GraphItemProperties.Center" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="5">
+							<FormattedMessage id="GraphItemProperties.RightMiddle" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="6">
+							<FormattedMessage id="GraphItemProperties.LeftBottom" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="7">
+							<FormattedMessage id="GraphItemProperties.CenterBottom" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="8">
+							<FormattedMessage id="GraphItemProperties.RightBottom" defaultMessage="Left Top"/>
+						</MenuItem>
+					</TextField>
+				)}
 				{item.getShape() instanceof JSG.PolygonShape ? (
 					this.getPropertyHandler("GraphItemProperties.PointRange", this.handlePointRange, item.getShape().getSource())
 				) : null}

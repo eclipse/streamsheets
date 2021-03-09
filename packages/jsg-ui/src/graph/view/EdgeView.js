@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -172,6 +172,48 @@ class EdgeView extends GraphItemView {
 	evaluate() {
 		// evaluate is called via invalidate()
 		this._item.evaluate();
+	}
+
+	getSelectedFormula(sheet) {
+		const item = this.getItem();
+		let formula = `=DRAW.LINE(`;
+		const sep = JSG.getParserLocaleSettings().separators.parameter;
+
+		let coor = item.getStartCoordinate();
+		let pt = item.getStartPoint();
+		if (coor.getX().hasFormula()) {
+			formula += `${coor.getX().toParamString(sheet, 0)}${sep}`;
+		} else {
+			formula += `${Math.round(pt.x)}${sep}`;
+		}
+		if (coor.getY().hasFormula()) {
+			formula += `${coor.getY().toParamString(sheet, 0)}${sep}`;
+		} else {
+			formula += `${Math.round(pt.y)}${sep}`;
+		}
+		coor = item.getEndCoordinate();
+		pt = item.getEndPoint();
+		if (coor.getX().hasFormula()) {
+			formula += `${coor.getX().toParamString(sheet, 0)}${sep}`;
+		} else {
+			formula += `${Math.round(pt.x)}${sep}`;
+		}
+		if (coor.getY().hasFormula()) {
+			formula += `${coor.getY().toParamString(sheet, 0)}`;
+		} else {
+			formula += `${Math.round(pt.y)}`;
+		}
+
+		if (item.getFormat().hasAttribute(JSG.FormatAttributes.LINECOLOR)) {
+			const param = item.getFormat().getLineColor().toParamString(sheet, 0);
+			if (param !== '') {
+				formula += `${sep}${param}`;
+			}
+		}
+
+		formula += ')';
+
+		return formula;
 	}
 }
 

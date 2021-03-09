@@ -90,40 +90,6 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 	}
 
 	updateGraphItems(/* undo */) {
-		// const cmp = new CompoundCommand();
-		// const path = AttributeUtils.createPath(ItemAttributes.NAME, "sheetformula");
-
-		// cmp.isVolatile = true;
-
-		// this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
-		// 	const formulas = container.getStreamSheet().updateOrCreateGraphFormulas(undo);
-		// 	Object.values(formulas).forEach((value) => {
-		// 		if (value.formula) {
-		// 			const cmd = new SetAttributeAtPathCommand(value.item, path, new Expression(0, value.formula), true);
-		// 			cmd.isVolatile = true;
-		// 			cmp.add(cmd);
-		// 		}
-		// 	});
-		// 	container.getStreamSheet()._addImageCmds.forEach(cmd => {
-		// 		cmp.add(cmd);
-		// 	});
-		// });
-		//
-		// if (cmp.hasCommands()) {
-		// 	this.execute(cmp, undefined, false);
-		//
-		// 	// replace all graph cells...
-		// 	const graphCells = new Map();
-		// 	this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
-		// 		const sheetId = container.getStreamSheetContainerAttributes().getSheetId().getValue();
-		// 		const descriptors = sheetId && container.getStreamSheet().getGraphDescriptors();
-		// 		if (descriptors) graphCells.set(sheetId, descriptors);
-		// 	});
-		// 	if (graphCells.size) {
-		// 		this.execute(new SetGraphCellsCommand(Array.from(graphCells.keys()), Array.from(graphCells.values())), undefined, false);
-		// 	}
-		// }
-
 		// filter commands that do not affect graph (SetCellData ...)
 		const graphs = new Map();
 		this.graph.getStreamSheetsContainer().enumerateStreamSheetContainers((container) => {
@@ -134,7 +100,6 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		if (graphs.size) {
 			this.execute(new SetGraphItemsCommand(Array.from(graphs.keys()), Array.from(graphs.values())), undefined, false);
 		}
-
 	}
 
 	isSelectionInOutbox(graphItem) {

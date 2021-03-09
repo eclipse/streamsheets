@@ -208,6 +208,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.read(reader, root);
 	}
 
+
 	read(reader, object) {
 		if (reader.version >= 1) {
 			reader.iterateObjects(object, (name, child) => {
@@ -1203,112 +1204,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		return point;
 	}
 
-	createGraphFunction(item) {
-		// TODO raise errors
-		let type = item.getShape().getType();
-		if (type === undefined) {
-			return undefined;
-		}
-
-		if (item instanceof JSG.TextNode) {
-			type = 'label';
-		} else if (item instanceof JSG.SheetButtonNode) {
-			type = 'button';
-		} else if (item instanceof JSG.SheetCheckboxNode) {
-			type = 'checkbox';
-		} else if (item instanceof JSG.SheetSliderNode) {
-			type = 'slider';
-		} else if (item instanceof JSG.SheetKnobNode) {
-			type = 'knob';
-		} else if (item instanceof JSG.SheetPlotNode) {
-			type = 'streamchart';
-		}
-
-		let formula = `DRAW.${type.toUpperCase()}("${item.getId()}",`;
-
-		if (item.getParent() instanceof CellsNode) {
-			formula += `,"${item.getName().getValue()}",`;
-		} else {
-			formula += `"${item
-				.getParent()
-				.getName()
-				.getValue()}","${item.getName().getValue()}",`;
-		}
-
-		const digits = this.getDigits(item.getParent());
-
-		if (type === JSG.LineShape.TYPE) {
-			let pStart = item.getStartPoint();
-			pStart = this.convertToContainerPos(pStart, item.getParent());
-			let pEnd = item.getEndPoint();
-			pEnd = this.convertToContainerPos(pEnd, item.getParent());
-			formula += `${MathUtils.roundTo(pStart.x, digits)},${MathUtils.roundTo(pStart.y, digits)},`;
-			formula += `${MathUtils.roundTo(pEnd.x, digits)},${MathUtils.roundTo(pEnd.y, digits)}`;
-		} else {
-			let center = item.getPinPoint();
-			center = this.convertToContainerPos(center, item.getParent());
-			let size = item.getSizeAsPoint();
-			size = this.convertToContainerSize(size, item.getParent());
-			formula += `${MathUtils.roundTo(center.x, digits)},${MathUtils.roundTo(center.y, digits)},`;
-			formula += `${MathUtils.roundTo(size.x, digits)},${MathUtils.roundTo(size.y, digits)}`;
-			const angle = MathUtils.roundTo(item.getAngle().getValue(), 2);
-			const containerType = item
-				.getItemAttributes()
-				.getScaleType()
-				.getValue();
-			let attributes = '';
-			switch (containerType) {
-				case 'scale':
-				case 'bottom':
-					attributes = `ATTRIBUTES(,"${containerType}")`;
-					break;
-			}
-			const lineFormula = this.getLineFormula(item);
-			const fillFormula = this.getFillFormula(item);
-			switch (type) {
-				case 'label':
-					formula += `,${lineFormula || ''},,${attributes},,`;
-					formula += angle === 0 ? ',,' : `${angle},,`;
-
-					formula += `"${item.getText().getValue()}"`;
-					item.getTextFormat().setRichText(false);
-					break;
-				case 'button':
-					formula += `,,,${attributes},EVENTS(ONCLICK()),`;
-					formula += angle === 0 ? ',,"Button",,FALSE' : `${angle},,"Button",,FALSE`;
-					break;
-				case 'checkbox':
-					formula += `,,,${attributes},,`;
-					formula += angle === 0 ? ',,"Checkbox",,FALSE' : `${angle},,"Checkbox",,FALSE`;
-					break;
-				case 'slider':
-					formula += `,,,${attributes},,`;
-					formula += angle === 0 ? ',,"Slider",,50,0,100,10' : `${angle},,"Slider",,50,0,100,10`;
-					break;
-				case 'knob':
-					formula += `,,,${attributes},,`;
-					formula += angle === 0 ? ',,"Knob",,50,0,100,10' : `${angle},,"Knob",,50,0,100,10`;
-					break;
-				default:
-					if (angle !== 0 || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
-						formula += `,${lineFormula || ''},${fillFormula || ''},${attributes},,${angle}`;
-					}
-					if ((type === 'polygon' || type === 'bezier') && !item.isClosed()) {
-						if (angle !== 0 || attributes !== '' || lineFormula !== undefined || fillFormula !== undefined) {
-							formula += ',,,FALSE';
-						} else {
-							formula += ',,,,,,,,FALSE';
-						}
-					}
-					break;
-			}
-		}
-
-		formula += ')';
-
-		return formula;
-	}
-
 	getLineFormula(item, currentTerm) {
 		const format = item.getFormat();
 		let color = format.getLineColor().getValue();
@@ -1774,38 +1669,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		sheetDescriptor.graphs = this.getGraphDescriptors();
 
 		return sheetDescriptor;
-	}
-
-	updateOrCreateGraphFormulas(undo) {
-		const formulas = [];
-		let oldFormula;
-		let formula;
-
-		const add = (item) => {
-			const attrSource = item.getItemAttributes().getAttribute('sheetsource');
-			if (!(attrSource && attrSource.getValue() === 'cell')) {
-				const attr = item.getItemAttributes().getAttribute('sheetformula');
-				oldFormula = undefined;
-				if (attr && attr.getExpression()) {
-					oldFormula = attr.getExpression().getFormula();
-					formula = item._noFormulaUpdate ? oldFormula : this.updateGraphFunction(item);
-				} else {
-					formula = this.createGraphFunction(item);
-				}
-
-				if (formula && (oldFormula !== formula || item._noFormulaUpdate || undo)) {
-					formulas.push({
-						item,
-						formula
-					});
-				}
-				item._noFormulaUpdate = undefined;
-			}
-		};
-
-		GraphUtils.traverseItem(this.getCells(), (item) => add(item), false);
-
-		return formulas;
 	}
 
 	getGraphDescriptors() {
