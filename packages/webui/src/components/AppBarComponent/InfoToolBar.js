@@ -35,8 +35,6 @@ export function InfoToolBar(props) {
 		hideDrawer = false
 	} = props;
 
-	const goBack = () => (history.length > 0 ? openDashboard() : goBackPage());
-
 	return (
 		<Toolbar
 			style={{
@@ -49,7 +47,7 @@ export function InfoToolBar(props) {
 		>
 			<div>
 				{hideDrawer ? (
-					<IconButton style={{ color: 'white' }} onClick={goBack}>
+					<IconButton style={{ color: 'white' }} onClick={goBackPage}>
 						<ArrowBackIcon />
 					</IconButton>
 				) : (
