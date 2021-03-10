@@ -1317,15 +1317,17 @@ export default class CellsView extends NodeView {
 				// get the cell left and right to the visible area, which might impact the view for each row
 				if (visibleColumnsInfo.length) {
 					let pos = visibleColumnsInfo[0].index;
+					let width;
 					while (pos > 0) {
 						pos -= 1;
 						data = dataProvider.getRC(pos, index);
-						if (data !== undefined && data.getValue() !== undefined) {
+						width = this._columns.getSectionSize(pos)
+						if (width && data !== undefined && data.getValue() !== undefined) {
 							rowInfo.leftCellInfo = {
 								section: this._columns.getSection(pos),
 								index: pos,
 								x: this._columns.getSectionPos(pos),
-								width: this._columns.getSectionSize(pos)
+								width
 							};
 							break;
 						}
@@ -1335,12 +1337,13 @@ export default class CellsView extends NodeView {
 					while (pos < maxCol) {
 						pos += 1;
 						data = dataProvider.getRC(pos, index);
-						if (data !== undefined && data.getValue() !== undefined) {
+						width = this._columns.getSectionSize(pos)
+						if (width && data !== undefined && data.getValue() !== undefined) {
 							rowInfo.rightCellInfo = {
 								section: this._columns.getSection(pos),
 								index: pos,
 								x: this._columns.getSectionPos(pos),
-								width: this._columns.getSectionSize(pos)
+								width
 							};
 							break;
 						}

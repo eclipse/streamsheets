@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -22,10 +22,7 @@ const morgan = require('morgan');
 // const bodyParser = require('body-parser');
 const { LoggerFactory } = require('@cedalo/logger');
 
-const logger = LoggerFactory.createLogger(
-	'rest-server-core',
-	process.env.STREAMSHEETS_LOG_LEVEL
-);
+const logger = LoggerFactory.createLogger('rest-server-core', process.env.STREAMSHEETS_LOG_LEVEL);
 const APIRouter = require('./APIRouter');
 const WebpageRouter = require('./WebpageRouter');
 const ImageRouter = require('./ImageRouter');
@@ -56,10 +53,7 @@ module.exports = class DefaultApp {
 			debug(`Creating new directory: ${logdir}`);
 			mkdirp.sync(logdir);
 		}
-		const access = fs.createWriteStream(
-			path.join(logdir, 'access.log'),
-			{ flags: 'a' }
-		);
+		const access = fs.createWriteStream(path.join(logdir, 'access.log'), { flags: 'a' });
 		app.use(morgan('combined', { stream: access }));
 
 		/* ===== Enable CORS ===== */
@@ -118,7 +112,9 @@ module.exports = class DefaultApp {
 			this._server.timeout = 10000;
 			this._server.listen(port, ipaddress, () => {
 				// eslint-disable-next-line
-				logger.info(`${this.app.locals.pkg.name} started at ${new Date()}. IP address: ${ipaddress}, port: ${port}`);
+				logger.info(
+					`${this.app.locals.pkg.name} started at ${new Date()}. IP address: ${ipaddress}, port: ${port}`
+				);
 				resolve();
 			});
 		});

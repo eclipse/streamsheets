@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -13,10 +13,7 @@ const https = require('https');
 const DefaultApp = require('../DefaultApp');
 const { LoggerFactory } = require('@cedalo/logger');
 
-const logger = LoggerFactory.createLogger(
-	'rest-server-core',
-	process.env.STREAMSHEETS_LOG_LEVEL
-);
+const logger = LoggerFactory.createLogger('rest-server-core', process.env.STREAMSHEETS_LOG_LEVEL);
 
 const pkg = require('../../package.json');
 const DEFAULT_CONFIG = require('../../config/start.json');
@@ -59,10 +56,9 @@ module.exports = class RESTServer {
 			return Promise.resolve();
 		}
 		logger.info('Stopping REST server');
-		return this._application.stop()
-			.then(() => {
-				this._isStarted = false;
-			});
+		return this._application.stop().then(() => {
+			this._isStarted = false;
+		});
 	}
 
 	/**

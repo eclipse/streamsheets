@@ -537,6 +537,24 @@ export class FormatCellsDialog extends React.Component {
 											<MenuItem value="36" key={8}>
 												36
 											</MenuItem>
+											<MenuItem value="48" key={9}>
+												48
+											</MenuItem>
+											<MenuItem value="60" key={10}>
+												60
+											</MenuItem>
+											<MenuItem value="72" key={11}>
+												72
+											</MenuItem>
+											<MenuItem value="96" key={12}>
+												96
+											</MenuItem>
+											<MenuItem value="120" key={13}>
+												120
+											</MenuItem>
+											<MenuItem value="144" key={14}>
+												144
+											</MenuItem>
 										</TextField>
 									</FormControl>
 									<FormControl size="small" variant="outlined" margin="normal" style={{width: '120px'}}>

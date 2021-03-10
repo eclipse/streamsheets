@@ -23,7 +23,7 @@ const urlLogin = (location) => {
 const RedirectLogin = (props) => {
 	useEffect(() => {
 		window.location.href = `${window.location.origin}/login?redirect=${encodeURIComponent(
-			props.location.pathname + props.location.search
+			props.location.pathname + props.location.search + props.location.hash
 		)}`;
 	}, []);
 	return null;
