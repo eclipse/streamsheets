@@ -31,8 +31,13 @@ export const AdminNavigation = connect(({ user, router }) => ({
 	return (
 		<List component="nav" style={{ padding: 0 }}>
 			{props.rights.includes('user.view') || props.rights.includes('self.view') ? (
-				<Link style={{ color: 'inherit', textDecoration: 'none' }} to={Path.users()} href={Path.users()}>
-					<MenuItem dense selected={isSelected('users')} style={{height: '50px'}}>
+				<Link
+					replace
+					style={{ color: 'inherit', textDecoration: 'none' }}
+					to={Path.users()}
+					href={Path.users()}
+				>
+					<MenuItem dense selected={isSelected('users')} style={{ height: '50px' }}>
 						<ListItemIcon>
 							<People />
 						</ListItemIcon>
@@ -42,11 +47,12 @@ export const AdminNavigation = connect(({ user, router }) => ({
 			) : null}
 			{props.rights.includes('workspace') ? (
 				<Link
+					replace
 					style={{ color: 'inherit', textDecoration: 'none' }}
 					to={Path.workspaces()}
 					href={Path.workspaces()}
 				>
-					<MenuItem dense selected={isSelected('workspaces')} style={{height: '50px'}}>
+					<MenuItem dense selected={isSelected('workspaces')} style={{ height: '50px' }}>
 						<ListItemIcon>
 							<GroupWork />
 						</ListItemIcon>
@@ -60,9 +66,10 @@ export const AdminNavigation = connect(({ user, router }) => ({
 				<Link
 					style={{ color: 'inherit', textDecoration: 'none' }}
 					to={Path.database()}
-					href={Path.workspaces()}
+					href={Path.database()}
+					replace
 				>
-					<MenuItem dense selected={isSelected('database')} style={{height: '50px'}}>
+					<MenuItem dense selected={isSelected('database')} style={{ height: '50px' }}>
 						<ListItemIcon>
 							<Storage />
 						</ListItemIcon>

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -50,12 +50,12 @@ module.exports = class RestConsumer extends Connector {
 			return;
 		}
 
-		const uniqueTopics = new Set(topics.map((topic) => [baseUrl, topic].join('/').replace(/\/+/g, '/').replace(/^\//g, '')));
+		const uniqueTopics = new Set(
+			topics.map((topic) => [baseUrl, topic].join('/').replace(/\/+/g, '/').replace(/^\//g, ''))
+		);
 		uniqueTopics.forEach((topic) => {
 			this._restServer.timeoutProvider = this;
-			this._handlers.set(topic, (message) =>
-				this.onMessage(topic, message)
-			);
+			this._handlers.set(topic, (message) => this.onMessage(topic, message));
 			this._restServer.on(topic, this._handlers.get(topic));
 		});
 	}
