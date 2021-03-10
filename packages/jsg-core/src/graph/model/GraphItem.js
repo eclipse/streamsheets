@@ -3506,43 +3506,76 @@ class GraphItem extends Model {
 		let fillColor;
 		let path;
 		let rotate;
-		let label;
+		let expr;
+		const params = { useName: true, item: sheet };
+		let subTerm;
 
 		term.iterateParams((param, index) => {
 			switch (index) {
 				case 3:
-					pin.getX().setTerm(param);
-					pin.getX().correctFormula(sheet);
+					if (!param.isStatic) {
+						expr = new NumberExpression(param.value, param.toString(params));
+						pin.setX(expr);
+					}
 					break;
 				case 4:
-					pin.getY().setTerm(param);
-					pin.getY().correctFormula(sheet);
+					if (!param.isStatic) {
+						expr = new NumberExpression(param.value, param.toString(params));
+						pin.setY(expr);
+					}
 					break;
 				case 5:
-					size.getWidth().setTerm(param);
-					size.getWidth().correctFormula(sheet);
+					if (!param.isStatic) {
+						expr = new NumberExpression(param.value, param.toString(params));
+						size.setWidth(expr);
+					}
 					break;
 				case 6:
-					size.getHeight().setTerm(param);
-					size.getHeight().correctFormula(sheet);
+					if (!param.isStatic) {
+						expr = new NumberExpression(param.value, param.toString(params));
+						size.setHeight(expr);
+					}
 					break;
-				// case 4:
-				// 	lineColor = new StringExpression(param.value, param.toString());
-				// 	lineColor.evaluate(this);
-				// 	break;
-				// case 5:
+				case 7:	// lineformat
+					if ((param instanceof FuncTerm) && param.name === 'LINEFORMAT') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new StringExpression(param.params[0].value, param.params[0].toString());
+							this.getFormat().setLineColor(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new NumberExpression(param.params[1].value, param.params[1].toString());
+							this.getFormat().setLineStyle(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new StringExpression(param.params[2].value, param.params[2].toString());
+							this.getFormat().setLineWidth(expr);
+						}
+					} else if (!param.isStatic) {
+						expr = new StringExpression(param.value, param.toString());
+						this.getFormat().setLineColor(expr);
+					}
+					break;
+				case 8: // fillformat
 				// 	fillColor = new StringExpression(param.value, param.toString());
 				// 	fillColor.evaluate(this);
-				// 	break;
-				case 11:
-					rotate = new NumberExpression(param.value, param.toString());
-					this.setAngle(rotate);
-					rotate.evaluate(this);
 					break;
-				// case 7:
-				// 	label = new StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
-				// 	label.evaluate(this);
-				// 	break;
+				case 9: // Attributes
+				// 	fillColor = new StringExpression(param.value, param.toString());
+				// 	fillColor.evaluate(this);
+					break;
+				case 10: // Events
+				// 	fillColor = new StringExpression(param.value, param.toString());
+				// 	fillColor.evaluate(this);
+					break;
+				case 11:
+					if (!param.isStatic) {
+						expr = new NumberExpression(param.value, param.toString(params));
+						this.setAngle(expr);
+					}
+					break;
+				case 12:	// rotcenter
+					// 	will be ignored, currently only static setting possible
+					break;
 				default:
 					break;
 			}
