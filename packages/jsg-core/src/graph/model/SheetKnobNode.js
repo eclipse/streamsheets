@@ -91,6 +91,7 @@ module.exports = class SheetKnobNode extends Node {
 		}
 
 		let expr;
+		const params = { useName: true, item: sheet };
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -98,7 +99,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.StringExpression('');
 					} else {
-						expr = new JSG.StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
+						expr = new JSG.StringExpression(String(param.value), param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'title', expr));
@@ -107,7 +108,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.NumberExpression(50);
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'value', expr));
@@ -116,7 +117,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.NumberExpression(0);
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'min', expr));
@@ -125,7 +126,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.NumberExpression(100);
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'max', expr));
@@ -134,7 +135,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.NumberExpression(5);
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'step', expr));
@@ -143,7 +144,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.StringExpression('');
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'marker', expr));
@@ -152,7 +153,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.StringExpression('');
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'formatrange', expr));
@@ -161,7 +162,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.NumberExpression(Math.PI / 6);
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'start', expr));
@@ -170,7 +171,7 @@ module.exports = class SheetKnobNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.NumberExpression(Math.PI * 11 / 6);
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'end', expr));

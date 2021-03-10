@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -23,7 +23,7 @@ export default class CellFeedbackView extends View {
 	constructor(cell, title, left, top) {
 		super();
 
-		this._cellBorderColor = '#000000';
+		this._cellBorderColor = JSG.theme.text;
 		this._reference = false;
 		this._cell = cell;
 		this._title = title;

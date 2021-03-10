@@ -75,7 +75,6 @@ export class GraphItemProperties extends Component {
 	};
 
 	componentDidMount() {
-		document.addEventListener('keydown', this.escFunction, false);
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.PLOT_DOUBLE_CLICK_NOTIFICATION,
@@ -91,7 +90,6 @@ export class GraphItemProperties extends Component {
 	componentWillUnmount() {
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.PLOT_DOUBLE_CLICK_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION);
-		document.removeEventListener('keydown', this.escFunction, false);
 	}
 
 	onGraphSelectionChanged() {
@@ -150,7 +148,6 @@ export class GraphItemProperties extends Component {
 				category: data[0]
 			})
 		} else {
-			// this.updateState();
 			JSG.NotificationCenter.getInstance().send(
 				new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, item)
 			);
@@ -189,46 +186,9 @@ export class GraphItemProperties extends Component {
 		return ws;
 	}
 
-	escFunction(event) {
-		if (event.keyCode === 27 && event.target && event.target.contentEditable !== 'true') {
-			// this.props.setAppState({ showStreamChartProperties: false });
-		}
-	}
-
 	handleClose = () => {
 		this.props.setAppState({ showStreamChartProperties: false });
 	};
-
-	updateState() {
-		const view = GraphItemProperties.getView();
-		if (view === undefined) {
-			return;
-		}
-
-		this.setState({
-			view
-		});
-	}
-
-	handleX = () => {};
-
-	getFormula(index) {
-		const item = GraphItemProperties.getView().getItem();
-		const attr = item.getItemAttributes().getAttribute('sheetformula');
-
-		if (attr && attr.getExpression()) {
-			const term = attr.getExpression().getTerm();
-			if (term && term.params && term.params.length > index) {
-				const param = term.params[index];
-				if (param.isStatic) {
-					return `${param.toString()}`;
-				} else {
-					return `=${param.toString()}`;
-				}
-			}
-		}
-		return '';
-	}
 
 	getProperties() {
 		const category = this.getSelectedCategory() || this.state.category;

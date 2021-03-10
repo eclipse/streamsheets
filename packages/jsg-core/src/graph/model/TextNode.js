@@ -728,6 +728,15 @@ class TextNode extends Node {
 		return undefined;
 	}
 
+	get expressions() {
+		const exprs = super.expressions;
+
+		if (this._text.hasFormula()) {
+			exprs.push(this._text);
+		}
+		return exprs;
+	}
+
 	termToPropertiesCommands(sheet, term) {
 		const cmp = super.termToPropertiesCommands(sheet, term);
 		if (!cmp) {
@@ -735,6 +744,7 @@ class TextNode extends Node {
 		}
 
 		let label;
+		const params = { useName: true, item: sheet };
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -742,7 +752,7 @@ class TextNode extends Node {
 					if (param instanceof NullTerm) {
 						label = new StringExpression('');
 					} else {
-						label = new StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
+						label = new StringExpression(String(param.value), param.isStatic ? undefined : param.toString(params));
 					}
 					label.evaluate(this);
 					break;

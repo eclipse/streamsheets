@@ -56,14 +56,18 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 
 		const commandJSON = command.toObject('execute');
 
-		// filter commands for on sheet items for now -> remove later
+		// send only commands, that do not affect graph items (for now)
 		if (isShapeCommand && commandJSON.name !== 'command.SetGraphItemsCommand') {
 			if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
 				commandJSON.name !== 'command.SetSelectionCommand') {
 				this.updateGraphItems();
 			}
 			return;
+		} else if (this.isShapeChangingCommand(command)) {
+			// shape changed by cell change (paste, delete, insert)
+			this.updateGraphItems();
 		}
+
 
 		if (!this.isSelectionInOutbox(command._graphItem)) {
 			const streamsheetId = this.getStreamSheetId(command);
@@ -77,10 +81,10 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				if (command.handleResponse) command.handleResponse(response);
 				if (commandJSON.name !== 'command.RemoveSelectionCommand' &&
 					commandJSON.name !== 'command.SetSelectionCommand' &&
-					commandJSON.name !== 'command.PasteCellsFromClipboardCommand' &&
+					commandJSON.name !== 'command.SetGraphItemsCommand' &&
 					commandJSON.name !== 'command.ChangeItemOrderCommand' &&
 					updateGraphItems) {
-					this.updateGraphItems(false);
+					this.updateGraphItems();
 				}
 			})
 			.catch((err) => {
@@ -205,6 +209,12 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			|| (command.commands ? command.commands.reduce((sheet, cmd) => sheet || cmd.sheet, null) : undefined);
 	}
 
+	isShapeChangingCommand(command) {
+		return (command instanceof JSG.PasteCellsFromClipboardCommand) ||
+			(command instanceof JSG.DeleteCellsCommand) ||
+			(command instanceof JSG.InsertCellsCommand);
+	}
+
 	isShapeCommand(command) {
 		const isShape = (item) => {
 			while (item && !(item instanceof JSG.CellsNode)) {
@@ -213,11 +223,11 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			return item;
 		}
 
-		const selection = this.viewer.getSelection();
-
 		if (command instanceof JSG.AddItemCommand) {
 			return isShape(command._parent);
 		}
+
+		const selection = this.viewer.getSelection();
 
 		return isShape(selection.length ? selection[0].getModel() : undefined);
 	}

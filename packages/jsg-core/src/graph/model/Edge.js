@@ -467,6 +467,7 @@ class Edge extends LineConnection {
 		let lineColor;
 		const startCoor = this.getStartCoordinate();
 		const endCoor = this.getEndCoordinate();
+		const params = { useName: true, item: sheet };
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -512,7 +513,7 @@ class Edge extends LineConnection {
 					break;
 				case 4:
 					if (!(param instanceof NullTerm)) {
-						lineColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString());
+						lineColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString(params));
 						lineColor.evaluate(this);
 					}
 					break;

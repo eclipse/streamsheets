@@ -3564,6 +3564,7 @@ class GraphItem extends Model {
 		let expr;
 		let points;
 		let closed;
+		const params = { useName: true, item: sheet };
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -3571,7 +3572,7 @@ class GraphItem extends Model {
 					if (param instanceof NullTerm) {
 						expr = new NumberExpression(0);
 					} else {
-						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					pin.setX(expr);
 					break;
@@ -3579,7 +3580,7 @@ class GraphItem extends Model {
 					if (param instanceof NullTerm) {
 						expr = new NumberExpression(0);
 					} else {
-						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					pin.setY(expr);
 					break;
@@ -3587,7 +3588,7 @@ class GraphItem extends Model {
 					if (param instanceof NullTerm) {
 						expr = new NumberExpression(0);
 					} else {
-						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					size.setWidth(expr);
 					break;
@@ -3595,19 +3596,19 @@ class GraphItem extends Model {
 					if (param instanceof NullTerm) {
 						expr = new NumberExpression(0);
 					} else {
-						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					size.setHeight(expr);
 					break;
 				case 4:
 					if (!(param instanceof NullTerm)) {
-						lineColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString());
+						lineColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString(params));
 						lineColor.evaluate(this);
 					}
 					break;
 				case 5:
 					if (!(param instanceof NullTerm)) {
-						fillColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString());
+						fillColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString(params));
 						fillColor.evaluate(this);
 					}
 					break;
@@ -3615,7 +3616,7 @@ class GraphItem extends Model {
 					if (param instanceof NullTerm) {
 						rotate = new NumberExpression(0);
 					} else {
-						rotate = new NumberExpression(param.value, param.isStatic ? undefined : param.toString());
+						rotate = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					rotate.evaluate(this);
 					break;
@@ -3624,7 +3625,7 @@ class GraphItem extends Model {
 						if (param instanceof NullTerm) {
 							points = new StringExpression('');
 						} else {
-							points = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+							points = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 						}
 						points.evaluate(this);
 					}
@@ -3634,7 +3635,7 @@ class GraphItem extends Model {
 						if (param instanceof NullTerm) {
 							closed = new JSG.BooleanExpression(false);
 						} else {
-							closed = new JSG.BooleanExpression(param.value, param.isStatic ? undefined : param.toString());
+							closed = new JSG.BooleanExpression(param.value, param.isStatic ? undefined : param.toString(params));
 						}
 						closed.evaluate(this);
 					}
@@ -3673,7 +3674,32 @@ class GraphItem extends Model {
 	}
 
 	get expressions() {
-		return [];
+		const exprs = [];
+		const add = (expr => {
+			if (expr.hasFormula()) {
+				exprs.push(expr);
+			}
+		});
+
+		add(this._pin.getX());
+		add(this._pin.getY());
+		add(this._size.getWidth());
+		add(this._size.getHeight());
+		add(this._angle);
+		if (this.getShape() instanceof JSG.PolygonShape) {
+			add(this.getShape().getSource());
+		}
+
+		this.getModelAttributes().iterate(attr => {
+			if (!(attr instanceof JSG.AttributeList)) {
+				add(attr.getExpression());
+			}
+		})
+		this.getFormat().iterate(attr => {
+			add(attr.getExpression());
+		})
+
+		return exprs;
 	}
 
 	static get _tmpEvent() {

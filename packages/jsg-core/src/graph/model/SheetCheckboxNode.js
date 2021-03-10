@@ -86,18 +86,19 @@ module.exports = class SheetCheckboxNode extends Node {
 
 		let value;
 		let label;
+		const params = { useName: true, item: sheet };
 
 		term.iterateParams((param, index) => {
 			switch (index) {
 				case 7: // label
 					if (!(param instanceof NullTerm)) {
-						label = new JSG.StringExpression(String(param.value), param.isStatic ? undefined : param.toString());
+						label = new JSG.StringExpression(String(param.value), param.isStatic ? undefined : param.toString(params));
 						label.evaluate(this);
 					}
 					break;
 				case 8: // value
 					if (!(param instanceof NullTerm)) {
-						value = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString());
+						value = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 						value.evaluate(this);
 					}
 					break;

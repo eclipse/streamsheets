@@ -774,27 +774,12 @@ module.exports = class DataProvider {
 				});
 
 				const updateGraph = (item) => {
-					const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-					if (attrFormula) {
-						const expr = attrFormula.getExpression();
-						if (expr !== undefined && expr.hasFormula()) {
-							update(sheet, expr);
-							item._noFormulaUpdate = true;
-							item.expressions.forEach(exp => {
-								update(sheet, exp);
-							});
-						}
-					}
+					item.expressions.forEach(exp => {
+						update(sheet, exp);
+					});
 				};
 
-				GraphUtils.traverseItem(sheet.getCells(), (item) => updateGraph(item));
-
-				// dataSheet._graphs.forEach((name) => {
-				// 	const expr = name.getExpression();
-				// 	if (expr !== undefined && expr.hasFormula()) {
-				// 		update(sheet, expr);
-				// 	}
-				// });
+				GraphUtils.traverseItem(sheet.getCells(), (item) => updateGraph(item), false);
 			});
 		const graph = this.getSheet().getGraph();
 		graph.getSheetNames().forEach((name) => {
@@ -1238,30 +1223,13 @@ module.exports = class DataProvider {
 					});
 
 					const updateGraph = (item) => {
-						const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-
-						if (attrFormula) {
-							const expr = attrFormula.getExpression();
-							if (expr !== undefined && expr.hasFormula()) {
-								invalidateExpression(expr);
-								updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true, true);
-								item._noFormulaUpdate = true;
-								item.expressions.forEach(exp => {
-									updateExpression(sheet, exp, targetColumn - sourceColumn, targetRow - sourceRow, true);
-								});
-							}
-						}
+						item.expressions.forEach(exp => {
+							updateExpression(sheet, exp, targetColumn - sourceColumn, targetRow - sourceRow, true);
+						});
 					};
 
-					GraphUtils.traverseItem(sheet.getCells(), (item) => updateGraph(item));
+					GraphUtils.traverseItem(sheet.getCells(), (item) => updateGraph(item), false);
 
-					// dataSheet._graphs.forEach((name) => {
-					// 	const expr = name.getExpression();
-					// 	if (expr !== undefined && expr.hasFormula()) {
-					// 		invalidateExpression(expr);
-					// 		updateExpression(sheet, expr, targetColumn - sourceColumn, targetRow - sourceRow, true);
-					// 	}
-					// });
 				});
 			const graph = this.getSheet().getGraph();
 			graph.getSheetNames().forEach((name) => {
