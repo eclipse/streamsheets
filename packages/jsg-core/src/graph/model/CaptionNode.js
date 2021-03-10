@@ -52,6 +52,15 @@ module.exports = class CaptionNode extends Node {
 		return false;
 	}
 
+	read(reader, object) {
+		super.read(reader, object);
+
+		// overwrite old settings
+		this.getFormat().setFillColor(JSG.theme.caption);
+		this.getFormat().setLineColor(JSG.theme.frame);
+		this.getTextFormat().setFontColor(JSG.theme.captiontext);
+	}
+
 	setIcon(name) {
 		this._icon = name;
 	}

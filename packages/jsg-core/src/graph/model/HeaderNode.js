@@ -467,6 +467,11 @@ module.exports = class HeaderNode extends Node {
 					break;
 			}
 		});
+
+		// to compensate old template
+		this.getFormat().setLineColor(JSG.theme.frame);
+		this.getFormat().setFillColor(JSG.theme.header);
+		this.getTextFormat().setFontColor(JSG.theme.text);
 	}
 
 	assignProperties(data) {
