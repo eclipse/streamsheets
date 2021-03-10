@@ -2467,6 +2467,24 @@ export class CanvasToolBar extends Component {
 					<MenuItem dense value="36" key="fs11">
 						36
 					</MenuItem>
+					<MenuItem dense value="48" key="fs12">
+						48
+					</MenuItem>
+					<MenuItem dense value="60" key="fs13">
+						60
+					</MenuItem>
+					<MenuItem dense value="72" key="fs14">
+						72
+					</MenuItem>
+					<MenuItem dense value="96" key="fs15">
+						96
+					</MenuItem>
+					<MenuItem dense value="120" key="fs16">
+						120
+					</MenuItem>
+					<MenuItem dense value="144" key="fs17">
+						144
+					</MenuItem>
 				</Select>
 				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.FormatBold" defaultMessage="Bold" />}>
 					<div>
