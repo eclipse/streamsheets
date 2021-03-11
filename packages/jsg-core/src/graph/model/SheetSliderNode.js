@@ -8,13 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { NullTerm } = require('@cedalo/parser');
+const { NullTerm, FuncTerm } = require('@cedalo/parser');
 
 const JSG = require('../../JSG');
 const Node = require('./Node');
 const StringAttribute = require('../attr/StringAttribute');
 const Attribute = require('../attr/Attribute');
+const NumberAttribute = require('../attr/NumberAttribute');
 const Expression = require('../expr/Expression');
+const StringExpression = require('../expr/StringExpression');
+const NumberExpression = require('../expr/NumberExpression');
 
 module.exports = class SheetSliderNode extends Node {
 	constructor() {
@@ -26,13 +29,12 @@ module.exports = class SheetSliderNode extends Node {
 
 		this.getItemAttributes().setContainer(false);
 		this.addAttribute(new StringAttribute('title', 'Slider'));
-		this.addAttribute(new StringAttribute('scalefont', ''));
 		this.addAttribute(new Attribute('value', new Expression(50)));
 		this.addAttribute(new Attribute('min', new Expression(0)));
 		this.addAttribute(new Attribute('max', new Expression(100)));
 		this.addAttribute(new Attribute('step', new Expression(5)));
 		this.addAttribute(new StringAttribute('marker', ''));
-		this.addAttribute(new StringAttribute('formatrange', ''));
+		this.addAttribute(new Attribute('formatrange', new Expression(0)));
 	}
 
 	newInstance() {
@@ -84,6 +86,86 @@ module.exports = class SheetSliderNode extends Node {
 		return false;
 	}
 
+	oldTermToProperties(sheet, term) {
+		super.oldTermToProperties(sheet, term);
+
+		if (!term || !(term instanceof FuncTerm)) {
+			return;
+		}
+
+		let expr;
+		const params = {useName: true, item: sheet};
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 13: // label
+					if (!param.isStatic) {
+						expr = new StringExpression(0, param.toString(params));
+						this.setAttributeAtPath('title', expr);
+					}
+					break;
+				case 14: // label font
+					if ((param instanceof FuncTerm) && param.name === 'FONTFORMAT') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new StringExpression('', param.params[0].toString(params));
+							this.getTextFormat().setFontName(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new NumberExpression(0, param.params[1].toString(params));
+							this.getTextFormat().setFontSize(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new NumberExpression(0, param.params[2].toString(params));
+							this.getTextFormat().setFontStyle(expr);
+						}
+						if (param.params.length > 3 && !param.params[3].isStatic) {
+							expr = new StringExpression(0, param.params[3].toString(params));
+							this.getTextFormat().setFontColor(expr);
+						}
+					}
+					break;
+				case 15: // value
+					if (!param.isStatic) {
+						expr = new Expression(0, param.toString(params));
+						this.setAttributeAtPath('value', expr);
+					}
+					break;
+				case 16: // min
+					if (!param.isStatic) {
+						expr = new Expression(0, param.toString(params));
+						this.setAttributeAtPath('min', expr);
+					}
+					break;
+				case 17: // max
+					if (!param.isStatic) {
+						expr = new Expression(0, param.toString(params));
+						this.setAttributeAtPath('max', expr);
+					}
+					break;
+				case 18: // step
+					if (!param.isStatic) {
+						expr = new Expression(0, param.toString(params));
+						this.setAttributeAtPath('step', expr);
+					}
+					break;
+				case 19: // scalefont -> not supported
+					break;
+				case 20: // marker
+					if (!param.isStatic) {
+						expr = new StringExpression(0, param.toString(params));
+						this.setAttributeAtPath('marker', expr);
+					}
+					break;
+				case 21: // formatrange
+					if (!param.isStatic) {
+						expr = new Expression(0, param.toString(params));
+						this.setAttributeAtPath('formatrange', expr);
+					}
+					break;
+			}
+		});
+	}
+
 	termToPropertiesCommands(sheet, term) {
 		const cmp = super.termToPropertiesCommands(sheet, term);
 		if (!cmp) {
@@ -106,7 +188,7 @@ module.exports = class SheetSliderNode extends Node {
 					break;
 				case 8: // value
 					if (param instanceof NullTerm) {
-						expr = new JSG.NumberExpression(50);
+						expr = new JSG.Expression(50);
 					} else {
 						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
@@ -115,7 +197,7 @@ module.exports = class SheetSliderNode extends Node {
 					break;
 				case 9: // min
 					if (param instanceof NullTerm) {
-						expr = new JSG.NumberExpression(0);
+						expr = new JSG.Expression(0);
 					} else {
 						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
@@ -124,7 +206,7 @@ module.exports = class SheetSliderNode extends Node {
 					break;
 				case 10: // max
 					if (param instanceof NullTerm) {
-						expr = new JSG.NumberExpression(100);
+						expr = new JSG.Expression(100);
 					} else {
 						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
@@ -133,7 +215,7 @@ module.exports = class SheetSliderNode extends Node {
 					break;
 				case 11: // step
 					if (param instanceof NullTerm) {
-						expr = new JSG.NumberExpression(5);
+						expr = new JSG.Expression(5);
 					} else {
 						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
@@ -144,14 +226,14 @@ module.exports = class SheetSliderNode extends Node {
 					if (param instanceof NullTerm) {
 						expr = new JSG.StringExpression('');
 					} else {
-						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
+						expr = new JSG.StringExpression(param.value, param.isStatic ? undefined : param.toString(params));
 					}
 					expr.evaluate(this);
 					cmp.add(new JSG.SetAttributeAtPathCommand(this, 'marker', expr));
 					break;
 				case 13: // format range
 					if (param instanceof NullTerm) {
-						expr = new JSG.StringExpression('');
+						expr = new JSG.Expression('');
 					} else {
 						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 					}

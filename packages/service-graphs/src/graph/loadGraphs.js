@@ -31,6 +31,7 @@ function JSONToGraph(json) {
 				// eslint-disable-next-line no-empty
 				if (json) {
 					// move to machine server
+					// sheet.getStreamSheet().getCells()._subItems = [];
 					// delete subitems from graph, if succesfull, maybe save graph again
 				}
 			});

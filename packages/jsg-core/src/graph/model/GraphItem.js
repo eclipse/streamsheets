@@ -3598,6 +3598,12 @@ class GraphItem extends Model {
 									this.getFormat().setGradientOffsetY(expr);
 								}
 								break;
+							default:
+								if (!param.isStatic) {
+									expr = new StringExpression('', param.toString(params));
+									this.getFormat().setFillColor(expr);
+								}
+								break;
 						}
 					} else if (!param.isStatic) {
 						expr = new StringExpression('', param.toString(params));
@@ -3682,7 +3688,6 @@ class GraphItem extends Model {
 		this.removeAttributeAtPath(path);
 		path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetsource');
 		this.removeAttributeAtPath(path);
-
 	}
 
 	termToPropertiesCommands(sheet, term) {
@@ -3759,7 +3764,7 @@ class GraphItem extends Model {
 				case 7:
 					if (this.getShape() instanceof JSG.PolygonShape) {
 						if (param instanceof NullTerm) {
-							points = new StringExpression('');
+							points = new Expression('');
 						} else {
 							points = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
 						}

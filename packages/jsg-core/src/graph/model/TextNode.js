@@ -737,49 +737,53 @@ class TextNode extends Node {
 		return exprs;
 	}
 
-		oldTermToProperties(sheet, term) {
-			super.oldTermToProperties(sheet, term);
+	oldTermToProperties(sheet, term) {
+		super.oldTermToProperties(sheet, term);
 
-			let expr;
-			const params = { useName: true, item: sheet };
-
-			term.iterateParams((param, index) => {
-				switch (index) {
-					case 13:
-						if (!param.isStatic) {
-							expr = new StringExpression('', param.toString(params));
-							this.setText(expr);
-						}
-						break;
-					case 14:	// Name,Größe,Stil,Farbe,HorizontaleAusrichtung'
-						if ((param instanceof FuncTerm) && param.name === 'FONTFORMAT') {
-							if (param.params.length > 0 && !param.params[0].isStatic) {
-								expr = new StringExpression('', param.params[0].toString(params));
-								this.getTextFormat().setFontName(expr);
-							}
-							if (param.params.length > 1 && !param.params[1].isStatic) {
-								expr = new NumberExpression(0, param.params[1].toString(params));
-								this.getTextFormat().setFontSize(expr);
-							}
-							if (param.params.length > 2 && !param.params[2].isStatic) {
-								expr = new NumberExpression(0, param.params[2].toString(params));
-								this.getTextFormat().setFontStyle(expr);
-							}
-							if (param.params.length > 3 && !param.params[3].isStatic) {
-								expr = new StringExpression(0, param.params[3].toString(params));
-								this.getTextFormat().setFontColor(expr);
-							}
-							if (param.params.length > 4 && !param.params[4].isStatic) {
-								expr = new NumberExpression(0, param.params[4].toString(params));
-								this.getTextFormat().setHorizontalAlignment(expr);
-							}
-						}
-						break;
-				}
-			});
+		if (!term || !(term instanceof FuncTerm)) {
+			return;
 		}
 
-		termToPropertiesCommands(sheet, term) {
+		let expr;
+		const params = { useName: true, item: sheet };
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 13:
+					if (!param.isStatic) {
+						expr = new StringExpression('', param.toString(params));
+						this.setText(expr);
+					}
+					break;
+				case 14:	// Name,Größe,Stil,Farbe,HorizontaleAusrichtung'
+					if ((param instanceof FuncTerm) && param.name === 'FONTFORMAT') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new StringExpression('', param.params[0].toString(params));
+							this.getTextFormat().setFontName(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new NumberExpression(0, param.params[1].toString(params));
+							this.getTextFormat().setFontSize(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new NumberExpression(0, param.params[2].toString(params));
+							this.getTextFormat().setFontStyle(expr);
+						}
+						if (param.params.length > 3 && !param.params[3].isStatic) {
+							expr = new StringExpression(0, param.params[3].toString(params));
+							this.getTextFormat().setFontColor(expr);
+						}
+						if (param.params.length > 4 && !param.params[4].isStatic) {
+							expr = new NumberExpression(0, param.params[4].toString(params));
+							this.getTextFormat().setHorizontalAlignment(expr);
+						}
+					}
+					break;
+			}
+		});
+	}
+
+	termToPropertiesCommands(sheet, term) {
 		const cmp = super.termToPropertiesCommands(sheet, term);
 		if (!cmp) {
 			return undefined;

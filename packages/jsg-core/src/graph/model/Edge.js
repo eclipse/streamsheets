@@ -14,9 +14,12 @@ const JSG = require('../../JSG');
 const LineConnection = require('./LineConnection');
 const Arrays = require('../../commons/Arrays');
 const Coordinate = require('../Coordinate');
+const AttributeUtils = require('../attr/AttributeUtils');
 const StringExpression = require('../expr/StringExpression');
+const NumberExpression = require('../expr/NumberExpression');
 const CoordinateProxy = require('../CoordinateProxy');
 const FormatAttributes = require('../attr/FormatAttributes');
+const ItemAttributes = require('../attr/ItemAttributes');
 const GraphUtils = require('../GraphUtils');
 const PortCoordinateProxy = require('../PortCoordinateProxy');
 const Event = require('./events/Event');
@@ -456,6 +459,72 @@ class Edge extends LineConnection {
 		GraphUtils.translatePointUp(center, port, graph);
 		GraphUtils.translatePointDown(center, graph, this.getParent());
 		return center;
+	}
+
+	oldTermToProperties(sheet, term) {
+		if (!term || !(term instanceof FuncTerm)) {
+			return;
+		}
+
+		let expr;
+		const startCoor = this.getStartCoordinate();
+		const endCoor = this.getEndCoordinate();
+		const params = { useName: true, item: sheet };
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 3:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						startCoor.setX(expr);
+					}
+					break;
+				case 4:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						startCoor.setY(expr);
+					}
+					break;
+				case 5:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						endCoor.setX(expr);
+					}
+					break;
+				case 6:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						endCoor.setY(expr);
+					}
+					break;
+				case 7:	// lineformat
+					if ((param instanceof FuncTerm) && param.name === 'LINEFORMAT') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new StringExpression('', param.params[0].toString(params));
+							this.getFormat().setLineColor(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new NumberExpression(0, param.params[1].toString(params));
+							this.getFormat().setLineStyle(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new NumberExpression(0, param.params[2].toString(params));
+							this.getFormat().setLineWidth(expr);
+						}
+					} else if (!param.isStatic) {
+						expr = new StringExpression('', param.toString(params));
+						this.getFormat().setLineColor(expr);
+					}
+					break;
+				default:
+					break;
+			}
+		});
+
+		let path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetformula');
+		this.removeAttributeAtPath(path);
+		path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetsource');
+		this.removeAttributeAtPath(path);
 	}
 
 	termToPropertiesCommands(sheet, term) {

@@ -8,21 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { NullTerm } = require('@cedalo/parser');
+const { FuncTerm, NullTerm } = require('@cedalo/parser');
 
 const JSG = require('../../JSG');
 const Node = require('./Node');
 const Expression = require('../expr/Expression');
 const Attribute = require('../attr/Attribute');
 const StringAttribute = require('../attr/StringAttribute');
+const StringExpression = require('../expr/StringExpression');
+const NumberExpression = require('../expr/NumberExpression');
 
 module.exports = class SheetButtonNode extends Node {
 	constructor() {
 		super();
 
 		this.getFormat().setLineCorner(150);
-		// this.getFormat().setLineColor('#AAAAAA');
-		// this.getFormat().setFillColor('#DDDDDD');
 		this.getTextFormat().setFontSize(9);
 		this.getItemAttributes().setContainer(false);
 		this.addAttribute(new StringAttribute('title', 'Button'));
@@ -79,6 +79,56 @@ module.exports = class SheetButtonNode extends Node {
 
 	isAddLabelAllowed() {
 		return false;
+	}
+
+	oldTermToProperties(sheet, term) {
+		super.oldTermToProperties(sheet, term);
+
+		if (!term || !(term instanceof FuncTerm)) {
+			return;
+		}
+
+		let expr;
+		const params = {useName: true, item: sheet};
+
+		// UniqueID,Container,Name,X,Y,Width,Height,Line,Fill,Attributes,Events,Angle,RotCenter,Label,LabelFont,Value
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 13: // label
+					if (!param.isStatic) {
+						expr = new StringExpression(0, param.toString(params));
+						this.setAttributeAtPath('title', expr);
+					}
+					break;
+				case 14: // label font
+					if ((param instanceof FuncTerm) && param.name === 'FONTFORMAT') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new StringExpression('', param.params[0].toString(params));
+							this.getTextFormat().setFontName(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new NumberExpression(0, param.params[1].toString(params));
+							this.getTextFormat().setFontSize(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new NumberExpression(0, param.params[2].toString(params));
+							this.getTextFormat().setFontStyle(expr);
+						}
+						if (param.params.length > 3 && !param.params[3].isStatic) {
+							expr = new StringExpression(0, param.params[3].toString(params));
+							this.getTextFormat().setFontColor(expr);
+						}
+					}
+					break;
+				case 15: // value
+					if (!param.isStatic) {
+						expr = new Expression(0, param.toString(params));
+						this.setAttributeAtPath('value', expr);
+					}
+					break;
+			}
+		});
 	}
 
 	termToPropertiesCommands(sheet, term) {
