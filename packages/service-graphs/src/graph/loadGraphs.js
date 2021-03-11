@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -19,6 +19,23 @@ function JSONToGraph(json) {
 	const reader = new JSONReader(json);
 	const root = reader.getRoot();
 	graph.read(reader, root.graphdef);
+
+	if (root.graphdef.version === '2') {
+		const container = graph.getStreamSheetsContainer();
+		if (container) {
+			container.enumerateStreamSheetContainers((sheet) => {
+				// eslint-disable-next-line no-shadow
+				const streamsheetId = sheet.getStreamSheetContainerAttributes().getSheetId().getValue();
+				// eslint-disable-next-line no-shadow
+				const json = sheet.getStreamSheet().getCells().subItemsToJSON();
+				// eslint-disable-next-line no-empty
+				if (json) {
+
+				}
+			});
+		}
+	}
+
 	return graph;
 }
 

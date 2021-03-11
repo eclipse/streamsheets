@@ -11,7 +11,7 @@
 /* global document NodeFilter window */
 
 
-const { NullTerm } = require('@cedalo/parser');
+const { NullTerm, FuncTerm } = require('@cedalo/parser');
 
 const JSG = require('../../JSG');
 const Node = require('./Node');
@@ -26,9 +26,9 @@ const GraphUtils = require('../GraphUtils');
 const Event = require('./events/Event');
 const ItemAttributes = require('../attr/ItemAttributes');
 const StringExpression = require('../expr/StringExpression');
+const NumberExpression = require('../expr/NumberExpression');
 const Point = require('../../geometry/Point');
 const XML = require('../../commons/XML');
-const MathUtils = require('../../geometry/MathUtils');
 
 /**
  * The TextNode class extends a Node with Text capabilities. It contains the text itself and some
@@ -737,7 +737,49 @@ class TextNode extends Node {
 		return exprs;
 	}
 
-	termToPropertiesCommands(sheet, term) {
+		oldTermToProperties(sheet, term) {
+			super.oldTermToProperties(sheet, term);
+
+			let expr;
+			const params = { useName: true, item: sheet };
+
+			term.iterateParams((param, index) => {
+				switch (index) {
+					case 13:
+						if (!param.isStatic) {
+							expr = new StringExpression('', param.toString(params));
+							this.setText(expr);
+						}
+						break;
+					case 14:	// Name,Größe,Stil,Farbe,HorizontaleAusrichtung'
+						if ((param instanceof FuncTerm) && param.name === 'FONTFORMAT') {
+							if (param.params.length > 0 && !param.params[0].isStatic) {
+								expr = new StringExpression('', param.params[0].toString(params));
+								this.getTextFormat().setFontName(expr);
+							}
+							if (param.params.length > 1 && !param.params[1].isStatic) {
+								expr = new NumberExpression(0, param.params[1].toString(params));
+								this.getTextFormat().setFontSize(expr);
+							}
+							if (param.params.length > 2 && !param.params[2].isStatic) {
+								expr = new NumberExpression(0, param.params[2].toString(params));
+								this.getTextFormat().setFontStyle(expr);
+							}
+							if (param.params.length > 3 && !param.params[3].isStatic) {
+								expr = new StringExpression(0, param.params[3].toString(params));
+								this.getTextFormat().setFontColor(expr);
+							}
+							if (param.params.length > 4 && !param.params[4].isStatic) {
+								expr = new NumberExpression(0, param.params[4].toString(params));
+								this.getTextFormat().setHorizontalAlignment(expr);
+							}
+						}
+						break;
+				}
+			});
+		}
+
+		termToPropertiesCommands(sheet, term) {
 		const cmp = super.termToPropertiesCommands(sheet, term);
 		if (!cmp) {
 			return undefined;

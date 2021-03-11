@@ -84,6 +84,8 @@ class PolygonShape extends Shape {
 	saveContent(writer) {
 		super.saveContent(writer);
 
+		this._source.save('source', writer);
+
 		writer.writeStartElement('cs');
 		writer.writeStartArray('c');
 
@@ -97,6 +99,11 @@ class PolygonShape extends Shape {
 
 	read(reader, object) {
 		super.read(reader, object);
+
+		const source = reader.getObject(object, 'source');
+		if (source !== undefined) {
+			this._source.read(reader, source);
+		}
 
 		let coordinate;
 		let coll = reader.getObject(object, 'cs');

@@ -318,7 +318,7 @@ module.exports = class MachineGraph extends Graph {
 	save(file, absolute) {
 		file.writeStartElement('graphitem');
 
-		file.writeAttributeNumber('version', 2);
+		file.writeAttributeNumber('version', 3);
 		file.writeAttributeString('uniqueid', this._uniqueId);
 		if (this.getId() !== undefined) {
 			file.writeAttributeString('id', this.getId());

@@ -724,6 +724,9 @@ class GraphItem extends Model {
 				visible = !!visible;
 			}
 		}
+		if (Strings.isString(visible)) {
+			visible = visible.toLowerCase() !== 'false';
+		}
 
 		if (visible) {
 			if (this._parent !== undefined && !this._parent.isVisible()) {
@@ -3506,7 +3509,6 @@ class GraphItem extends Model {
 
 		const pin = this.getPin();
 		const size = this.getSize();
-		let fillColor;
 		let expr;
 		const params = { useName: true, item: sheet };
 
@@ -3605,7 +3607,7 @@ class GraphItem extends Model {
 				case 9: // Attributes
 					if ((param instanceof FuncTerm) && param.name === 'ATTRIBUTES') {
 						if (param.params.length > 0 && !param.params[0].isStatic) {
-							expr = new BooleanExpression(true, param.params[0].toString(params));
+							expr = new Expression(true, param.params[0].toString(params));
 							this.getItemAttributes().setVisible(expr);
 						}
 						if (param.params.length > 1 && !param.params[1].isStatic) {
@@ -3658,6 +3660,18 @@ class GraphItem extends Model {
 					break;
 				case 12:	// rotcenter
 					// 	will be ignored, currently only static setting possible
+					break;
+				case 13:	// polygon source
+					if (this.getShape() instanceof JSG.PolygonShape) {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
+						this.getShape().setSource(expr);
+					}
+					break;
+				case 14:	// polygon close flag
+					if (this.getShape() instanceof JSG.PolygonShape) {
+						expr = new JSG.BooleanExpression(param.value, param.isStatic ? undefined : param.toString(params));
+						this.getItemAttributes().setClosed(expr);
+					}
 					break;
 				default:
 					break;
