@@ -544,6 +544,8 @@ class GraphItemController extends ModelController {
 		fbItem.setPinPointTo(pin);
 		fbItem.getShape().formulasToValues();
 
+		fbItem.setAngle(fbItem.getAngle().getValue());
+
 		fbItem.evaluate();
 		// required? => yes because of copy()!!!
 

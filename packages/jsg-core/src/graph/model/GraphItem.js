@@ -21,12 +21,15 @@ const Size = require('../Size');
 const GraphUtils = require('../GraphUtils');
 const ReshapeCoordinate = require('../ReshapeCoordinate');
 const Path = require('./Path');
+const Expression = require('../expr/Expression');
 const NumberExpression = require('../expr/NumberExpression');
 const StringExpression = require('../expr/StringExpression');
+const BooleanExpression = require('../expr/BooleanExpression');
 const Shape = require('./shapes/Shape');
 const ShapeFactory = require('./shapes/ShapeFactory');
 const BezierShape = require('./shapes/BezierShape');
 const FormatAttributes = require('../attr/FormatAttributes');
+const AttributeUtils = require('../attr/AttributeUtils');
 const ItemAttributes = require('../attr/ItemAttributes');
 const LayoutAttributes = require('../attr/LayoutAttributes');
 const EventAttributes = require('../attr/EventAttributes');
@@ -37,10 +40,8 @@ const TextFormatAttributes = require('../attr/TextFormatAttributes');
 const Attribute = require('../attr/Attribute');
 const StringAttribute = require('../attr/StringAttribute');
 const AttributeList = require('../attr/AttributeList');
-const AttributeExpression = require('../expr/AttributeExpression');
 const AttributeChangeEvent = require('./events/AttributeChangeEvent');
 const Event = require('./events/Event');
-const GraphItemProperties = require('../properties/GraphItemProperties');
 const Properties = require('../properties/Properties');
 const CompoundCommand = require('../command/CompoundCommand');
 
@@ -1064,6 +1065,9 @@ class GraphItem extends Model {
 		let frame = this.getFormat()
 			.getLineWidth()
 			.getValue();
+		if (!Numbers.isNumber(frame)) {
+			frame = 0;
+		}
 		const shadow = Math.max(
 			this.getFormat()
 				.getShadowOffsetX()
@@ -3502,74 +3506,153 @@ class GraphItem extends Model {
 
 		const pin = this.getPin();
 		const size = this.getSize();
-		let lineColor;
 		let fillColor;
-		let path;
-		let rotate;
 		let expr;
 		const params = { useName: true, item: sheet };
-		let subTerm;
 
 		term.iterateParams((param, index) => {
 			switch (index) {
 				case 3:
 					if (!param.isStatic) {
-						expr = new NumberExpression(param.value, param.toString(params));
+						expr = new NumberExpression(0, param.toString(params));
 						pin.setX(expr);
 					}
 					break;
 				case 4:
 					if (!param.isStatic) {
-						expr = new NumberExpression(param.value, param.toString(params));
+						expr = new NumberExpression(0, param.toString(params));
 						pin.setY(expr);
 					}
 					break;
 				case 5:
 					if (!param.isStatic) {
-						expr = new NumberExpression(param.value, param.toString(params));
+						expr = new NumberExpression(0, param.toString(params));
 						size.setWidth(expr);
 					}
 					break;
 				case 6:
 					if (!param.isStatic) {
-						expr = new NumberExpression(param.value, param.toString(params));
+						expr = new NumberExpression(0, param.toString(params));
 						size.setHeight(expr);
 					}
 					break;
 				case 7:	// lineformat
 					if ((param instanceof FuncTerm) && param.name === 'LINEFORMAT') {
 						if (param.params.length > 0 && !param.params[0].isStatic) {
-							expr = new StringExpression(param.params[0].value, param.params[0].toString());
+							expr = new StringExpression('', param.params[0].toString(params));
 							this.getFormat().setLineColor(expr);
 						}
 						if (param.params.length > 1 && !param.params[1].isStatic) {
-							expr = new NumberExpression(param.params[1].value, param.params[1].toString());
+							expr = new NumberExpression(0, param.params[1].toString(params));
 							this.getFormat().setLineStyle(expr);
 						}
 						if (param.params.length > 2 && !param.params[2].isStatic) {
-							expr = new StringExpression(param.params[2].value, param.params[2].toString());
+							expr = new NumberExpression(0, param.params[2].toString(params));
 							this.getFormat().setLineWidth(expr);
 						}
 					} else if (!param.isStatic) {
-						expr = new StringExpression(param.value, param.toString());
+						expr = new StringExpression('', param.toString(params));
 						this.getFormat().setLineColor(expr);
 					}
-					break;
+ 					break;
 				case 8: // fillformat
-				// 	fillColor = new StringExpression(param.value, param.toString());
-				// 	fillColor.evaluate(this);
+					if (param instanceof FuncTerm) {
+						switch (param.name) {
+							case 'FILLPATTERN':
+								if (param.params.length > 0 && !param.params[0].isStatic) {
+									expr = new StringExpression('', param.params[0].toString(params));
+									this.getFormat().setPattern(expr);
+								}
+								break;
+							case 'FILLLINEARGRADIENT':
+								if (param.params.length > 0 && !param.params[0].isStatic) {
+									expr = new StringExpression('', param.params[0].toString(params));
+									this.getFormat().setFillColor(expr);
+								}
+								if (param.params.length > 1 && !param.params[1].isStatic) {
+									expr = new StringExpression('', param.params[1].toString(params));
+									this.getFormat().setGradientColor(expr);
+								}
+								if (param.params.length > 2 && !param.params[2].isStatic) {
+									expr = new NumberExpression(0, param.params[2].toString(params));
+									this.getFormat().setGradientAngle(expr);
+								}
+								break;
+							case 'FILLRADIALGRADIENT':
+								if (param.params.length > 0 && !param.params[0].isStatic) {
+									expr = new StringExpression('', param.params[0].toString(params));
+									this.getFormat().setFillColor(expr);
+								}
+								if (param.params.length > 1 && !param.params[1].isStatic) {
+									expr = new StringExpression('', param.params[1].toString(params));
+									this.getFormat().setGradientColor(expr);
+								}
+								if (param.params.length > 2 && !param.params[2].isStatic) {
+									expr = new NumberExpression(0, param.params[2].toString(params));
+									this.getFormat().setGradientOffsetX(expr);
+								}
+								if (param.params.length > 3 && !param.params[3].isStatic) {
+									expr = new NumberExpression(0, param.params[3].toString(params));
+									this.getFormat().setGradientOffsetY(expr);
+								}
+								break;
+						}
+					} else if (!param.isStatic) {
+						expr = new StringExpression('', param.toString(params));
+						this.getFormat().setFillColor(expr);
+					}
 					break;
 				case 9: // Attributes
-				// 	fillColor = new StringExpression(param.value, param.toString());
-				// 	fillColor.evaluate(this);
+					if ((param instanceof FuncTerm) && param.name === 'ATTRIBUTES') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new BooleanExpression(true, param.params[0].toString(params));
+							this.getItemAttributes().setVisible(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new BooleanExpression(true, param.params[1].toString(params));
+							this.getItemAttributes().setContainer(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new BooleanExpression(true, param.params[2].toString(params));
+							this.getItemAttributes().setClipChildren(expr);
+						}
+						if (param.params.length > 3 && !param.params[3].isStatic) {
+							expr = new NumberExpression(0, param.params[3].toString(params));
+							this.getItemAttributes().setSelectionMode(expr);
+						}
+					}
 					break;
 				case 10: // Events
-				// 	fillColor = new StringExpression(param.value, param.toString());
-				// 	fillColor.evaluate(this);
+					if ((param instanceof FuncTerm) && param.name === 'EVENTS') {
+						param.params.forEach(eventParam => {
+							if (eventParam instanceof FuncTerm) {
+								expr = new Expression(0, eventParam.params[0].toString(params));
+								switch (eventParam.name) {
+									case 'ONMOUSEDOWN':
+										this.getEvents().setOnMouseDown(expr);
+										break;
+									case 'ONMOUSEUP':
+										this.getEvents().setOnMouseUp(expr);
+										break;
+									case 'ONCLICK':
+										this.getEvents().setOnClick(expr);
+										break;
+									case 'ONDOUBLECLICK':
+										this.getEvents().setOnDoubleClick(expr);
+										break;
+									case 'ONVALUECHANGE':
+										this.getEvents().setOnValueChange(expr);
+										break;
+									default:
+										break;
+								}
+							}
+						});
+					}
 					break;
 				case 11:
 					if (!param.isStatic) {
-						expr = new NumberExpression(param.value, param.toString(params));
+						expr = new NumberExpression(0, param.toString(params));
 						this.setAngle(expr);
 					}
 					break;
@@ -3580,6 +3663,12 @@ class GraphItem extends Model {
 					break;
 			}
 		});
+
+		let path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetformula');
+		this.removeAttributeAtPath(path);
+		path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetsource');
+		this.removeAttributeAtPath(path);
+
 	}
 
 	termToPropertiesCommands(sheet, term) {
