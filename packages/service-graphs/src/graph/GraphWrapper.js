@@ -157,10 +157,7 @@ module.exports = class GraphWrapper {
 					const command = new SetSheetCellsCommand(
 						processSheet,
 						streamsheet.sheet.cells,
-						streamsheet.sheet.drawings,
-						streamsheet.sheet.graphItems,
 						streamsheet.sheet.shapes,
-						streamsheet.sheet.graphCells,
 						streamsheet.sheet.namedCells
 					);
 					command.execute();

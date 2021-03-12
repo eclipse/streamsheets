@@ -47,21 +47,17 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			? new SetSheetCellsCommand(
 					item,
 					data.cells,
-					data.drawings,
-					data.graphItems,
 					data.shapes
 			  ).initWithObject(data)
 			: undefined;
 	}
 
-	constructor(item, data, drawings, graphItems, shapes, graphCells, namedCells) {
+	constructor(item, data, shapes, namedCells) {
 		super(item);
 
 		this._data = data;
-		this._graphItems = graphItems;
 		this._shapes = shapes;
 		this._namedCells = namedCells;
-		this._graphCells = graphCells;
 
 		// TODO save undo info
 	}
@@ -74,10 +70,8 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 		const data = super.toObject();
 
 		data.cells = this._data;
-		data.graphItems = this._graphItems;
 		data.shapes = this._shapes;
 		data.namedCells = this._namedCells;
-		data.graphCells = this._graphCells;
 
 		return data;
 	}
@@ -131,9 +125,6 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			});
 		}
 
-		if (this._graphItems) {
-			this._graphItem.setGraphItems(this._graphItems);
-		}
 		if (this._shapes) {
 			this._graphItem.setShapes(this._shapes);
 		}

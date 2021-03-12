@@ -123,26 +123,6 @@ module.exports = class LoadMachineCommand extends AbstractItemCommand {
 					);
 				}
 
-				if (streamsheet.sheet.graphCells) {
-					Object.entries(streamsheet.sheet.graphCells).forEach(
-						([name, value]) => {
-							const serverName = data.getOrCreateGraph(name);
-							if (serverName) {
-								const expr = new Expression(
-									value.value,
-									value.formula
-								);
-								serverName.setExpression(expr);
-								serverName.setValue(value.value);
-							}
-						}
-					);
-				}
-
-				if (streamsheet.sheet.graphItems) {
-					sheet.setGraphItems(streamsheet.sheet.graphItems);
-				}
-
 				if (streamsheet.sheet.shapes) {
 					sheet.setShapes(streamsheet.sheet.shapes);
 				}

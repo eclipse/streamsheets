@@ -22,12 +22,6 @@ const {
 	SetSelectionCommand,
 	TreeItemsNode,
 	MachineGraph,
-	// CompoundCommand,
-	// SetAttributeAtPathCommand,
-	// AttributeUtils,
-	// Expression,
-	// ItemAttributes,
-	// SetGraphCellsCommand,
 	SetGraphItemsCommand,
 } = JSG;
 

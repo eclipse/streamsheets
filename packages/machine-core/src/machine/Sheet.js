@@ -10,7 +10,6 @@
  ********************************************************************************/
 const Cell = require('./Cell');
 const NamedCells = require('./NamedCells');
-const GraphCells = require('./GraphCells');
 const Shapes = require('./Shapes');
 const PropertiesManager = require('./PropertiesManager');
 const ReferenceUpdater = require('./ReferenceUpdater');
@@ -18,7 +17,7 @@ const SheetIndex = require('./SheetIndex');
 const SheetRange = require('./SheetRange');
 const SheetProcessor = require('./SheetProcessor');
 const State = require('../State');
-const { SheetDrawings, SheetParser } = require('../parser/SheetParser');
+const { SheetParser } = require('../parser/SheetParser');
 const { getSheetCellsAsObject } = require('../ipc/utils');
 const { updateArray } = require('../utils');
 
@@ -137,9 +136,7 @@ module.exports = class Sheet {
 		this.streamsheet = streamsheet;
 		this.namedCells = new NamedCells();
 		this.shapes = new Shapes(this);
-		this.graphCells = new GraphCells(this);
 		this.processor = new SheetProcessor(this);
-		this.sheetDrawings = new SheetDrawings();
 		this.onUpdate = undefined;
 		this.onCellRangeChange = undefined;
 		// support request function:
@@ -159,7 +156,6 @@ module.exports = class Sheet {
 		const json = {};
 		json.cells = getSheetCellsAsObject(this);
 		json.namedCells = this.namedCells.getDescriptors();
-		json.graphCells = this.graphCells.getDescriptors();
 		json.shapes = this.shapes.toJSON();
 		json.properties = this.properties.toJSON();
 		json.settings = { ...this.settings };
@@ -193,7 +189,6 @@ module.exports = class Sheet {
 	clear() {
 		this._clearCells();
 		this.namedCells.clear();
-		this.graphCells.clear();
 	}
 	_clearCells() {
 		// we are only called if cell != null
@@ -540,7 +535,6 @@ module.exports = class Sheet {
 		// this.properties = this.properties.load(conf.properties);
 		// load names first, they may be referenced by sheet cells...
 		this.namedCells.load(this, conf.namedCells);
-		this.graphCells.load(this, conf.graphCells);
 		this.shapes.fromJSON(conf.shapes);
 		this.loadCells(conf.cells);
 		enableNotifyUpdate(this, onUpdate);
@@ -593,10 +587,6 @@ module.exports = class Sheet {
 	}
 	_resumeProcessing(retval) {
 		this.processor.resume(retval);
-	}
-
-	getDrawings() {
-		return this.sheetDrawings;
 	}
 
 	getPendingRequests() {

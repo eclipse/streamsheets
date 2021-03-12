@@ -65,18 +65,6 @@ const machine2json = (machine) => {
 	});
 	return json;
 };
-const addDrawings = (machinejson, machine) => {
-	machinejson.streamsheets.forEach((streamsheet) => {
-		const _streamsheet = machine.getStreamSheet(streamsheet.id);
-		streamsheet.sheet.drawings = _streamsheet ? _streamsheet.sheet.getDrawings().toJSON() : undefined;
-	});
-};
-const addGraphItems = (machinejson, machine) => {
-	machinejson.streamsheets.forEach((streamsheet) => {
-		const _streamsheet = machine.getStreamSheet(streamsheet.id);
-		streamsheet.sheet.graphItems = _streamsheet ? _streamsheet.sheet.getDrawings().toGraphItemsJSON() : undefined;
-	});
-};
 const getDefinition = (machine) => {
 	const def = {};
 	def.machine = machine2json(machine);
@@ -86,9 +74,6 @@ const getDefinition = (machine) => {
 	};
 	// if definition is requested, e.g. on load, we add default properties...
 	def.machine.defproperties = DEF_SHEET_PROPS;
-	// DL-753: append drawings...
-	addDrawings(def.machine, machine);
-	addGraphItems(def.machine, machine);
 	return def;
 };
 const applyNamedCell = (descr, name, namedCells, sheet) => {
@@ -132,7 +117,6 @@ const createMachineDescriptor = (machine) => ({
 			properties: sheet.properties.toJSON(),
 			cells: getSheetCellsAsList(sheet),
 			names: sheet.namedCells.getDescriptorsAsList(),
-			graphs: sheet.graphCells.getDescriptorsAsList()
 		};
 		return obj;
 	}, {})
@@ -626,40 +610,6 @@ class RegisterStreams extends ARequestHandler {
 		return Promise.resolve();
 	}
 }
-class ReplaceGraphCells extends ARequestHandler {
-	handle({ graphCells, streamsheetIds = [] }) {
-		const appliedCells = new Map();
-		streamsheetIds.forEach((id, index) => {
-			const streamsheet = this.machine.getStreamSheet(id);
-			const sheet = streamsheet && streamsheet.sheet;
-			if (sheet) {
-				try {
-					sheet.getDrawings().removeAll();
-					const cells = graphCells[index];
-					const currentGraphCells = sheet.graphCells;
-					const notify = currentGraphCells.clear();
-					appliedCells.set(id, cells);
-					if (setNamedCells(sheet, cells, currentGraphCells) || notify) {
-						sheet._notifyUpdate();
-					}
-				} catch (err) {
-					// ignore error!
-					logger.warn(`Failed to set graph-cells of streamsheet:  ${streamsheet.name}(${id})!`);
-				}
-			} else {
-				// we ignore unknown sheets
-				logger.warn(`Unknown streamsheet with id "${id}" !`);
-			}
-		});
-		const result = { streamsheetIds: [], graphCells: [] };
-		Array.from(appliedCells.entries()).reduce((res, [id, cells]) => {
-			res.streamsheetIds.push(id);
-			res.graphCells.push(cells);
-			return res;
-		}, result);
-		return Promise.resolve(result);
-	}
-}
 class ReplaceGraphItems extends ARequestHandler {
 	handle({ graphItems = [], streamsheetIds = [] }) {
 		// TODO: define what to return to client
@@ -698,22 +648,6 @@ class RunMachineAction extends ARequestHandler {
 		return Promise.reject(new Error(`Unknown action type: ${type}`));
 	}
 }
-// DL-1156 not used anymore
-// handlers.set('selectMessage', (msg) => {
-// 	const streamsheet = machine.getStreamSheet(msg.streamsheetId);
-// 	const message = streamsheet ? streamsheet.getMessage(msg.messageId) : null;
-// 	if (message) {
-// 		streamsheet.select(message, msg.path);
-// 		return Promise.resolve({
-// 			sheetCells: getSheetCells(streamsheet.sheet),
-// 			drawings: streamsheet.sheet.getDrawings().toJSON()
-// 		});
-// 	}
-// 	const errormsg = streamsheet
-// 		? `Unknown message id: ${msg.messageId}`
-// 		: `Unknown streamsheet id: ${msg.streamsheetId}`;
-// 	return Promise.reject(new Error(errormsg));
-// });
 class SetCellAt extends ARequestHandler {
 	handle(msg) {
 		let error;
@@ -737,8 +671,6 @@ class SetCellAt extends ARequestHandler {
 					cell: cellDescriptor(cell, index),
 					// to update all cells in DB
 					cells: getSheetCellsAsObject(sheet),
-					drawings: sheet.getDrawings().toJSON(),
-					graphItems: sheet.getDrawings().toGraphItemsJSON()
 				});
 			} catch (err) {
 				error = err;
@@ -792,30 +724,6 @@ class SetNamedCells extends ARequestHandler {
 					else this.machine.notifyUpdate('namedCells');
 				}
 				return Promise.resolve({ namedCells: oldNamedCells.getDescriptors() });
-			} catch (err) {
-				error = err;
-			}
-		}
-		error = error || new Error(`Unknown streamsheet id: ${streamsheetId}`);
-		return Promise.reject(error);
-	}
-}
-class SetGraphCells extends ARequestHandler {
-	handle(msg) {
-		let error;
-		const { graphCells, streamsheetId, clear } = msg;
-		const streamsheet = streamsheetId ? this.machine.getStreamSheet(streamsheetId) : this.machine.streamsheets[0];
-		const sheet = streamsheet && streamsheet.sheet;
-		if (sheet) {
-			try {
-				sheet.getDrawings().removeAll();
-				const currentGraphCells = streamsheetId ? sheet.graphCells : this.machine.graphCells;
-				const notify = clear && currentGraphCells.clear();
-				if (setNamedCells(sheet, graphCells, currentGraphCells) || notify) {
-					if (streamsheetId) sheet._notifyUpdate();
-					else this.machine.notifyUpdate('graphCells');
-				}
-				return Promise.resolve({ graphCells: currentGraphCells.getDescriptors() });
 			} catch (err) {
 				error = err;
 			}
@@ -941,7 +849,6 @@ class UpdateMachine extends ARequestHandler {
 				const updateHandler = disableSheetUpdate(sheet);
 				sheet.loadCells(toMapObject(sheetdescr.cells, 'reference'));
 				if (sheetdescr.names) sheet.namedCells.load(sheet, toMapObject(sheetdescr.names));
-				if (sheetdescr.graphs) sheet.graphCells.load(sheet, toMapObject(sheetdescr.graphs));
 				// it seems that GraphService needs one sheet-update event to synchronize clients!!
 				enableSheetUpdate(sheet, updateHandler, true);
 			} else {
@@ -995,13 +902,11 @@ class RequestHandlerRegistry {
 		registry.handlers.set('pause', new Pause(machine, monitor));
 		registry.handlers.set('registerFunctionModules', new RegisterFunctionModules(machine, monitor));
 		registry.handlers.set('registerStreams', new RegisterStreams(machine, monitor));
-		registry.handlers.set('replaceGraphCells', new ReplaceGraphCells(machine, monitor));
 		registry.handlers.set('replaceGraphItems', new ReplaceGraphItems(machine, monitor));
 		registry.handlers.set('runMachineAction', new RunMachineAction(machine, monitor));
 		registry.handlers.set('setCellAt', new SetCellAt(machine, monitor));
 		registry.handlers.set('setCells', new SetCells(machine, monitor));
 		registry.handlers.set('setCellsLevel', new SetCellsLevel(machine, monitor));
-		registry.handlers.set('setGraphCells', new SetGraphCells(machine, monitor));
 		registry.handlers.set('setNamedCells', new SetNamedCells(machine, monitor));
 		registry.handlers.set('setStreamSheetsOrder', new SetStreamSheetsOrder(machine, monitor));
 		registry.handlers.set('start', new Start(machine, monitor));

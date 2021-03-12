@@ -201,19 +201,13 @@ module.exports = class GraphManager {
 		streamsheetId,
 		cells,
 		namedCells,
-		graphCells,
-		drawings,
-		graphItems,
 		shapes,
 	) {
 		this.updateCells(
 			machineId,
 			streamsheetId,
 			cells,
-			drawings,
-			graphItems,
 			shapes,
-			graphCells,
 			namedCells
 		);
 	}
@@ -222,10 +216,7 @@ module.exports = class GraphManager {
 		machineId,
 		streamsheetId,
 		data,
-		drawings,
-		graphItems,
 		shapes,
-		graphCells,
 		namedCells
 	) {
 		const processSheet = this.getStreamSheet(machineId, streamsheetId);
@@ -233,10 +224,7 @@ module.exports = class GraphManager {
 			const command = new JSG.SetSheetCellsCommand(
 				processSheet,
 				data,
-				drawings,
-				graphItems,
 				shapes,
-				graphCells,
 				namedCells
 			);
 			command.execute();

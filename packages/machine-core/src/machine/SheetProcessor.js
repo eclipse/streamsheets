@@ -110,7 +110,6 @@ class SheetProcessor {
 	}
 	start() {
 		this._process();
-		this._evaluateGraphCells(this._cursor.sheet);
 		this._evaluateShapes(this._cursor.sheet);
 	}
 	_process() {
@@ -157,11 +156,6 @@ class SheetProcessor {
 				}
 			}
 		}
-	}
-	_evaluateGraphCells(sheet) {
-		sheet.graphCells.evaluating = true;
-		sheet.graphCells._cells.forEach((cell) => cell.evaluate());
-		sheet.graphCells.evaluating = false;
 	}
 
 	_evaluateShapes(sheet) {

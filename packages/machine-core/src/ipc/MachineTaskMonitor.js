@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -137,7 +137,7 @@ class MachineTaskMonitor {
 				event = updateEvent(MachineEvents.MACHINE_DESCRIPTOR_UPDATE_EVENT, machine, { data });
 				break;
 			case 'lastModified':
-				event = updateEvent(MachineEvents.MACHINE_LAST_MODIFIED_EVENT, machine, { 
+				event = updateEvent(MachineEvents.MACHINE_LAST_MODIFIED_EVENT, machine, {
 					lastModified: machine.metadata.lastModified, lastModifiedBy: machine.metadata.lastModifiedBy
 				});
 				break;
@@ -151,9 +151,6 @@ class MachineTaskMonitor {
 				event = updateEvent(MachineEvents.NAMED_CELLS_EVENT, machine, {
 					namedCells: machine.namedCells.getDescriptors()
 				});
-				break;
-			case 'graphCells':
-				event = updateEvent('graphCells', machine, { graphCells: machine.graphCells.getDescriptors() });
 				break;
 			case 'functions':
 				event = updateEvent(MachineEvents.MACHINE_FUNCTIONS_EVENT, machine, { functionDefinitions: data });

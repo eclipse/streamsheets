@@ -24,82 +24,38 @@ module.exports.Functions = {
 	 * @constructor
 	 */
 	// TODO move to machineserver-core
-	'DRAW.ELLIPSE': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'ellipse', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.ELLIPSE': () => {
+		return OK.TRUE;
 	},
-	'DRAW.RECTANGLE': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'rectangle', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.RECTANGLE': () => {
+		return OK.TRUE;
 	},
-	'DRAW.LABEL': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'label', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.LABEL': () => {
+		return OK.TRUE;
 	},
-	'DRAW.POLYGON': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'polygon', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.POLYGON': () => {
+		return OK.TRUE;
 	},
-	'DRAW.BEZIER': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'bezier', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.BEZIER': () => {
+		return OK.TRUE;
 	},
-	'DRAW.STREAMCHART': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'plot', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.STREAMCHART': () => {
+		return OK.TRUE;
 	},
-	'DRAW.LINE': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'line', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.LINE': () => {
+		return OK.TRUE;
 	},
-	'DRAW.CHECKBOX': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'checkbox', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.CHECKBOX': () => {
+		return OK.TRUE;
 	},
-	'DRAW.BUTTON': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'button', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.BUTTON': () => {
+		return OK.TRUE;
 	},
-	'DRAW.SLIDER': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'slider', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.SLIDER': () => {
+		return OK.TRUE;
 	},
-	'DRAW.KNOB': (scope, ...terms) => {
-		if (scope.graphCells === undefined) {
-			return OK.TRUE;
-		}
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.updateGraphItem(scope, terms, 'knob', false) : ERROR.NOT_AVAILABLE;
+	'DRAW.KNOB': () => {
+		return OK.TRUE;
 	},
 	SERIES: () => {
 		return OK.TRUE;
@@ -126,40 +82,29 @@ module.exports.Functions = {
 	 * @param linecolor
 	 */
 	LINEFORMAT: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getLineFormat(terms) : ERROR.NOT_AVAILABLE;
+		return OK.TRUE;
 	},
 	FILLLINEARGRADIENT: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getLinearGradientFill(terms) : ERROR.NOT_AVAILABLE;
+		return OK.TRUE;
 	},
 	FILLRADIALGRADIENT: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getRadialGradientFill(terms) : ERROR.NOT_AVAILABLE;
+		return OK.TRUE;
 	},
 	FILLPATTERN: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getPatternFill(terms) : ERROR.NOT_AVAILABLE;
-	},
-	FILLVIDEO: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getPatternVideo(terms) : ERROR.NOT_AVAILABLE;
+		return OK.TRUE;
 	},
 	FONTFORMAT: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getFontFormat(terms) : ERROR.NOT_AVAILABLE;
+		return OK.TRUE;
 	},
 	ATTRIBUTES: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getAttributes(terms) : ERROR.NOT_AVAILABLE;
+		return OK.TRUE;
 	},
 	EVENTS: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getEvents(terms) : ERROR.NOT_AVAILABLE;
+		return OK.TRUE;
 	},
 	QRCODE: (scope, ...terms) => {
-		const drawings = scope.getDrawings && scope.getDrawings();
-		return drawings ? drawings.getQRCode(terms) : ERROR.NOT_AVAILABLE;
+		return `qrcode:${String(terms[0].value)}`;
+		// return OK.TRUE;
 	},
 	POWER: (scope, ...terms) => {
 		if (terms.length !== 2) {

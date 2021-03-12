@@ -52,15 +52,11 @@ const MarkCellValuesCommand = require('./MarkCellValuesCommand');
 const ZoomChartCommand = require('./ZoomChartCommand');
 const {
 	UpdateSheetNamesCommand,
-	UpdateGraphCellsCommand,
-	SetGraphCellsCommand,
 	SetGraphItemsCommand
 } = require('./UpdateNamesCommands');
 
 const Registry = {
 	'command.UpdateSheetNamesCommand': UpdateSheetNamesCommand,
-	'command.UpdateGraphCellsCommand': UpdateGraphCellsCommand,
-	'command.SetGraphCellsCommand': SetGraphCellsCommand,
 	'command.SetGraphItemsCommand': SetGraphItemsCommand,
 	'command.SetCellDataCommand': SetCellDataCommand,
 	'command.SetPlotDataCommand': SetPlotDataCommand,

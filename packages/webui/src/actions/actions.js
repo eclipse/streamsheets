@@ -273,8 +273,8 @@ function handleUserLeftEvent(event) {
 function handleSheetUpdateEvent(event) {
 	const streamsheetId = event.srcId;
 	const { sheet } = event;
-	const { cells, drawings, graphItems, graphCells, shapes, namedCells } = sheet;
-	graphManager.updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, shapes, namedCells);
+	const { cells, shapes, namedCells } = sheet;
+	graphManager.updateCellValues(streamsheetId, cells, shapes, namedCells);
 	graphManager.redraw();
 }
 
@@ -331,9 +331,6 @@ function updateStreamSheetCellValues(streamsheets) {
 		graphManager.updateCellValues(
 			id,
 			sheet.cells,
-			sheet.drawings,
-			sheet.graphItems,
-			sheet.graphCells,
 			sheet.shapes,
 			sheet.namedCells,
 		);
@@ -344,7 +341,7 @@ function updateStreamSheetCellValues(streamsheets) {
 function handleMachineLocaleChanged(event) {
 	const streamsheets = event.streamsheets || [];
 	streamsheets.forEach((streamsheet) =>
-		graphManager.updateCellValues(streamsheet.id, streamsheet.cells, streamsheet.drawings, streamsheet.graphItems, streamsheet.shapes),
+		graphManager.updateCellValues(streamsheet.id, streamsheet.cells, streamsheet.shapes),
 	);
 	graphManager.redraw();
 }
@@ -642,10 +639,7 @@ export function connect() {
 								const {
 									id,
 									cells,
-									graphCells,
 									namedCells,
-									drawings,
-									graphItems,
 									shapes,
 									inbox,
 									loop,
@@ -656,9 +650,6 @@ export function connect() {
 									loop.currentPath,
 									cells,
 									namedCells,
-									graphCells,
-									drawings,
-									graphItems,
 									shapes,
 									// TODO: improve, outbox does not need to be updated for each streamsheet
 									event.outbox,

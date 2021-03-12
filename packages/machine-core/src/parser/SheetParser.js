@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -13,7 +13,7 @@ const { ErrorTerm } = require('./Error');
 const SheetParserContext = require('./SheetParserContext');
 const { AndOperator, ConcatOperator, Operations } = require('./Operations');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Drawings, ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
+const { ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
 
 class ObjectTerm extends Term {
 	constructor(value) {
@@ -141,30 +141,7 @@ class SheetParser {
 
 SheetParser.context = new SheetParserContext();
 
-class SheetDrawings extends Drawings {
-	_deleteProperties(fromObj) {
-		if (fromObj) Object.keys(fromObj).forEach((key) => delete fromObj[key]);
-	}
-	_deleteProperty(name, fromObj = {}) {
-		if (fromObj[name]) delete fromObj[name];
-	}
-
-	removeDrawing(name) {
-		this._deleteProperty(name, this._drawings);
-	}
-
-	removeGraphItem(name) {
-		this._deleteProperty(name, this._graphItems);
-	}
-
-	removeAll() {
-		this._deleteProperties(this._drawings);
-		this._deleteProperties(this._graphItems);
-	}
-}
-
 module.exports = {
 	ObjectTerm,
-	SheetDrawings,
 	SheetParser
 };

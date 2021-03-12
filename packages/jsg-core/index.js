@@ -209,8 +209,6 @@ JSG.SetBezierShapePointsCommand = require('./src/graph/command/SetBezierShapePoi
 const UpdateNamesCommands = require('./src/graph/command/UpdateNamesCommands');
 
 JSG.UpdateSheetNamesCommand = UpdateNamesCommands.UpdateSheetNamesCommand;
-JSG.UpdateGraphCellsCommand = UpdateNamesCommands.UpdateGraphCellsCommand;
-JSG.SetGraphCellsCommand = UpdateNamesCommands.SetGraphCellsCommand;
 JSG.SetGraphItemsCommand = UpdateNamesCommands.SetGraphItemsCommand;
 
 JSG.SetBezierLineShapePointCommand = require('./src/graph/command/SetBezierLineShapePointCommand');

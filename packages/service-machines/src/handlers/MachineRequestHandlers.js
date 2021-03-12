@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -77,13 +77,6 @@ const descriptorsToCellDescriptorsObject = (descriptors = []) => {
 	});
 	return cells;
 };
-
-const getGraphCells = (descriptors = []) =>
-	descriptors.reduce((cells, descr) => {
-		const { formula, name, type, value } = descr;
-		cells[name] = { formula, type, value };
-		return cells;
-	}, {});
 
 const handleRequest = async (
 	handler,
@@ -626,37 +619,6 @@ class SetNamedCellsRequestHandler extends RequestHandler {
 	}
 }
 
-// TODO: review, still used??
-class SetGraphCellsRequestHandler extends RequestHandler {
-	constructor() {
-		super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_GRAPH_CELLS);
-	}
-
-	async handle(request, machineserver) {
-		logger.info('SetGraphCellsRequestHandler...');
-		// namedCells = { name: { newName, formula, value, type } }
-		const { machineId, graphCells, streamsheetId } = request;
-		const runner = machineserver.getMachineRunner(machineId);
-		if (runner) {
-			const result = await runner.request('setGraphCells', getUserId(request), {
-				graphCells,
-				streamsheetId
-			});
-			logger.info(
-				'SetGraphCellsRequestHandler set graph-cells: ',
-				graphCells
-			);
-			return this.confirm(request, {
-				machineId,
-				streamsheetId,
-				graphCells: result.graphCells
-			});
-		}
-		// no runner, no machine:
-		throw this.reject(request, `No machine found with id '${machineId}'!`);
-	}
-}
-
 // deprecated? corresponding message topic seems to be unused...
 class SetSheetCellsRequestHandler extends RequestHandler {
 	constructor() {
@@ -808,13 +770,6 @@ class SetCellDataCommandRequestHandler {
 	}
 }
 
-class SetGraphCellsCommandRequestHandler {
-	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
-		const { streamsheetIds, cellDescriptors } = command;
-		const graphCells = cellDescriptors.map((descriptor) => getGraphCells(descriptor));
-		return runner.request('replaceGraphCells', userId, { graphCells, streamsheetIds });
-	}
-}
 class SetGraphItemsCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
 		const { streamsheetIds, graphItems } = command;
@@ -941,39 +896,6 @@ class UpdateSheetNamesCommandRequestHandler {
 	}
 }
 
-class UpdateGraphCellsCommandRequestHandler {
-	mapCommand(command) {
-		let cmd = {};
-		cmd.name = command.sheetname;
-		switch (command.name) {
-			case 'command.AddGraphCellCommand':
-			case 'command.SetGraphCellCommand':
-				cmd.celldescr = getCellDescriptorFromCommand(command);
-				cmd.celldescr.newName = command.newName;
-				break;
-			case 'command.DeleteGraphCellCommand':
-				break;
-			default:
-				cmd = undefined;
-		}
-		return cmd;
-	}
-
-	async handleCommand(command, runner, streamsheetId, userId) {
-		const graphCells = {};
-
-		command.commands.forEach((cmd) => {
-			const mappedCmd = this.mapCommand(cmd);
-			if (mappedCmd)
-				graphCells[mappedCmd.name] = mappedCmd.celldescr || {};
-		});
-
-		return Object.keys(graphCells).length
-			? runner.request('setGraphCells', userId, { graphCells, streamsheetId })
-			: { warning: 'Ignore UpdateGraphCellsCommand because it contains no update commands' };
-	}
-}
-
 // TODO: for testing purpose only. Should be removed!!!
 // replace each CompoundCommand we deal with by a custom one...
 class CompoundCommandRequestHandler {
@@ -1054,10 +976,6 @@ class CommandRequestHandler extends RequestHandler {
 				new SetCellsCommandRequestHandler()
 			],
 			[
-				'command.SetGraphCellsCommand',
-				new SetGraphCellsCommandRequestHandler()
-			],
-			[
 				'command.SetGraphItemsCommand',
 				new SetGraphItemsCommandRequestHandler()
 			],
@@ -1069,10 +987,6 @@ class CommandRequestHandler extends RequestHandler {
 			// ],
 			// ~
 
-			[
-				'command.UpdateGraphCellsCommand',
-				new UpdateGraphCellsCommandRequestHandler()
-			],
 			[
 				'command.UpdateSheetNamesCommand',
 				new UpdateSheetNamesCommandRequestHandler()
@@ -1198,7 +1112,6 @@ module.exports = {
 	SetMachineLocaleRequestHandler,
 	SetMachineUpdateIntervalRequestHandler,
 	SetNamedCellsRequestHandler,
-	SetGraphCellsRequestHandler,
 	SetSheetCellsRequestHandler,
 	SetStreamSheetsOrderRequestHandler,
 	StartMachineRequestHandler,

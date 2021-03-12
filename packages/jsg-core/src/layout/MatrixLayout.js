@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -90,7 +90,24 @@ module.exports = class MatrixLayout extends Layout {
 		box.setHeight(rows * height + (rows + 1) * margin);
 		// finally: did something change?
 		if (!oldbox.isEqualTo(box, 0.001)) {
-			item.setBoundingBoxTo(box, true);
+			// only change, if no formula in geometry
+			if (!item.getWidth().hasFormula()) {
+				item.setWidth(box.getWidth());
+			}
+			if (!item.getHeight().hasFormula()) {
+				item.setHeight(box.getHeight());
+			}
+			const center = box.getCenter();
+			const pin = item.getPin();
+			if (!pin.getX().hasFormula()) {
+				pin.setX(new JSG.NumberExpression(center.x));
+			}
+			if (!pin.getY().hasFormula()) {
+				pin.setY(new JSG.NumberExpression(center.y));
+			}
+
+			// this.setOriginTo(newbbox.getTopLeft(newTopLeft));
+			// item.setBoundingBoxTo(box, true);
 			changed = true;
 		}
 		JSG.boxCache.release(oldbox, box, newbox);

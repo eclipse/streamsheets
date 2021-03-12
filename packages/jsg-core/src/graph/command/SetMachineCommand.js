@@ -125,10 +125,6 @@ module.exports = class SetMachineCommand extends AbstractItemCommand {
 					});
 				}
 
-				if (sourceData.graphItems) {
-					sheet.setGraphItems(this.graphItems);
-				}
-
 				if (sourceData.shapes) {
 					sheet.setShapes(this.shapes);
 				}

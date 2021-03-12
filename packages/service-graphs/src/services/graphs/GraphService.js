@@ -174,15 +174,12 @@ module.exports = class GraphService extends MessagingService {
 			this._graphManager.handleMachineDescriptorUpdate(event);
 		} else if (event.type === GatewayMessagingProtocol.EVENTS.MACHINE_STEP_EVENT) {
 			event.streamsheets.forEach((streamsheet) => {
-				const { cells, graphCells, id, namedCells, drawings, shapes, graphItems } = streamsheet;
+				const { cells, id, namedCells, shapes } = streamsheet;
 				this._graphManager.handleStreamSheetStep(
 					event.srcId,
 					id,
 					cells,
 					namedCells,
-					graphCells,
-					drawings,
-					graphItems,
 					shapes,
 				);
 			});

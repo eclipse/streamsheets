@@ -376,9 +376,6 @@ export default class GraphManager {
 		jsonpath,
 		cells,
 		namedCells,
-		graphCells,
-		drawings,
-		graphItems,
 		shapes,
 		outbox,
 		stats,
@@ -388,7 +385,7 @@ export default class GraphManager {
 		this.updateStreamSheetId(streamsheetId);
 		const updatePathCommand = this.updatePath(streamsheetId, jsonpath);
 		this.updateLoopIndex(streamsheetId, jsonpath);
-		const updateCellsCommand = this.updateCells(streamsheetId, cells, drawings, graphItems, graphCells, shapes, namedCells);
+		const updateCellsCommand = this.updateCells(streamsheetId, cells, shapes, namedCells);
 		const command = new CompoundCommand();
 		if (updatePathCommand) {
 			command.add(updatePathCommand);
@@ -433,11 +430,9 @@ export default class GraphManager {
 				const {
 					streamsheetId,
 					cells,
-					drawings,
-					graphItems,
 					shapes,
 				} = response.machineserver;
-				this.updateCellValues(streamsheetId, cells, drawings, graphItems, shapes);
+				this.updateCellValues(streamsheetId, cells, shapes);
 				this.redraw();
 			}
 		}
@@ -447,8 +442,8 @@ export default class GraphManager {
 		}
 	}
 
-	updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, shapes, namedCells) {
-		const updateCellsCommand = this.updateCells(streamsheetId, cells, drawings, graphItems, graphCells, shapes, namedCells);
+	updateCellValues(streamsheetId, cells, shapes, namedCells) {
+		const updateCellsCommand = this.updateCells(streamsheetId, cells, shapes, namedCells);
 		if (updateCellsCommand) {
 			updateCellsCommand.execute();
 			// to update editbar
@@ -468,10 +463,10 @@ export default class GraphManager {
 		}
 	}
 
-	updateCells(streamsheetId, data, drawings, graphItems, graphCells, shapes, namedCells) {
+	updateCells(streamsheetId, data, shapes, namedCells) {
 		const processSheet = this.getStreamSheet(streamsheetId);
 		if (processSheet) {
-			const command = new SetSheetCellsCommand(processSheet, data, drawings, graphItems, shapes, graphCells, namedCells);
+			const command = new SetSheetCellsCommand(processSheet, data, shapes, namedCells);
 			// this.redraw();
 			return command;
 		}
@@ -1070,7 +1065,6 @@ export default class GraphManager {
 			sheetCopy.setSize(cs.deviceToLogX(width * 3) + 500, cs.deviceToLogX(height * 3) + 500);
 			sheetCopy.setOrigin(0, 0);
 			sheetCopy.getWorksheetAttributes().setShowHeader(false);
-			sheetCopy._drawings = sheet.getDrawings();
 			sheetCopy.layout();
 
 			const view = graphEditor.getGraphViewer().getGraphView();
