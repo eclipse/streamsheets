@@ -191,9 +191,6 @@ export class SettingsMenu extends React.Component {
 	render() {
 		const { displayName } = JSON.parse(localStorage.getItem('user')) || {};
 		const { user } = this.props.user;
-		if (!this.props.openMoreSettingMenu) {
-			return null;
-		}
 		return (
 			<div
 				style={{
@@ -214,70 +211,77 @@ export class SettingsMenu extends React.Component {
 						</IconButton>
 					</div>
 				</Tooltip>
-				<Menu
-					id="long-menu"
-					anchorEl={this.props.anchorEl}
-					open={this.props.openMoreSettingMenu}
-					onClose={() => this.props.setAppState({ anchorEl: null, openMoreSettingMenu: false })}
-				>
-					<Card
-						square
-						elevation={0}
-						style={{
-							marginTop: '-8px',
-							outline: 'none',
-						}}
+				{this.props.openMoreSettingMenu ? (
+					<Menu
+						id="long-menu"
+						anchorEl={this.props.anchorEl}
+						open={this.props.openMoreSettingMenu}
+						onClose={() => this.props.setAppState({anchorEl: null, openMoreSettingMenu: false})}
 					>
-						<CardHeader
-							title={<div style={{ color: Colors.grey[50] }}>{ displayName}</div>}
-							subheader={<address style={{ color: Colors.grey[50] }}>{user ? user.mail : ""}</address>}
-							avatar={<Avatar alt="Remy Sharp" src="images/avatar.png" />}
-							disabled
+						<Card
+							square
+							elevation={0}
 							style={{
-								backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
+								marginTop: '-8px',
 								outline: 'none',
 							}}
-						/>
-					</Card>
-					<MenuItem dense onClick={this.showPreferencesDialog}>
-						<ListItemIcon>
-							<Settings />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="UserPreferences" defaultMessage="User Preferences" />}/>
-					</MenuItem>
-					{this.props.isAdminPage ? null : (
-					<MenuItem dense onClick={this.handleOpenAdmin}>
-						<ListItemIcon>
-							<Security />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="Administration" defaultMessage="Administration" />}/>
-					</MenuItem>)}
-					<MenuItem dense onClick={this.showHelpDialog}>
-						<ListItemIcon>
-							<Info />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="Info" defaultMessage="Info" />}/>
-					</MenuItem>
-					<MenuItem dense onClick={() => this.showLicenseAgreement('DE')}>
-						<ListItemIcon>
-							<Assignment />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseDE" defaultMessage="Download license (English)" />}/>
-					</MenuItem>
-					<MenuItem dense onClick={() => this.showLicenseAgreement('EN')}>
-						<ListItemIcon>
-							<Assignment />
-						</ListItemIcon>
-						<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseEN" defaultMessage="Download license (German)" />}/>
-					</MenuItem>
-					<Divider />
-					<MenuItem dense onClick={this.logout}>
-						<ListItemIcon>
-							<ExitToApp />
-						</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="Logout" defaultMessage="Logout" />}/>
-					</MenuItem>
-				</Menu>
+						>
+							<CardHeader
+								title={<div style={{color: Colors.grey[50]}}>{displayName}</div>}
+								subheader={<address style={{color: Colors.grey[50]}}>{user ? user.mail : ""}</address>}
+								avatar={<Avatar alt="Remy Sharp" src="images/avatar.png"/>}
+								disabled
+								style={{
+									backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
+									outline: 'none',
+								}}
+							/>
+						</Card>
+						<MenuItem dense onClick={this.showPreferencesDialog}>
+							<ListItemIcon>
+								<Settings/>
+							</ListItemIcon>
+							<ListItemText
+								primary={<FormattedMessage id="UserPreferences" defaultMessage="User Preferences"/>}/>
+						</MenuItem>
+						{this.props.isAdminPage ? null : (
+							<MenuItem dense onClick={this.handleOpenAdmin}>
+								<ListItemIcon>
+									<Security/>
+								</ListItemIcon>
+								<ListItemText
+									primary={<FormattedMessage id="Administration" defaultMessage="Administration"/>}/>
+							</MenuItem>)}
+						<MenuItem dense onClick={this.showHelpDialog}>
+							<ListItemIcon>
+								<Info/>
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="Info" defaultMessage="Info"/>}/>
+						</MenuItem>
+						<MenuItem dense onClick={() => this.showLicenseAgreement('DE')}>
+							<ListItemIcon>
+								<Assignment/>
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseDE"
+																	 defaultMessage="Download license (English)"/>}/>
+						</MenuItem>
+						<MenuItem dense onClick={() => this.showLicenseAgreement('EN')}>
+							<ListItemIcon>
+								<Assignment/>
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseEN"
+																	 defaultMessage="Download license (German)"/>}/>
+						</MenuItem>
+						<Divider/>
+						<MenuItem dense onClick={this.logout}>
+							<ListItemIcon>
+								<ExitToApp/>
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="Logout" defaultMessage="Logout"/>}/>
+						</MenuItem>
+					</Menu>
+				) : null}
+				{this.props.openPreferences ? (
 				<Dialog
 					open={this.props.openPreferences}
 					onClose={this.handlePreferencesCancel}
@@ -406,6 +410,8 @@ export class SettingsMenu extends React.Component {
 						</Button>
 					</DialogActions>
 				</Dialog>
+				) : null}
+				{this.props.openHelp ? (
 				<Dialog
 					open={this.props.openHelp}
 					onClose={this.handleCloseHelp}
@@ -532,6 +538,7 @@ export class SettingsMenu extends React.Component {
 						</Button>
 					</DialogActions>
 				</Dialog>
+				) : null}
 			</div>
 		);
 	}

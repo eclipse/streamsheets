@@ -11,16 +11,12 @@
 import JSG from '@cedalo/jsg-ui';
 import { NumberFormatter } from '@cedalo/number-format';
 import { Locale } from '@cedalo/parser';
-
-// import * as Actions from './actions/actions';
 import SheetParserContext from './SheetParserContext';
 import CommandStack from './helper/synchronization/CommandStack';
 import GraphSynchronizationInteractionHandler from './helper/synchronization/GraphSynchronizationInteractionHandler';
 import store from './store';
 import StreamHelper from './helper/StreamHelper';
 import { intl } from './helper/IntlGlobalProvider';
-// import { Path } from './helper/Path';
-
 
 const {
 	AddTreeItemCommand,
@@ -33,7 +29,6 @@ const {
 	GraphEditor,
 	SheetGraphItemEventActivator,
 	SheetPlotActivator,
-	// CreateEdgeActivator,
 	EditTextActivator,
 	JSONReader,
 	MarqueeActivator,
@@ -49,7 +44,6 @@ const {
 	RotateActivator,
 	SheetActivator,
 	LinkActivator,
-	StreamSheet,
 	Rectangle,
 	CaptionActivator,
 	ButtonActivator,
@@ -340,23 +334,9 @@ export default class GraphManager {
 	}
 
 	getActiveSheetView() {
-		let view;
-
-		if (this._graphEditor === undefined || this._graphEditor.getGraphViewer() === undefined) {
-			return undefined;
-		}
-
-		this._graphEditor.getGraphViewer().getGraphController().findControllerByCondition((controller) => {
-			const item = controller.getModel();
-			if (item instanceof StreamSheet) {
-				if (item.getOwnSelection().hasSelection()) {
-					view = controller.getView();
-					return true;
-				}
-			}
-			return false;
-		});
-		return view;
+		return (this._graphEditor && this._graphEditor.getGraphViewer()) ?
+			this._graphEditor.getGraphViewer().activeView :
+			undefined;
 	}
 
 	getInboxMessageTreeItems(streamsheetId) {

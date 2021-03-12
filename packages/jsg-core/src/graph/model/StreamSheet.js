@@ -132,29 +132,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this._rows.saveCondensed(writer, 'rows');
 		this._columns.saveCondensed(writer, 'columns');
 
-		if (undo) {
-			const saveFormula = (item) => {
-				const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-				if (attrFormula) {
-					const expr = attrFormula.getExpression();
-					if (expr !== undefined && expr.hasFormula()) {
-						writer.writeStartElement('xpr');
-						writer.writeAttributeString('id', String(item.getId()));
-						expr.save('expr', writer, 2);
-						writer.writeEndElement();
-						// item.expressions.forEach(exp => {
-						// });
-					}
-				}
-			};
-
-			writer.writeStartArray('drawformulas');
-			GraphUtils.traverseItem(this.getCells(), (item) => saveFormula(item));
-			writer.writeEndArray('drawformulas');
-		} else {
-			writer.writeStartElement('drawings');
-			this._cells._saveSubItems(writer);
-			writer.writeEndElement();
+		if (!undo) {
+			// writer.writeStartElement('drawings');
+			// this._cells._saveSubItems(writer);
+			// writer.writeEndElement();
 
 			// save default cell
 			writer.writeStartElement('defaultcell');
@@ -221,26 +202,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 									break;
 							}
 						});
-						break;
-					case 'drawformulas': {
-						const id = reader.getAttributeNumber(child,'id');
-						if (id !== undefined) {
-							const item = this.getItemById(id);
-							if (item) {
-								const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
-								if (attrFormula) {
-									const expr = attrFormula.getExpression();
-									if (expr) {
-										const obj = reader.getObject(child, 'expr');
-										if (obj) {
-											expr.read(reader, obj);
-											expr.evaluate(item);
-										}
-									}
-								}
-							}
-						}
-					}
 						break;
 					case 'defaultcell': {
 						const cell = reader.getObject(child, 'cell');

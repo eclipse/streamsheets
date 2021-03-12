@@ -128,10 +128,6 @@ class SetAttributeAtPathCommand extends AbstractItemCommand {
 		if (attr) {
 			attr.setExpressionOrValue(value);
 			attr.evaluate(this._graphItem);
-		} else if (this._create) {
-			attr = new Attribute('sheetformula', value);
-			this._graphItem.addAttributeAtPath(this._path, attr);
-			attr.evaluate(this._graphItem);
 		}
 
 		this._graphItem.updateSubAttributes();
