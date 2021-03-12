@@ -213,7 +213,7 @@ export class GraphItemProperties extends Component {
 	}
 
 	render() {
-		if (!this.state.view) {
+		if (!this.state.view || !this.props.showStreamChartProperties) {
 			return <div />;
 		}
 		const item = this.state.view.getItem();

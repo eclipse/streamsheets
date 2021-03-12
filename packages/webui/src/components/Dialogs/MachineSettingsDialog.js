@@ -179,6 +179,9 @@ export class MachineSettingsDialog extends React.Component {
 	};
 
 	render() {
+		if (!this.props.openSettings) {
+			return <div />
+		}
 		return (
 			<Dialog
 				open={this.props.openSettings}

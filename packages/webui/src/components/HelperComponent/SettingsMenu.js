@@ -191,6 +191,9 @@ export class SettingsMenu extends React.Component {
 	render() {
 		const { displayName } = JSON.parse(localStorage.getItem('user')) || {};
 		const { user } = this.props.user;
+		if (!this.props.openMoreSettingMenu) {
+			return null;
+		}
 		return (
 			<div
 				style={{

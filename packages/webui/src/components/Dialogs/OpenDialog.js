@@ -26,6 +26,10 @@ import { Path } from '../../helper/Path';
 export function OpenDialog(props) {
 	const { open } = props;
 
+	if (!open) {
+		return null;
+	}
+
 	const handleClose = (machine) => {
 		props.setAppState({ showOpenDialog: false });
 		window.open(Path.machine(machine.id), '_blank');

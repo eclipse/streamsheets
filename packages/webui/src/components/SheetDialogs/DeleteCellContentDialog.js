@@ -82,6 +82,9 @@ export class DeleteCellContentDialog extends React.Component {
 	};
 
 	render() {
+		if (!this.state.open) {
+			return <div />
+		}
 		return (
 			<div>
 				<Dialog
