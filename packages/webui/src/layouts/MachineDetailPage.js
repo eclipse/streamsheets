@@ -108,7 +108,26 @@ export function MachineDetailPage(props) {
 
 	// Update canvas if showTools or viewMode change
 	useEffect(() => {
-		graphManager.updateCanvas(showTools, viewMode);
+		graphManager.updateCanvas(showTools, {
+			pos1: {
+			  sheet: 'theSheetId',
+			  hideheader: true,
+			  hidegrid: true,
+			  zoomdisabled: true,
+			  scrolldisabled: false,
+			  // viewMode: "",
+			  // view: "",
+			},
+			pos2: {
+			  sheet: null,
+			  hideheader: true,
+			  hidegrid: true,
+			  zoomdisabled: true,
+			  scrolldisabled: false,
+			  // viewMode: "",
+			  // view: "",
+			},
+		  });
 	}, [showTools, viewMode]);
 
 	const loadUser = async () => {
