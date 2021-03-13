@@ -168,7 +168,7 @@ export class TextFormatProperties extends Component {
 				])}
 				{this.getAttributeHandler("GraphItemProperties.Alignment", item, JSG.TextFormatAttributes.HORIZONTALALIGN, false, [
 					{ value: '0', label: 'GraphItemProperties.Left'},
-					{ value: '1', label: 'GraphItemProperties.Center'},
+					{ value: '1', label: 'GraphItemProperties.AlignCenter'},
 					{ value: '2', label: 'GraphItemProperties.Right'},
 				])}
 				{this.getAttributeHandler("GraphItemProperties.HorizontalPosition", item, JSG.TextFormatAttributes.HORIZONTALPOSITION, false, [

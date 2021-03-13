@@ -142,8 +142,8 @@ export class FormatProperties extends Component {
 				{this.getAttributeHandler("GraphItemProperties.LineColor", item, JSG.FormatAttributes.LINECOLOR, 'color')}
 				{this.getAttributeHandler("GraphItemProperties.LineWidth", item, JSG.FormatAttributes.LINEWIDTH)}
 				{this.getAttributeHandler("GraphItemProperties.LineStyle", item, JSG.FormatAttributes.LINESTYLE, [
-					{ value: '0', label: 'GraphItemProperties.None' },
-					{ value: '1', label: 'GraphItemProperties.Solid' },
+					{ value: '0', label: 'GraphItemProperties.NoLS' },
+					{ value: '1', label: 'GraphItemProperties.SolidLS' },
 					{ value: '2', label: 'GraphItemProperties.Dot' },
 					{ value: '3', label: 'GraphItemProperties.Dash' },
 					{ value: '4', label: 'GraphItemProperties.DashDot' },
@@ -153,7 +153,7 @@ export class FormatProperties extends Component {
 					])}
 				{item.getItemAttributes().getClosed().getValue() === false ? (
 					this.getAttributeHandler("GraphItemProperties.StartArrow", item, JSG.FormatAttributes.LINEARROWSTART, [
-							{ value: '0', label: 'GraphItemProperties.None' },
+							{ value: '0', label: 'GraphItemProperties.NoArrow' },
 							{ value: '1', label: 'GraphItemProperties.ArrowFilled' },
 							{ value: '2', label: 'GraphItemProperties.ArrowFilledSmall' },
 							{ value: '7', label: 'GraphItemProperties.ArrowDoubleFilled' },
@@ -166,7 +166,7 @@ export class FormatProperties extends Component {
 				) : null}
 				{item.getItemAttributes().getClosed().getValue() === false ? (
 					this.getAttributeHandler("GraphItemProperties.EndArrow", item, JSG.FormatAttributes.LINEARROWEND, [
-						{ value: '0', label: 'GraphItemProperties.None' },
+						{ value: '0', label: 'GraphItemProperties.NoArrow' },
 						{ value: '1', label: 'GraphItemProperties.ArrowFilled' },
 						{ value: '2', label: 'GraphItemProperties.ArrowFilledSmall' },
 						{ value: '7', label: 'GraphItemProperties.ArrowDoubleFilled' },
