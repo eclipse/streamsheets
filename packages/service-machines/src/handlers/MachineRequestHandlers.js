@@ -468,23 +468,25 @@ class LoadMachineRequestHandler extends RequestHandler {
 
 	async handle(request, machineserver, repositoryManager) {
 		logger.info(`load machine: ${request.machineId}...`);
+		const { machineId, migrations, scope } = request;
 		try {
-			const result = await machineserver.loadMachine(request.machineId, request.scope, async () => {
-				const machine = await repositoryManager.machineRepository.findMachine(request.machineId);
-				if (machine.isTemplate) {
-					machine.scope = request.scope;
-				}
+			let result = await machineserver.loadMachine(machineId, scope, async () => {
+				const machine = await repositoryManager.machineRepository.findMachine(machineId);
+				if (machine.isTemplate) machine.scope = scope;
 				return machine;
 			});
+			if (migrations) {
+				result = await machineserver.applyMigrations(machineId, scope, request.migrations);
+			}
 			const newMachine = !!result.templateId;
 			if (newMachine) {
 				await repositoryManager.machineRepository.saveMachine(JSON.parse(JSON.stringify(result.machine)));
 			}
-			logger.info(`load machine ${request.machineId} successful`);
+			logger.info(`load machine ${machineId} successful`);
 			return this.confirm(request, result);
 		} catch (err) {
-			logger.error(`load machine ${request.machineId} failed:`, err);
-			throw this.reject(request, `Failed to load machine with id '${request.machineId}'!`);
+			logger.error(`load machine ${machineId} failed:`, err);
+			throw this.reject(request, `Failed to load machine with id '${machineId}'!`);
 		}
 	}
 }

@@ -163,6 +163,16 @@ module.exports = class MachineServer {
 		// throw new Error(`Failed to unload machine with id: ${machineId}!`);
 	}
 	// ~
+	async applyMigrations(machineId, session, migrations) {
+		const runner = this.getMachineRunner(machineId);
+		if (runner) {
+			const user = session.user;
+			const userId = user && user.userId;
+			await runner.request('applyMigrations', userId, migrations);
+			return runner.getDefinition();
+		}
+		return new Error(`Unknown machine with id: ${machineId}`);
+	}
 
 	_doLoadMachine(definition, session) {
 		if (!this._pendingLoads.has(definition.id)) {
