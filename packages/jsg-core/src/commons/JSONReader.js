@@ -81,13 +81,17 @@ module.exports = class JSONReader extends Reader {
 				}
 			} else if (Strings.startsWith(prop, 'a-')) {
 				// enumerate sub items in array
-				const name = prop.slice(2);
-				object[prop].every((val) => {
-					if (callback(name, val) === false) {
-						return false;
-					}
-					return true;
-				});
+				if (object[prop]) {
+					const name = prop.slice(2);
+					object[prop].every((val) => {
+						if (callback(name, val) === false) {
+							return false;
+						}
+						return true;
+					});
+				// } else {
+				// 	console.log(`no array defined for property: ${prop} in object`, object);
+				}
 			}
 		}
 		/* eslint-enable no-restricted-syntax */
