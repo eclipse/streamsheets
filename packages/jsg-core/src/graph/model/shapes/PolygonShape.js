@@ -147,7 +147,7 @@ class PolygonShape extends Shape {
 		if (this._source.getTerm()) {
 			let term;
 			try {
-				term = JSG.FormulaParser.parse(this._source.getValue(), this._item.getGraph(), this._item);
+				term = JSG.FormulaParser.parse(this._source.getValue(), this._item.getGraph(), this._item) || {};
 			} catch (e) {
 				return false;
 			}
