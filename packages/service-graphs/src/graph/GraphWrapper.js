@@ -59,6 +59,11 @@ const redisConnection = (machineId) => {
 	};
 };
 
+const clearShapes = (cellsnode) => {
+	const shapes = [...cellsnode.getItems()];
+	shapes.forEach((shape) => cellsnode.removeItem(shape));
+};
+
 module.exports = class GraphWrapper {
 	constructor(graph, machineId) {
 		this.id = graph.getType().getValue(); // <-- remove! should not be required! misuse of type attribute...
@@ -82,6 +87,13 @@ module.exports = class GraphWrapper {
 
 	get machineId() {
 		return this._machineId;
+	}
+
+	get migrations() {
+		return this._migrations;
+	}
+	set migrations(obj) {
+		this._migrations = obj;
 	}
 
 	// TODO: use utility methods
@@ -147,6 +159,28 @@ module.exports = class GraphWrapper {
 	updateMachineLoadSubscribe(machine) {
 		const command = new LoadMachineCommand(this.graph, machine);
 		command.execute();
+	}
+
+	checkMigrations(machine) {
+		if (this.migrations) {
+			// currently only shapes
+			const machineShapes = machine.streamsheets.reduce((map, streamsheet) => {
+				const sheetshapes = streamsheet.sheet.shapes;
+				const shapes = sheetshapes && sheetshapes.shapes;
+				map[streamsheet.id] = !!(shapes && shapes.length);
+				return map;
+			}, {});
+			const { shapes } = this.migrations;
+			const migratedShapes = shapes.filter(({ streamsheetId }) => {
+				const graphsheet = machineShapes[streamsheetId] && this._getProcessSheet(streamsheetId);
+				// remove from graph:
+				if (graphsheet) clearShapes(graphsheet.getCells());
+				return !!graphsheet;
+			});
+			this.migrations.shapes = shapes.filter((sheetshapes) => !migratedShapes.includes(sheetshapes));
+			return migratedShapes.length > 0;
+		}
+		return false;
 	}
 
 	updateProcessSheets(streamsheets) {

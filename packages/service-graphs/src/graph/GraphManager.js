@@ -65,11 +65,13 @@ module.exports = class GraphManager {
 	}
 
 	// returns id under which graph was added or undefined...
-	addGraph({ id = IdGenerator.generate(), graph, machineId }) {
+	addGraph({ id = IdGenerator.generate(), graph, machineId, migrations }) {
 		const add = graph && !this._graphWrappers.has(id);
 		if (add) {
 			graph.setType(id); // <-- TODO: remove this, should not be required!! misuse of type attribute...
-			this._graphWrappers.set(id, new GraphWrapper(graph, machineId));
+			const wrapper = new GraphWrapper(graph, machineId);
+			wrapper.migrations = migrations;
+			this._graphWrappers.set(id, wrapper);
 		}
 		return add ? id : undefined;
 	}

@@ -18,27 +18,24 @@ function JSONToGraph(json) {
 	const graph = new MachineGraph();
 	const reader = new JSONReader(json);
 	const root = reader.getRoot();
+	let shapes;
 	graph.read(reader, root.graphdef);
 
 	if (root.graphdef.version === '2') {
 		const container = graph.getStreamSheetsContainer();
 		if (container) {
+			shapes = [];
 			container.enumerateStreamSheetContainers((sheet) => {
-				// eslint-disable-next-line no-shadow
+				const shapesJSON = sheet.getStreamSheet().getCells().subItemsToJSON();
 				const streamsheetId = sheet.getStreamSheetContainerAttributes().getSheetId().getValue();
-				// eslint-disable-next-line no-shadow
-				const json = sheet.getStreamSheet().getCells().subItemsToJSON();
-				// eslint-disable-next-line no-empty
-				if (json) {
-					// move to machine server
-					// sheet.getStreamSheet().getCells()._subItems = [];
-					// delete subitems from graph, if succesfull, maybe save graph again
+				if (shapesJSON) {
+					shapes.push({ streamsheetId, json: shapesJSON });
 				}
 			});
 		}
 	}
 
-	return graph;
+	return { graph, shapes };
 }
 
 function createGraph() {
@@ -53,11 +50,14 @@ function createGraph() {
 }
 
 async function loadGraphByMachineId(machineId, graphManager, graphRepository) {
-	let graph;
 	let id;
+	let graph;
+	let migrations;
 	try {
 		const graphJSON = await graphRepository.findGraphByMachineId(machineId);
-		graph = JSONToGraph(JSON.stringify(graphJSON));
+		const { graph: loadedGraph, shapes } = JSONToGraph(JSON.stringify(graphJSON));
+		if (shapes && shapes.length) migrations = { shapes };
+		graph = loadedGraph;
 		id = graphJSON.id;
 	} catch (error) {
 		if (error.code === CODES.GRAPH_NOT_FOUND) {
@@ -71,6 +71,7 @@ async function loadGraphByMachineId(machineId, graphManager, graphRepository) {
 		graphManager.addGraph({
 			graph,
 			machineId,
+			migrations,
 			id
 		});
 	}
