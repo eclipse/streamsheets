@@ -57,7 +57,7 @@ const isPointInPolygon = (points, p) => {
 	for (i = 1; i <= points.length; i += 1) {
 		const p2 = points[i % points.length];
 		// bail out early if point is on current line segment...
-		if (this.isPointOnLineSegment(p, p1, p2)) {
+		if (isPointOnLineSegment(p, p1, p2)) {
 			return 0;
 		}
 		if ((p1.y < p.y && p2.y >= p.y) || (p2.y < p.y && p1.y >= p.y)) {

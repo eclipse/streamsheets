@@ -128,10 +128,10 @@ export class AttributeProperties extends Component {
 			<FormGroup>
 				{this.getAttributeHandler("GraphItemProperties.Container", item, JSG.ItemAttributes.CONTAINER)}
 				{this.getAttributeHandler("GraphItemProperties.Selection", item, JSG.ItemAttributes.SELECTIONMODE,  [
-					{ value: '0', 'label': 'Not selectable'},
-					{ value: '1', 'label': 'On Border'},
-					{ value: '2', 'label': 'On Area'},
-					{ value: '4', 'label': 'Default'},
+					{ value: '0', label: 'GraphItemProperties.NotSelectable'},
+					{ value: '1', label: 'GraphItemProperties.OnBorder'},
+					{ value: '2', label: 'GraphItemProperties.OnArea'},
+					{ value: '4', label: 'GraphItemProperties.Default'},
 				])}
 				{this.getAttributeHandler("GraphItemProperties.Clip", item, JSG.ItemAttributes.CLIPCHILDREN)}
 				{this.getAttributeHandler("GraphItemProperties.Closed", item, JSG.ItemAttributes.CLOSED)}
@@ -139,10 +139,10 @@ export class AttributeProperties extends Component {
 				{this.getAttributeHandler("GraphItemProperties.Sizeable", item, JSG.ItemAttributes.SIZEABLE)}
 				{this.getAttributeHandler("GraphItemProperties.Deletable", item, JSG.ItemAttributes.DELETEABLE)}
 				{this.getAttributeHandler("GraphItemProperties.Moveable", item, JSG.ItemAttributes.MOVEABLE,  [
-					{ value: '0', 'label': 'Not moveable'},
-					{ value: '1', 'label': 'Only vertical'},
-					{ value: '2', 'label': 'Only horizontal'},
-					{ value: '3', 'label': 'Move free'},
+					{ value: '0', label: 'GraphItemProperties.NotMoveable'},
+					{ value: '1', label: 'GraphItemProperties.OnlyVertical'},
+					{ value: '2', label: 'GraphItemProperties.OnlyHorizontal'},
+					{ value: '3', label: 'GraphItemProperties.MoveFree'},
 					])}
 			</FormGroup>
 		);
