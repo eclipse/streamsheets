@@ -249,6 +249,27 @@ class AddInboxMessage extends ARequestHandler {
 // 	return Promise.all(allRequests);
 // });
 // ~
+
+class ApplyMigrations extends ARequestHandler {
+	// currently only shapes...
+	handle({ shapes = [] }) {
+		let unknownSheet;
+		shapes.forEach((shapesjson) => {
+			const { streamsheetId, json } = shapesjson;
+			const streamsheet = this.machine.getStreamSheet(streamsheetId);
+			const sheet = streamsheet && streamsheet.sheet;
+			if (sheet) {
+				sheet.getShapes().fromJSON(json);
+				sheet.getShapes().evaluate();
+				shapes = sheet.getShapes().toJSON();
+			}
+			else unknownSheet = streamsheetId;
+		});
+		return unknownSheet == null
+			? Promise.resolve({ shapes })
+			: Promise.reject(new Error(`Unknown streamsheet id: ${unknownSheet}`));
+	}
+}
 class CreateStreamSheet extends ARequestHandler {
 	handle(/* msg */) {
 		const result = {};
@@ -889,6 +910,7 @@ class RequestHandlerRegistry {
 		const machine = monitor.machine;
 		const registry = new RequestHandlerRegistry();
 		registry.handlers.set('addInboxMessage', new AddInboxMessage(machine, monitor));
+		registry.handlers.set('applyMigrations', new ApplyMigrations(machine, monitor));
 		registry.handlers.set('createStreamSheet', new CreateStreamSheet(machine, monitor));
 		registry.handlers.set('executeFunction', new ExecuteFunction(machine, monitor));
 		registry.handlers.set('definition', new Definition(machine, monitor));
