@@ -164,9 +164,6 @@ class ContentPaneView extends GraphItemView {
 					if (subview.getItem().isItemVisible()) {
 						subview.layout();
 						const rect2 = subview.getItem().getTotalBoundingRect(undefined, tmprect)
-						if (Number.isNaN(rect2.x)) {
-							console.log(subview.getItem().getName());
-						}
 						rect.union(rect2);
 					}
 				});
@@ -206,7 +203,7 @@ class ContentPaneView extends GraphItemView {
 		this.drawSubViews(graphics);
 	}
 
-	onResize(view) {
+	onResize() {
 		this.revalidate();
 	}
 }

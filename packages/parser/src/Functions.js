@@ -177,25 +177,25 @@ module.exports.Functions = {
 	 * @param linewidth
 	 * @param linecolor
 	 */
-	LINEFORMAT: (scope, ...terms) => {
+	LINEFORMAT: () => {
 		return OK.TRUE;
 	},
-	FILLLINEARGRADIENT: (scope, ...terms) => {
+	FILLLINEARGRADIENT: () => {
 		return OK.TRUE;
 	},
-	FILLRADIALGRADIENT: (scope, ...terms) => {
+	FILLRADIALGRADIENT: () => {
 		return OK.TRUE;
 	},
-	FILLPATTERN: (scope, ...terms) => {
+	FILLPATTERN: () => {
 		return OK.TRUE;
 	},
-	FONTFORMAT: (scope, ...terms) => {
+	FONTFORMAT: () => {
 		return OK.TRUE;
 	},
-	ATTRIBUTES: (scope, ...terms) => {
+	ATTRIBUTES: () => {
 		return OK.TRUE;
 	},
-	EVENTS: (scope, ...terms) => {
+	EVENTS: () => {
 		return OK.TRUE;
 	},
 	QRCODE: (scope, ...terms) => {

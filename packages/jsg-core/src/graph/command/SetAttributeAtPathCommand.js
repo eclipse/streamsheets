@@ -122,7 +122,7 @@ class SetAttributeAtPathCommand extends AbstractItemCommand {
 	}
 
 	_setAttributeTo(value) {
-		let attr = this._graphItem.getAttributeAtPath(this._path);
+		const attr = this._graphItem.getAttributeAtPath(this._path);
 
 		// value of 0 or false should be allowed
 		if (attr) {
