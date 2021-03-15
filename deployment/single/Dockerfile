@@ -1,4 +1,4 @@
-FROM node:12.4.0-alpine
+FROM node:12.21.0-buster
 LABEL maintainer="philip.ackermann@cedalo.com"
 
 ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml \
@@ -29,7 +29,15 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	NODE_ENV=production \
 	STREAMS_SERVICE_START_DELAY=5000
 
-RUN apk --no-cache add g++ make bash curl nginx git gnupg rsync unzip mongodb mosquitto openssl redis supervisor
+RUN apt-get update && apt-get -y upgrade
+RUN apt-get install -y g++ make bash curl nginx git gnupg rsync unzip mosquitto openssl redis supervisor
+
+# RUN apt-get install gnupg
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - && \
+	echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list && \
+	apt-get update && \
+	cat /etc/apt/sources.list.d/mongodb-org-4.4.list && \
+	apt-get install -y mongodb-org
 
 # Streamsheets services
 COPY deployment/single/services /services
