@@ -17,6 +17,7 @@ const Attribute = require('../attr/Attribute');
 const StringAttribute = require('../attr/StringAttribute');
 const StringExpression = require('../expr/StringExpression');
 const NumberExpression = require('../expr/NumberExpression');
+const CellRange = require('./CellRange');
 
 module.exports = class SheetButtonNode extends Node {
 	constructor() {
@@ -55,13 +56,23 @@ module.exports = class SheetButtonNode extends Node {
 	}
 
 	getValue() {
-		const  value = this.getAttributeValueAtPath('value');
-
-		if (value === 1 || value === '1' || value === true) {
-			return true;
+		const attr = this.getAttributeAtPath('value');
+		const sheet = this.getSheet();
+		const expr = attr.getExpression();
+		if (sheet && expr._cellref) {
+			const range = CellRange.parse(expr._cellref, sheet);
+			if (range) {
+				range.shiftFromSheet();
+				const cell = range.getSheet().getDataProvider().getRC(range.getX1(), range.getY1());
+				if (cell) {
+					const value = cell.getValue();
+					return !(value === 0 || value === '0' || value === false);
+				}
+			}
 		}
 
-		return false;
+		const value = attr.getValue();
+		return value === 1 || value === '1' || value === true;
 	}
 
 	isMoveable() {

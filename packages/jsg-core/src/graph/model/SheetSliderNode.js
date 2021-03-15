@@ -14,10 +14,10 @@ const JSG = require('../../JSG');
 const Node = require('./Node');
 const StringAttribute = require('../attr/StringAttribute');
 const Attribute = require('../attr/Attribute');
-const NumberAttribute = require('../attr/NumberAttribute');
 const Expression = require('../expr/Expression');
 const StringExpression = require('../expr/StringExpression');
 const NumberExpression = require('../expr/NumberExpression');
+const CellRange = require('./CellRange');
 
 module.exports = class SheetSliderNode extends Node {
 	constructor() {
@@ -61,11 +61,21 @@ module.exports = class SheetSliderNode extends Node {
 	}
 
 	getValue() {
-		const value = this.getAttributeValueAtPath('value');
-		if (value === undefined) {
-			return 0;
+		const attr = this.getAttributeAtPath('value');
+		const sheet = this.getSheet();
+		const expr = attr.getExpression();
+		if (sheet && expr._cellref) {
+			const range = CellRange.parse(expr._cellref, sheet);
+			if (range) {
+				range.shiftFromSheet();
+				const cell = range.getSheet().getDataProvider().getRC(range.getX1(), range.getY1());
+				if (cell) {
+					return cell.getValue();
+				}
+			}
 		}
 
+		const value = attr.getValue();
 		return value;
 	}
 
