@@ -819,7 +819,7 @@ class AttributeList extends Attribute {
 		});
 	}
 
-	toJSON() {
+	toJSON(serverCalc = false) {
 		if (this._transient) {
 			return undefined;
 		}
@@ -833,7 +833,7 @@ class AttributeList extends Attribute {
 
 		attributes.forEach((attr) => {
 			if (!(attr instanceof AttributeList) && !attr.isTransient()) {
-				ret[attr.getName()] = attr.getExpression().toJSON(true);
+				ret[attr.getName()] = attr.getExpression().toJSON(serverCalc);
 				saved = true;
 			}
 		});
@@ -848,6 +848,24 @@ class AttributeList extends Attribute {
 				attr = attr.isConst ? attr.toAttribute() : attr;
 				attr.getExpression().fromJSON(value);
 				this.addAttribute(attr);
+			} else {
+				switch (value.t) {
+					case 's':
+						attr = new JSG.StringAttribute(key);
+						break;
+					case 'b':
+						attr = new JSG.BooleanAttribute(key);
+						break;
+					case 'o':
+						attr = new JSG.ObjectAttribute(key);
+						break;
+					default:
+						attr = new Attribute(key);
+						break;
+				}
+				attr.getExpression().fromJSON(value);
+				this.addAttribute(attr);
+
 			}
 		});
 	}

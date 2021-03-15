@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -205,6 +205,27 @@ Settings.prototype = {
 	getClassName() {
 		return 'Settings';
 	},
+
+	toJSON() {
+		ret = {};
+
+		Object.keys(this._settings).forEach((prop) => {
+			const value = this._settings[prop];
+			if (value !== undefined) {
+				// specify type => save key, value as string and type.. .
+				const valtype = this._typeOf(value);
+				if (valtype) {
+					ret[prop] = {
+						t: valtype,
+						v: Strings.encode(this.saveValue(prop, value))
+					}
+				}
+			}
+		});
+
+		return ret;
+	},
+
 	/**
 	 * Stores keys and values of this settings object to XML.<br/>
 	 * Method required by {{#crossLink "ObjectExpression"}}{{/crossLink}} in order to use and store a
@@ -274,6 +295,20 @@ Settings.prototype = {
 	 */
 	saveValue(key, value) {
 		return value.toString();
+	},
+
+	fromJSON(json) {
+		Object.entries(json).forEach(([key, value]) => {
+			let val = value.v ? Strings.decode(value.v) : '';
+			if (value.t === 'b') {
+				val = Boolean(value.v);
+			} else if (value.t === 'n') {
+				val = Number(value.v);
+			}
+
+			this.set(key, val);
+
+		});
 	},
 
 	/**

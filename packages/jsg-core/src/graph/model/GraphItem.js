@@ -3443,6 +3443,17 @@ class GraphItem extends Model {
 		if (json.modelattributes) {
 			this.getModelAttributes().fromJSON(json.modelattributes);
 		}
+		if (json.layoutattributes) {
+			this.getLayoutAttributes().fromJSON(json.layoutattributes);
+			const old = this._reading;
+			this._reading = true;
+			this.setLayout(
+				this.getLayoutAttributes()
+					.getLayout()
+					.getValue()
+			);
+			this._reading = old;
+		}
 	}
 
 	toJSON() {
@@ -3478,11 +3489,12 @@ class GraphItem extends Model {
 
 		ret.shape = this._shape.toJSON();
 
-		ret.format = this.getFormat().toJSON();
-		ret.textformat = this.getTextFormat().toJSON();
-		ret.attributes = this.getItemAttributes().toJSON();
+		ret.format = this.getFormat().toJSON(true);
+		ret.textformat = this.getTextFormat().toJSON(true);
+		ret.attributes = this.getItemAttributes().toJSON(true);
 		ret.events = this.getEvents().toJSON();
-		ret.modelattributes = this.getModelAttributes().toJSON();
+		ret.modelattributes = this.getModelAttributes().toJSON(true);
+		ret.layoutattributes = this.getLayoutAttributes().toJSON(true);
 
 		return ret;
 	}
@@ -3634,7 +3646,7 @@ class GraphItem extends Model {
 					if ((param instanceof FuncTerm) && param.name === 'EVENTS') {
 						param.params.forEach(eventParam => {
 							if (eventParam instanceof FuncTerm) {
-								expr = new Expression(0, eventParam.params[0].toString(params));
+								expr = new StringExpression(eventParam.params[0].toString(params));
 								switch (eventParam.name) {
 									case 'ONMOUSEDOWN':
 										this.getEvents().setOnMouseDown(expr);

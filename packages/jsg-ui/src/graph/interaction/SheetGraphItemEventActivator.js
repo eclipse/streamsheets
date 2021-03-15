@@ -35,13 +35,9 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			let sheet = cont.getModel();
-
-			while (sheet && !(sheet instanceof JSG.StreamSheet)) {
-				sheet = sheet.getParent();
-			}
-
-			return sheet !== undefined;
+			const item = cont.getModel()
+			return (item.getAttributeValueAtPath('value') !== undefined ||
+				item.getEvents().hasMouseEvent());
 		});
 	}
 

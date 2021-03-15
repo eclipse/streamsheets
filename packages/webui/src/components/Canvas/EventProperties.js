@@ -67,14 +67,19 @@ export class EventProperties extends Component {
 	getFormula(name) {
 		const item = this.props.view.getItem();
 		const attr = item.getEvents().getAttribute(name);
-		return attr.getExpression().toLocaleString(JSG.getParserLocaleSettings(), {
-			item: this.getSheet(item),
-			useName: true,
-		});
+		return `=${attr.getValue()}`;
+		// return attr.getExpression().toLocaleString(JSG.getParserLocaleSettings(), {
+		// 	item: this.getSheet(item),
+		// 	useName: true,
+		// });
 	}
 
 	getExpression(item, event) {
-		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+		let formula = String(event.target.textContent);
+		const asText = formula.charAt(0) === "=";
+		if (asText) formula = formula.substring(1);
+		return new JSG.StringExpression(formula);
+		// return this.getSheet(item).textToExpression(String(event.target.textContent), item);
 	}
 
 	getAttributeHandler(label, item, name) {
@@ -103,7 +108,7 @@ export class EventProperties extends Component {
 	handleAttribute(event, item, name) {
 		const expr = this.getExpression(item, event);
 		const path = JSG.AttributeUtils.createPath(JSG.EventAttributes.NAME, name);
-		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr.expression);
+		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr);
 
 		graphManager.synchronizedExecute(cmd);
 	}

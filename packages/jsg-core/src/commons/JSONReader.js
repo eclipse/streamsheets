@@ -89,8 +89,8 @@ module.exports = class JSONReader extends Reader {
 						}
 						return true;
 					});
-				// } else {
-				// 	console.log(`no array defined for property: ${prop} in object`, object);
+				} else {
+					console.log(`no array defined for property: ${prop} in object`, object);
 				}
 			}
 		}
