@@ -422,6 +422,7 @@ module.exports.Functions = {
 	ONMOUSEDOWN: (/* scope, ...terms */) => OK.TRUE,
 	ONMOUSEUP: (/* scope, ...terms */) => OK.TRUE,
 	ONVALUECHANGE: (/* scope, ...terms */) => OK.TRUE,
+	SETVALUE: (/* scope, ...terms */) => OK.TRUE,
 	SHOWDIALOG: (/* scope, ...terms */) => OK.TRUE,
 	SHOWVALUES: (/* scope, ...terms */) => OK.TRUE,
 	'OPEN.URL': (/* scope, ...terms */) => OK.TRUE,
