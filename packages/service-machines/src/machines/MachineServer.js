@@ -166,7 +166,7 @@ module.exports = class MachineServer {
 	async applyMigrations(machineId, session, migrations) {
 		const runner = this.getMachineRunner(machineId);
 		if (runner) {
-			const user = session.user;
+			const user = session && session.user;
 			const userId = user && user.userId;
 			await runner.request('applyMigrations', userId, migrations);
 			return runner.getDefinition();

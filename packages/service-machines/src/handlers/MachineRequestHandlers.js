@@ -476,7 +476,7 @@ class LoadMachineRequestHandler extends RequestHandler {
 				return machine;
 			});
 			if (migrations) {
-				result = await machineserver.applyMigrations(machineId, scope, request.migrations);
+				result = await machineserver.applyMigrations(machineId, scope, migrations);
 			}
 			const newMachine = !!result.templateId;
 			if (newMachine) {
