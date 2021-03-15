@@ -202,6 +202,10 @@ export class StreamChartProperties extends Component {
 			: undefined;
 	}
 
+	getExpression(item, value) {
+		return this.getSheet(item).textToExpression(String(value), item);
+	}
+
 	finishCommand(cmd, key, notify = false) {
 		const item = this.state.plotView.getItem();
 		item.finishCommand(cmd, key);
@@ -497,7 +501,10 @@ export class StreamChartProperties extends Component {
 			item.chart.formula = new JSG.Expression('');
 		}
 
-		series.formula = new JSG.Expression(0, newFormula);
+		const expr = this.getExpression(item, event.target.textContent);
+		if (expr && expr.expression) {
+			series.formula = expr.expression;
+		}
 
 		this.finishCommand(cmd, 'series');
 	};
