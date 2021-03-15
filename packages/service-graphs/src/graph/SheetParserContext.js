@@ -28,7 +28,7 @@ module.exports = class SheetParserContext extends GraphParserContext {
 	}
 
 	hasFunction(id) {
-		return ALL_FUNCTIONS.has(id.toUpperCase());
+		return ALL_FUNCTIONS.has(id.toUpperCase()) || super.hasFunction(id);
 	}
 
 	getFunction(id) {
