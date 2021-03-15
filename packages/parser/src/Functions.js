@@ -73,62 +73,6 @@ const isPointInPolygon = (points, p) => {
 
 // default function definitions...
 module.exports.Functions = {
-	/**
-	 * Create Drawing in given cell range
-	 * @param name
-	 * @param range to display drawing in.
-	 * @returns {string} Name if successful
-	 * @constructor
-	 */
-	// TODO move to machineserver-core
-	'DRAW.ELLIPSE': () => {
-		return OK.TRUE;
-	},
-	'DRAW.RECTANGLE': () => {
-		return OK.TRUE;
-	},
-	'DRAW.LABEL': () => {
-		return OK.TRUE;
-	},
-	'DRAW.POLYGON': () => {
-		return OK.TRUE;
-	},
-	'DRAW.BEZIER': () => {
-		return OK.TRUE;
-	},
-	'DRAW.STREAMCHART': () => {
-		return OK.TRUE;
-	},
-	'DRAW.LINE': () => {
-		return OK.TRUE;
-	},
-	'DRAW.CHECKBOX': () => {
-		return OK.TRUE;
-	},
-	'DRAW.BUTTON': () => {
-		return OK.TRUE;
-	},
-	'DRAW.SLIDER': () => {
-		return OK.TRUE;
-	},
-	'DRAW.KNOB': () => {
-		return OK.TRUE;
-	},
-	SERIES: () => {
-		return OK.TRUE;
-	},
-	SERIESTIME: () => {
-		return OK.TRUE;
-	},
-	CELLCHART: () => {
-		return '';
-	},
-	AXIS: () => {
-		return OK.TRUE;
-	},
-	VALUERANGE: () => {
-		return OK.TRUE;
-	},
 	CLASSIFYPOINT: (scope, ...terms) => {
 		const value = (cell) => {
 			const val = cell && cell.value;
@@ -171,32 +115,6 @@ module.exports.Functions = {
 		}
 
 		return isPointInPolygon(pts, p);
-	},
-	/**
-	 * @param linestyle
-	 * @param linewidth
-	 * @param linecolor
-	 */
-	LINEFORMAT: () => {
-		return OK.TRUE;
-	},
-	FILLLINEARGRADIENT: () => {
-		return OK.TRUE;
-	},
-	FILLRADIALGRADIENT: () => {
-		return OK.TRUE;
-	},
-	FILLPATTERN: () => {
-		return OK.TRUE;
-	},
-	FONTFORMAT: () => {
-		return OK.TRUE;
-	},
-	ATTRIBUTES: () => {
-		return OK.TRUE;
-	},
-	EVENTS: () => {
-		return OK.TRUE;
 	},
 	QRCODE: (scope, ...terms) => {
 		return `qrcode:${String(terms[0].value)}`;
@@ -350,6 +268,8 @@ module.exports.Functions = {
 
 	LEN: (scope, ...terms) => (terms.length !== 1 ? ERROR.ARGS : terms[0].value.toString().length),
 
+	LOCALNOW: (/* scope, ...terms */) => '#[LocalDate]',
+
 	MAX: (scope, ...terms) => terms.reduce((max, curr) => {
 		const val = !curr.value ? 0 : curr.value;
 		return val > max ? val : max;
@@ -416,16 +336,7 @@ module.exports.Functions = {
 	ATAN: (scope, ...terms) => (terms.length ? Math.atan(terms[0].value) : ERROR.ARGS),
 	ACOS: (scope, ...terms) => (terms.length ? Math.acos(terms[0].value) : ERROR.ARGS),
 	ASIN: (scope, ...terms) => (terms.length ? Math.asin(terms[0].value) : ERROR.ARGS),
-	ONCLICK: (/* scope, ...terms */) => OK.TRUE,
-	LOCALNOW: (/* scope, ...terms */) => '#[LocalDate]',
-	ONDOUBLECLICK: (/* scope, ...terms */) => OK.TRUE,
-	ONMOUSEDOWN: (/* scope, ...terms */) => OK.TRUE,
-	ONMOUSEUP: (/* scope, ...terms */) => OK.TRUE,
-	ONVALUECHANGE: (/* scope, ...terms */) => OK.TRUE,
-	SETVALUE: (/* scope, ...terms */) => OK.TRUE,
-	SHOWDIALOG: (/* scope, ...terms */) => OK.TRUE,
-	SHOWVALUES: (/* scope, ...terms */) => OK.TRUE,
-	'OPEN.URL': (/* scope, ...terms */) => OK.TRUE,
+
 
 	IF: (scope, ...terms) => {
 		if (terms.length > 1) {
@@ -434,5 +345,39 @@ module.exports.Functions = {
 			return condition ? valueOr(terms[1].value, true) : terms[2] ? valueOr(terms[2].value, null) : null;
 		}
 		return ERROR.ARGS;
-	}
+	},
+
+	// TMP. FUNCTION DUMMIES:
+	ATTRIBUTES: () => OK.TRUE,
+	AXIS: () => OK.TRUE,
+	CELLCHART: () => '',
+	'DRAW.BEZIER': () => OK.TRUE,
+	'DRAW.BUTTON': () => OK.TRUE,
+	'DRAW.CHECKBOX': () => OK.TRUE,
+	'DRAW.ELLIPSE': () => OK.TRUE,
+	'DRAW.KNOB': () => OK.TRUE,
+	'DRAW.LABEL': () => OK.TRUE,
+	'DRAW.LINE': () => OK.TRUE,
+	'DRAW.POLYGON': () => OK.TRUE,
+	'DRAW.RECTANGLE': () => OK.TRUE,
+	'DRAW.SLIDER': () => OK.TRUE,
+	'DRAW.STREAMCHART': () => OK.TRUE,
+	EVENTS: () => OK.TRUE,
+	FILLLINEARGRADIENT: () => OK.TRUE,
+	FILLRADIALGRADIENT: () => OK.TRUE,
+	FILLPATTERN: () => OK.TRUE,
+	FONTFORMAT: () => OK.TRUE,
+	LINEFORMAT: () => OK.TRUE,
+	ONCLICK: (/* scope, ...terms */) => OK.TRUE,
+	ONDOUBLECLICK: (/* scope, ...terms */) => OK.TRUE,
+	ONMOUSEDOWN: (/* scope, ...terms */) => OK.TRUE,
+	ONMOUSEUP: (/* scope, ...terms */) => OK.TRUE,
+	ONVALUECHANGE: (/* scope, ...terms */) => OK.TRUE,
+	'OPEN.URL': (/* scope, ...terms */) => OK.TRUE,
+	SERIES: () => OK.TRUE,
+	SERIESTIME: () => OK.TRUE,
+	SETVALUE: (/* scope, ...terms */) => OK.TRUE,
+	SHOWDIALOG: (/* scope, ...terms */) => OK.TRUE,
+	SHOWVALUES: (/* scope, ...terms */) => OK.TRUE,
+	VALUERANGE: () => OK.TRUE
 };
