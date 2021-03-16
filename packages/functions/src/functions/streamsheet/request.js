@@ -213,7 +213,7 @@ const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) =>
 			case 'none':
 				return true;
 			case 'sheet':
-				if (target instanceof SheetRange) {
+				if (target && target.isSheetRange) {
 					return resultsType
 						? putToRange2(target, message, resultsType)
 						: putToRange(target, resultKeys, message);
