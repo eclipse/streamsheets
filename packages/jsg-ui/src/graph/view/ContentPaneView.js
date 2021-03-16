@@ -182,6 +182,9 @@ class ContentPaneView extends GraphItemView {
 	 * @since 1.6.2
 	 */
 	setScrollTo(point) {
+		// this approach circumvents setRefreshNeeded for the complete graph and provides better performance
+		// this.getItem().getPin()._pin.setToPoint(point);
+		// this.getItem().getGraph().markDirty();
 		this.getItem().setPinPointTo(point);
 	}
 

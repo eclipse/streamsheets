@@ -24,7 +24,7 @@ const createExpression = ({ formula, type, value }) => {
 			return new NumberExpression(value, formula);
 		case 'string':
 			return new StringExpression(value, formula);
-	default:
+		default:
 			return new Expression(value, formula);
 	}
 };
@@ -83,7 +83,7 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 	redo() {
 		const data = this._graphItem.getCells().getDataProvider();
 
-		data.clearContent();
+		data.markUpdate();
 
 		this._data.forEach((cellData) => {
 			const res = CellRange.refToRC(cellData.reference, this._graphItem);
@@ -102,12 +102,51 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			) {
 				cell.clearContent();
 			} else {
-				const expr = createExpression(cellData);
-				cell.setExpression(expr);
+				let expr = cell.getExpression();
+				if (expr) {
+					const term  = expr.getTerm();
+					if (term && expr.getFormula() !== cellData.formula) {
+						expr = createExpression(cellData);
+						cell.setExpression(expr);
+					} else {
+						switch (cellData.type) {
+							case 'bool':
+								if (!(expr instanceof BooleanExpression)) {
+									expr = createExpression(cellData);
+									cell.setExpression(expr);
+								}
+								break;
+							case 'number':
+								if (!(expr instanceof NumberExpression)) {
+									expr = createExpression(cellData);
+									cell.setExpression(expr);
+								}
+								break;
+							case 'string':
+								if (!(expr instanceof StringExpression)) {
+									expr = createExpression(cellData);
+									cell.setExpression(expr);
+								}
+								break;
+							default:
+								if (!(expr instanceof Expression)) {
+									expr = createExpression(cellData);
+									cell.setExpression(expr);
+								}
+								break;
+						}
+					}
+				}
+
 				cell.setValue(cellData.value);
 			}
 			cell.setInfo(cellData.info);
+
+			// mark cell as updated, not updated cells will be cleared
+			cell._updated = true;
 		});
+
+		data.clearNotUpdated();
 
 		if (this._namedCells) {
 			Object.keys(this._namedCells).forEach((key) => {

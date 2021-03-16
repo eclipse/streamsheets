@@ -420,10 +420,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 					} catch (e) {
 					}
 				}
+                node.evaluate();
+                node.setRefreshNeeded(true);
 			}
 
-			node.evaluate();
-			node.setRefreshNeeded(true);
 			node._lastJSON = jsonShape;
 			parentMap[shape.id] = node;
 			itemMap[shape.id] = undefined;

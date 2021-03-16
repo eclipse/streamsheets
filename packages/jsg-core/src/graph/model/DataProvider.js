@@ -865,6 +865,21 @@ module.exports = class DataProvider {
 		}
 	}
 
+	markUpdate() {
+		this.enumerate((column, row, cell) => {
+			cell._updated = false;
+		});
+	}
+
+	clearNotUpdated() {
+		this.enumerate((column, row, cell) => {
+			if (cell._updated === false) {
+				cell.clearContent();
+			}
+			cell._updated = undefined;
+		});
+	}
+
 	clearContent() {
 		this.enumerate((column, row, cell) => {
 			cell.clearContent();

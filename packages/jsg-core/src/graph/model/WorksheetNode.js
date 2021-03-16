@@ -100,6 +100,8 @@ module.exports = class WorksheetNode extends ContentNode {
 		this._rows = this.addItem(new RowHeaderNode());
 		this._corner = this.addItem(new SheetHeaderNode());
 		this._cells.getDataProvider().setSheet(this);
+
+		this._rowCount = 1000;
 	}
 
 	newInstance() {
@@ -166,6 +168,8 @@ module.exports = class WorksheetNode extends ContentNode {
 		const graph = this.getGraph();
 		const colSize = this._columns.getInternalSize();
 		const rowSize = this._rows.getInternalSize();
+
+		this._rowCount = wsattributes.getRows().getValue();
 
 		if (graph !== undefined) {
 			const view = graph.getViewParams();
@@ -327,15 +331,6 @@ module.exports = class WorksheetNode extends ContentNode {
 
 	setProtected(flag) {
 		this.getWorksheetAttributes().setProtected(flag);
-	}
-
-	updateRowCount() {
-		if (this._cells === undefined) {
-			// not initialized yet
-			return;
-		}
-		const rows = Math.max(0, this.getDataProvider().getRowCount());
-		this.setRowCount(rows);
 	}
 
 	setRowCount(count) {

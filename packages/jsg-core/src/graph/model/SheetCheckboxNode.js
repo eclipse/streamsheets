@@ -61,13 +61,17 @@ module.exports = class SheetCheckboxNode extends Node {
 		const sheet = this.getSheet();
 		const expr = attr.getExpression();
 		if (sheet && expr._cellref) {
-			const range = CellRange.parse(expr._cellref, sheet);
-			if (range) {
-				range.shiftFromSheet();
-				const cell = range.getSheet().getDataProvider().getRC(range.getX1(), range.getY1());
-				if (cell) {
-					const value = cell.getValue();
-					return !(value === 0 || value === '0' || value === false);
+			const term = expr.getTerm();
+			if (term) {
+				const { operand } = term;
+				if (operand instanceof JSG.SheetReference && operand._range) {
+					const range = operand._range.copy();
+					range.shiftFromSheet();
+					const cell = range.getSheet().getDataProvider().getRC(range.getX1(), range.getY1());
+					if (cell) {
+						const value = cell.getValue();
+						return !(value === 0 || value === '0' || value === false);
+					}
 				}
 			}
 		}

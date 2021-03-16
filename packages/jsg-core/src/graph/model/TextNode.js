@@ -298,12 +298,17 @@ class TextNode extends Node {
 			}
 		}
 
-		if (text === '#[LocalDate]') {
+		const local = text === '#[LocalDate]';
+		if (local) {
 			const d = new Date();
 			text = `${d.toLocaleDateString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit'})} ${d.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})}`;
 		}
 
 		this._paras = this._splitParas(text);
+
+		if (local) {
+			this._lastUpdateInfo.text = '#[LocalDate]';
+		}
 
 		let width = this._sizeText.x;
 		let height = this._sizeText.y;
