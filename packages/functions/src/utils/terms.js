@@ -53,14 +53,22 @@ const createCellRangeFromCellReference = (term) => {
 		? createCellRangeFromIndex(cellref.index, cellref.sheet)
 		: undefined;
 };
+const getRangeFromValue = (value) => {
+	let range;
+	if (value != null) {
+		if (value.isSheetRange) range = value;
+		else if(value.isCellReference) range = createCellRangeFromIndex(value.index, value.sheet);
+		else if(value.isCellRangeReference) range = value.range;
+	}
+	return range;
+};
 const getCellRangeFromTerm = (term, sheet, strict) => {
 	let range;
 	if (term) {
 		// we need to get value to ensure cell index is set...
 		const value = term.value;
 		// cannot simply return error here!! will prevent overriding an error-cell!!!
-		// range = FunctionErrors.isError(value) || ((value instanceof SheetRange) && value);
-		range = (value instanceof SheetRange) && value;
+		range = getRangeFromValue(value);
 		if (!range && !strict) {
 			range = createCellRangeFromCellReference(term)
 				|| (term.cellIndex ? createCellRangeFromIndex(term.cellIndex, sheet) : undefined);
@@ -76,7 +84,7 @@ const getCellRangesFromTerm = (term, sheet, strict) => {
 		// did we get an array of values...
 		if (Array.isArray(value)) {
 			value.forEach(((val) => {
-				const range = (val instanceof SheetRange) && val;
+				const range = val && val.isSheetRange;
 				if (range) ranges.push(range);
 			}));
 		} else {
