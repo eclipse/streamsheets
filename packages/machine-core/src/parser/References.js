@@ -126,6 +126,10 @@ class CellReference extends AbstractCellReference {
 		this.index = index;
 	}
 
+	get	isCellReference() {
+		return true;
+	}
+
 	get cell() {
 		const index = this.index;
 		const sheet = this.sheet;
@@ -180,6 +184,10 @@ class CellRangeReference extends AbstractCellReference {
 	constructor(range, scope) {
 		super(scope);
 		this._range = range;
+	}
+
+	get	isCellRangeReference() {
+		return true;
 	}
 
 	get range() {
