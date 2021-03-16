@@ -84,8 +84,7 @@ const getCellRangesFromTerm = (term, sheet, strict) => {
 		// did we get an array of values...
 		if (Array.isArray(value)) {
 			value.forEach(((val) => {
-				const range = val && val.isSheetRange;
-				if (range) ranges.push(range);
+				if (val && val.isSheetRange) ranges.push(val);
 			}));
 		} else {
 			const range = getCellRangeFromTerm(term, sheet, strict);
