@@ -224,7 +224,7 @@ export default class SheetActivator extends InteractionActivator {
 	 * <code>undefined</code>.
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
-		return viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => true);
+		return viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => cont.getModel().isVisible());
 		// return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
 	}
 

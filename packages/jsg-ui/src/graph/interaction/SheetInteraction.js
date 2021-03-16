@@ -402,7 +402,7 @@ export default class SheetInteraction extends Interaction {
 	}
 
 	_getTargetView(event, viewer) {
-		let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
+		let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => cont.getModel().isVisible());
 		if (!controller) {
 			return this._controller.getView();
 		}
@@ -862,7 +862,7 @@ export default class SheetInteraction extends Interaction {
 		if (this._controller === undefined) {
 			return false;
 		}
-		let controller = viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => true);
+		let controller = viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => cont.getModel().isVisible());
 
 		if (!controller) {
 			return false;
