@@ -78,6 +78,10 @@ class SheetRange {
 		this._sheet = undefined;
 	}
 
+	get isSheetRange() {
+		return true;
+	}
+
 	get sheet() {
 		return this._sheet;
 	}

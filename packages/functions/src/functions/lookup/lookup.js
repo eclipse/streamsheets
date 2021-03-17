@@ -113,7 +113,7 @@ const indirect = (sheet, ...terms) =>
 			const scope = ref.operand._streamsheetId ? ref.operand.sheet : sheet;
 			const val = isA1Style ? ref.value : refStrFromRC(ref.value);
 			ref = typeof val === 'string' ? referenceFromString(val, scope) : undefined;
-			return ref ? ref.value : ERROR.REF
+			return ref || ERROR.REF;
 		});
 
 //

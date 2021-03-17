@@ -167,17 +167,17 @@ describe('lookup functions', () => {
 					B1: 23, B2: 1.333, B3: 45, B4: 10, B5: 62
 				} 
 			});
-			expect(createTerm('indirect("A1")', sheet).value).toBe(42);
+			expect(createTerm('indirect("A1")', sheet).value.value).toBe(42);
 			// NOTE: cell references refers to cells which contain string!!
-			expect(createTerm('indirect(A2)', sheet).value).toBe(1.333);
-			expect(createTerm('indirect(A3)', sheet).value).toBe(45);
-			expect(createTerm('indirect("$A$1")', sheet).value).toBe(42);
-			expect(createTerm('indirect("B"&A5)', sheet).value).toBe(62);
+			expect(createTerm('indirect(A2)', sheet).value.value).toBe(1.333);
+			expect(createTerm('indirect(A3)', sheet).value.value).toBe(45);
+			expect(createTerm('indirect("$A$1")', sheet).value.value).toBe(42);
+			expect(createTerm('indirect("B"&A5)', sheet).value.value).toBe(62);
 		});
 		it('should return referenced value specified by named-cell text string', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A4: 'George', B4: 10 } });
 			sheet.namedCells.set('George', new Cell(23, createTerm('B4', sheet)));
-			expect(createTerm('indirect(A4)', sheet).value).toBe(10);
+			expect(createTerm('indirect(A4)', sheet).value.value).toBe(10);
 		});
 		it('should support referencing cells in another sheet', () => {
 			const machine = new Machine();
@@ -189,11 +189,11 @@ describe('lookup functions', () => {
 			s1.sheet.load({ cells: { C1: 10 } });
 			s2.sheet.load({ cells: { A1: 'George', B1: 42 } });
 			s2.sheet.namedCells.set('George', new Cell(23, createTerm('S1!C1', s2.sheet)));
-			expect(createTerm('indirect("S2!B1")', s1.sheet).value).toBe(42);
+			expect(createTerm('indirect("S2!B1")', s1.sheet).value.value).toBe(42);
 			// refs to cell content, because we pass a string to resolve
-			expect(createTerm('indirect("S2!A1")', s1.sheet).value).toBe('George');
+			expect(createTerm('indirect("S2!A1")', s1.sheet).value.value).toBe('George');
 			// refs to named cell content, because we pass a cell-ref which resolves to name George
-			expect(createTerm('indirect(S2!A1)', s1.sheet).value).toBe(10);
+			expect(createTerm('indirect(S2!A1)', s1.sheet).value.value).toBe(10);
 		});
 		it('should support range strings', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.NUMBERS });
@@ -201,12 +201,23 @@ describe('lookup functions', () => {
 			expect(createTerm('sum(indirect("A1:B2"))', sheet).value).toBe(12);
 			expect(createTerm('sum(indirect("A1:B" & C1))', sheet).value).toBe(27);
 		});
+		it('should support writing to specified cell reference', () => {
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: 'topic/A14',
+				B1: { formula: 'right(A1, 3)' },
+				A2: { formula: 'indirect("B1")' },
+			});
+			expect(sheet.cellAt('B1').value).toBe('A14');
+			expect(createTerm('setvalue(true, 22, indirect(B1))', sheet).value).toBe(true);
+			expect(sheet.cellAt('A14').value).toBe(22);
+			expect(sheet.cellAt('A2').value.value).toBe('A14');
+		});
 		it('should support reference style  string', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.NUMBERS });
-			expect(createTerm('indirect("R1C1", false)', sheet).value).toBe(1);
-			expect(createTerm('indirect("R1C3", false)', sheet).value).toBe(3);
-			expect(createTerm('indirect("R2C2", false)', sheet).value).toBe(5);
-			expect(createTerm('indirect("R3C3", false)', sheet).value).toBe(9);
+			expect(createTerm('indirect("R1C1", false)', sheet).value.value).toBe(1);
+			expect(createTerm('indirect("R1C3", false)', sheet).value.value).toBe(3);
+			expect(createTerm('indirect("R2C2", false)', sheet).value.value).toBe(5);
+			expect(createTerm('indirect("R3C3", false)', sheet).value.value).toBe(9);
 		});
 		it(`should return ${ERROR.REF} if no reference could be created`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: SHEETS.NUMBERS });

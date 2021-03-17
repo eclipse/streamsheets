@@ -27,7 +27,7 @@ const sum = (sheet, ...terms) =>
 		if (FunctionErrors.isError(total)) return total;
 		const value = term && term.value;
 		if (value) {
-			if (value instanceof SheetRange) {
+			if (value.isSheetRange) {
 				value.iterate((cell) => {
 					total += cell ? cell.value : 0;
 				});

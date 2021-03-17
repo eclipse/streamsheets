@@ -41,9 +41,12 @@ const evaluate = (cell, newValue) => {
 	if (cell.col === -1 && FunctionErrors.isError(cell._value)) cell._value = false;
 };
 
+const isCellReference = (value) => value && (value.isCellReference || value.isCellRangeReference);
+
 // DL-4113 prevent displaying values like [object Object]...
 const valueDescription = (value) => {
 	if (Array.isArray(value)) return CELL_VALUE_REPLACEMENT;
+	if (isCellReference(value)) return value.value;
 	if (isType.object(value)) {
 		const descr = value.toString();
 		return descr.startsWith('[object Object]') ? CELL_VALUE_REPLACEMENT : descr;
@@ -93,12 +96,13 @@ class Cell {
 		const term = this._term;
 		const value = valueDescription(this.cellValue);
 		const descr = { formula: this.formula, value };
+		const rawtype = isCellReference(this.value) ? typeof value : typeof this.value;
 		descr.type = term ? term.operand.type : typeof value;
 		if (term && term.isUnit && !descr.formula) {
 			descr.type = 'unit';
 			descr.value = term.toString();
 		}
-		descr.info = { ...this.info, displayName: displayName(term), rawtype: typeof this.value };
+		descr.info = { ...this.info, displayName: displayName(term), rawtype };
 		// TODO: move level to cell properties
 		descr.level = this.level;
 		const references = this._references && refStrings(this._references);
