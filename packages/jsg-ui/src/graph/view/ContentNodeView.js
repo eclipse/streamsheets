@@ -230,11 +230,20 @@ class ContentNodeView extends NodeView {
 	invalidate() {}
 
 	layout() {
+		const model = this.getItem();
+		const graph = model.getGraph();
+		const viewSettings = graph.viewSettings;
+
+		// TODO use better flag to identify view mode
+		if (viewSettings.active) {
+			this._viewpanel.getFormat().setFillColor(JSG.theme.sheet);
+		} else {
+			this._viewpanel.getFormat().setFillColor(JSG.theme.graph);
+		}
 		const box = JSG.boxCache.get();
 		const bounds = this.getBoundingBox(box).toRectangle(JSG.rectCache.get());
 		JSG.boxCache.release(box);
 
-		const model = this.getItem();
 		this._scrollview.setScrollBarsMode(model.getHorizontalScrollbarMode(), model.getVerticalScrollbarMode());
 
 		bounds.x = 0;

@@ -3438,6 +3438,14 @@ class GraphItem extends Model {
 		return [];
 	}
 
+	set viewSettings(mode) {
+		this._viewSettings = mode;
+	}
+
+	get viewSettings() {
+		return this._viewSettings || {};
+	}
+
 	static get _tmpEvent() {
 		return _tmpEvent;
 	}

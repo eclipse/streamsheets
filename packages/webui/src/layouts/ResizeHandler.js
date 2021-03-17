@@ -12,13 +12,13 @@ import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { setAppState } from '../actions/actions';
-import { graphManager } from '../GraphManager';
+// import { graphManager } from '../GraphManager';
 
 const getToolsVisibility = () => {
-	const container = graphManager.getMachineContainer();
-	const attr = container && container.getMachineContainerAttributes();
-	const showTools = attr == null || window.innerWidth > attr.getHideToolbarThreshold().getValue();
-	return showTools;
+	// const container = graphManager.getMachineContainer();
+	// const attr = container && container.getMachineContainerAttributes();
+	// const showTools = attr == null || window.innerWidth > attr.getHideToolbarThreshold().getValue();
+	return true;
 };
 
 function ResizeHandlerComponent(props) {

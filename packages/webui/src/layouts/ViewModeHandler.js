@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -21,20 +21,20 @@ export const ViewModePropTypes = PropTypes.shape({
 	zoomdisabled: PropTypes.string
 });
 
-function ViewModeHandlerComponent(props) {
-	const { searchParams } = props;
-	const params = new URLSearchParams(searchParams);
+function ViewModeHandlerComponent(/* props */) {
+	// const { searchParams } = props;
+	// const params = new URLSearchParams(searchParams);
 	// if no params passed we keep those currently in app-state
-	if (searchParams) {
-		const viewMode = {
-			view: params.get('view'),
-			hidegrid: params.get('hidegrid'),
-			viewMode: params.get('viewmode'),
-			hideheader: params.get('hideheader'),
-			zoomdisabled: params.get('zoomdisabled')
-		};
-		props.setAppState({ viewMode });
-	}
+	// if (searchParams) {
+	// 	const viewMode = {
+	// 		view: params.get('view'),
+	// 		hidegrid: params.get('hidegrid'),
+	// 		viewMode: params.get('viewmode'),
+	// 		hideheader: params.get('hideheader'),
+	// 		zoomdisabled: params.get('zoomdisabled')
+	// 	};
+	// 	props.setAppState({ viewMode });
+	// }
 	return null;
 }
 

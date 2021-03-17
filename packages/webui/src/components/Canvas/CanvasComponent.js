@@ -274,7 +274,7 @@ export class CanvasComponent extends Component {
 					visibility: this.props.showMachine ? 'visible' : 'hidden',
 				}}
 			>
-				{viewMode.viewMode !== null || !canEdit ? null : (
+				{viewMode.active === true || !canEdit ? null : (
 					<React.Fragment>
 						<SheetDeleteDialog />
 						<ContextMenu />
@@ -298,13 +298,13 @@ export class CanvasComponent extends Component {
 					tabIndex="0"
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
-				{viewMode.viewMode !== null || !canEdit ? null : <GraphItemProperties dummy={this.state.dummy} />}
-				{viewMode.viewMode !== null || !canEdit ? null : (
+				{viewMode.active === true || !canEdit ? null : <GraphItemProperties dummy={this.state.dummy} />}
+				{viewMode.active === true || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>
 						<FunctionWizard />
 					</Slide>
 				)}
-				{viewMode.viewMode !== null || !canEdit ? null : (
+				{viewMode.active === true || !canEdit ? null : (
 					<Tooltip
 						enterDelay={300}
 						title={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}

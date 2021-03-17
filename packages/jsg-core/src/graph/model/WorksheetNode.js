@@ -163,15 +163,12 @@ module.exports = class WorksheetNode extends ContentNode {
 		const wsattributes = this.getWorksheetAttributes();
 		let header = wsattributes.getShowHeader().getValue();
 
-		const graph = this.getGraph();
+		const parent = this.getParent();
 		const colSize = this._columns.getInternalSize();
 		const rowSize = this._rows.getInternalSize();
 
-		if (graph !== undefined) {
-			const view = graph.getViewParams();
-			if (view && view.hideheader !== null) {
-				header = false;
-			}
+		if (parent && parent.viewSettings.hideheader) {
+			header = false;
 		}
 
 		this._corner.getItemAttributes().setVisible(header);
@@ -282,15 +279,10 @@ module.exports = class WorksheetNode extends ContentNode {
 	}
 
 	isGridVisible() {
-		const graph = this.getGraph();
+		const parent = this.getParent();
 
-		if (graph !== undefined) {
-			const view = graph.getViewParams();
-			if (view) {
-				if (view.hidegrid !== null) {
-					return false;
-				}
-			}
+		if (parent && parent.viewSettings.hidegrid) {
+			return false;
 		}
 
 		return this.getWorksheetAttributes()

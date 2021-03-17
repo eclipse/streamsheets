@@ -2142,7 +2142,7 @@ export class CanvasToolBar extends Component {
 			return null;
 		}
 		const { viewMode } = this.props;
-		if (viewMode.viewMode !== null) {
+		if (viewMode.active === true) {
 			return null;
 		}
 		const tf = this.state.cellTextFormat;

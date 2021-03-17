@@ -491,93 +491,44 @@ export default class GraphManager {
 		canvas.height = oldHeight * ratio;
 	}
 
-	updateCanvas(tools, viewMode) {
+	updateCanvas(tools, settings) {
 		const canvas = document.getElementById('canvas');
 		const graph = this.getGraph();
-		if (canvas && graph) {
-			graph.setViewParams(viewMode);
-			const container = graph.getMachineContainer();
-			if (container) {
-				const attr = container.getMachineContainerAttributes();
-				if (attr) {
-					attr.setHideToolbars(tools === false);
-				}
+		if (canvas && graph && settings && settings.sheets) {
+			// const graphController = this._graphEditor.getGraphViewer().getGraphController();
+			graph.viewSettings = {
+				active: settings.active,
 			}
-			if (viewMode) {
-				switch (viewMode.viewMode) {
-				case 'drawing':
-					if (viewMode.view) {
-						let name = viewMode.view;
-						const index = name.indexOf('!');
-						if (index !== -1) {
-							const sheetName = name.substring(0, index);
-							name = name.substring(index + 1);
-							const node = graph.getItemById(Number(name));
-							const sheet = graph.getItemByName(sheetName);
-							if (node && sheet) {
-								const graphController = this._graphEditor.getGraphViewer().getGraphController();
-								const controller = graphController.getControllerByModelId(sheet.getId());
-								const view = controller.getView();
-								const rect = node.getBoundingBox().getBoundingRectangle();
-								view.getItem().setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-								view.getItem().setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-								const scrollview = view.getScrollView();
-								scrollview.setScrollBarsMode(
-									JSG.ScrollBarMode.HIDDEN,
-									JSG.ScrollBarMode.HIDDEN
-								);
-								const cs = this._graphEditor.getCoordinateSystem();
-								if (rect.width) {
-									const viewport = view.getViewPort();
-
-									let model = viewport.getHorizontalRangeModel();
-									viewport
-										.getHorizontalRangeModel()
-										.setValue(model._min + rect.x);
-									model = viewport.getVerticalRangeModel();
-									viewport
-										.getVerticalRangeModel()
-										.setValue(model._min + rect.y);
-
-									const zoom = canvas.clientWidth / cs.logToDeviceX(rect.width, false);
-									this._graphEditor.setZoom(zoom);
-								}
-							}
-						}
-					}
-					break;
-				case 'range': {
-					const range = JSG.CellRange.parse(viewMode.view, this);
-					if (range) {
-						range.shiftFromSheet();
-						const graphController = this._graphEditor.getGraphViewer().getGraphController();
-						const controller = graphController.getControllerByModelId(range.getSheet().getId());
-						if (controller) {
-							const view = controller.getView();
-							view.scrollToRange(range);
-							// range._x2 -= 1;
-							// range._y2 -= 1;
-							view.getItem().setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-							view.getItem().setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-							const rect = view.getRangeRect(range);
-							const scrollview = view.getScrollView();
-							scrollview.setScrollBarsMode(
-								JSG.ScrollBarMode.HIDDEN,
-								JSG.ScrollBarMode.HIDDEN
-							);
-							const cs = this._graphEditor.getCoordinateSystem();
-							if (rect.width) {
-								const zoom = canvas.clientWidth / cs.logToDeviceX(rect.width, false);
-								this._graphEditor.setZoom(zoom);
-							}
-						}
-					}
-					break;
+			settings.sheets.forEach(params => {
+				const sheet = graph.getItemByName(params.sheet);		// Worksheetnode
+				if (sheet) {
+					sheet.getParent().viewSettings = params;
 				}
-				default:
-					break;
-				}
-			}
+
+
+				// TODO: ugly code to hide scrollbar
+				// const controller = graphController.getControllerByModelId(sheet.getId());
+				// const view = controller.getView();
+				// const rect = node.getBoundingBox().getBoundingRectangle();
+				// view.getItem().setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
+				// view.getItem().setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
+				// const scrollview = view.getScrollView();
+				// scrollview.setScrollBarsMode(
+				// 	JSG.ScrollBarMode.HIDDEN,
+				// 	JSG.ScrollBarMode.HIDDEN
+				// );
+
+			});
+
+			// graph.setViewParams(viewMode);
+			// TODO -> global settings?
+			// const container = graph.getMachineContainer();
+			// if (container) {
+			// 	const attr = container.getMachineContainerAttributes();
+			// 	if (attr) {
+			// 		attr.setHideToolbars(tools === false);
+			// 	}
+			// }
 
 			if (canvas.height !== canvas.clientHeight || canvas.width !== canvas.clientWidth) {
 				this.updateDimensions();

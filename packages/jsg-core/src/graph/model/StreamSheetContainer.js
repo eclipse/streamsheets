@@ -414,29 +414,14 @@ module.exports = class StreamSheetContainer extends Node {
 		let captions = true;
 
 		if (graph) {
-			const container = graph.getMachineContainer();
-			if (container) {
-				hideButtons = container
-					.getMachineContainerAttributes()
-					.getHideToolbars()
-					.getValue();
+			const graphSettings = graph.viewSettings;
+			const settings = this.viewSettings;
+			if (graphSettings.active === true) {
+				hideButtons = true;
+				captions = false;
+				heightCaption = 0;
 			}
-			const view = graph.getViewParams();
-			if (view) {
-				switch (view.viewMode) {
-					case 'name':
-					case 'range':
-					case 'drawing':
-					case 'sheet':
-						hideButtons = true;
-						inbox = false;
-						captions = false;
-						heightCaption = 0;
-						break;
-					default:
-						break;
-				}
-			}
+			inbox = settings.hideinbox !== true;
 		}
 
 		this.getInboxContainer()

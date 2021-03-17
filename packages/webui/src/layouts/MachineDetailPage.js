@@ -94,40 +94,43 @@ export function MachineDetailPage(props) {
 
 	// TODO: remove viewMode and merge this and the next effect
 	useEffect(() => {
-		if (viewConfig) {
-			props.setAppState({
-				viewMode: {
-					hidegrid: true,
-					viewMode: 'sheet',
-					hideheader: true
-				}
-			});
-		}
+		const settings = {
+			active: viewConfig !== undefined,
+			sheets: [{
+				sheet: 'S1', // name for now
+				hideheader: viewConfig !== undefined,
+				hidegrid: viewConfig !== undefined,
+				zoomdisabled: viewConfig !== undefined,
+				scrolldisabled: viewConfig !== undefined,
+				hideinbox: viewConfig !== undefined,
+				maximize: viewConfig !== undefined,
+			}]
+		};
+
+		props.setAppState({
+			viewMode: settings,
+			showTools: settings.active === false,
+		});
+		graphManager.updateCanvas(showTools,settings);
 		return () => {};
 	}, [viewConfig]);
 
 	// Update canvas if showTools or viewMode change
 	useEffect(() => {
-		graphManager.updateCanvas(showTools, {
-			pos1: {
-			  sheet: 'theSheetId',
-			  hideheader: true,
-			  hidegrid: true,
-			  zoomdisabled: true,
-			  scrolldisabled: false,
-			  // viewMode: "",
-			  // view: "",
-			},
-			pos2: {
-			  sheet: null,
-			  hideheader: true,
-			  hidegrid: true,
-			  zoomdisabled: true,
-			  scrolldisabled: false,
-			  // viewMode: "",
-			  // view: "",
-			},
-		  });
+		const settings = {
+			active: viewConfig !== undefined,
+			sheets: [{
+				sheet: 'S1', // name for now
+				hideheader: viewConfig !== undefined,
+				hidegrid: viewConfig !== undefined,
+				zoomdisabled: viewConfig !== undefined,
+				scrolldisabled: viewConfig !== undefined,
+				hideinbox: viewConfig !== undefined,
+				maximize: viewConfig !== undefined,
+			}]
+		};
+		// props.setAppState({viewMode: settings});
+		graphManager.updateCanvas(showTools,settings);
 	}, [showTools, viewMode]);
 
 	const loadUser = async () => {
@@ -220,7 +223,7 @@ export function MachineDetailPage(props) {
 		document.title = intl.formatMessage({ id: 'TitleMachine' }, { name: machineName || 'Machine' });
 	}, [machineName]);
 
-	const showTools_ = viewMode.viewMode === null && showTools;
+	const showTools_ = viewMode.active === false && showTools;
 	let contentMargin = canEditMachine ? 115 : 58;
 	contentMargin = showTools_ ? contentMargin : 0;
 	if (!userLoaded) {
@@ -248,7 +251,7 @@ export function MachineDetailPage(props) {
 				<ResizeHandler />
 				<GraphLocaleHandler />
 				<DialogExtensions />
-				{viewMode.viewMode === null ? (
+				{viewMode.active === false ? (
 					<div>
 						<ImportDialog />
 						<NewMachineDialog />
