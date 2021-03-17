@@ -111,6 +111,8 @@ export default class SheetButtonView extends NodeView {
 					}
 					if (cellData.length) {
 						expr.setTermValue(value);
+						cell.setValue(newValue);
+						cell.setTargetValue(newValue);
 						const cmd = new SetCellsCommand(range.getSheet(), cellData, false);
 						cmd._keepFeedback = true;
 						viewer.getInteractionHandler().execute(cmd);

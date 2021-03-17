@@ -722,14 +722,6 @@ module.exports = class CellRange {
 		}
 
 		const rowVal = Number(reference.substring(i));
-		// for (i; i < reference.length; i += 1) {
-		// 	char = reference.charCodeAt(i);
-		// 	// 48 -> '0'
-		// 	if (char < 48 || char > 57) {
-		// 		return undefined;
-		// 	}
-		// 	rowVal = rowVal * 10 + char - 48;
-		// }
 
 		if (noLimit === false && rowVal - 1 > sheet._rowCount) {
 			return undefined;

@@ -86,6 +86,9 @@ export default class SheetCheckboxView extends NodeView {
 							value: newValue
 						}];
 						expr.setTermValue(newValue);
+						cell.setValue(newValue);
+						cell.setTargetValue(newValue);
+
 						viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
 					}
 					return false;

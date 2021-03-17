@@ -89,6 +89,14 @@ module.exports = class Cell {
 		return this._value;
 	}
 
+	setTargetValue(value) {
+		this._targetValue = value;
+	}
+
+	getTargetValue() {
+		return this._targetValue;
+	}
+
 	toLocaleString(forItem, encode) {
 		const expr = this.getExpression();
 

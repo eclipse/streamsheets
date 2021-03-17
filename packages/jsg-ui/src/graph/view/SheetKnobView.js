@@ -402,6 +402,8 @@ export default class SheetKnobView extends NodeView {
 						return false;
 					}
 					expr.setTermValue(sliderValue);
+					cell.setValue(sliderValue);
+					cell.setTargetValue(sliderValue);
 					range.shiftToSheet();
 					const cellData = [];
 					cellData.push({

@@ -685,7 +685,7 @@ class Expression {
 		if (type[0] !== 'n') {
 			ret.t = type[0];
 		}
-		if (serverCalc) {
+		if (serverCalc && this._formula) {
 			ret.msc = true;
 		}
 		return ret;
