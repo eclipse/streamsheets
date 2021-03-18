@@ -9,11 +9,14 @@
  *
  ********************************************************************************/
 const { jsonpath } = require('@cedalo/commons');
+const { FunctionErrors: { code: ERROR } } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
 const { toRange } = require('./arrayspread');
+const AsyncRequest = require('./AsyncRequest');
 const { toArray2D } = require('./jsonflatten');
 const { getInbox } = require('./sheet');
 const { getCellRangeFromTerm, isInboxTerm, isOutboxTerm, termFromValue } = require('./terms');
+
 
 const createMessage = (resobj, id, requestId) => {
 	const { data, metadata } = resobj;
@@ -79,8 +82,21 @@ const createResult = (requestId, obj, dataFields = DATA) => {
 };
 const createErrorResult = (requestId, obj, dataFields = ERRORDATA) => createResult(requestId, obj, dataFields);
 
+const createRequestCallback = (sheet, target) => (context, response, error) => {
+	const term = context.term;
+	const reqId = context._reqId;
+	const resobj = error ? createErrorResult(reqId, error) : createResult(reqId, response);
+	resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
+	if (target) addResultToTarget(sheet, target, resobj);
+	if (term && !term.isDisposed) {
+		term.cellValue = error ? ERROR.RESPONSE : undefined;
+	}
+	return error ? AsyncRequest.STATE.REJECTED : undefined;
+};
+
 module.exports = {
+	addResultToTarget,
 	createResult,
 	createErrorResult,
-	addResultToTarget
+	createRequestCallback
 };

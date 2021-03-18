@@ -13,23 +13,10 @@ const { FunctionErrors: { code: ERROR } } = require('@cedalo/error-codes');
 const { getInstance } = require('@cedalo/http-client');
 const {
 	AsyncRequest,
-	httprequest: { addResultToTarget, createErrorResult, createResult },
+	httprequest: { createRequestCallback },
 	runFunction,
 	terms: { hasValue }
 } = require('../../utils');
-
-
-const createRequestCallback = (sheet, target) => (context, response, error) => {
-	const term = context.term;
-	const reqId = context._reqId;
-	const resobj = error ? createErrorResult(reqId, error) : createResult(reqId, response);
-	resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
-	if (target) addResultToTarget(sheet, target, resobj);
-	if (term && !term.isDisposed) {
-		term.cellValue = error ? ERROR.RESPONSE : undefined;
-	}
-	return error ? AsyncRequest.STATE.REJECTED : undefined;
-};
 
 const request = (sheet, ...terms) =>
 	runFunction(sheet, terms)
