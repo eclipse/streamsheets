@@ -115,23 +115,23 @@ export default class GraphManager {
 
 	set streamsStatusMap(streamsStatusMap) {
 		this._streamsStatusMap = streamsStatusMap;
-		if(this._machine) {
+		if (this._machine) {
 			let dirty = false;
 			this._machine.streamsheets.forEach(t => {
 				const {stream} = t.inbox;
-				if(stream && this._streamsStatusMap[stream.id]) {
+				if (stream && this._streamsStatusMap[stream.id]) {
 					this.updateStream(t.id, stream);
 					dirty = true;
 				}
 			});
-			if(dirty) {
+			if (dirty) {
 				this.redraw();
 			}
 		}
 	}
 
 	getStreamStatus(stream) {
-		if(stream && stream.id
+		if (stream && stream.id
 		) {
 			return StreamHelper.getStreamState(stream);
 		}
@@ -225,14 +225,14 @@ export default class GraphManager {
 	}
 
 	getLocaleSettings() {
-		const { locale } = store.getState().machine;
+		const {locale} = store.getState().machine;
 
 		switch (locale) {
-		case 'de':
-			return Locale.DE;
-		case 'en':
-		default:
-			return Locale.EN;
+			case 'de':
+				return Locale.DE;
+			case 'en':
+			default:
+				return Locale.EN;
 		}
 	}
 
@@ -276,30 +276,36 @@ export default class GraphManager {
 		this.updateControls();
 
 		this.updateGraph(machine);
-
-		if (graph.getStreamSheetContainerCount() === 1) {
-			const container = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
-			graph.setViewMode(container, 2);
-			graph.markDirty();
-		} else {
-			const container = graph.getMachineContainer();
-			const maxSheet = container.getMachineContainerAttributes().getMaximizeSheet().getValue();
-			if (maxSheet !== 'none') {
-				const processContainer = graph.getStreamSheetContainerByStreamSheetName(maxSheet);
-				if (processContainer !== undefined) {
-					graph.setViewMode(processContainer, 2);
-					graph.markDirty();
-				}
-			}
-		}
+		this.updateViewMode(graph);
 
 		JSG.setDrawingDisabled(false);
 		this.redraw();
 
 		if (sheet) {
 			NotificationCenter.getInstance()
-				.send(new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, { item: sheet, updateFinal: true }));
+				.send(new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {item: sheet, updateFinal: true}));
 		}
+	}
+
+	updateViewMode(graph, econtainer) {
+		if (econtainer) {
+			graph.setViewMode(econtainer, 2);
+		} else if (graph.getStreamSheetContainerCount() === 1) {
+			const container = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
+			graph.setViewMode(container, 2);
+		} else {
+			const container = graph.getMachineContainer();
+			const maxSheet = container.getMachineContainerAttributes().getMaximizeSheet().getValue();
+			if (maxSheet === 'none') {
+				graph.setViewMode(undefined, 0);
+			} else {
+				const processContainer = graph.getStreamSheetContainerByStreamSheetName(maxSheet);
+				if (processContainer !== undefined) {
+					graph.setViewMode(processContainer, 2);
+				}
+			}
+		}
+		graph.markDirty();
 	}
 
 	undo() {
@@ -494,17 +500,21 @@ export default class GraphManager {
 	updateCanvas(tools, settings) {
 		const canvas = document.getElementById('canvas');
 		const graph = this.getGraph();
-		if (canvas && graph && settings && settings.sheets) {
-			// const graphController = this._graphEditor.getGraphViewer().getGraphController();
+		if (canvas && graph && graph.getItemCount() && settings) {
 			graph.viewSettings = {
 				active: settings.active,
 				outbox: settings.outbox,
+				maximize: settings.maximize
 			}
-			settings.sheets.forEach(params => {
-				const sheet = graph.getItemByName(params.sheet);		// Worksheetnode
-				if (sheet) {
-					sheet.getParent().viewSettings = params;
-				}
+			graph.clearViewSettings();
+			const sheet = graph.getItemByName(settings.maximize);		// Worksheetnode
+			if (sheet) {
+				sheet.getParent().viewSettings = settings;
+			}
+			this.updateViewMode(graph, settings.active && sheet ? sheet.getParent() : undefined);
+			graph.setRefreshNeeded(true);
+			graph.markDirty();
+
 
 
 				// TODO: ugly code to hide scrollbar
@@ -519,10 +529,7 @@ export default class GraphManager {
 				// 	JSG.ScrollBarMode.HIDDEN
 				// );
 
-			});
 
-			// graph.setViewParams(viewMode);
-			// TODO -> global settings?
 			// const container = graph.getMachineContainer();
 			// if (container) {
 			// 	const attr = container.getMachineContainerAttributes();

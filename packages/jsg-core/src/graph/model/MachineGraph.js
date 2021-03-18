@@ -482,6 +482,16 @@ module.exports = class MachineGraph extends Graph {
 		return sheetNames;
 	}
 
+	clearViewSettings() {
+		const container = this.getStreamSheetsContainer();
+		if (!container) {
+			return;
+		}
+		container.enumerateStreamSheetContainers((sheet) => {
+			sheet.viewSettings = {};
+		});
+	}
+
 	getMachineDescriptor() {
 		const container = this.getStreamSheetsContainer();
 		const result = {

@@ -199,16 +199,18 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 	}
 
 	layout() {
-		const graph = this.getGraph();
+		// const graph = this.getGraph();
 
-		if (graph !== undefined) {
-			const view = graph.viewSettings;
-			const container = graph.getItemByName(view.maximize);
-			if (container instanceof StreamSheet) {
-				graph.setViewMode(container.getParent(), 2);
-			}
-		}
-
+		// if (graph !== undefined) {
+		// 	const view = graph.viewSettings;
+		// 	if (view.active) {
+		// 		const container = graph.getItemByName(view.maximize);
+		// 		if (container instanceof StreamSheet) {
+		// 			graph.setViewMode(container.getParent(), 2);
+		// 		}
+		// 	}
+		// }
+		//
 		super.layout();
 	}
 };

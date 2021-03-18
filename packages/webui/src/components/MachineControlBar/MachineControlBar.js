@@ -37,6 +37,8 @@ import { accessManager } from '../../helper/AccessManager';
 import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
 import gatewayClient from '../../helper/GatewayClient';
+import qs from "query-string";
+import SvgIcon from "@material-ui/core/SvgIcon";
 
 const { RESOURCE_ACTIONS } = accessManager;
 
@@ -174,6 +176,10 @@ class MachineControlBar extends React.Component {
 		this.props.setStreamSheetStepInterval(this.props.machineId, streamsheetStepInterval);
 	};
 
+	onConfigureViewMode = () => {
+		window.location.hash = qs.stringify({...qs.parse(window.location.hash), viewConfig: true })
+	}
+
 	render() {
 		function getGaugeColor(value, max) {
 			if (value > max) {
@@ -249,6 +255,23 @@ class MachineControlBar extends React.Component {
 									onClick={this.onStepMachine}
 								>
 									<StepForwardIcon />
+								</IconButton>
+							</div>
+						</CustomTooltip>
+						<CustomTooltip header="Tooltip.PreviewModeHeader" message="Tooltip.PrevievMode">
+							<div>
+								<IconButton
+									color="inherit"
+									style={{ marginLeft: '15px', color: `rgba(255, 255, 255, ${this.props.disabled ? 0.3 : 1})` }}
+									disabled={this.props.disabled}
+									onClick={(e) => this.onConfigureViewMode(e)}
+								>
+									<SvgIcon>
+										<path
+											// eslint-disable-next-line max-len
+											d="M12 5.5L10 8H14L12 5.5M18 10V14L20.5 12L18 10M6 10L3.5 12L6 14V10M14 16H10L12 18.5L14 16M21 3H3C1.9 3 1 3.9 1 5V19C1 20.1 1.9 21 3 21H21C22.1 21 23 20.1 23 19V5C23 3.9 22.1 3 21 3M21 19H3V5H21V19Z"
+										/>
+									</SvgIcon>
 								</IconButton>
 							</div>
 						</CustomTooltip>

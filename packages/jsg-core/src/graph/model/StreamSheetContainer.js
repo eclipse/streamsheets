@@ -406,22 +406,18 @@ module.exports = class StreamSheetContainer extends Node {
 		const sizeInbox = this._inboxContainer.getSize().toPoint();
 		let heightCaption = 650;
 		let left = 0;
-		let inbox = this.getStreamSheetContainerAttributes()
-			.getInboxVisible()
-			.getValue();
-		const graph = this.getGraph();
+		let inbox;
 		let hideButtons = false;
 		let captions = true;
 
-		if (graph) {
-			const graphSettings = graph.viewSettings;
-			const settings = this.viewSettings;
-			if (graphSettings.active === true) {
-				hideButtons = true;
-				captions = false;
-				heightCaption = 0;
-			}
-			inbox = settings.hideinbox !== true;
+		const settings = this.viewSettings;
+		if (settings.active === true) {
+			hideButtons = true;
+			captions = false;
+			heightCaption = 0;
+			inbox = settings.showInbox;
+		} else {
+			inbox = this.getStreamSheetContainerAttributes().getInboxVisible().getValue();
 		}
 
 		this.getInboxContainer()

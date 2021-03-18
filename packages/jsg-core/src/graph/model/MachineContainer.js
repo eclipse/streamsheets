@@ -145,7 +145,7 @@ module.exports = class MachineContainer extends Node {
 	isOutboxVisible() {
 		const viewSettings = this.getGraph().viewSettings;
 		return viewSettings.active ?
-			viewSettings.outbox:
+			viewSettings.showOutbox:
 			this.getMachineContainerAttributes().getOutboxVisible().getValue();
 	}
 

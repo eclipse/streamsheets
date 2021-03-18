@@ -14,10 +14,15 @@
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 import {
-	AppBar, Checkbox, FormControlLabel, FormGroup,
-	IconButton, MenuItem,
+	AppBar,
+	Checkbox,
+	FormControlLabel,
+	FormGroup,
+	IconButton,
+	MenuItem,
 	Paper,
-	Slide, TextField,
+	Slide,
+	TextField,
 	// FormControl,
 	Typography
 	// Typography
@@ -31,12 +36,11 @@ import { connect } from 'react-redux';
 import * as Actions from '../../actions/actions';
 import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
-import {FormattedMessage} from "react-intl";
-import {graphManager} from "../../GraphManager";
+import { FormattedMessage } from 'react-intl';
+import { graphManager } from '../../GraphManager';
 // import {intl} from "../../helper/IntlGlobalProvider";
 
-const styles = {
-};
+const styles = {};
 
 export class ViewModeProperties extends Component {
 	handleClose = () => {
@@ -47,70 +51,57 @@ export class ViewModeProperties extends Component {
 		graphManager.getGraph().markDirty();
 	}
 
-	getSheet(viewMode, sheet) {
-		const selSheet = viewMode.sheets.filter((vsheet) => {
-			return (vsheet.sheet === sheet.sheet);
-		});
-
-		return selSheet.length ? selSheet[0] : undefined;
-	}
-
 	handleOutboxChange = (event, state) => {
-		const viewMode = {...this.props.viewMode};
-		viewMode.outbox = state;
-		this.props.setAppState({viewMode});
+		const viewMode = { ...this.props.viewMode };
+		viewMode.showOutbox = state;
+		this.props.setAppState({ viewMode });
 		this.invalidate();
 	};
 
-	handleHeaderChange = (event, state, sheet) => {
-		const viewMode = {...this.props.viewMode};
-		const nsheet = this.getSheet(viewMode, sheet);
-		if (nsheet) {
-			nsheet.hideheader = state;
-			this.props.setAppState({viewMode});
-			this.invalidate();
-		}
+	handleHeaderChange = (event, state) => {
+		const viewMode = { ...this.props.viewMode };
+		viewMode.showHeader = state;
+		this.props.setAppState({ viewMode });
+		this.invalidate();
 	};
 
-	handleGridChange = (event, state, sheet) => {
-		const viewMode = {...this.props.viewMode};
-		const nsheet = this.getSheet(viewMode, sheet);
-		if (nsheet) {
-			nsheet.hidegrid = state;
-			this.props.setAppState({viewMode});
-			this.invalidate();
-		}
+	handleGridChange = (event, state) => {
+		const viewMode = { ...this.props.viewMode };
+		viewMode.showGrid = state;
+		this.props.setAppState({ viewMode });
+		this.invalidate();
 	};
 
-	handleInboxChange = (event, state, sheet) => {
-		const viewMode = {...this.props.viewMode};
-		const nsheet = this.getSheet(viewMode, sheet);
-		if (nsheet) {
-			nsheet.hideinbox = state;
-			this.props.setAppState({viewMode});
-			this.invalidate();
-		}
+	handleInboxChange = (event, state) => {
+		const viewMode = { ...this.props.viewMode };
+		viewMode.showInbox = state;
+		this.props.setAppState({ viewMode });
+		this.invalidate();
 	};
 
-	handleScrollChange = (event, state, sheet) => {
-		const viewMode = {...this.props.viewMode};
-		const nsheet = this.getSheet(viewMode, sheet);
-		if (nsheet) {
-			nsheet.scrolldisabled = state;
-			this.props.setAppState({viewMode});
-			this.invalidate();
-		}
+	handleScrollChange = (event, state) => {
+		const viewMode = { ...this.props.viewMode };
+		viewMode.allowScroll = state;
+		this.props.setAppState({ viewMode });
+		this.invalidate();
+	};
+
+	handleZoomChange = (event, state) => {
+		const viewMode = { ...this.props.viewMode };
+		viewMode.allowZoom = state;
+		this.props.setAppState({ viewMode });
+		this.invalidate();
 	};
 
 	handleMaximizeChange = (event) => {
-		const viewMode = {...this.props.viewMode}
+		const viewMode = { ...this.props.viewMode };
 		viewMode.maximize = event.target.value;
-		this.props.setAppState({viewMode});
+		this.props.setAppState({ viewMode });
 	};
 
 	render() {
 		const sheetNames = graphManager.getGraph().getStreamSheetNames();
-		const {viewMode} = this.props;
+		const { viewMode } = this.props;
 
 		return (
 			<Slide direction="left" in={this.props.showViewModeProperties} mountOnEnter unmountOnExit>
@@ -149,7 +140,7 @@ export class ViewModeProperties extends Component {
 								padding: '12px 0px 12px 8px',
 								display: 'inline-block',
 								fontSize: '12pt',
-								color: 'white',
+								color: 'white'
 							}}
 						>
 							<FormattedMessage id="ViewModeSettings" defaultMessage="View Mode Settings" />
@@ -177,7 +168,10 @@ export class ViewModeProperties extends Component {
 								size="small"
 								margin="normal"
 								label={
-									<FormattedMessage id="ViewModeProperties.template" defaultMessage="Maximize Sheet" />
+									<FormattedMessage
+										id="ViewModeProperties.DisplaySheet"
+										defaultMessage="Display Sheet"
+									/>
 								}
 								select
 								fullWidth
@@ -197,70 +191,65 @@ export class ViewModeProperties extends Component {
 							<FormControlLabel
 								control={
 									<Checkbox
-										checked={viewMode.outbox}
-										onChange={(event, state) =>
-											this.handleOutboxChange(event, state)
-										}
+										checked={viewMode.showHeader}
+										onChange={(event, state) => this.handleHeaderChange(event, state)}
 									/>
 								}
-								label={<FormattedMessage id="ViewModeProperties.ShowOutbox" defaultMessage="Show Outbox" />}
+								label={<FormattedMessage id="ViewModeProperties.Header" defaultMessage="Show Header" />}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={viewMode.showGrid}
+										onChange={(event, state) => this.handleGridChange(event, state)}
+									/>
+								}
+								label={<FormattedMessage id="ViewModeProperties.Grid" defaultMessage="Show Grid" />}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={viewMode.showInbox}
+										onChange={(event, state) => this.handleInboxChange(event, state)}
+									/>
+								}
+								label={<FormattedMessage id="ViewModeProperties.Inbox" defaultMessage="Show Inbox" />}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={viewMode.outbox}
+										onChange={(event, state) => this.handleOutboxChange(event, state)}
+									/>
+								}
+								label={
+									<FormattedMessage id="ViewModeProperties.ShowOutbox" defaultMessage="Show Outbox" />
+								}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={viewMode.allowScroll}
+										onChange={(event, state) => this.handleScrollChange(event, state)}
+									/>
+								}
+								label={
+									<FormattedMessage
+										id="ViewModeProperties.Scrollbars"
+										defaultMessage="Allow Scrolling"
+									/>
+								}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={viewMode.allowZoom}
+										onChange={(event, state) => this.handleZoomChange(event, state)}
+									/>
+								}
+								label={<FormattedMessage id="ViewModeProperties.Zoom" defaultMessage="Allow Zooming" />}
 							/>
 						</FormGroup>
-						{viewMode.sheets.map((sheet) => (
-							<FormGroup style={{marginTop: '10px'}}>
-								<Typography style={{fontSize: '10pt'}}>
-									{sheet.sheet}
-								</Typography>
-								<FormControlLabel
-									style={{marginLeft: '8px'}}
-									control={
-										<Checkbox
-											checked={sheet.hideheader}
-											onChange={(event, state) =>
-												this.handleHeaderChange(event, state, sheet)
-											}
-										/>
-									}
-									label={<FormattedMessage id="ViewModeProperties.Header" defaultMessage="Show Header" />}
-								/>
-								<FormControlLabel
-									style={{marginLeft: '8px'}}
-									control={
-										<Checkbox
-											checked={sheet.hidegrid}
-											onChange={(event, state) =>
-												this.handleGridChange(event, state, sheet)
-											}
-										/>
-									}
-									label={<FormattedMessage id="ViewModeProperties.Grid" defaultMessage="Show Grid" />}
-								/>
-								<FormControlLabel
-									style={{marginLeft: '8px'}}
-									control={
-										<Checkbox
-											checked={sheet.hideinbox}
-											onChange={(event, state) =>
-												this.handleInboxChange(event, state, sheet)
-											}
-										/>
-									}
-									label={<FormattedMessage id="ViewModeProperties.Inbox" defaultMessage="Show Inbox" />}
-								/>
-								<FormControlLabel
-									style={{marginLeft: '8px'}}
-									control={
-										<Checkbox
-											checked={sheet.scrolldisabled}
-											onChange={(event, state) =>
-												this.handleScrollChange(event, state, sheet)
-											}
-										/>
-									}
-									label={<FormattedMessage id="ViewModeProperties.Scrollbars" defaultMessage="Show Scrollbars" />}
-								/>
-							</FormGroup>
-						))}
 					</div>
 				</Paper>
 			</Slide>
@@ -271,7 +260,7 @@ export class ViewModeProperties extends Component {
 function mapStateToProps(state) {
 	return {
 		showViewModeProperties: state.appState.showViewModeProperties,
-		viewMode: state.appState.viewMode,
+		viewMode: state.appState.viewMode
 	};
 }
 

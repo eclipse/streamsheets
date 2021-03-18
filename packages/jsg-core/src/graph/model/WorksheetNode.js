@@ -161,19 +161,21 @@ module.exports = class WorksheetNode extends ContentNode {
 	 */
 	layout() {
 		const wsattributes = this.getWorksheetAttributes();
-		let header = wsattributes.getShowHeader().getValue();
-
 		const parent = this.getParent();
-		const colSize = this._columns.getInternalSize();
-		const rowSize = this._rows.getInternalSize();
+		let header;
 
-		if (parent && parent.viewSettings.hideheader) {
-			header = false;
+		if (parent && parent.viewSettings.active) {
+			header = parent.viewSettings.showHeader;
+		} else {
+			header = wsattributes.getShowHeader().getValue();
 		}
 
 		this._corner.getItemAttributes().setVisible(header);
 		this._rows.getItemAttributes().setVisible(header);
 		this._columns.getItemAttributes().setVisible(header);
+
+		const colSize = this._columns.getInternalSize();
+		const rowSize = this._rows.getInternalSize();
 
 		const box = JSG.boxCache.get();
 
@@ -281,8 +283,8 @@ module.exports = class WorksheetNode extends ContentNode {
 	isGridVisible() {
 		const parent = this.getParent();
 
-		if (parent && parent.viewSettings.hidegrid) {
-			return false;
+		if (parent && parent.viewSettings.active) {
+			return parent.viewSettings.showGrid;
 		}
 
 		return this.getWorksheetAttributes()

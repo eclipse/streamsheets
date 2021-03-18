@@ -96,22 +96,13 @@ export function MachineDetailPage(props) {
 	useEffect(() => {
 		const settings = {
 			active: viewConfig !== undefined,
-			outbox: false,
 			maximize: 'S1',
-			zoomdisabled: viewConfig !== undefined,
-			sheets: [{
-				sheet: 'S1', // name for now
-				hideheader: viewConfig !== undefined,
-				hidegrid: viewConfig !== undefined,
-				scrolldisabled: viewConfig !== undefined,
-				hideinbox: viewConfig !== undefined,
-			}, {
-				sheet: 'S2', // name for now
-				hideheader: false,
-				hidegrid: false,
-				scrolldisabled: true,
-				hideinbox: false,
-			}]
+			allowZoom: false,
+			allowScroll: true,
+			showHeader: false,
+			showOutbox: false,
+			showGrid: false,
+			showInbox: false,
 		};
 
 		props.setAppState({
