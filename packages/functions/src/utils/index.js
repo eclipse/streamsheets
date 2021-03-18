@@ -21,6 +21,7 @@ const jsonbuilder = require('./jsonbuilder');
 const messages = require('./messages');
 const runFunction = require('./runner');
 const sheet = require('./sheet');
+const httprequest = require('./httprequest');
 const terms = require('./terms');
 // const types = require('./types'); // <-- causes circular reference!!
 const validation = require('./validation');
@@ -41,6 +42,7 @@ module.exports = {
 	messages,
 	runFunction,
 	sheet,
+	httprequest,
 	terms,
 	// types,
 	validation,

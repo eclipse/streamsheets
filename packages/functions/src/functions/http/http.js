@@ -11,36 +11,18 @@
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors: { code: ERROR } } = require('@cedalo/error-codes');
 const { getInstance } = require('@cedalo/http-client');
-const { AsyncRequest, runFunction, terms: { hasValue } } = require('../../utils');
-const { addResultToTarget } = require('./utils');
+const {
+	AsyncRequest,
+	httprequest: { addResultToTarget, createErrorResult, createResult },
+	runFunction,
+	terms: { hasValue }
+} = require('../../utils');
 
-const DATA = ['data'];
-const ERRORDATA = ['code', 'message'];
-const METADATA = ['headers', 'status', 'statusText'];
-const REQUESTDATA = ['data', 'headers', 'method', 'url'];
 
-const addValue = (fromObj) => (toObj, key) => {
-	toObj[key] = fromObj[key];
-	return toObj;
-};
-const extract = (keys, fromObj) => keys.reduce(addValue(fromObj), {});
-
-const defaultCallback = (context, response, error) => {
-	const term = context.term;
-	if (term && !term.isDisposed) term.cellValue = error ? ERROR.RESPONSE : undefined;
-	return error ? AsyncRequest.STATE.REJECTED : undefined;
-};
-
-const createResult = (obj, dataFields, requestId) => {
-	const data = extract(dataFields, obj);
-	const metadata = extract(METADATA, obj);
-	if (obj.config) metadata.request = { requestId, ...extract(REQUESTDATA, obj.config) };
-	return { data, metadata };
-};
 const createRequestCallback = (sheet, target) => (context, response, error) => {
 	const term = context.term;
 	const reqId = context._reqId;
-	const resobj = error ? createResult(error, ERRORDATA, reqId) : createResult(response, DATA, reqId);
+	const resobj = error ? createErrorResult(reqId, error) : createResult(reqId, response);
 	resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
 	if (target) addResultToTarget(sheet, target, resobj);
 	if (term && !term.isDisposed) {
