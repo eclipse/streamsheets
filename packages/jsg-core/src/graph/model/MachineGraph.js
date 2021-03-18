@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -468,20 +468,18 @@ module.exports = class MachineGraph extends Graph {
 		this.markDirty();
 	}
 
-	setViewParams(params) {
-		this._viewParams = params;
-	}
-
-	isOutboxVisible() {
-		if (!this._viewParams) {
-			return true;
-		}
-
-		return this._viewParams.viewMode === null || this._viewParams.viewMode === 'machine';
-	}
-
-	getViewParams() {
-		return this._viewParams;
+	getStreamSheetNames() {
+		const container = this.getStreamSheetsContainer();
+		const sheetNames = [];
+		container.enumerateStreamSheetContainers((sheet) => {
+			sheetNames.push(
+				sheet
+					.getStreamSheet()
+					.getName()
+					.getValue()
+			);
+		});
+		return sheetNames;
 	}
 
 	getMachineDescriptor() {

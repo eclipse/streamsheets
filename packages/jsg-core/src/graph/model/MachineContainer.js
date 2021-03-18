@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -142,16 +142,18 @@ module.exports = class MachineContainer extends Node {
 		this._assignItems();
 	}
 
+	isOutboxVisible() {
+		const viewSettings = this.getGraph().viewSettings;
+		return viewSettings.active ?
+			viewSettings.outbox:
+			this.getMachineContainerAttributes().getOutboxVisible().getValue();
+	}
+
 	layout() {
 		const box = JSG.boxCache.get();
 		const size = this.getSize().toPoint();
 		const sizeOutbox = this._outboxContainer.getSize().toPoint();
-		let outbox = this.getMachineContainerAttributes()
-			.getOutboxVisible()
-			.getValue();
-		if (!this.getGraph().isOutboxVisible()) {
-			outbox = false;
-		}
+		const outbox = this.isOutboxVisible();
 
 		this._outboxContainer.getItemAttributes().setVisible(outbox);
 		this._outboxContainer.updateSubAttributes();

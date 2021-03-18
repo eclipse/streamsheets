@@ -301,8 +301,8 @@ module.exports = class WorksheetNode extends ContentNode {
 			if (graph.overrideProtection) {
 				return false;
 			}
-			const view = graph.getViewParams();
-			if (view && view.viewMode !== null) {
+			const view = graph.viewSettings;
+			if (view.active === true) {
 				return true;
 			}
 		}

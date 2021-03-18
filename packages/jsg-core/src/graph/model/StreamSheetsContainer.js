@@ -202,30 +202,10 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 		const graph = this.getGraph();
 
 		if (graph !== undefined) {
-			const view = graph.getViewParams();
-			if (view) {
-				switch (view.viewMode) {
-					case 'streamsheet':
-					case 'sheet':
-					case 'name':
-					case 'range':
-					case 'drawing':
-						if (view.view) {
-							let name = view.view;
-							const index = name.indexOf('!');
-							if (index !== -1) {
-								name = name.substring(0, index);
-							}
-
-							const container = graph.getItemByName(name);
-							if (container instanceof StreamSheet) {
-								graph.setViewMode(container.getParent(), 2);
-							}
-						}
-						break;
-					default:
-						break;
-				}
+			const view = graph.viewSettings;
+			const container = graph.getItemByName(view.maximize);
+			if (container instanceof StreamSheet) {
+				graph.setViewMode(container.getParent(), 2);
 			}
 		}
 

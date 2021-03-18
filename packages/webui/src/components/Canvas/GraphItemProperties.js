@@ -206,8 +206,6 @@ export class GraphItemProperties extends Component {
 		});
 	}
 
-	handleX = () => {};
-
 	getFormula(index) {
 		const item = GraphItemProperties.getView().getItem();
 		const attr = item.getItemAttributes().getAttribute('sheetformula');

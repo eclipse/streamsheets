@@ -56,26 +56,12 @@ export class MachineSettingsDialog extends React.Component {
 	}
 
 	static getDerivedStateFromProps(props, state) {
-		if (!props.openSettings && graphManager.getGraph()) {
-			const container = graphManager.getGraph().getMachineContainer();
-			if (container === undefined) {
-				return null;
-			}
-
+		const graph = graphManager.getGraph();
+		if (!props.openSettings && graph) {
+			const container = graph.getMachineContainer();
 			const attr = container.getMachineContainerAttributes();
 
-			sheetNames = [];
-			graphManager
-				.getGraph()
-				.getStreamSheetsContainer()
-				.enumerateStreamSheetContainers((sheet) => {
-					sheetNames.push(
-						sheet
-							.getStreamSheet()
-							.getName()
-							.getValue()
-					);
-				});
+			sheetNames = graph.getStreamSheetNames();
 
 			return {
 				...state,

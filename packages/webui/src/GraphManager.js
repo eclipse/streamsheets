@@ -498,6 +498,7 @@ export default class GraphManager {
 			// const graphController = this._graphEditor.getGraphViewer().getGraphController();
 			graph.viewSettings = {
 				active: settings.active,
+				outbox: settings.outbox,
 			}
 			settings.sheets.forEach(params => {
 				const sheet = graph.getItemByName(params.sheet);		// Worksheetnode

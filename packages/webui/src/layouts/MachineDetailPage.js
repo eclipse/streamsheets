@@ -96,14 +96,21 @@ export function MachineDetailPage(props) {
 	useEffect(() => {
 		const settings = {
 			active: viewConfig !== undefined,
+			outbox: false,
+			maximize: 'S1',
+			zoomdisabled: viewConfig !== undefined,
 			sheets: [{
 				sheet: 'S1', // name for now
 				hideheader: viewConfig !== undefined,
 				hidegrid: viewConfig !== undefined,
-				zoomdisabled: viewConfig !== undefined,
 				scrolldisabled: viewConfig !== undefined,
 				hideinbox: viewConfig !== undefined,
-				maximize: viewConfig !== undefined,
+			}, {
+				sheet: 'S2', // name for now
+				hideheader: false,
+				hidegrid: false,
+				scrolldisabled: true,
+				hideinbox: false,
 			}]
 		};
 
@@ -117,20 +124,21 @@ export function MachineDetailPage(props) {
 
 	// Update canvas if showTools or viewMode change
 	useEffect(() => {
-		const settings = {
-			active: viewConfig !== undefined,
-			sheets: [{
-				sheet: 'S1', // name for now
-				hideheader: viewConfig !== undefined,
-				hidegrid: viewConfig !== undefined,
-				zoomdisabled: viewConfig !== undefined,
-				scrolldisabled: viewConfig !== undefined,
-				hideinbox: viewConfig !== undefined,
-				maximize: viewConfig !== undefined,
-			}]
-		};
+		// const settings = {
+		// 	active: viewConfig !== undefined,
+		// 	outbox: false,
+		// 	maximize: 'S1',
+		// 	zoomdisabled: viewConfig !== undefined,
+		// 	sheets: [{
+		// 		sheet: 'S1', // name for now
+		// 		hideheader: viewConfig !== undefined,
+		// 		hidegrid: viewConfig !== undefined,
+		// 		scrolldisabled: viewConfig !== undefined,
+		// 		hideinbox: viewConfig !== undefined,
+		// 	}]
+		// };
 		// props.setAppState({viewMode: settings});
-		graphManager.updateCanvas(showTools,settings);
+		graphManager.updateCanvas(showTools, viewMode);
 	}, [showTools, viewMode]);
 
 	const loadUser = async () => {
