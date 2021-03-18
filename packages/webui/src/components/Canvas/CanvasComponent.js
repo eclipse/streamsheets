@@ -299,7 +299,8 @@ export class CanvasComponent extends Component {
 				<canvas
 					id="canvas"
 					style={{
-						width: `calc(100% - ${this.props.showViewModeProperties ? '300px' : '0px'})`,
+						// width: `calc(100% - ${this.props.showViewModeProperties ? '300px' : '0px'})`,
+						width: `calc(100%)`,
 						height: '100%',
 						outline: 'none',
 					}}
