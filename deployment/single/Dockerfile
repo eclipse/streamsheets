@@ -29,8 +29,8 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	NODE_ENV=production \
 	STREAMS_SERVICE_START_DELAY=5000
 
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - && \
-	echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list && \
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - && \
+	echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list && \
 	apt-get update && \
 	apt-get -y upgrade && \
 	apt-get install -y g++ make bash curl nginx gnupg rsync unzip mosquitto openssl redis supervisor netcat mongodb-org
