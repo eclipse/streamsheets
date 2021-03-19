@@ -164,7 +164,6 @@ export class CanvasComponent extends Component {
 
 	onViewModeProperties = () => {
 		this.props.setAppState({showViewModeProperties: true});
-		// this.setState({dummy: String(Math.random())});
 	}
 	/**
 	 * Resize canvas and inform GraphEditor
@@ -299,8 +298,8 @@ export class CanvasComponent extends Component {
 				<canvas
 					id="canvas"
 					style={{
-						// width: `calc(100% - ${this.props.showViewModeProperties ? '300px' : '0px'})`,
-						width: `calc(100%)`,
+						width: `calc(100% - ${this.props.showViewModeProperties ? '300px' : '0px'})`,
+						// width: `calc(100%)`,
 						height: '100%',
 						outline: 'none',
 					}}
@@ -354,6 +353,7 @@ export class CanvasComponent extends Component {
 					>
 						<Fab
 							color="primary"
+							id="closeViewMode"
 							size="medium"
 							style={{
 								position: 'absolute',
@@ -376,6 +376,7 @@ export class CanvasComponent extends Component {
 					>
 						<Fab
 							color="primary"
+							id="viewModeProperties"
 							size="medium"
 							style={{
 								position: 'absolute',

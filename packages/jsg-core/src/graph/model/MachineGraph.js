@@ -489,6 +489,9 @@ module.exports = class MachineGraph extends Graph {
 		}
 		container.enumerateStreamSheetContainers((sheet) => {
 			sheet.viewSettings = {};
+			sheet.getStreamSheet().setHorizontalScrollbarMode(JSG.ScrollBarMode.AUTO);
+			sheet.getStreamSheet().setVerticalScrollbarMode(JSG.ScrollBarMode.AUTO);
+
 		});
 	}
 

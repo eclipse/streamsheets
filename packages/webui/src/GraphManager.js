@@ -503,40 +503,27 @@ export default class GraphManager {
 		if (canvas && graph && graph.getItemCount() && settings) {
 			graph.viewSettings = {
 				active: settings.active,
-				outbox: settings.outbox,
+				showOutbox: settings.showOutbox,
+				allowZoom: settings.allowZoom,
 				maximize: settings.maximize
 			}
 			graph.clearViewSettings();
 			const sheet = graph.getItemByName(settings.maximize);		// Worksheetnode
+			const graphController = this._graphEditor.getGraphViewer().getGraphController();
 			if (sheet) {
 				sheet.getParent().viewSettings = settings;
+				const controller = graphController.getControllerByModelId(sheet.getId());
+				const view = controller.getView();
+				if (!settings.allowScroll) {
+					sheet.setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
+					sheet.setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
+					sheet.layout();
+				}
+				view.layout();
 			}
 			this.updateViewMode(graph, settings.active && sheet ? sheet.getParent() : undefined);
 			graph.setRefreshNeeded(true);
 			graph.markDirty();
-
-
-
-				// TODO: ugly code to hide scrollbar
-				// const controller = graphController.getControllerByModelId(sheet.getId());
-				// const view = controller.getView();
-				// const rect = node.getBoundingBox().getBoundingRectangle();
-				// view.getItem().setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-				// view.getItem().setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-				// const scrollview = view.getScrollView();
-				// scrollview.setScrollBarsMode(
-				// 	JSG.ScrollBarMode.HIDDEN,
-				// 	JSG.ScrollBarMode.HIDDEN
-				// );
-
-
-			// const container = graph.getMachineContainer();
-			// if (container) {
-			// 	const attr = container.getMachineContainerAttributes();
-			// 	if (attr) {
-			// 		attr.setHideToolbars(tools === false);
-			// 	}
-			// }
 
 			if (canvas.height !== canvas.clientHeight || canvas.width !== canvas.clientWidth) {
 				this.updateDimensions();

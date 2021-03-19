@@ -434,6 +434,7 @@ module.exports = class StreamSheetContainer extends Node {
 		this._splitter.getItemAttributes().setVisible(inbox);
 
 		if (captions) {
+			this._sheetCaption.getItemAttributes().setVisible(true);
 			this._sheetCaption.getItems().forEach((subItem) => {
 				subItem.getItemAttributes().setVisible(hideButtons === false);
 			});

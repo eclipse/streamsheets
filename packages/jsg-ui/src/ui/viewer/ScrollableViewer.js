@@ -22,9 +22,9 @@ import GraphViewPanel from '../GraphViewPanel';
 import MouseEvent from '../events/MouseEvent';
 import Cursor from '../Cursor';
 
-const isZoomDisabled = (graph) => {
+const isZoomAllowed = (graph) => {
 	const viewParams = graph.viewSettings;
-	return viewParams && viewParams.zoomdisabled;
+	return viewParams.allowZoom !== false;
 };
 
 // =====================================================================================================================
@@ -401,7 +401,7 @@ class ScrollableViewer extends GraphViewer {
 		const graph = this.getGraph();
 		const cs = this.getCoordinateSystem();
 
-		if (isZoomDisabled(graph)) {
+		if (!isZoomAllowed(graph)) {
 			return;
 		}
 

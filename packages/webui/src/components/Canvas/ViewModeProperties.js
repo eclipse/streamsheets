@@ -47,50 +47,40 @@ export class ViewModeProperties extends Component {
 		this.props.setAppState({ showViewModeProperties: false });
 	};
 
-	invalidate() {
-		graphManager.getGraph().markDirty();
-	}
-
 	handleOutboxChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.showOutbox = state;
 		this.props.setAppState({ viewMode });
-		this.invalidate();
 	};
 
 	handleHeaderChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.showHeader = state;
 		this.props.setAppState({ viewMode });
-		this.invalidate();
 	};
 
 	handleGridChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.showGrid = state;
 		this.props.setAppState({ viewMode });
-		this.invalidate();
 	};
 
 	handleInboxChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.showInbox = state;
 		this.props.setAppState({ viewMode });
-		this.invalidate();
 	};
 
 	handleScrollChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.allowScroll = state;
 		this.props.setAppState({ viewMode });
-		this.invalidate();
 	};
 
 	handleZoomChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.allowZoom = state;
 		this.props.setAppState({ viewMode });
-		this.invalidate();
 	};
 
 	handleMaximizeChange = (event) => {
@@ -102,6 +92,9 @@ export class ViewModeProperties extends Component {
 	render() {
 		const sheetNames = graphManager.getGraph().getStreamSheetNames();
 		const { viewMode } = this.props;
+		setTimeout(() => {
+			window.dispatchEvent(new Event('resize'));
+		},0);
 
 		return (
 			<Slide direction="left" in={this.props.showViewModeProperties} mountOnEnter unmountOnExit>
@@ -179,9 +172,6 @@ export class ViewModeProperties extends Component {
 								value={viewMode.maximize}
 								onChange={(event) => this.handleMaximizeChange(event)}
 							>
-								<MenuItem key="none" value="none">
-									<FormattedMessage id="Nones" defaultMessage="None" />
-								</MenuItem>
 								{sheetNames.map((key) => (
 									<MenuItem value={key} key={key}>
 										{key}
@@ -218,7 +208,7 @@ export class ViewModeProperties extends Component {
 							<FormControlLabel
 								control={
 									<Checkbox
-										checked={viewMode.outbox}
+										checked={viewMode.showOutbox}
 										onChange={(event, state) => this.handleOutboxChange(event, state)}
 									/>
 								}
