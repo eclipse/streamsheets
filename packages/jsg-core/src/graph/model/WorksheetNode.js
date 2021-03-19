@@ -100,8 +100,6 @@ module.exports = class WorksheetNode extends ContentNode {
 		this._rows = this.addItem(new RowHeaderNode());
 		this._corner = this.addItem(new SheetHeaderNode());
 		this._cells.getDataProvider().setSheet(this);
-
-		this._rowCount = 1000;
 	}
 
 	newInstance() {
@@ -170,6 +168,7 @@ module.exports = class WorksheetNode extends ContentNode {
 		const rowSize = this._rows.getInternalSize();
 
 		this._rowCount = wsattributes.getRows().getValue();
+		this._columnCount = wsattributes.getRows().getValue();
 
 		if (graph !== undefined) {
 			const view = graph.getViewParams();
@@ -334,23 +333,27 @@ module.exports = class WorksheetNode extends ContentNode {
 	}
 
 	setRowCount(count) {
+		this._rowCount = undefined
 		this.getWorksheetAttributes().setRows(count);
 	}
 
 	getRowCount() {
-		return this.getWorksheetAttributes()
-			.getRows()
-			.getValue();
+		if (this._rowCount === undefined) {
+			this._rowCount = this.getWorksheetAttributes().getRows().getValue();
+		}
+		return this._rowCount;
 	}
 
 	setColumnCount(count) {
+		this._columnCount = undefined;
 		this.getWorksheetAttributes().setColumns(count);
 	}
 
 	getColumnCount() {
-		return this.getWorksheetAttributes()
-			.getColumns()
-			.getValue();
+		if (this._columnCount === undefined) {
+			this._columnCount = this.getWorksheetAttributes().getColumns().getValue();
+		}
+		return this._columnCount;
 	}
 
 	getColumns() {
