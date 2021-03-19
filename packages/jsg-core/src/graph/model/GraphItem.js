@@ -46,7 +46,11 @@ const Properties = require('../properties/Properties');
 const CompoundCommand = require('../command/CompoundCommand');
 
 const _tmpEvent = new Event(Event.ALL);
-
+const ptCache = [
+	new Point(0, 0),
+	new Point(0, 0)
+];
+const boxCache = new BoundingBox(0, 0);
 /**
  * A GraphItem defines the aspects common to all graph objects such as
  * {{#crossLink "Node"}}{{/crossLink}}s, {{#crossLink "Edge"}}{{/crossLink}}s
@@ -533,11 +537,12 @@ class GraphItem extends Model {
 	 * @return {Boolean} <code>true</code> if item is collapsable, <code>false</code> otherwise.
 	 */
 	isCollapsable() {
-		if (this._attrCache.collapsable !== undefined) {
-			return this._attrCache.collapsable;
-		}
-
-		return this.getItemAttribute(ItemAttributes.COLLAPSABLE).getValue();
+		return false;
+		// if (this._attrCache.collapsable !== undefined) {
+		// 	return this._attrCache.collapsable;
+		// }
+		//
+		// return this.getItemAttribute(ItemAttributes.COLLAPSABLE).getValue();
 	}
 
 	/**
@@ -547,11 +552,12 @@ class GraphItem extends Model {
 	 * @return {Boolean} <code>true</code> if item is collapsed, <code>false</code> otherwise.
 	 */
 	isCollapsed() {
-		if (this._attrCache.collapsed !== undefined) {
-			return this._attrCache.collapsed;
-		}
-
-		return this.getItemAttribute(ItemAttributes.COLLAPSED).getValue();
+		return false;
+		// if (this._attrCache.collapsed !== undefined) {
+		// 	return this._attrCache.collapsed;
+		// }
+		//
+		// return this.getItemAttribute(ItemAttributes.COLLAPSED).getValue();
 	}
 
 	/**
@@ -3203,15 +3209,14 @@ class GraphItem extends Model {
 	 * @private
 	 */
 	_updateOrigin() {
-		const pin = this._pin.getPoint(JSG.ptCache.get());
-		let localpin = this._pin.getLocalPoint(JSG.ptCache.get());
+		const pin = this._pin.getPoint(ptCache[0]);
+		let localpin = this._pin.getLocalPoint(ptCache[1]);
 		localpin = MathUtils.rotatePoint(localpin, this._angle.getValue());
 		pin.subtract(localpin);
 		const ret = pin.isEqualTo(this._origincache, 0.1);
 		if (!ret) {
 			this._origincache.setTo(pin);
 		}
-		JSG.ptCache.release(pin, localpin);
 		return !ret;
 	}
 
@@ -3223,15 +3228,12 @@ class GraphItem extends Model {
 	 * @private
 	 */
 	_updateBoundingBox() {
-		const size = this.getSizeAsPoint(JSG.ptCache.get());
-		const oldbbox = JSG.boxCache.get().setTo(this._bboxcache);
+		const size = this.getSizeAsPoint(ptCache[0]);
+		const oldbbox = boxCache.setTo(this._bboxcache);
 
 		this._bboxcache.setTopLeftTo(this._origincache);
 		this._bboxcache.setSizeTo(size);
 		this._bboxcache.setAngle(this._angle.getValue());
-
-		JSG.ptCache.release(size);
-		JSG.boxCache.release(oldbbox);
 
 		return !oldbbox.isEqualTo(this._bboxcache, 0.1);
 	}
