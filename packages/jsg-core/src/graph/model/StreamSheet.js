@@ -360,6 +360,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		}, false);
 		parentMap[this.getCells().getId()] = this.getCells();
 
+
 		// read and create items
 		json.shapes.forEach(shape => {
 			let node = itemMap[shape.id];
@@ -381,7 +382,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 			}
 			const jsonShape = JSON.stringify(shape);
 			if (!node._lastJSON || node._lastJSON !== jsonShape) {
+				const eventEnabled = node.disableEvents();
 				node.fromJSON(shape);
+				node.enableEvents(eventEnabled);
 				if (shape.format && shape.format.pattern && shape.format.pattern.sv) {
 					node.getFormat().setPatternFromShape();
 					let pattern = shape.format.pattern.sv;

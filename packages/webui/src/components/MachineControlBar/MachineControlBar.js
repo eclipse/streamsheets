@@ -21,7 +21,7 @@ import Slider from 'rc-slider';
 import Divider from '@material-ui/core/Divider';
 import { FormattedMessage } from 'react-intl';
 import 'rc-slider/assets/index.css';
-// Icons
+// Icon s
 import PlayIcon from '@material-ui/icons/PlayArrow';
 import SpeedIcon from '@material-ui/icons/Update';
 import StepForwardIcon from '@material-ui/icons/SkipNext';
@@ -296,342 +296,344 @@ class MachineControlBar extends React.Component {
 						</CustomTooltip>
 					</div>
 				</Toolbar>
-				<Popover
-					open={this.state.speedOpen}
-					anchorEl={this.state.anchorEl}
-					anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-					// targetOrigin={{ horizontal: 'right', vertical: 'top' }}
-					onClose={this.onSpeedClose}
-					style={{
-						overflow: 'hidden'
-					}}
-				>
-					<GridList
-						cols={7}
-						cellHeight={30}
-						spacing={2}
+				{this.state.speedOpen ? (
+					<Popover
+						open={this.state.speedOpen}
+						anchorEl={this.state.anchorEl}
+						anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+						// targetOrigin={{ horizontal: 'right', vertical: 'top' }}
+						onClose={this.onSpeedClose}
 						style={{
-							width: '300px',
-							margin: '0px',
-							padding: '8px'
+							overflow: 'hidden'
 						}}
 					>
-						<GridListTile
+						<GridList
 							cols={7}
+							cellHeight={30}
+							spacing={2}
 							style={{
-								padding: '2px',
-								textAlign: 'center'
+								width: '300px',
+								margin: '0px',
+								padding: '8px'
 							}}
 						>
-							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
-								<FormattedMessage
-									id="MachineControl.cycleTime"
-									defaultMessage="Cycle Time: {speed}ms"
-									values={{ speed: this.state.speed }}
-								/>
-							</Typography>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleSpeed(10)}
+							<GridListTile
+								cols={7}
 								style={{
-									padding: '0px',
-									minWidth: '40px'
+									padding: '2px',
+									textAlign: 'center'
 								}}
-								variant="outlined"
-								size="small"
 							>
-								10
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleSpeed(20)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								20
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleSpeed(50)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								50
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleSpeed(100)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								100
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleSpeed(200)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								200
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleSpeed(500)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								500
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleSpeed(1000)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								1000
-							</Button>
-						</GridListTile>
-						<GridListTile style={{height: '20px'}} cols={7}>
-							<Slider
-								step={1}
-								value={reverseSpeed(this.state.speed)}
-								min={this.props.experimental ? 1 : minSpeed}
-								max={maxSpeed}
-								onChange={this.onChangeSpeed}
-							/>
-						</GridListTile>
-					</GridList>
-					<Divider />
-					<GridList
-						cols={7}
-						cellHeight={30}
-						spacing={2}
-						style={{
-							width: '300px',
-							margin: '0px',
-							padding: '8px'
-						}}
-					>
-						<GridListTile
-							cols={7}
-							style={{
-								padding: '2px',
-								textAlign: 'center'
-							}}
-						>
-							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
-								<FormattedMessage
-									id="MachineControl.updateInterval"
-									defaultMessage="Update Interval: {interval}"
-									values={{ interval: this.state.streamsheetStepInterval }}
-								/>
+								<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
+									<FormattedMessage
+										id="MachineControl.cycleTime"
+										defaultMessage="Cycle Time: {speed}ms"
+										values={{ speed: this.state.speed }}
+									/>
 								</Typography>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleStreamSheetStepInterval(1)}
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleSpeed(10)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									10
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleSpeed(20)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									20
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleSpeed(50)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									50
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleSpeed(100)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									100
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleSpeed(200)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									200
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleSpeed(500)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									500
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleSpeed(1000)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									1000
+								</Button>
+							</GridListTile>
+							<GridListTile style={{height: '20px'}} cols={7}>
+								<Slider
+									step={1}
+									value={reverseSpeed(this.state.speed)}
+									min={this.props.experimental ? 1 : minSpeed}
+									max={maxSpeed}
+									onChange={this.onChangeSpeed}
+								/>
+							</GridListTile>
+						</GridList>
+						<Divider />
+						<GridList
+							cols={7}
+							cellHeight={30}
+							spacing={2}
+							style={{
+								width: '300px',
+								margin: '0px',
+								padding: '8px'
+							}}
+						>
+							<GridListTile
+								cols={7}
 								style={{
-									padding: '0px',
-									minWidth: '40px'
+									padding: '2px',
+									textAlign: 'center'
 								}}
-								variant="outlined"
-								size="small"
 							>
-								1
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleStreamSheetStepInterval(2)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								2
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleStreamSheetStepInterval(5)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								5
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleStreamSheetStepInterval(10)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								10
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleStreamSheetStepInterval(20)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								20
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleStreamSheetStepInterval(50)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								50
-							</Button>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<Button
-								onClick={this.handleStreamSheetStepInterval(100)}
-								style={{
-									padding: '0px',
-									minWidth: '40px'
-								}}
-								variant="outlined"
-								size="small"
-							>
-								100
-							</Button>
-						</GridListTile>
-						<GridListTile style={{height: '20px'}} cols={7}>
-							<Slider
-								step={1}
-								value={reverseUpdateInterval(this.state.streamsheetStepInterval)}
-								min={minUpdateInterval}
-								max={maxUpdateInterval}
-								onChange={this.onChangeStreamsheetStepInterval}
-							/>
-						</GridListTile>
-					</GridList>
-					<Divider />
-					<GridList
-						cols={6}
-						cellHeight={25}
-						spacing={1}
-						style={{
-							width: '100%',
-							margin: '0px',
-							paddingTop: '10px'
-						}}
-					>
-						<GridListTile
+								<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
+									<FormattedMessage
+										id="MachineControl.updateInterval"
+										defaultMessage="Update Interval: {interval}"
+										values={{ interval: this.state.streamsheetStepInterval }}
+									/>
+									</Typography>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleStreamSheetStepInterval(1)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									1
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleStreamSheetStepInterval(2)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									2
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleStreamSheetStepInterval(5)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									5
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleStreamSheetStepInterval(10)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									10
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleStreamSheetStepInterval(20)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									20
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleStreamSheetStepInterval(50)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									50
+								</Button>
+							</GridListTile>
+							<GridListTile cols={1}>
+								<Button
+									onClick={this.handleStreamSheetStepInterval(100)}
+									style={{
+										padding: '0px',
+										minWidth: '40px'
+									}}
+									variant="outlined"
+									size="small"
+								>
+									100
+								</Button>
+							</GridListTile>
+							<GridListTile style={{height: '20px'}} cols={7}>
+								<Slider
+									step={1}
+									value={reverseUpdateInterval(this.state.streamsheetStepInterval)}
+									min={minUpdateInterval}
+									max={maxUpdateInterval}
+									onChange={this.onChangeStreamsheetStepInterval}
+								/>
+							</GridListTile>
+						</GridList>
+						<Divider />
+						<GridList
 							cols={6}
+							cellHeight={25}
+							spacing={1}
 							style={{
-								padding: '2px',
-								textAlign: 'center'
+								width: '100%',
+								margin: '0px',
+								paddingTop: '10px'
 							}}
 						>
-							<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
-								<FormattedMessage id="MachineControl.updates" defaultMessage="Updates/sec." />
-							</Typography>
-						</GridListTile>
-						<GridListTile
-							cols={3}
+							<GridListTile
+								cols={6}
+								style={{
+									padding: '2px',
+									textAlign: 'center'
+								}}
+							>
+								<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
+									<FormattedMessage id="MachineControl.updates" defaultMessage="Updates/sec." />
+								</Typography>
+							</GridListTile>
+							<GridListTile
+								cols={3}
+								style={{
+									padding: '2px',
+									height: '20px',
+									textAlign: 'center'
+								}}
+							>
+								<Typography color="textPrimary">
+								<FormattedMessage id="MachineControl.client" defaultMessage="Client" />
+								</Typography>
+							</GridListTile>
+							<GridListTile
+								cols={3}
+								style={{
+									padding: '2px',
+									height: '20px',
+									textAlign: 'center'
+								}}
+							>
+								<Typography color="textPrimary">
+								<FormattedMessage id="MachineControl.server" defaultMessage="Server" />
+								</Typography >
+							</GridListTile>
+						</GridList>
+						<div
 							style={{
-								padding: '2px',
-								height: '20px',
-								textAlign: 'center'
+								height: '140px',
+								marginTop: '-30px',
 							}}
 						>
-							<Typography color="textPrimary">
-							<FormattedMessage id="MachineControl.client" defaultMessage="Client" />
-							</Typography>
-						</GridListTile>
-						<GridListTile
-							cols={3}
-							style={{
-								padding: '2px',
-								height: '20px',
-								textAlign: 'center'
-							}}
-						>
-							<Typography color="textPrimary">
-							<FormattedMessage id="MachineControl.server" defaultMessage="Server" />
-							</Typography >
-						</GridListTile>
-					</GridList>
-					<div
-						style={{
-							height: '140px',
-							marginTop: '-30px',
-						}}
-					>
-						<Gauge
-							value={this.props.clientUpdateRate}
-							min={0}
-							max={25}
-							width={158}
-							height={130}
-							label=""
-							color={getGaugeColor(this.props.clientUpdateRate, 25)}
-						/>
-						<Gauge
-							value={this.props.machineCyclesPerSecond}
-							min={0}
-							max={1000}
-							width={158}
-							height={130}
-							label=""
-							color={getGaugeColor(this.props.machineCyclesPerSecond, 1000)}
-						/>
-					</div>
-				</Popover>
+							<Gauge
+								value={this.props.clientUpdateRate}
+								min={0}
+								max={25}
+								width={158}
+								height={130}
+								label=""
+								color={getGaugeColor(this.props.clientUpdateRate, 25)}
+							/>
+							<Gauge
+								value={this.props.machineCyclesPerSecond}
+								min={0}
+								max={1000}
+								width={158}
+								height={130}
+								label=""
+								color={getGaugeColor(this.props.machineCyclesPerSecond, 1000)}
+							/>
+						</div>
+					</Popover>
+				) : null}
 			</div>
 		);
 	}

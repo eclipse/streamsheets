@@ -527,6 +527,10 @@ class GraphItem extends Model {
 	 * @return {Boolean} <code>true</code> if shape should be closed, <code>false</code> otherwise.
 	 */
 	isClosed() {
+		if (this._attrCache.closed !== undefined) {
+			return this._attrCache.closed;
+		}
+
 		return this.getItemAttribute(ItemAttributes.CLOSED).getValue();
 	}
 
@@ -3255,12 +3259,14 @@ class GraphItem extends Model {
 		this._attrCache.itemAttributes = this.getModelAttributes().getAttribute(ItemAttributes.NAME);
 
 		// set to undefined in order for funcs not to use cache
+		this._attrCache.closed = undefined;
 		this._attrCache.visible = undefined;
 		this._attrCache.itemvisible = undefined;
 		this._attrCache.collapsable = undefined;
 		this._attrCache.collapsed = undefined;
 		this._attrCache.selectable = undefined;
 
+		this._attrCache.closed = this.isClosed();
 		this._attrCache.visible = this.isVisible();
 		this._attrCache.itemvisible = this.isItemVisible();
 		this._attrCache.collapsable = this.isCollapsable();
