@@ -955,7 +955,7 @@ class Shape {
 
 	_evalCoords(coords) {
 		// TODO: JSG.idUpdater is set by JSGGlobals
-		if (this._item !== undefined && this._item._parent !== undefined && !this._item._reading && (JSG.idUpdater && !JSG.idUpdater.isActive)) {
+		if (this._item !== undefined && /*this._item._parent !== undefined && */!this._item._reading && (JSG.idUpdater && !JSG.idUpdater.isActive)) {
 			let coordinate;
 			for (let i = 0; i < coords.length; i += 1) {
 				coordinate = coords[i];

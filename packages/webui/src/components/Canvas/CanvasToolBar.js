@@ -482,7 +482,6 @@ export class CanvasToolBar extends Component {
 		});
 
 		const node = new JSG.Node(new JSG.EllipseShape());
-
 		graphManager
 			.getGraphViewer()
 			.getInteractionHandler()
@@ -3399,6 +3398,7 @@ export class CanvasToolBar extends Component {
 					anchorEl={this.state.anchorEl}
 					anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
 					transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+					transitionDuration={{exit: 0}}
 					onExited={this.handleFocus}
 					onClose={this.onToolsClose}
 					style={{
