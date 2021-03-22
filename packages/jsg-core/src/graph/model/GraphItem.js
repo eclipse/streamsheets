@@ -3575,6 +3575,9 @@ class GraphItem extends Model {
 					} else if (!param.isStatic) {
 						expr = new StringExpression('', param.toString(params));
 						this.getFormat().setLineColor(expr);
+					} else if (String(param.value).toLowerCase() === 'none') {
+						const path = AttributeUtils.createPath(FormatAttributes.NAME, 'linecolor');
+						this.removeAttributeAtPath(path);
 					}
  					break;
 				case 8: // fillformat
