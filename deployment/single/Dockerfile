@@ -1,4 +1,4 @@
-FROM node:12.21.0-buster
+FROM node:12.21-buster-slim
 LABEL maintainer="philip.ackermann@cedalo.com"
 
 ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0/gateway.yaml \
