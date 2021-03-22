@@ -56,7 +56,7 @@ class Cursor {
 	setToIndex(index) {
 		const row = Math.max(this.sheet.settings.minrow, index.row);
 		// save backward jump => to prevent endless loops!
-		this.isBackward = row < this.r || (index.col < this.c && row === this.r);
+		this.isBackward = row < this.r || (index.col <= this.c && row === this.r);
 		this.r = row;
 		this.c = index.col;
 		this.changed = true;
