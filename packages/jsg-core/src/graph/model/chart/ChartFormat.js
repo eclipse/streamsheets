@@ -21,7 +21,7 @@ module.exports = class ChartFormat {
 		this.fontSize = fontSize;
 		this.fontStyle = fontStyle;
 		this.fontColor = fontColor;
-		this.fontRotation = 0;
+		this.fontRotation = undefined;
 		this.transparency = transparency;
 	}
 
@@ -242,6 +242,7 @@ module.exports = class ChartFormat {
 
 	save(name, writer) {
 		writer.writeStartElement(name);
+		let write = false;
 		if (this.line) {
 			writer.writeStartElement('line');
 			if (this.lineColor) {
@@ -253,7 +254,7 @@ module.exports = class ChartFormat {
 			if (this.lineStyle !== undefined) {
 				writer.writeAttributeNumber('style', this.lineStyle, 0);
 			}
-			writer.writeEndElement();
+			write |= writer.writeEndElement();
 		}
 		if (this.fill) {
 			writer.writeStartElement('fill');
@@ -266,7 +267,7 @@ module.exports = class ChartFormat {
 			if (this.transparency !== undefined) {
 				writer.writeAttributeNumber('transparency', this.transparency, 0);
 			}
-			writer.writeEndElement();
+			write |= writer.writeEndElement();
 		}
 		if (this.font && (this.fontColor || this.fontName || this.fontSize !== undefined ||
 			this.fontStyle !== undefined || this.numberFormat || this.localCulture || this.linkNumberFormat ||
@@ -296,9 +297,9 @@ module.exports = class ChartFormat {
 			if (this.fontRotation !== undefined) {
 				writer.writeAttributeNumber('rotation', this.fontRotation, 0);
 			}
-			writer.writeEndElement();
+			write |= writer.writeEndElement();
 		}
-		writer.writeEndElement(true);
+		writer.writeEndElement(write === false);
 	}
 
 	read(reader, object) {

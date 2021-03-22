@@ -36,7 +36,7 @@ module.exports = class ChartDataLabel {
 			writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
 		}
 		this.format.save('format', writer);
-		writer.writeEndElement(true);
+		writer.writeEndElement();
 	}
 
 	read(reader, object) {
