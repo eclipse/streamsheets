@@ -104,39 +104,44 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			} else {
 				let expr = cell.getExpression();
 				if (expr) {
-					const term  = expr.getTerm();
+					const term = expr.getTerm();
 					if (term && expr.getFormula() !== cellData.formula) {
 						expr = createExpression(cellData);
 						cell.setExpression(expr);
-					} else {
-						switch (cellData.type) {
-							case 'bool':
-								if (!(expr instanceof BooleanExpression)) {
-									expr = createExpression(cellData);
-									cell.setExpression(expr);
-								}
-								break;
-							case 'number':
-								if (!(expr instanceof NumberExpression)) {
-									expr = createExpression(cellData);
-									cell.setExpression(expr);
-								}
-								break;
-							case 'string':
-								if (!(expr instanceof StringExpression)) {
-									expr = createExpression(cellData);
-									cell.setExpression(expr);
-								}
-								break;
-							default:
-								if (!(expr instanceof Expression)) {
-									expr = createExpression(cellData);
-									cell.setExpression(expr);
-								}
-								break;
-						}
 					}
 				}
+				if (expr) {
+					switch (cellData.type) {
+						case 'bool':
+							if (!(expr instanceof BooleanExpression)) {
+								expr = createExpression(cellData);
+								cell.setExpression(expr);
+							}
+							break;
+						case 'number':
+							if (!(expr instanceof NumberExpression)) {
+								expr = createExpression(cellData);
+								cell.setExpression(expr);
+							}
+							break;
+						case 'string':
+							if (!(expr instanceof StringExpression)) {
+								expr = createExpression(cellData);
+								cell.setExpression(expr);
+							}
+							break;
+						default:
+							if (!(expr instanceof Expression)) {
+								expr = createExpression(cellData);
+								cell.setExpression(expr);
+							}
+							break;
+					}
+				} else {
+					expr = createExpression(cellData);
+					cell.setExpression(expr);
+				}
+
 				// this is to ensure that temporary values form ui interaction (e.g. slider) are not overwritten
 				const value = cellData.value;
 				if (cell._targetValue !== undefined && cellData.value !== cell._targetValue) {
