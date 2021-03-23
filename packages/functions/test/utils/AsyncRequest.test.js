@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 // const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, SheetIndex, SheetParser, StreamSheet } = require('@cedalo/machine-core');
+const { Machine, RequestState, SheetIndex, SheetParser, StreamSheet } = require('@cedalo/machine-core');
 const { createCellAt } = require('../utilities');
 const { AsyncRequest, runFunction } = require('../../src/utils');
 
@@ -91,7 +91,7 @@ describe('AsyncRequest utilities', () => {
 		sheet.loadCells({ A1: { formula: 'test.request()' }	});
 		const context = sheet.cellAt('A1').term.context;
 		await machine.step();
-		await resolve('resolved');
+		await resolve(RequestState.RESOLVED);
 		expect(context.getDisposeListeners().length).toBe(1);
 		await machine.step();
 		await machine.step();
@@ -110,17 +110,17 @@ describe('AsyncRequest utilities', () => {
 		await machine.step();
 		const reqId1 = sheet.cellAt('A1').value;
 		const reqId2 = sheet.cellAt('A2').value;
-		expect(sheet.getPendingRequests().get(reqId1).status).toBe('pending');
-		expect(sheet.getPendingRequests().get(reqId2).status).toBe('pending');
+		expect(sheet.getRequestState(reqId1)).toBe(RequestState.PENDING);
+		expect(sheet.getRequestState(reqId2)).toBe(RequestState.PENDING);
 		createCellAt('A1', 'replacedA1', sheet);
 		expect(sheet.cellAt('A1').value).toBe('replacedA1');
-		expect(sheet.getPendingRequests().get(reqId1)).toBeUndefined();
-		expect(sheet.getPendingRequests().get(reqId2).status).toBe('pending');
+		expect(sheet.getRequestState(reqId1)).toBe(RequestState.UNKNOWN);
+		expect(sheet.getRequestState(reqId2)).toBe(RequestState.PENDING);
 		await machine.step();
 		createCellAt('A2', 'replacedA2', sheet);
 		expect(sheet.cellAt('A2').value).toBe('replacedA2');
-		expect(sheet.getPendingRequests().get(reqId1)).toBeUndefined();
-		expect(sheet.getPendingRequests().get(reqId2)).toBeUndefined();
+		expect(sheet.getRequestState(reqId1)).toBe(RequestState.UNKNOWN);
+		expect(sheet.getRequestState(reqId2)).toBe(RequestState.UNKNOWN);
 	});
 	it('should not create new request if a current one is not resolved or rejected', async () => {
 		const machine = new Machine();
@@ -131,14 +131,14 @@ describe('AsyncRequest utilities', () => {
 		await machine.step();
 		await machine.step();
 		expect(requestCounter).toBe(1);
-		await resolve('resolved');
+		await resolve(RequestState.RESOLVED);
 		// TODO: review - it takes several steps until promise.finally gets called!!
 		await machine.step();
 		await machine.step();
 		await machine.step();
 		await machine.step();
 		expect(requestCounter).toBe(2);
-		await reject('rejected');
+		await reject(RequestState.REJECTED);
 		await machine.step();
 		await machine.step();
 		await machine.step();
@@ -154,21 +154,21 @@ describe('AsyncRequest utilities', () => {
 		await machine.step();
 		await machine.step();
 		expect(requestCounter).toBe(1);
-		await resolve('resolved');
+		await resolve(RequestState.RESOLVED);
 		// TODO: review - it takes several steps until promise.finally gets called!!
 		await machine.step();
 		await machine.step();
 		await machine.step();
 		await machine.step();
 		expect(error).toBeUndefined();
-		expect(result).toBe('resolved');
+		expect(result).toBe(RequestState.RESOLVED);
 		expect(requestCounter).toBe(2);
-		await reject('rejected');
+		await reject(RequestState.REJECTED);
 		await machine.step();
 		await machine.step();
 		await machine.step();
 		await machine.step();
-		expect(error).toBe('rejected');
+		expect(error).toBe(RequestState.REJECTED);
 		expect(result).toBeUndefined();
 		expect(requestCounter).toBe(3);
 	});
@@ -214,7 +214,7 @@ describe('AsyncRequest utilities', () => {
 		await machine.step();
 		await machine.step();
 		doResolve = allSequentialResolve.get('B1');
-		await doResolve('resolved');
+		await doResolve(RequestState.RESOLVED);
 		await machine.step();
 		await machine.step();
 		await machine.step();
@@ -222,7 +222,7 @@ describe('AsyncRequest utilities', () => {
 		expect(getRequestQueueLength(allSequentialRequests.get('B1'))).toBe(1);
 		expect(getRunningRequestsCount(allSequentialRequests.get('B1'))).toBe(2);
 		doResolve = allSequentialResolve.get('B3');
-		await doResolve('resolved');
+		await doResolve(RequestState.RESOLVED);
 		await machine.step();
 		await machine.step();
 		await machine.step();
@@ -230,7 +230,7 @@ describe('AsyncRequest utilities', () => {
 		expect(getRequestQueueLength(allSequentialRequests.get('B3'))).toBe(0);
 		expect(getRunningRequestsCount(allSequentialRequests.get('B3'))).toBe(2);
 		doResolve = allSequentialResolve.get('B4');
-		await doResolve('resolved');
+		await doResolve(RequestState.RESOLVED);
 		await machine.step();
 		await machine.step();
 		await machine.step();
@@ -238,7 +238,7 @@ describe('AsyncRequest utilities', () => {
 		expect(getRequestQueueLength(allSequentialRequests.get('B4'))).toBe(0);
 		expect(getRunningRequestsCount(allSequentialRequests.get('B4'))).toBe(1);
 		doResolve = allSequentialResolve.get('B2');
-		await doResolve('resolved');
+		await doResolve(RequestState.RESOLVED);
 		await machine.step();
 		await machine.step();
 		await machine.step();

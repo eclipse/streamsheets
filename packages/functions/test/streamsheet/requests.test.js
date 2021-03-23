@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { createCellAt } = require('../utilities');
-const { Machine, Message, SheetIndex, Streams, StreamSheet } = require('@cedalo/machine-core');
+const { Machine, Message, RequestState, SheetIndex, Streams, StreamSheet } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
@@ -56,8 +56,8 @@ describe('request', () => {
 		await machine.step();
 		const reqId = cellAt('A1', sheet).value;
 		expect(reqId).toBeDefined();
-		expect(sheet.getPendingRequests().size).toBe(1);
-		expect(sheet.getPendingRequests().get(reqId)).toBeDefined();
+		expect(sheet.getPendingRequests().length).toBe(1);
+		expect(sheet.getRequestState(reqId)).not.toBe(RequestState.UNKNOWN);
 	});
 	it('should not request twice with same request id', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", outbox("response"))' } });
@@ -66,11 +66,11 @@ describe('request', () => {
 		await machine.step();
 		const reqId = cellAt('A1', sheet).value;
 		expect(reqId).toBeDefined();
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		await machine.step();
 		await machine.step();
 		await machine.step();
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 	});
 	it('should store request response to outbox', async () => {
 		const streamsheet = setupStreamSheet({ A1: { formula: 'request(|test_stream, "hallo", outbox("response"))' } });
@@ -122,7 +122,7 @@ describe('request', () => {
 		const machine = streamsheet.machine;
 		expect(streamsheet.inbox.size).toBe(0);
 		await machine.step();
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		const previousRequestId = sheet
 			.getPendingRequests()
 			.keys()
@@ -130,7 +130,7 @@ describe('request', () => {
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(1);
 		await machine.step();
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		const currentRequestId = sheet
 			.getPendingRequests()
 			.keys()
@@ -143,10 +143,10 @@ describe('request', () => {
 		const sheet = streamsheet.sheet;
 		const machine = streamsheet.machine;
 		await machine.step();
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		await pendingRequest.resolve({ name: 'foo', age: 42 });
 		await machine.step();
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		expect(sheet.cellAt('A2').value).toEqual({ name: 'foo', age: 42 });
 		createCellAt('A1', { formula: 'request(|test_stream, "hallo", C3:C3)' }, sheet);
 		await machine.step();
@@ -160,10 +160,10 @@ describe('request', () => {
 		const machine = streamsheet.machine;
 		expect(streamsheet.inbox.size).toBe(0);
 		await machine.step();
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		await machine.pause();
 		await machine.stop();
-		expect(sheet.getPendingRequests().size).toBe(0);
+		expect(sheet.getPendingRequests().length).toBe(0);
 		// resolve request => should not do anything?
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(0);
@@ -174,9 +174,9 @@ describe('request', () => {
 		const machine = streamsheet.machine;
 		expect(streamsheet.inbox.size).toBe(0);
 		await machine.step();
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		createCellAt('A1', 'A1+1', sheet);
-		expect(sheet.getPendingRequests().size).toBe(0);
+		expect(sheet.getPendingRequests().length).toBe(0);
 		// resolve request => should not do anything?
 		await pendingRequest.resolve(pendingRequest.message.data);
 		expect(streamsheet.inbox.size).toBe(0);
@@ -226,18 +226,18 @@ describe('requestinfo', () => {
 		const machine = streamsheet.machine;
 		await machine.step();
 		expect(cellAt('A1', sheet).value).toBe(false);
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		await machine.step();
 		await machine.step();
 		expect(cellAt('A1', sheet).value).toBe(false);
-		expect(sheet.getPendingRequests().size).toBe(1);
+		expect(sheet.getPendingRequests().length).toBe(1);
 		try {
 			await pendingRequest.reject(new Error('Error'));
 		} catch (err) {
 			await machine.step();
 			expect(cellAt('A1', sheet).value).toBe(ERROR.ERR);
 			// because of requestinfo we cannot remove request, so
-			expect(sheet.getPendingRequests().size).toBe(1);
+			expect(sheet.getPendingRequests().length).toBe(1);
 		}
 	});
 });
