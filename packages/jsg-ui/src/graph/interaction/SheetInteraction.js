@@ -755,7 +755,9 @@ export default class SheetInteraction extends Interaction {
 					false,
 					this._hitCode !== WorksheetView.HitCode.SHEET
 				);
-				if (this._endCell) {
+				if (this._endCell &&
+					!(this._endCell.x === -1 && this._hitCode === WorksheetView.HitCode.COLUMN) &&
+					!(this._endCell.y === -1 && this._hitCode === WorksheetView.HitCode.ROW)) {
 					this.deActivateTimer();
 					this._doSelect(event, viewer, true, false);
 				} else {
