@@ -924,6 +924,10 @@ export default class SheetInteraction extends Interaction {
 		// if not handled inner div simply lose focus...!!
 		this.deActivateTimer();
 
+		if (!this._controller) {
+			return;
+		}
+
 		const view = this._controller.getView();
 		const cellEditor = CellEditor.getActiveCellEditor();
 

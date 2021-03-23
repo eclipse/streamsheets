@@ -352,6 +352,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return;
 		}
 
+		this.getCells()._shapeTimeStamp = undefined;
 		const itemMap = {};
 		const parentMap = {};
 

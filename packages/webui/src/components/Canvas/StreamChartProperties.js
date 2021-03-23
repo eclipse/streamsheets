@@ -874,6 +874,12 @@ export class StreamChartProperties extends Component {
 		data.map.name = event.target.value;
 		data.map.mapData = undefined;
 		this.finishCommand(cmd, 'series');
+
+		// map needs some time to load then render map properties
+		setTimeout(() => {
+			this.updateState();
+		}, 500);
+
 	};
 
 	handleSeriesMapDisplayType = (event) => {
@@ -3133,6 +3139,7 @@ export class StreamChartProperties extends Component {
 										variant="outlined"
 										fullWidth
 										size="small"
+										select
 										label={
 											<FormattedMessage
 												id="StreamChartProperties.CategoryName"
@@ -3142,7 +3149,14 @@ export class StreamChartProperties extends Component {
 										defaultValue={data.map.label}
 										onBlur={(event) => this.handleSeriesMapLabelBlur(event)}
 										margin="normal"
-									/>
+									>
+										{data.map.mapData && data.map.mapData.features.length ?
+											Object.keys(data.map.mapData.features[0].properties).map((prop) => (
+											<MenuItem value={prop} key={prop}>
+												{prop}
+											</MenuItem>
+										)) : (<div/>)}
+									</TextField>
 									<TextField
 										variant="outlined"
 										size="small"
@@ -3243,7 +3257,9 @@ export class StreamChartProperties extends Component {
 										</MenuItem>
 									</TextField>
 									<FormControl>
-										<Button style={{}} onClick={this.handleSeriesCopyMapLabels} color="primary">
+										<Button
+											disabled={data.map.name === 'sheet'}
+											style={{}} onClick={this.handleSeriesCopyMapLabels} color="primary">
 											<FormattedMessage
 												id="StreamChartProperties.CopyMapLabels"
 												defaultMessage="Copy Map Labels"

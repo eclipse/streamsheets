@@ -893,7 +893,9 @@ export default class CellEditor {
 		const sel = window.getSelection();
 		if (sel.getRangeAt && sel.rangeCount) {
 			const range = sel.getRangeAt(0);
-			range.deleteContents();
+			if (range.collapsed === false) {
+				range.deleteContents();
+			}
 
 			const span = document.createElement('span');
 			span.id = 'range';

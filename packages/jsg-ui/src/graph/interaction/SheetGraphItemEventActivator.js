@@ -53,14 +53,18 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	}
 
 	onMouseDoubleClick(event, viewer, dispatcher) {
-		this.handleClick(event, viewer, dispatcher, true);
+		this.handleClick(event, viewer, dispatcher, 'double');
 	}
 
 	onMouseDown(event, viewer, dispatcher) {
-		this.handleClick(event, viewer, dispatcher, false);
+		this.handleClick(event, viewer, dispatcher, 'down');
 	}
 
-	handleClick(event, viewer, dispatcher, double) {
+	onMouseUp(event, viewer, dispatcher) {
+		this.handleClick(event, viewer, dispatcher, 'up');
+	}
+
+	handleClick(event, viewer, dispatcher, type) {
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller === undefined) {
 			return;
@@ -82,10 +86,13 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 
 		const interaction = this.activateInteraction(new SheetGraphItemEventInteraction(), dispatcher);
 		interaction._controller = controller;
-		if (double) {
+		switch (type) {
+		case 'double':
 			interaction.onMouseDoubleClick(event, viewer);
-		} else {
+			break;
+		case 'down':
 			interaction.onMouseDown(event, viewer);
+			break;
 		}
 
 		event.isConsumed = true;
