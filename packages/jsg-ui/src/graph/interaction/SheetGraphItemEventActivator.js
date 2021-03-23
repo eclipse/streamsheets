@@ -35,7 +35,15 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			let item = cont.getModel();
+			const item = cont.getModel()
+			return (item.getAttributeValueAtPath('value') !== undefined ||
+				item.getEvents().hasMouseEvent());
+		});
+	}
+
+	_getShapeControllerAt(location, viewer, dispatcher) {
+		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
+			let item = cont.getModel().getParent();
 			while (item && !(item instanceof CellsNode)) {
 				item = item.getParent();
 			}
@@ -66,15 +74,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 			parent.getView().moveSheetToTop(viewer);
 		}
 
-		if (
-			viewer
-				.getGraph()
-				.getMachineContainer()
-				.getMachineState()
-				.getValue() === 1 ||
-			(controller.getModel().getAttributeValueAtPath('value') === undefined &&
-				controller.getModel().getEvents().hasMouseEvent() === false)
-		) {
+		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
 			return;
 		}
 
@@ -162,7 +162,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 		}
 
 		if (!controller) {
-			controller = this._getControllerAt(event.location, viewer, dispatcher);
+			controller = this._getShapeControllerAt(event.location, viewer, dispatcher);
 		}
 		if (controller) {
 			if (controller.getModel().isProtected()) {
