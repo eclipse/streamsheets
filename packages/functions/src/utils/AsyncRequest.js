@@ -10,44 +10,21 @@
  ********************************************************************************/
 const logger = require('@cedalo/logger').create({ name: 'AsyncRequest' });
 const IdGenerator = require('@cedalo/id-generator');
-
-const STATE = {
-	CREATED: 'created',
-	PENDING: 'pending',
-	RESOLVED: 'resolved',
-	REJECTED: 'rejected'
-};
+const { RequestState } = require('@cedalo/machine-core');
 
 const noop = () => {};
 
-const getStatus = (sheet, reqId) => {
-	const request = sheet.getPendingRequests().get(reqId);
-	return request ? request.status : 'unknown';
-};
 const setStatus = (sheet, reqId, state) => {
-	const allRequests = sheet.getPendingRequests();
-	const request = allRequests.get(reqId);
-	if (request) request.status = state;
-	else allRequests.set(reqId, { status: state });
+	if (!sheet.setRequestState(reqId, state)) sheet.registerRequest(reqId, state);
 };
-
-const remove = (sheet, reqId) => sheet.getPendingRequests().delete(reqId);
-
-const isPending = (sheet, reqId) => {
-	const status = getStatus(sheet, reqId);
-	return status === STATE.PENDING;
-};
-const isResolved = (sheet, reqId) => !isPending(sheet, reqId);
 
 const resolve = async (request) => {
-	const { context, error, result, sheet, state } = request;
-	const pendingRequests = sheet.getPendingRequests();
-	const pendingReq = pendingRequests.get(request.reqId());
+	const { context, error, result, sheet } = request;
 	try {
-		if (pendingReq != null) {
+		if (sheet.isPendingRequest(request.reqId())) {
 			// callback can optionally adjust request state:
 			const newstate = await request.onResponse(context, result, error);
-			if (newstate && newstate !== state) request.state = newstate;
+			if (newstate) sheet.setRequestState(request.reqId(), newstate);
 		}
 	} catch (err) {
 		/* ignore */
@@ -73,12 +50,12 @@ class Queue {
 		request
 			.requestFn()
 			.then((res) => {
-				request.state = STATE.RESOLVED;
+				request.state = RequestState.RESOLVED;
 				request.result = res;
 			})
 			.catch((err) => {
 				logger.error(`Request failed ${request.reqId()}`, err);
-				request.state = STATE.REJECTED;
+				request.state = RequestState.REJECTED;
 				request.error = err;
 			})
 			.finally(async () => {
@@ -94,10 +71,10 @@ class Queue {
 			const sheet = nxtRequest.sheet;
 			const reqId = nxtRequest.reqId();
 			// is request still waiting?
-			if (isPending(sheet, reqId)) {
+			if (sheet.isPendingRequest(reqId)) {
 				this._run(nxtRequest);
 			} else {
-				remove(sheet, reqId);
+				sheet.removeRequest(reqId);
 				this._runNextRequest();
 			}
 		}
@@ -125,7 +102,7 @@ class AsyncRequest {
 		this.context = context;
 		this.error = undefined;
 		this.result = undefined;
-		this.state = STATE.CREATED;
+		this.state = RequestState.CREATED;
 		this.requestFn = noop;
 		this.onResponse = noop;
 		this._queue = new Queue();
@@ -133,7 +110,7 @@ class AsyncRequest {
 		this._init(context);
 	}
 	_init(context) {
-		if (context._reqId) this.sheet.getPendingRequests().delete(context._reqId);
+		if (context._reqId) this.sheet.removeRequest(context._reqId);
 		if (context._pendreq) context.removeDisposeListener(context._pendreq.onDispose);
 		context._reqId = IdGenerator.generate();
 		context._pendreq = this;
@@ -147,14 +124,15 @@ class AsyncRequest {
 
 	request(fn) {
 		this.requestFn = fn;
-		this.state = STATE.PENDING;
+		this.state = RequestState.PENDING;
 		setStatus(this.sheet, this.reqId(), this.state);
 		this._queue.schedule(this);
 		return this;
 	}
 
 	response(fn) {
-		if (this.state === STATE.RESOLVED || this.state === STATE.REJECTED) fn(this.context, this.result, this.error);
+		if (this.state === RequestState.RESOLVED || this.state === RequestState.REJECTED)
+			fn(this.context, this.result, this.error);
 		else this.onResponse = fn;
 		return this;
 	}
@@ -166,7 +144,7 @@ class AsyncRequest {
 
 	onDispose() {
 		const { context, sheet } = this;
-		sheet.getPendingRequests().delete(context._reqId);
+		sheet.removeRequest(context._reqId);
 		context.removeDisposeListener(this.onDispose);
 		context._reqId = undefined;
 		context._pendreq = undefined;
@@ -198,8 +176,8 @@ const dummy = new NoopAsyncRequest();
 
 const create = (sheet, context) => {
 	const reqId = context._reqId;
-	if (!reqId || isResolved(sheet, reqId)) {
-		remove(sheet, reqId);
+	if (!reqId || !sheet.isPendingRequest(reqId)) {
+		sheet.removeRequest(reqId);
 		return new AsyncRequest(sheet, context);
 	}
 	return dummy.setReqId(reqId);
@@ -207,10 +185,5 @@ const create = (sheet, context) => {
 
 module.exports = {
 	create,
-	getStatus,
-	isPending,
-	isResolved,
-	remove,
-	STATE,
 	Queue
 };

@@ -10,9 +10,8 @@
  ********************************************************************************/
 const { jsonpath } = require('@cedalo/commons');
 const { FunctionErrors: { code: ERROR } } = require('@cedalo/error-codes');
-const { Message } = require('@cedalo/machine-core');
+const { Message, RequestState } = require('@cedalo/machine-core');
 const { toRange } = require('./arrayspread');
-const AsyncRequest = require('./AsyncRequest');
 const { toArray2D } = require('./jsonflatten');
 const { getInbox } = require('./sheet');
 const { getCellRangeFromTerm, isInboxTerm, isOutboxTerm, termFromValue } = require('./terms');
@@ -91,7 +90,7 @@ const createRequestCallback = (sheet, target) => (context, response, error) => {
 	if (term && !term.isDisposed) {
 		term.cellValue = error ? ERROR.RESPONSE : undefined;
 	}
-	return error ? AsyncRequest.STATE.REJECTED : undefined;
+	return error ? RequestState.REJECTED : undefined;
 };
 
 module.exports = {
