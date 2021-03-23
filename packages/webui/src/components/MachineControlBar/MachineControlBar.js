@@ -616,11 +616,11 @@ class MachineControlBar extends React.Component {
 							<Gauge
 								value={this.props.clientUpdateRate}
 								min={0}
-								max={25}
+								max={100}
 								width={158}
 								height={130}
 								label=""
-								color={getGaugeColor(this.props.clientUpdateRate, 25)}
+								color={getGaugeColor(this.props.clientUpdateRate, 100)}
 							/>
 							<Gauge
 								value={this.props.machineCyclesPerSecond}
