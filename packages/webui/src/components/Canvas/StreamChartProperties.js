@@ -567,6 +567,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisLabelDistanceChange = (event) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.labelDistance = event.target.value;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisVisibleChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -2472,6 +2479,27 @@ export class StreamChartProperties extends Component {
                                 )
                             }
                             onChange={(event) => this.handleAxisLabelRotationChange(event)}
+                            type="number"
+                            margin="normal"
+                        />
+                        <TextField
+                            variant="outlined"
+                            fullWidth
+                            size="small"
+                            id="number"
+							value={data.labelDistance}
+                            label={
+                                <FormattedMessage
+                                    id="StreamChartProperties.AxisLabelDistance"
+                                    defaultMessage="Distance from Label to Axis"
+                                />
+                            }
+                            inputProps={{
+                                min: 0,
+                                max: 10000,
+                                step: 50
+                            }}
+                            onChange={(event) => this.handleAxisLabelDistanceChange(event)}
                             type="number"
                             margin="normal"
                         />

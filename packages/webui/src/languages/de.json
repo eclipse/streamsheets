@@ -880,6 +880,7 @@
 	"StreamChartProperties.axisTypeLogarithmic": "Logarithmisch",
 	"StreamChartProperties.LabelRotation": "Datenbeschriftung drehen",
 	"StreamChartProperties.AxisLabelRotation": "Achsenbeschriftung drehen",
+	"StreamChartProperties.AxisLabelDistance": "Abstand zwischen Achse und Beschriftung",
 	"StreamChartProperties.Axis": "Achse",
 	"StreamChartProperties.grid": "Gitternetz",
 	"StreamChartProperties.Invert": "Invertieren",

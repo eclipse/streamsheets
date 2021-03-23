@@ -35,6 +35,7 @@ module.exports = class ChartAxis {
 		this.zoomGroup = '';
 		this.autoZero = true;
 		this.betweenTicks = false;
+		this.labelDistance = 200;
 		this.valueRanges = [];
 	}
 
@@ -75,7 +76,12 @@ module.exports = class ChartAxis {
 		if (this.zoomGroup.length) {
 			writer.writeAttributeString('zoomgroup', this.zoomGroup);
 		}
-		writer.writeAttributeString('position', this.position.toString());
+		if (this.labelDistance !== 200) {
+			writer.writeAttributeNumber('labeldistance', this.labelDistance);
+		}
+
+		// writer.writeAttributeString('position', this.position.toString());
+
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.formatGrid.save('formatGrid', writer);
@@ -101,7 +107,7 @@ module.exports = class ChartAxis {
 		this.type = reader.getAttributeString(object, 'type', 'linear');
 		this.name = reader.getAttributeString(object, 'name', 'Axis1');
 		this.zoomGroup = reader.getAttributeString(object, 'zoomgroup', '');
-		this.position = ChartRect.fromString(reader.getAttribute(object, 'position'));
+		// this.position = ChartRect.fromString(reader.getAttribute(object, 'position'));
 		this.gridVisible = reader.getAttributeBoolean(object, 'gridvisible', true);
 		this.valueRangesVisible = reader.getAttributeBoolean(object, 'valuerangesvisible', true);
 		this.visible = reader.getAttributeBoolean(object, 'visible', true);
@@ -110,6 +116,7 @@ module.exports = class ChartAxis {
 		this.updateZoom = reader.getAttributeBoolean(object, 'updatezoom', false);
 		this.betweenTicks = reader.getAttributeBoolean(object, 'betweenticks', false);
 		this.invert = reader.getAttributeBoolean(object, 'invert', false);
+		this.labelDistance = reader.getAttributeNumber(object, 'labeldistance', 200);
 		this.valueRanges = [];
 
 		reader.iterateObjects(object, (subName, subChild) => {
