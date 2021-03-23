@@ -538,7 +538,7 @@ class MarkRequests extends ARequestHandler {
 				if (cell) {
 					const term = cell.term;
 					const reqId = term._pendingRequestId;
-					if (reqId) cellsheet.getPendingRequests().delete(reqId);
+					if (reqId) cellsheet.removeRequest(reqId);
 					term._marker = marker;
 				}
 			});
