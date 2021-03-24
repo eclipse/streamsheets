@@ -9,7 +9,15 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { Machine, Message, SheetParser, StreamSheet, TriggerFactory } = require('@cedalo/machine-core');
+const {
+	Machine,
+	Message,
+	RequestState,
+	SheetParser,
+	StreamSheet,
+	TaskQueue,
+	TriggerFactory
+} = require('@cedalo/machine-core');
 const { createCellAt, createTerm } = require('../utilities');
 const { AsyncRequest, runFunction } = require('../../src/utils');
 
@@ -20,13 +28,18 @@ const noop = () => {};
 const testRequest = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.run(() => AsyncRequest.create(sheet, testRequest.context).request(() => new Promise(noop)).reqId());
+		.run(() =>
+			AsyncRequest.create(sheet, testRequest.context)
+				.request(() => new Promise(noop))
+				.reqId()
+		);
 SheetParser.context.functions['TEST.REQUEST'] = testRequest;
 
-const resolveRequestAt = (index, sheet) => {
+const resolveRequestAt = async (index, sheet) => {
 	const reqId = sheet.cellAt(index).value;
-	const req = sheet.getPendingRequests().get(reqId);
-	if (req) req.status = 'resolved';
+	sheet.setRequestState(reqId, RequestState.RESOLVED);
+	// wait until sheet resumed completely...
+	await TaskQueue.done();
 };
 
 describe('await', () => {
@@ -38,9 +51,10 @@ describe('await', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ 
+		sheet.loadCells({
 			A2: { formula: 'test.request()' },
-			A3: { formula: 'await(A5)' } });
+			A3: { formula: 'await(A5)' }
+		});
 		expect(sheet.cellAt('A3').value).toBe(true);
 		await machine.step();
 		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
@@ -53,7 +67,7 @@ describe('await', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({  A3: { formula: 'await(B2:C4)' }, A4: { formula: 'A4+1' } });
+		sheet.loadCells({ A3: { formula: 'await(B2:C4)' }, A4: { formula: 'A4+1' } });
 		expect(sheet.cellAt('A3').value).toBe(true);
 		expect(sheet.cellAt('A4').value).toBe(1);
 		await machine.step();
@@ -84,12 +98,12 @@ describe('await', () => {
 		expect(sheet.cellAt('A3').value).toBe(true);
 		expect(sheet.cellAt('A4').value).toBe(1);
 		// now resolve...
-		resolveRequestAt('A2', sheet);
-		await machine.step();	// resumes
+		await resolveRequestAt('A2', sheet);
+		// await machine.step(); // resumes
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A3').value).toBe(true);
 		expect(sheet.cellAt('A4').value).toBe(2);
-		await machine.step();	// waits again
+		await machine.step(); // waits again
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A3').value).toBe(true);
 		expect(sheet.cellAt('A4').value).toBe(2);
@@ -111,20 +125,19 @@ describe('await', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
-		resolveRequestAt('A2', sheet);
+		await resolveRequestAt('A2', sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
-		resolveRequestAt('A3', sheet);
+		await resolveRequestAt('A3', sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
 		// resolve last request:
-		resolveRequestAt('A4', sheet);
-		await machine.step();	// resumes
+		await resolveRequestAt('A4', sheet);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(2);
-		await machine.step();	// will wait again
+		await machine.step(); // will wait again
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
 	});
@@ -145,20 +158,19 @@ describe('await', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
-		resolveRequestAt('A2', sheet);
+		await resolveRequestAt('A2', sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
-		resolveRequestAt('A3', sheet);
+		await resolveRequestAt('A3', sheet);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
 		// resolve last request:
-		resolveRequestAt('A4', sheet);
-		await machine.step();	// resumes
+		await resolveRequestAt('A4', sheet);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(2);
-		await machine.step();	// will wait again
+		await machine.step(); // will wait again
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
 	});
@@ -167,7 +179,8 @@ describe('await', () => {
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
-			A1: { formula: 'A1+1' }, B1: 'unknownID',
+			A1: { formula: 'A1+1' },
+			B1: 'unknownID',
 			A2: { formula: 'test.request()' },
 			A3: { formula: 'await(B1)' },
 			A4: { formula: 'A4+1' }
@@ -205,7 +218,9 @@ describe('await', () => {
 		await machine.step();
 		expect(sheet1.cellAt('A1').value).toBe(2);
 		expect(sheet2.cellAt('B2').value).toBe(4);
-		resolveRequestAt('A2', sheet1);
+		await resolveRequestAt('A2', sheet1);
+		expect(sheet1.cellAt('A1').value).toBe(2);
+		expect(sheet2.cellAt('B2').value).toBe(4);
 		await machine.step();
 		await machine.step();
 		await machine.step();
@@ -294,7 +309,7 @@ describe('await', () => {
 	it('should not consume messages while awaiting and OnMessage trigger', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		await machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: { cycletime: 10 } });
 		machine.removeAllStreamSheets();
 		sheet.streamsheet.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.ARRIVAL });
 		machine.addStreamSheet(sheet.streamsheet);
@@ -320,8 +335,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A4').value).toBe(1);
 		expect(sheet.streamsheet.inbox.size).toBe(3);
 		// now resolve...
-		resolveRequestAt('A2', sheet);
-		await machine.step();
+		await resolveRequestAt('A2', sheet);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A4').value).toBe(2);
 		expect(sheet.streamsheet.inbox.size).toBe(3);
@@ -329,8 +343,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(2);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
-		resolveRequestAt('A2', sheet);
-		await machine.step();
+		await resolveRequestAt('A2', sheet);
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
@@ -338,8 +351,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A4').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
-		resolveRequestAt('A2', sheet);
-		await machine.step();
+		await resolveRequestAt('A2', sheet);
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A4').value).toBe(4);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
@@ -351,7 +363,7 @@ describe('await', () => {
 	it('should not consume messages while awaiting', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		await machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: { cycletime: 10 } });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
@@ -379,8 +391,7 @@ describe('await', () => {
 		expect(sheet.streamsheet.inbox.size).toBe(3);
 		expect(sheet.streamsheet.stats.steps).toBe(1);
 		// now resolve...
-		resolveRequestAt('A2', sheet);
-		await machine.step();
+		await resolveRequestAt('A2', sheet);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A4').value).toBe(2);
 		expect(sheet.streamsheet.inbox.size).toBe(3);
@@ -390,8 +401,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A4').value).toBe(2);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
 		expect(sheet.streamsheet.stats.steps).toBe(2);
-		resolveRequestAt('A2', sheet);
-		await machine.step();
+		await resolveRequestAt('A2', sheet);
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
@@ -401,8 +411,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A4').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 		expect(sheet.streamsheet.stats.steps).toBe(3);
-		resolveRequestAt('A2', sheet);
-		await machine.step();
+		await resolveRequestAt('A2', sheet);
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A4').value).toBe(4);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
@@ -416,7 +425,7 @@ describe('await', () => {
 	it('should not loop message while awaiting', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		await machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: { cycletime: 10 } });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.streamsheet.updateSettings({ loop: { path: '[data][Customers]', enabled: true } });
@@ -448,8 +457,7 @@ describe('await', () => {
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('B2').value).toBe('Schmidt');
 		// now resolve...
-		resolveRequestAt('A3', sheet);
-		await machine.step();
+		await resolveRequestAt('A3', sheet);
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('B2').value).toBe('Schmidt');
 		// awaiting again...
@@ -462,7 +470,7 @@ describe('await', () => {
 	it('should not consume messages when await is replaced', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		await machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: { cycletime: 10 } });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
@@ -531,36 +539,6 @@ describe('await', () => {
 		expect(sheet.cellAt('A4').value).toBe(7);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
 	});
-	// postponed or not done at all...
-	// it('should support waiting for requests from another sheet', async () => {
-	// 	const machine = new Machine();
-	// 	const sheet1 = new StreamSheet().sheet;
-	// 	const sheet2 = new StreamSheet().sheet;
-	// 	machine.addStreamSheet(sheet1.streamsheet);
-	// 	machine.addStreamSheet(sheet2.streamsheet);
-	// 	sheet1.loadCells({
-	// 		A3: { formula: 'await(S2!A2)' },
-	// 		A4: { formula: 'A4+1' }
-	// 	});
-	// 	sheet2.loadCells({ 
-	// 		A1: { formula: 'A1+1' },
-	// 		A2: { formula: 'test.request()' } });
-	// 	expect(sheet1.cellAt('A3').value).toBe(true);
-	// 	expect(sheet1.cellAt('A4').value).toBe(1);
-	// 	expect(sheet2.cellAt('A1').value).toBe(1);
-	// 	expect(sheet2.cellAt('A2').value).toBe(true);
-	// 	await machine.step();
-	// 	expect(sheet1.cellAt('A4').value).toBe(1);
-	// 	expect(sheet2.cellAt('A1').value).toBe(2);
-	// 	await machine.step();
-	// 	expect(sheet1.cellAt('A4').value).toBe(1);
-	// 	expect(sheet2.cellAt('A1').value).toBe(3);
-	// 	// now resolve...
-	// 	// resolveRequestAt('A2', sheet);
-	// 	// await machine.step();
-	// });
-	// it('should support multiple requests in another sheet', async () => {
-	// });
 });
 describe('await.one', () => {
 	it(`should return ${ERROR.ARGS} error if called without any arguments`, () => {
@@ -588,11 +566,10 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A4').value).toBe(1);
 		// now resolve...
-		resolveRequestAt('A2', sheet);
-		await machine.step();	// resumes
+		await resolveRequestAt('A2', sheet);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A4').value).toBe(2);
-		await machine.step();	// will wait again...
+		await machine.step(); // will wait again...
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A4').value).toBe(2);
 	});
@@ -615,11 +592,10 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
 		// resolve one requests:
-		resolveRequestAt('A3', sheet);
-		await machine.step();		// resumes
+		await resolveRequestAt('A3', sheet);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(2);
-		await machine.step();		// will wait again, since new request if made for resolved one!
+		await machine.step(); // will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
 		await machine.step();
@@ -627,10 +603,10 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
 		// resolve all requests:
-		resolveRequestAt('A2', sheet);
-		resolveRequestAt('A3', sheet);
-		resolveRequestAt('A4', sheet);
-		await machine.step();		// will wait again, since new request if made for resolved one!
+		await resolveRequestAt('A2', sheet);
+		await resolveRequestAt('A3', sheet);
+		await resolveRequestAt('A4', sheet);
+		await machine.step(); // will wait again, since new request if made for resolved one!
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A6').value).toBe(3);
@@ -653,27 +629,24 @@ describe('await.one', () => {
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(1);
-		resolveRequestAt('A2', sheet);
-		await machine.step();	// resumes
-		await machine.step();	// will wait again, since new request if made for resolved one!
+		await resolveRequestAt('A2', sheet);
+		await machine.step(); // will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
-		resolveRequestAt('A3', sheet);
-		await machine.step();	// resumes
+		await resolveRequestAt('A3', sheet);
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(3);
-		await machine.step();	// will wait again, since new request if made for resolved one!
+		await machine.step(); // will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A6').value).toBe(3);
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A6').value).toBe(3);
 		// resolve last request:
-		resolveRequestAt('A4', sheet);
-		resolveRequestAt('A3', sheet);
-		resolveRequestAt('A2', sheet);
-		await machine.step();	// resumes
-		await machine.step();	// will wait again, since new request if made for resolved one!
+		await resolveRequestAt('A4', sheet);
+		await resolveRequestAt('A3', sheet);
+		await resolveRequestAt('A2', sheet);
+		await machine.step(); // will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(5);
 		expect(sheet.cellAt('A6').value).toBe(4);
 	});
@@ -682,7 +655,8 @@ describe('await.one', () => {
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({
-			A1: { formula: 'A1+1' }, B1: 'unknownID',
+			A1: { formula: 'A1+1' },
+			B1: 'unknownID',
 			A2: { formula: 'test.request()' },
 			A3: { formula: 'await.one(B1, "id42")' },
 			A4: { formula: 'A4+1' }
@@ -718,7 +692,7 @@ describe('await.one', () => {
 		await machine.step();
 		expect(sheet1.cellAt('A1').value).toBe(2);
 		expect(sheet2.cellAt('B2').value).toBe(4);
-		resolveRequestAt('B1', sheet1);
+		await resolveRequestAt('B1', sheet1);
 		await machine.step();
 		await machine.step();
 		await machine.step();
@@ -829,12 +803,11 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A6').value).toBe(1);
 		expect(sheet.streamsheet.inbox.size).toBe(3);
 		// resolve one requests:
-		resolveRequestAt('A3', sheet);
-		await machine.step();	// resumes
+		await resolveRequestAt('A3', sheet);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('A6').value).toBe(2);
 		expect(sheet.streamsheet.inbox.size).toBe(3);
-		await machine.step();	// will wait again, since new request if made for resolved one!
+		await machine.step(); // will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('A6').value).toBe(2);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
@@ -844,11 +817,10 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A6').value).toBe(2);
 		expect(sheet.streamsheet.inbox.size).toBe(2);
 		// resolve all requests:
-		resolveRequestAt('A2', sheet);
-		resolveRequestAt('A3', sheet);
-		resolveRequestAt('A4', sheet);
-		await machine.step();	// resumes
-		await machine.step();	// will wait again, since new request if made for resolved one!
+		await resolveRequestAt('A2', sheet);
+		await resolveRequestAt('A3', sheet);
+		await resolveRequestAt('A4', sheet);
+		await machine.step(); // will wait again, since new request if made for resolved one!
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('A6').value).toBe(3);
 		expect(sheet.streamsheet.inbox.size).toBe(1);
@@ -856,7 +828,7 @@ describe('await.one', () => {
 	it('should not loop message while awaiting', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		await machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: { cycletime: 10 } });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.streamsheet.updateSettings({ loop: { path: '[data][Customers]', enabled: true } });
@@ -882,8 +854,7 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A7').value).toBe(1);
 		expect(sheet.streamsheet.stats.steps).toBe(1);
 		// resolve one requests:
-		resolveRequestAt('A3', sheet);
-		await machine.step();
+		await resolveRequestAt('A3', sheet);
 		expect(sheet.cellAt('A1').value).toBe(2);
 		expect(sheet.cellAt('B2').value).toBe('Foo');
 		expect(sheet.cellAt('A7').value).toBe(2);
@@ -900,10 +871,9 @@ describe('await.one', () => {
 		expect(sheet.cellAt('A7').value).toBe(2);
 		expect(sheet.streamsheet.stats.steps).toBe(2);
 		// resolve all requests:
-		resolveRequestAt('A3', sheet);
-		resolveRequestAt('A4', sheet);
-		resolveRequestAt('A5', sheet);
-		await machine.step();
+		await resolveRequestAt('A3', sheet);
+		await resolveRequestAt('A4', sheet);
+		await resolveRequestAt('A5', sheet);
 		expect(sheet.cellAt('A1').value).toBe(3);
 		expect(sheet.cellAt('B2').value).toBe('Bar');
 		expect(sheet.cellAt('A7').value).toBe(3);
@@ -921,8 +891,7 @@ describe('await.one', () => {
 		expect(sheet.cellAt('B2').value).toBe('Schmidt');
 		expect(sheet.cellAt('A7').value).toBe(3);
 		expect(sheet.streamsheet.stats.steps).toBe(3);
-		resolveRequestAt('A5', sheet);
-		await machine.step();
+		await resolveRequestAt('A5', sheet);
 		expect(sheet.cellAt('A1').value).toBe(4);
 		expect(sheet.cellAt('B2').value).toBe('Schmidt');
 		expect(sheet.cellAt('A7').value).toBe(4);
@@ -943,7 +912,7 @@ describe('await.one', () => {
 	it('should not consume messages if await.one is replaced', async () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
-		await machine.load({ settings: {cycletime: 10} });
+		await machine.load({ settings: { cycletime: 10 } });
 		machine.removeAllStreamSheets();
 		machine.addStreamSheet(sheet.streamsheet);
 		sheet.loadCells({

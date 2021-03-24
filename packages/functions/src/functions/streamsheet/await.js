@@ -10,17 +10,34 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const {	AsyncRequest, runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
+const { runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
-const pause = (sheet) => {
-	if (!sheet.isPaused) sheet.streamsheet.pauseProcessing();
+const pause = (sheet, context) => {
+	if (!sheet.isPaused) {
+		sheet.streamsheet.pauseProcessing();
+		sheet.addRequestStateListener(context._checkRequestsCallback);
+	}
 };
-const resume = (sheet) => {
-	if (sheet.isPaused) sheet.streamsheet.resumeProcessing();
+
+const resume = (sheet, context) => {
+	if (sheet.isPaused) {
+		sheet.removeRequestStateListener(context._checkRequestsCallback);
+		sheet.streamsheet.resumeProcessing();
+	}
 };
-const cancel = (sheet) => () => sheet.streamsheet.stopProcessing();
+const cancel = (sheet, context) => () => {
+	sheet.removeRequestStateListener(context._checkRequestsCallback);
+	sheet.streamsheet.stopProcessing();
+};
+
+const isOnePending = (reqIDs, sheet) => reqIDs.some((id) => sheet.isPendingRequest(id));
+const areAllPending = (reqIDs, sheet) => reqIDs.every((id) => sheet.isPendingRequest(id));
+const checkRequests = (waitCondition, sheet, context) => () => {
+	if (waitCondition(context._reqIDs, sheet)) pause(sheet, context);
+	else resume(sheet, context);
+};
 
 const addRequestId = (value, allIDs) => {
 	const reqId = convert.toString(value);
@@ -48,45 +65,35 @@ const getRequestIDs = (sheet, terms) => {
 	}, []);
 };
 
-const initContext = (sheet, context) => {
+const initContext = (sheet, context, waitCondition) => {
 	if (!context._awaitInited) {
 		context._awaitInited = true;
-		context.addDisposeListener(cancel(sheet));
+		context._reqIDs = [];
+		context._checkRequestsCallback = checkRequests(waitCondition, sheet, context);
+		context.addDisposeListener(cancel(sheet, context));
 	}
 };
 
-const wait = (sheet, ...terms) =>
+const runAwait = (waitCondition, context, sheet, terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
-		.beforeRun(() => initContext(sheet, wait.context))
+		.beforeRun(() => initContext(sheet, context, waitCondition))
 		.run(() => {
 			const reqIDs = getRequestIDs(sheet, terms);
 			const error = FunctionErrors.isError(reqIDs);
 			if (!error) {
-				const onePending = reqIDs.some((id) => AsyncRequest.isPending(sheet, id));
-				if (onePending) pause(sheet);
-				else resume(sheet);
+				context._reqIDs = reqIDs;
+				if (waitCondition(reqIDs, sheet)) pause(sheet, context);
+				else resume(sheet, context);
 			}
 			return error || true;
 		});
+
+const wait = (sheet, ...terms) => runAwait(isOnePending, wait.context, sheet, terms);
 wait.displayName = true;
 
-const waitone = (sheet, ...terms) =>
-	runFunction(sheet, terms)
-		.onSheetCalculation()
-		.withMinArgs(1)
-		.beforeRun(() => initContext(sheet, waitone.context))
-		.run(() => {
-			const reqIDs = getRequestIDs(sheet, terms);
-			const error = FunctionErrors.isError(reqIDs);
-			if (!error) {
-				const oneIsResolved = reqIDs.some((id) => AsyncRequest.isResolved(sheet, id));
-				if (oneIsResolved) resume(sheet);
-				else pause(sheet);
-			}
-			return error || true;
-		});
+const waitone = (sheet, ...terms) => runAwait(areAllPending, waitone.context, sheet, terms);
 waitone.displayName = true;
 
 module.exports = {
