@@ -42,15 +42,16 @@ const notifyListeners = (listeners) => {
 // 	}
 // }
 
-// TODO: as soon as legacy request and requestinfo are removed this can be simplified by storing request state in
-// cell context and only use SheetRequests for notifying registered state listeners
+// TODO: as soon as legacy request and requestinfo are removed this class can be possibly deleted and request-state can
+// be handled in cell context via AsyncRequest and and notify on resolve/reject. manage state-listeners via Machine to 
+// be independent of Sheets (i.e. to support await requests from different sheets)
 const SheetRequests = (BaseSheet) =>
 	class extends BaseSheet {
 		constructor(streamsheet, config) {
 			super(streamsheet, config);
-			// this._pendingRequests = new MapDecorator();
 			this._requests = new Map();
 			this._stateListeners = new Set();
+			// this._pendingRequests = new MapDecorator();
 		}
 
 		clear() {
