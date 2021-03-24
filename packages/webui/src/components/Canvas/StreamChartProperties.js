@@ -880,6 +880,7 @@ export class StreamChartProperties extends Component {
 		const data = this.getData();
 		data.map.name = event.target.value;
 		data.map.mapData = undefined;
+		data.map.requesting = undefined;
 		this.finishCommand(cmd, 'series');
 
 		// map needs some time to load then render map properties
@@ -912,6 +913,11 @@ export class StreamChartProperties extends Component {
 
 	handleSeriesCopyMapLabels = () => {
 		const data = this.getData();
+
+		if (!data.map.mapData) {
+			return;
+		}
+
 		const features = data.map.mapData.features;
 		const names = [];
 

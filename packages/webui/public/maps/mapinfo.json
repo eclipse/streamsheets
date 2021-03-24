@@ -1,9 +1,30 @@
 {
 	"maps": [
 		{
+			"id": "wci",
+			"file": "world_cities.json",
+			"name": "Cities World",
+			"regions": [
+			]
+		},
+		{
+			"id": "counteurope",
+			"file": "europe_countries.json",
+			"name": "Countries Europe",
+			"regions": [
+			]
+		},
+		{
+			"id": "usstates",
+			"file": "us_states.json",
+			"name": "States USA",
+			"regions": [
+			]
+		},
+		{
 			"id": "wco",
 			"file": "world_countries.json",
-			"name": "World Countries",
+			"name": "Countries World",
 			"regions": [
 				"Abyei",
 				"Afghanistan",
@@ -266,7 +287,7 @@
 		{
 			"id": "wca",
 			"file": "world_capitals.json",
-			"name": "World Capitals",
+			"name": "Capitals World",
 			"regions": [
 				"Abuja",
 				"Accra",
@@ -483,7 +504,7 @@
 		{
 			"id": "wcr",
 			"file": "world_rivers.json",
-			"name": "World Rivers",
+			"name": "Rivers World",
 			"regions": [
 				"Abay",
 				"Al Furat",

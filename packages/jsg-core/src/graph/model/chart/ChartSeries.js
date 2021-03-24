@@ -153,7 +153,9 @@ module.exports = class ChartSeries {
 					this.dataLabel.read(reader, child);
 					break;
 				case 'map':
-					this.map = new ChartMap();
+					if (!this.map) {
+						this.map = new ChartMap();
+					}
 					this.map.read(reader, child);
 					break;
 				case 'points': {

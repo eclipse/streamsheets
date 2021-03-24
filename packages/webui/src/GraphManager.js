@@ -169,8 +169,8 @@ export default class GraphManager {
 		defInteraction.addActivator(SheetActivator.KEY, new SheetActivator());
 		defInteraction.addActivator(EditTextActivator.KEY, new EditTextActivator());
 		defInteraction.addActivator(MoveActivator.KEY, new MoveActivator());
-		defInteraction.addActivator(MarqueeActivator.KEY, new MarqueeActivator());
 		defInteraction.addActivator(SheetPlotActivator.KEY, new SheetPlotActivator());
+		defInteraction.addActivator(MarqueeActivator.KEY, new MarqueeActivator());
 		defInteraction.addActivator(PinchActivator.KEY, new PinchActivator());
 		defInteraction.addActivator(PanActivator.KEY, new PanActivator());
 		defInteraction.addActivator(SplitterActivator.KEY, new SplitterActivator());
