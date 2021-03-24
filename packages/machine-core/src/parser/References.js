@@ -146,9 +146,13 @@ class CellReference extends AbstractCellReference {
 
 	get target() {
 		return this.cell;
-		// TODO: review target property and better return targeted cell
-		// const op = this.cell.term.operand;
-		// return op.isCellReference ? op.targetCell : this.cell;
+	}
+
+	// since target property is used within parser, add additional one
+	get targetedCell() {
+		const cell = this.cell;
+		const term = cell && cell.term;
+		return term && term.operand.isCellReference ? term.operand.targetedCell : cell;
 	}
 
 	isTypeOf(type) {
