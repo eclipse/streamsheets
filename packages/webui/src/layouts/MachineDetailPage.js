@@ -57,7 +57,6 @@ import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import HelpButton from './HelpButton';
 import { ResizeHandler } from './ResizeHandler';
-import { ViewModeHandler, ViewModePropTypes } from './ViewModeHandler';
 import { Path } from '../helper/Path';
 import { DialogExtensions } from '@cedalo/webui-extensions';
 
@@ -66,7 +65,7 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, location, hashParams } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location, hashParams, viewSettings } = props;
 	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
@@ -95,14 +94,8 @@ export function MachineDetailPage(props) {
 	// TODO: remove viewMode and merge this and the next effect
 	useEffect(() => {
 		const settings = {
-			active: viewConfig !== undefined,
-			maximize: 'S1',
-			allowZoom: false,
-			allowScroll: true,
-			showHeader: false,
-			showOutbox: false,
-			showGrid: false,
-			showInbox: false,
+			...viewSettings,
+			active: viewConfig !== undefined && !!viewSettings.maximize,
 		};
 
 		props.setAppState({
@@ -110,8 +103,7 @@ export function MachineDetailPage(props) {
 			showTools: settings.active === false,
 		});
 		graphManager.updateCanvas(showTools,settings);
-		return () => {};
-	}, [viewConfig]);
+	}, [viewConfig, viewSettings]);
 
 	// Update canvas if showTools or viewMode change
 	useEffect(() => {
@@ -228,7 +220,6 @@ export function MachineDetailPage(props) {
 	if (!userLoaded) {
 		return (
 			<MuiThemeProvider theme={theme}>
-				<ViewModeHandler />
 				<RequestStatusDialog />
 				<ServerStatusDialog />
 				<ErrorDialog />
@@ -246,7 +237,6 @@ export function MachineDetailPage(props) {
 					width: 'inherit'
 				}}
 			>
-				<ViewModeHandler />
 				<ResizeHandler />
 				<GraphLocaleHandler />
 				<DialogExtensions />
@@ -383,7 +373,8 @@ MachineDetailPage.propTypes = {
 	locale: PropTypes.string,
 	isConnected: PropTypes.bool.isRequired,
 	machineName: PropTypes.string,
-	viewMode: ViewModePropTypes,
+	viewMode: PropTypes.object,
+	viewSettings: PropTypes.object,
 	showTools: PropTypes.bool.isRequired,
 	searchParams: PropTypes.string.isRequired,
 	history: PropTypes.shape({
@@ -398,8 +389,9 @@ MachineDetailPage.propTypes = {
 
 MachineDetailPage.defaultProps = {
 	locale: undefined,
+	viewMode: {},
 	machineName: '',
-	viewMode: {}
+	viewSettings: {}
 };
 
 function mapStateToProps(state) {
@@ -407,6 +399,7 @@ function mapStateToProps(state) {
 		isConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
 		machine: state.monitor.machine,
 		machineName: state.monitor.machine.name,
+		viewSettings: state.monitor.machine.settings && state.monitor.machine.settings.view,
 		viewMode: state.appState.viewMode,
 		showTools: state.appState.showTools,
 		searchParams: state.router.location.search,

@@ -74,6 +74,7 @@ const MACHINE_LAST_MODIFIED_EVENT = 'machine_lastmodified';
 const MACHINE_LOCALE_EVENT = 'machine_locale';
 const MACHINE_OPCUA_EVENT = 'machine_opcua';
 const MACHINE_RENAME_EVENT = 'machine_rename';
+const MACHINE_VIEW_SETTINGS_EVENT = 'machine_view_settings';
 const MACHINE_FUNCTIONS_EVENT = 'machine_functions';
 const MACHINE_REMOVE_EVENT = 'machine_remove';
 const MACHINE_STATE_EVENT = 'machine_state';
@@ -148,6 +149,7 @@ module.exports = {
 		MACHINE_LOCALE_EVENT,
 		MACHINE_OPCUA_EVENT,
 		MACHINE_RENAME_EVENT,
+		MACHINE_VIEW_SETTINGS_EVENT,
 		MACHINE_FUNCTIONS_EVENT,
 		MACHINE_REMOVE_EVENT,
 		MACHINE_STATE_EVENT,

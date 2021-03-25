@@ -124,6 +124,10 @@ const receiveCycleTimeFromMachine = (cycletime) => ({
 	type: ActionTypes.RECEIVE_CYCLE_TIME_FROM_MACHINE,
 	cycletime,
 });
+const receiveViewSettingsFromMachine = (view) => ({
+	type: ActionTypes.RECEIVE_VIEW_SETTINGS_FROM_MACHINE,
+	view,
+});
 const sendMachineLocale = (locale) => ({
 	type: ActionTypes.SEND_MACHINE_LOCALE,
 	locale,
@@ -350,6 +354,10 @@ function handleMachineLocaleChanged(event) {
 
 function handleMachineCycleTime(event) {
 	store.dispatch(receiveCycleTimeFromMachine(event.cycletime));
+}
+
+function handleMachineViewSettings(event) {
+	store.dispatch(receiveViewSettingsFromMachine(event.view));
 }
 
 function handleMessageChangedEvent(/* event */) {
@@ -702,6 +710,7 @@ export function connect() {
 				gatewayClient.on(EVENTS.STREAMSHEET_MESSAGE_ATTACHED, (event) => handleMessageAttached(event));
 				gatewayClient.on(EVENTS.STREAMSHEET_MESSAGE_DETACHED, (event) => handleMessageDetached(event));
 				gatewayClient.on(EVENTS.MACHINE_LOCALE_EVENT, (event) => handleMachineLocaleChanged(event));
+				gatewayClient.on(EVENTS.MACHINE_VIEW_SETTINGS_EVENT, (event) => handleMachineViewSettings(event));
 				gatewayClient.on(EVENTS.MACHINE_CYCLETIME_EVENT, (event) => handleMachineCycleTime(event));
 			})
 			.then(() => dispatch({ type: ActionTypes.CONNECT }))

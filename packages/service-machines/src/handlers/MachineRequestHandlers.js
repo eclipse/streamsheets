@@ -337,7 +337,7 @@ class MachineUpdateSettingsRequestHandler extends RequestHandler {
 
 	async handle(request, machineserver, repositoryManager) {
 		const { settings = {} } = request;
-		const { cycleTime, isOPCUA, locale, newName } = settings;
+		const { cycleTime, isOPCUA, locale, newName, view } = settings;
 		if (newName != null) {
 			// check if we already have a machine with newName => its not allowed
 			const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(
@@ -354,7 +354,8 @@ class MachineUpdateSettingsRequestHandler extends RequestHandler {
 				cycleTime,
 				isOPCUA,
 				locale,
-				newName
+				newName,
+				view
 			}
 		});
 	}

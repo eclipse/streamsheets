@@ -258,6 +258,10 @@ module.exports = class MachineService extends MessagingService {
 				logger.info(`PersistenceService: persist new machine name: ${event.name}`);
 				await RepositoryManager.machineRepository.updateMachineName(event.srcId, event.name);
 				break;
+			case MachineServerMessagingProtocol.EVENTS.MACHINE_VIEW_SETTINGS_EVENT:
+				logger.info(`PersistenceService: persist new machine view`);
+				await RepositoryManager.machineRepository.updateMachineView(event.srcId, event.view);
+				break;
 			case MachineServerMessagingProtocol.EVENTS.MACHINE_LAST_MODIFIED_EVENT:
 				logger.info(`PersistenceService: persist machine last modified: ${event.lastModified}`);
 				await RepositoryManager.machineRepository.updateMachineLastModified(

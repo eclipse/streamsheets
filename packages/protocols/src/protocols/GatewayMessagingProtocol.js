@@ -90,6 +90,7 @@ const SESSION_INIT_EVENT = 'session_init';
 const LICENSE_INFO_EVENT = 'license_information';
 const MACHINE_CYCLETIME_EVENT = 'machine_cycletime';
 const MACHINE_RENAME_EVENT = 'machine_rename';
+const MACHINE_VIEW_SETTINGS_EVENT = 'machine_view_settings';
 const MACHINE_FUNCTIONS_EVENT = 'machine_functions';
 const MACHINE_SERVER_CONNECTED_EVENT = 'machineserver_connected';
 const MACHINE_SERVER_DISCONNECTED_EVENT = 'machineserver_disconnected';
@@ -204,6 +205,7 @@ module.exports = {
 		LICENSE_INFO_EVENT,
 		MACHINE_LOCALE_EVENT: MachineServerEvents.MACHINE_LOCALE_EVENT,
 		MACHINE_RENAME_EVENT,
+		MACHINE_VIEW_SETTINGS_EVENT,
 		MACHINE_FUNCTIONS_EVENT,
 		MACHINE_SERVER_CONNECTED_EVENT,
 		STREAMSHEET_STREAM_UPDATED,

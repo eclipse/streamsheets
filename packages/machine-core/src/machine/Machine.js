@@ -264,11 +264,21 @@ class Machine {
 		return Array.from(this._streamsheets.values());
 	}
 
+	get view() {
+		return this.settings.view;
+	}
+
+	set view(newView) {
+		this.settings.view = newView;
+		this._emitter.emit('update', 'view');
+	}
+
 	// name, cycletime, locale...
 	update(props = {}) {
 		this.name = props.name || this.name;
 		this.locale = props.locale || this.locale;
 		this.cycletime = props.cycletime || this.cycletime;
+		this.view = props.view || this.view;
 		if (props.isOPCUA != null) this.isOPCUA = props.isOPCUA;
 	}
 

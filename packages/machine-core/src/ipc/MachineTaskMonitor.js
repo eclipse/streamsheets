@@ -147,6 +147,9 @@ class MachineTaskMonitor {
 			case 'name':
 				event = updateEvent(MachineEvents.MACHINE_RENAME_EVENT, machine, { name: machine.name });
 				break;
+			case 'view':
+				event = updateEvent(MachineEvents.MACHINE_VIEW_SETTINGS_EVENT, machine, { view: machine.view });
+				break;
 			case 'namedCells':
 				event = updateEvent(MachineEvents.NAMED_CELLS_EVENT, machine, {
 					namedCells: machine.namedCells.getDescriptors()

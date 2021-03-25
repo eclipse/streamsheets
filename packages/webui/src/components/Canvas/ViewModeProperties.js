@@ -42,6 +42,14 @@ import { graphManager } from '../../GraphManager';
 
 const styles = {};
 
+const debounce = (f) => {
+	let timeoutId = null;
+	return (...args) =>{
+		clearTimeout(timeoutId);
+		timeoutId = setTimeout(f, 300, ...args)
+	}
+}
+
 export class ViewModeProperties extends Component {
 	handleClose = () => {
 		this.props.setAppState({ showViewModeProperties: false });
@@ -51,43 +59,55 @@ export class ViewModeProperties extends Component {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.showOutbox = state;
 		this.props.setAppState({ viewMode });
+		this.saveViewMode(viewMode);
 	};
 
 	handleHeaderChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.showHeader = state;
 		this.props.setAppState({ viewMode });
+		this.saveViewMode(viewMode);
 	};
 
 	handleGridChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.showGrid = state;
 		this.props.setAppState({ viewMode });
+		this.saveViewMode(viewMode);
 	};
 
 	handleInboxChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.showInbox = state;
 		this.props.setAppState({ viewMode });
+		this.saveViewMode(viewMode);
 	};
 
 	handleScrollChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.allowScroll = state;
 		this.props.setAppState({ viewMode });
+		this.saveViewMode(viewMode);
 	};
 
 	handleZoomChange = (event, state) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.allowZoom = state;
 		this.props.setAppState({ viewMode });
+		this.saveViewMode(viewMode);
 	};
 
 	handleMaximizeChange = (event) => {
 		const viewMode = { ...this.props.viewMode };
 		viewMode.maximize = event.target.value;
 		this.props.setAppState({ viewMode });
+		this.saveViewMode(viewMode);
 	};
+
+	saveViewMode = debounce((viewMode) => {
+		const { active, ...view } = viewMode;
+		this.props.updateMachineSettings(this.props.machineId, { view })
+	})
 
 	render() {
 		const sheetNames = graphManager.getGraph().getStreamSheetNames();
@@ -250,6 +270,7 @@ export class ViewModeProperties extends Component {
 function mapStateToProps(state) {
 	return {
 		showViewModeProperties: state.appState.showViewModeProperties,
+		machineId: state.monitor.machine.id,
 		viewMode: state.appState.viewMode
 	};
 }
@@ -258,4 +279,9 @@ function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);
 }
 
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(ViewModeProperties));
+export default withStyles(styles)(
+	connect(
+		mapStateToProps,
+		mapDispatchToProps
+	)(ViewModeProperties)
+);
