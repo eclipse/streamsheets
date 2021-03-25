@@ -35,7 +35,7 @@ const addToMessageBox = (box, resobj, msgId) => {
 	}
 };
 
-const addToCell = (index, resobj, sheet) => {
+const addToCell = (sheet, index, resobj) => {
 	if (resobj == null) sheet.setCellAt(index, undefined);
 	else {
 		const cell = sheet.cellAt(index, true);
@@ -45,7 +45,7 @@ const addToCell = (index, resobj, sheet) => {
 
 const addToCellRange = (range, resobj) => {
 	if (range.width === 1 && range.height === 1) {
-		addToCell(range.start, resobj, range.sheet);
+		addToCell(range.sheet, range.start, resobj);
 	} else {
 		const lists = toArray2D(resobj, 'json');
 		toRange(lists, range, false, addToCell);
