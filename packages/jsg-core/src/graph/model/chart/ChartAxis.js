@@ -80,7 +80,7 @@ module.exports = class ChartAxis {
 			writer.writeAttributeNumber('labeldistance', this.labelDistance);
 		}
 
-		// writer.writeAttributeString('position', this.position.toString());
+		writer.writeAttributeString('position', this.position.toString());
 
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
@@ -107,7 +107,7 @@ module.exports = class ChartAxis {
 		this.type = reader.getAttributeString(object, 'type', 'linear');
 		this.name = reader.getAttributeString(object, 'name', 'Axis1');
 		this.zoomGroup = reader.getAttributeString(object, 'zoomgroup', '');
-		// this.position = ChartRect.fromString(reader.getAttribute(object, 'position'));
+		this.position = ChartRect.fromString(reader.getAttribute(object, 'position'));
 		this.gridVisible = reader.getAttributeBoolean(object, 'gridvisible', true);
 		this.valueRangesVisible = reader.getAttributeBoolean(object, 'valuerangesvisible', true);
 		this.visible = reader.getAttributeBoolean(object, 'visible', true);
