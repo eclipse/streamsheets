@@ -904,7 +904,7 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
-	handleSeriesMapLabelBlur = (event) => {
+	handleSeriesMapLabelChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
 		data.map.label = event.target.value;
@@ -932,7 +932,8 @@ export class StreamChartProperties extends Component {
 		let clipData = '';
 
 		names.forEach((key) => {
-			clipData += `${key}\n`;
+			clipData += `"${key}",\n`;
+			// clipData += `${key}\n`;
 		});
 
 		const sheetView = this.getSheetView();
@@ -3181,7 +3182,7 @@ export class StreamChartProperties extends Component {
 											/>
 										}
 										defaultValue={data.map.label}
-										onBlur={(event) => this.handleSeriesMapLabelBlur(event)}
+										onChange={(event) => this.handleSeriesMapLabelChange(event)}
 										margin="normal"
 									>
 										{data.map.mapData && data.map.mapData.features.length ?
@@ -3189,7 +3190,11 @@ export class StreamChartProperties extends Component {
 											<MenuItem value={prop} key={prop}>
 												{prop}
 											</MenuItem>
-										)) : (<div/>)}
+										)) : (
+												<MenuItem value="name" key="name">
+													name
+												</MenuItem>
+											)}
 									</TextField>
 									<TextField
 										variant="outlined"
@@ -3216,7 +3221,6 @@ export class StreamChartProperties extends Component {
 													}
 												});
 												return result;
-												// selected.join(', ')
 											}
 										}}
 										margin="normal"
@@ -3224,41 +3228,42 @@ export class StreamChartProperties extends Component {
 										onChange={this.handleSeriesMapDisplayType}
 									>
 										<MenuItem value="color" key={0}>
-											<Checkbox checked={data.map.displayType.indexOf('color') > -1} />
+											<Checkbox checked={data.map.displayType.indexOf('color') !== -1} />
 											<FormattedMessage
 												id="StreamChartProperties.MapDisplaycolor"
 												defaultMessage="Color Intensity"
 											/>
 										</MenuItem>
 										<MenuItem value="cvalue" key={4}>
-											<Checkbox checked={data.map.displayType.indexOf('cvalue') > -1} />
+											<Checkbox checked={data.map.displayType.indexOf('cvalue') !== -1} />
 											<FormattedMessage
 												id="StreamChartProperties.MapDisplaycvalue"
 												defaultMessage="Color Value"
 											/>
 										</MenuItem>
 										<MenuItem value="line" key={1}>
-											<Checkbox checked={data.map.displayType.indexOf('line') > -1} />
+											<Checkbox checked={data.map.displayType.indexOf('line') !== -1} />
 											<FormattedMessage
 												id="StreamChartProperties.MapDisplayline"
 												defaultMessage="Line Width"
 											/>
 										</MenuItem>
 										<MenuItem value="radius" key={2}>
-											<Checkbox checked={data.map.displayType.indexOf('radius') > -1} />
+											<Checkbox checked={data.map.displayType.indexOf('radius') !== -1} />
 											<FormattedMessage
 												id="StreamChartProperties.MapDisplayradius"
 												defaultMessage="Point Radius"
 											/>
 										</MenuItem>
 										<MenuItem value="chart" key={3}>
-											<Checkbox checked={data.map.displayType.indexOf('chart') > -1} />
+											<Checkbox checked={data.map.displayType.indexOf('chart') !== -1} />
 											<FormattedMessage
 												id="StreamChartProperties.MapDisplaychart"
 												defaultMessage="Chart"
 											/>
 										</MenuItem>
 									</TextField>
+									{data.map.displayType.indexOf('chart') !== -1 ? (
 									<TextField
 										variant="outlined"
 										size="small"
@@ -3289,7 +3294,7 @@ export class StreamChartProperties extends Component {
 										<MenuItem value="area" key={4}>
 											<FormattedMessage id="StreamChart.Area" defaultMessage="Area" />
 										</MenuItem>
-									</TextField>
+									</TextField>) : null}
 									<FormControl>
 										<Button
 											disabled={data.map.name === 'sheet'}

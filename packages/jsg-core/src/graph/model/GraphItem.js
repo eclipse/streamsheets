@@ -3510,10 +3510,10 @@ class GraphItem extends Model {
 	subItemsToJSON() {
 		const json = {
 			shapes: [],
-			timestamp: Date.now(),
+			changed: true,
 			version: 1
 		};
-		this._shapeTimeStamp = json.timestamp;
+		this._shapesChanged = true;
 
 		GraphUtils.traverseItem(this, item => {
 			json.shapes.push(item.toJSON());
