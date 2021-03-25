@@ -108,7 +108,7 @@ module.exports = class Chart {
 		if (this.varyByCategories === true) {
 			writer.writeAttributeNumber('varybycategories', this.varyByCategories ? 1 : 0);
 		}
-		if (this.varyByThreshold === false) {
+		if (this.varyByThreshold !== 'none') {
 			writer.writeAttributeString('varybythreshold', this.varyByThreshold);
 		}
 		if (this.gaugePointer !== false) {
@@ -166,7 +166,7 @@ module.exports = class Chart {
 		this.dataInRows = reader.getAttributeBoolean(object, 'datainrows', true);
 		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', false);
 		this.varyByCategories = reader.getAttributeBoolean(object, 'varybycategories', false);
-		this.varyByThreshold = reader.getAttributeString(object, 'varybythreshold', 'colorchange');
+		this.varyByThreshold = reader.getAttributeString(object, 'varybythreshold', 'none');
 		this.gaugePointer = reader.getAttributeBoolean(object, 'gaugepointer', false);
 		this.rotation = reader.getAttributeNumber(object, 'rotation', Math.PI_2);
 		this.startAngle = reader.getAttributeNumber(object, 'startangle', 0);
