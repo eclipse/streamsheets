@@ -758,6 +758,12 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'series');
 	};
 
+	handleSeriesIndexChange = (event) => {
+		this.state.plotView.chartSelection.index = Number(event.target.value);
+		this.updateState(true);
+		graphManager.redraw();
+	}
+
 	handleSeriesTooltipContentChange = (event) => {
 		const cmd = this.prepareCommand('series');
 		const data = this.getData();
@@ -2690,6 +2696,33 @@ export class StreamChartProperties extends Component {
 							</Button>
 						</FormControl>
 					</FormGroup>
+				) : null}
+				{selection && (selection.element === 'serieslabel' || selection.element === 'series') ? (
+					<TextField
+						variant="outlined"
+						size="small"
+						label={
+							<FormattedMessage
+								id="StreamChartProperties.Series"
+								defaultMessage="Series"
+							/>
+						}
+						select
+						fullWidth
+						margin="normal"
+						value={item.series.indexOf(data)}
+						onChange={this.handleSeriesIndexChange}
+					>
+						{item.series.map((serie, index) => {
+							const label = this.getLabel(serie);
+
+							return (
+								<MenuItem value={index} key={label}>
+									{label}
+								</MenuItem>
+							)
+						})}
+					</TextField>
 				) : null}
 				{selection && (selection.element === 'series' || selection.element === 'point') ? (
 					<FormGroup>

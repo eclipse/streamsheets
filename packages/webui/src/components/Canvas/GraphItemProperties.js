@@ -141,7 +141,7 @@ export class GraphItemProperties extends Component {
 		const view = this.state.view;
 		const data = event.target.value.split(';');
 
-		view.setSelectedPropertyCategory(data);
+		view.setSelectedPropertyCategory(data, 0);
 
 		if (view.isValidPropertyCategory(data[0])) {
 			this.setState({
