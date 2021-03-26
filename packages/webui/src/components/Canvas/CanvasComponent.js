@@ -35,7 +35,6 @@ import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
 import GraphItemProperties from "./GraphItemProperties";
 import ViewModeProperties from "./ViewModeProperties";
-import qs from "query-string";
 // import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 
 export class CanvasComponent extends Component {
@@ -159,11 +158,11 @@ export class CanvasComponent extends Component {
 	}
 
 	onCloseViewMode = () => {
-		window.location.hash = qs.stringify({...qs.parse(window.location.hash), viewConfig: undefined})
+		this.props.setAppState({ showViewModeProperties: false });
 	}
 
 	onViewModeProperties = () => {
-		this.props.setAppState({showViewModeProperties: true});
+		this.props.setAppState({ showViewModeProperties: true });
 	}
 	/**
 	 * Resize canvas and inform GraphEditor

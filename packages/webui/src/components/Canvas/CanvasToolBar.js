@@ -63,7 +63,6 @@ import CommandStack from '../../helper/synchronization/CommandStack';
 import { numberFormatTemplates } from '../../languages/NumberFormatTemplates';
 import CustomTooltip from '../base/customTooltip/CustomTooltip';
 import { withStyles } from '@material-ui/core/styles';
-import qs from 'query-string';
 
 const ToolTextIcon = FormatAlignCenter;
 const {
@@ -428,7 +427,7 @@ export class CanvasToolBar extends Component {
 	};
 
 	onConfigureViewMode = () => {
-		window.location.hash = qs.stringify({...qs.parse(window.location.hash), viewConfig: true })
+		this.props.setAppState({ showViewModeProperties: true });
 	}
 
 	onPasteFunction = () => {

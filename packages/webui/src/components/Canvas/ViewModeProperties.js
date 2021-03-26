@@ -11,7 +11,6 @@
  ********************************************************************************/
 
 /* eslint-disable react/prop-types, react/forbid-prop-types */
-/* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 import {
 	AppBar,
@@ -23,32 +22,18 @@ import {
 	Paper,
 	Slide,
 	TextField,
-	// FormControl,
 	Typography
-	// Typography
 } from '@material-ui/core';
-// import PropTypes from 'prop-types';
-// import { FormattedMessage } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-// import JSG from '@cedalo/jsg-ui';
 
 import * as Actions from '../../actions/actions';
 import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { FormattedMessage } from 'react-intl';
 import { graphManager } from '../../GraphManager';
-// import {intl} from "../../helper/IntlGlobalProvider";
 
 const styles = {};
-
-const debounce = (f) => {
-	let timeoutId = null;
-	return (...args) =>{
-		clearTimeout(timeoutId);
-		timeoutId = setTimeout(f, 300, ...args)
-	}
-}
 
 export class ViewModeProperties extends Component {
 	handleClose = () => {
@@ -56,65 +41,51 @@ export class ViewModeProperties extends Component {
 	};
 
 	handleOutboxChange = (event, state) => {
-		const viewMode = { ...this.props.viewMode };
-		viewMode.showOutbox = state;
-		this.props.setAppState({ viewMode });
+		const viewMode = { ...this.props.viewMode, showOutbox: state };
 		this.saveViewMode(viewMode);
 	};
 
 	handleHeaderChange = (event, state) => {
-		const viewMode = { ...this.props.viewMode };
-		viewMode.showHeader = state;
-		this.props.setAppState({ viewMode });
+		const viewMode = { ...this.props.viewMode, showHeader: state };
 		this.saveViewMode(viewMode);
 	};
 
 	handleGridChange = (event, state) => {
-		const viewMode = { ...this.props.viewMode };
-		viewMode.showGrid = state;
-		this.props.setAppState({ viewMode });
+		const viewMode = { ...this.props.viewMode, showGrid: state };
 		this.saveViewMode(viewMode);
 	};
 
 	handleInboxChange = (event, state) => {
-		const viewMode = { ...this.props.viewMode };
-		viewMode.showInbox = state;
-		this.props.setAppState({ viewMode });
+		const viewMode = { ...this.props.viewMode, showInbox: state };
 		this.saveViewMode(viewMode);
 	};
 
 	handleScrollChange = (event, state) => {
-		const viewMode = { ...this.props.viewMode };
-		viewMode.allowScroll = state;
-		this.props.setAppState({ viewMode });
+		const viewMode = { ...this.props.viewMode, allowScroll: state };
 		this.saveViewMode(viewMode);
 	};
 
 	handleZoomChange = (event, state) => {
-		const viewMode = { ...this.props.viewMode };
-		viewMode.allowZoom = state;
-		this.props.setAppState({ viewMode });
+		const viewMode = { ...this.props.viewMode, allowZoom: state };
 		this.saveViewMode(viewMode);
 	};
 
 	handleMaximizeChange = (event) => {
-		const viewMode = { ...this.props.viewMode };
-		viewMode.maximize = event.target.value;
-		this.props.setAppState({ viewMode });
+		const viewMode = { ...this.props.viewMode, maximize: event.target.value };
 		this.saveViewMode(viewMode);
 	};
 
-	saveViewMode = debounce((viewMode) => {
+	saveViewMode = (viewMode) => {
 		const { active, ...view } = viewMode;
-		this.props.updateMachineSettings(this.props.machineId, { view })
-	})
+		this.props.updateMachineSettings(this.props.machineId, { view });
+	}
 
 	render() {
 		const sheetNames = graphManager.getGraph().getStreamSheetNames();
 		const { viewMode } = this.props;
 		setTimeout(() => {
 			window.dispatchEvent(new Event('resize'));
-		},0);
+		}, 0);
 
 		return (
 			<Slide direction="left" in={this.props.showViewModeProperties} mountOnEnter unmountOnExit>

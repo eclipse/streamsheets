@@ -56,7 +56,7 @@ import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import HelpButton from './HelpButton';
-import { ResizeHandler } from './ResizeHandler';
+// import { ResizeHandler } from './ResizeHandler';
 import { Path } from '../helper/Path';
 import { DialogExtensions } from '@cedalo/webui-extensions';
 
@@ -65,12 +65,11 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, location, hashParams, viewSettings } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewModeProperties } = props;
 	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
 	const { token, userId } = qs.parse(location.search);
-	const { viewConfig } = qs.parse(hashParams);
 
 	if (token && !accessManager.authToken) {
 		const newUrl = window.location.origin + Path.machine(machineId, window.location.search);
@@ -91,11 +90,11 @@ export function MachineDetailPage(props) {
 		}
 	}, [isConnected]);
 
-	// TODO: remove viewMode and merge this and the next effect
+	// Update canvas if showTools or viewMode change
 	useEffect(() => {
 		const settings = {
 			...viewSettings,
-			active: viewConfig !== undefined && !!viewSettings.maximize,
+			active: showViewModeProperties && !!viewSettings.maximize,
 		};
 
 		props.setAppState({
@@ -103,26 +102,7 @@ export function MachineDetailPage(props) {
 			showTools: settings.active === false,
 		});
 		graphManager.updateCanvas(showTools,settings);
-	}, [viewConfig, viewSettings]);
-
-	// Update canvas if showTools or viewMode change
-	useEffect(() => {
-		// const settings = {
-		// 	active: viewConfig !== undefined,
-		// 	outbox: false,
-		// 	maximize: 'S1',
-		// 	zoomdisabled: viewConfig !== undefined,
-		// 	sheets: [{
-		// 		sheet: 'S1', // name for now
-		// 		hideheader: viewConfig !== undefined,
-		// 		hidegrid: viewConfig !== undefined,
-		// 		scrolldisabled: viewConfig !== undefined,
-		// 		hideinbox: viewConfig !== undefined,
-		// 	}]
-		// };
-		// props.setAppState({viewMode: settings});
-		graphManager.updateCanvas(showTools, viewMode);
-	}, [showTools, viewMode]);
+	}, [showViewModeProperties, viewSettings, showTools]);
 
 	const loadUser = async () => {
 		try {
@@ -223,7 +203,7 @@ export function MachineDetailPage(props) {
 				<RequestStatusDialog />
 				<ServerStatusDialog />
 				<ErrorDialog />
-				<ResizeHandler />
+				{/* <ResizeHandler /> */}
 			</MuiThemeProvider>
 		);
 	}
@@ -237,7 +217,7 @@ export function MachineDetailPage(props) {
 					width: 'inherit'
 				}}
 			>
-				<ResizeHandler />
+				{/* <ResizeHandler /> */}
 				<GraphLocaleHandler />
 				<DialogExtensions />
 				{viewMode.active === false ? (
@@ -403,7 +383,6 @@ function mapStateToProps(state) {
 		viewMode: state.appState.viewMode,
 		showTools: state.appState.showTools,
 		searchParams: state.router.location.search,
-		hashParams: state.router.location.hash,
 		locale: state.locales.locale,
 		meta: state.meta,
 		showDeleteCellContentDialog: state.appState.showDeleteCellContentDialog,
@@ -412,6 +391,7 @@ function mapStateToProps(state) {
 		showPasteFunctionsDialog: state.appState.showPasteFunctionsDialog,
 		showEditNamesDialog: state.appState.showEditNamesDialog,
 		experimental: state.appState.experimental,
+		showViewModeProperties: state.appState.showViewModeProperties,
 		adminSecurity: state.adminSecurity
 	};
 }

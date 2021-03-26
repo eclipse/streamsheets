@@ -37,7 +37,6 @@ import { accessManager } from '../../helper/AccessManager';
 import * as Actions from '../../actions/actions';
 import MachineHelper from '../../helper/MachineHelper';
 import gatewayClient from '../../helper/GatewayClient';
-import qs from "query-string";
 import SvgIcon from "@material-ui/core/SvgIcon";
 
 const { RESOURCE_ACTIONS } = accessManager;
@@ -177,7 +176,7 @@ class MachineControlBar extends React.Component {
 	};
 
 	onConfigureViewMode = () => {
-		window.location.hash = qs.stringify({...qs.parse(window.location.hash), viewConfig: true })
+		this.props.setAppState({ showViewModeProperties: true });
 	}
 
 	render() {
