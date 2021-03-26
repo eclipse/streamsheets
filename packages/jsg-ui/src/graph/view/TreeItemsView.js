@@ -805,7 +805,9 @@ export default class TreeItemsView extends NodeView {
 					div.style.boxShadow = '2px 2px 2px #BFBFBF';
 					return div;
 				});
+				return;
 			}
 		}
+		JSG.toolTip.removeTooltip();
 	}
 }

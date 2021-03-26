@@ -826,7 +826,7 @@
   "StreamChartProperties.CategoryName": "Map Property for Labels",
   "StreamChartProperties.MapDisplayValues": "Display values as",
   "StreamChartProperties.MapDisplaycolor": "Color Intensity",
-  "StreamChartProperties.MapDisplaycolorvalue": "Color",
+  "StreamChartProperties.MapDisplaycvalue": "Color",
   "StreamChartProperties.MapDisplayline": "Line Width",
   "StreamChartProperties.MapDisplayradius": "Radius",
   "StreamChartProperties.MapDisplaychart": "Chart",
