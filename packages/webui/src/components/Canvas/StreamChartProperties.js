@@ -938,8 +938,8 @@ export class StreamChartProperties extends Component {
 		let clipData = '';
 
 		names.forEach((key) => {
-			clipData += `"${key}",\n`;
-			// clipData += `${key}\n`;
+			// clipData += `"${key}",\n`;
+			clipData += `${key}\n`;
 		});
 
 		const sheetView = this.getSheetView();
