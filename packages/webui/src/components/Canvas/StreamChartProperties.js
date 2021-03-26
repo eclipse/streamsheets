@@ -643,6 +643,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'axes');
 	};
 
+	handleAxisTitleTitleVisibleChange = (event, state) => {
+		const cmd = this.prepareCommand('axes');
+		const data = this.getData();
+		data.visible = state;
+		this.finishCommand(cmd, 'axes');
+	};
+
 	handleAxisInvertChange = (event, state) => {
 		const cmd = this.prepareCommand('axes');
 		const data = this.getData();
@@ -760,6 +767,58 @@ export class StreamChartProperties extends Component {
 
 	handleSeriesIndexChange = (event) => {
 		this.state.plotView.chartSelection.index = Number(event.target.value);
+		this.state.plotView.chartSelection.data = this.state.plotView.getItem().series[Number(event.target.value)];
+		this.updateState(true);
+		graphManager.redraw();
+	}
+
+	handleAxesIndexChange = (event) => {
+		const index = Number(event.target.value);
+
+		if (index < this.state.plotView.getItem().xAxes.length) {
+			this.state.plotView.chartSelection.index = Number(event.target.value);
+			this.state.plotView.chartSelection.element = 'xAxis';
+			this.state.plotView.chartSelection.data = this.state.plotView.getItem().xAxes[Number(event.target.value)];
+		} else {
+			const xCnt = this.state.plotView.getItem().xAxes.length;
+			this.state.plotView.chartSelection.index = Number(event.target.value) - xCnt;
+			this.state.plotView.chartSelection.element = 'yAxis';
+			this.state.plotView.chartSelection.data = this.state.plotView.getItem().yAxes[Number(event.target.value) - xCnt];
+		}
+		this.updateState(true);
+		graphManager.redraw();
+	}
+
+	handleAxesGridIndexChange = (event) => {
+		const index = Number(event.target.value);
+
+		if (index < this.state.plotView.getItem().xAxes.length) {
+			this.state.plotView.chartSelection.index = Number(event.target.value);
+			this.state.plotView.chartSelection.element = 'xAxisGrid';
+			this.state.plotView.chartSelection.data = this.state.plotView.getItem().xAxes[Number(event.target.value)];
+		} else {
+			const xCnt = this.state.plotView.getItem().xAxes.length;
+			this.state.plotView.chartSelection.index = Number(event.target.value) - xCnt;
+			this.state.plotView.chartSelection.element = 'yAxisGrid';
+			this.state.plotView.chartSelection.data = this.state.plotView.getItem().yAxes[Number(event.target.value) - xCnt];
+		}
+		this.updateState(true);
+		graphManager.redraw();
+	}
+
+	handleAxesTitleIndexChange = (event) => {
+		const index = Number(event.target.value);
+
+		if (index < this.state.plotView.getItem().xAxes.length) {
+			this.state.plotView.chartSelection.index = Number(event.target.value);
+			this.state.plotView.chartSelection.element = 'xAxisTitle';
+			this.state.plotView.chartSelection.data = this.state.plotView.getItem().xAxes[Number(event.target.value)].title;
+		} else {
+			const xCnt = this.state.plotView.getItem().xAxes.length;
+			this.state.plotView.chartSelection.index = Number(event.target.value) - xCnt;
+			this.state.plotView.chartSelection.element = 'yAxisTitle';
+			this.state.plotView.chartSelection.data = this.state.plotView.getItem().yAxes[Number(event.target.value) - xCnt].title;
+		}
 		this.updateState(true);
 		graphManager.redraw();
 	}
@@ -1172,8 +1231,6 @@ export class StreamChartProperties extends Component {
 	};
 
 	translateTitle(title) {
-		const data = this.getData();
-
 		switch (title) {
 			case 'Chart':
 				return intl.formatMessage({ id: 'StreamChartProperties.Chart' }, {});
@@ -1183,14 +1240,11 @@ export class StreamChartProperties extends Component {
 				return intl.formatMessage({ id: 'StreamChartProperties.Plot' }, {});
 			case 'legend':
 				return intl.formatMessage({ id: 'StreamChartProperties.Legend' }, {});
-			case 'xAxis':
-			case 'yAxis':
-				return intl.formatMessage({ id: 'StreamChartProperties.AxisProperties' }, { name: data.name });
-			case 'xAxisGrid':
-			case 'yAxisGrid':
+			case 'axes':
+				return intl.formatMessage({ id: 'StreamChartProperties.AxisProperties' }, {});
+			case 'axesgrid':
 				return intl.formatMessage({ id: 'StreamChartProperties.Grid' }, {});
-			case 'xAxisTitle':
-			case 'yAxisTitle':
+			case 'axestitle':
 				return intl.formatMessage({ id: 'StreamChartProperties.AxisTitle' }, {});
 			case 'series':
 				return intl.formatMessage({ id: 'StreamChartProperties.Series' }, {});
@@ -1956,6 +2010,7 @@ export class StreamChartProperties extends Component {
 					</FormGroup>
 				) : null}
 				{selection && selection.element === 'legend' ? (
+				<FormGroup>
 					<FormControl>
 						<RadioGroup name="type" value={data.align} onChange={this.handleLegendAlignChange}>
 							<FormLabel
@@ -2008,7 +2063,24 @@ export class StreamChartProperties extends Component {
 							/>
 						</RadioGroup>
 					</FormControl>
-				) : null}
+					<FormControlLabel
+						style={{
+							marginTop: '10px'
+						}}
+						fullWidth
+						control={
+							<Checkbox
+								checked={data.visible}
+								onChange={(event, state) =>
+									this.handleVisibleChange(event, state, item.legend, 'legend')
+								}
+							/>
+						}
+						label={
+							<FormattedMessage id="StreamChartProperties.Visible" defaultMessage="Visible" />
+						}
+					/>
+					</FormGroup> ) : null}
 				{selection && selection.element === 'title' ? (
 					<FormControl>
 						<RadioGroup name="type" value={data.align} onChange={this.handleTitleAlignChange}>
@@ -2282,6 +2354,31 @@ export class StreamChartProperties extends Component {
 							stateHandler={this.handleEditValueRanges}
 						/>
 						<FormControl>
+							<TextField
+								variant="outlined"
+								size="small"
+								label={
+									<FormattedMessage
+										id="StreamChartProperties.Axes"
+										defaultMessage="Axes"
+									/>
+								}
+								select
+								margin="normal"
+								value={selection.element === 'xAxis' ? selection.index : item.xAxes.length + selection.index}
+								onChange={this.handleAxesIndexChange}
+							>
+								{item.xAxes.map((axis, index) => (
+									<MenuItem value={index} key={axis.name}>
+										{axis.name}
+									</MenuItem>
+								))}
+								{item.yAxes.map((axis, index) => (
+									<MenuItem value={item.xAxes.length + index} key={axis.name}>
+										{axis.name}
+									</MenuItem>
+								))}
+							</TextField>
 							<TextField
 								variant="outlined"
 								size="small"
@@ -3655,11 +3752,74 @@ export class StreamChartProperties extends Component {
 				) : null}
 				{selection && (selection.element === 'xAxisGrid' || selection.element === 'yAxisGrid') ? (
 					<FormGroup>
+						<TextField
+							variant="outlined"
+							size="small"
+							label={
+								<FormattedMessage
+									id="StreamChartProperties.Axes"
+									defaultMessage="Axes"
+								/>
+							}
+							select
+							margin="normal"
+							value={selection.element === 'xAxisGrid' ? selection.index : item.xAxes.length + selection.index}
+							onChange={this.handleAxesGridIndexChange}
+						>
+							{item.xAxes.map((axis, index) => (
+								<MenuItem value={index} key={axis.name}>
+									{axis.name}
+								</MenuItem>
+							))}
+							{item.yAxes.map((axis, index) => (
+								<MenuItem value={item.xAxes.length + index} key={axis.name}>
+									{axis.name}
+								</MenuItem>
+							))}
+						</TextField>
 						<FormControlLabel
 							control={
 								<Checkbox
 									checked={data.gridVisible}
 									onChange={(event, state) => this.handleGridlineVisibleChange(event, state)}
+								/>
+							}
+							label={<FormattedMessage id="StreamChartProperties.Visible" defaultMessage="Visible" />}
+						/>
+					</FormGroup>
+				) : null}
+				{selection && (selection.element === 'xAxisTitle' || selection.element === 'yAxisTitle') ? (
+					<FormGroup>
+						<TextField
+							variant="outlined"
+							size="small"
+							label={
+								<FormattedMessage
+									id="StreamChartProperties.Axes"
+									defaultMessage="Axes"
+								/>
+							}
+							select
+							margin="normal"
+							value={selection.element === 'xAxisTitle' ? selection.index : item.xAxes.length + selection.index}
+							onChange={this.handleAxesTitleIndexChange}
+						>
+							{item.xAxes.map((axis, index) => (
+								<MenuItem value={index} key={axis.name}>
+									{axis.name}
+								</MenuItem>
+							))}
+							{item.yAxes.map((axis, index) => (
+								<MenuItem value={item.xAxes.length + index} key={axis.name}>
+									{axis.name}
+								</MenuItem>
+							))}
+						</TextField>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={data.visible}
+									onChange={(event, state) => this.handleAxisTitleTitleVisibleChange(event, state)}
 								/>
 							}
 							label={<FormattedMessage id="StreamChartProperties.Visible" defaultMessage="Visible" />}

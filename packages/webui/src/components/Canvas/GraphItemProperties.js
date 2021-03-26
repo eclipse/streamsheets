@@ -151,8 +151,8 @@ export class GraphItemProperties extends Component {
 			JSG.NotificationCenter.getInstance().send(
 				new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, item)
 			);
-			graphManager.redraw();
 		}
+		graphManager.redraw();
 	};
 
 	getSheetView() {

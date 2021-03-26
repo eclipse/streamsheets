@@ -1555,6 +1555,13 @@ class Graphics {
 		const p0 = this.transformPoint(x0, y0, 0);
 		const p1 = this.transformPoint(x1, y1, 1);
 
+		if (isNaN(p0.x)) {
+			p0.x = 0;
+			p0.y = 0;
+			p1.x = 0;
+			p1.y = 0;
+		}
+
 		try {
 			return this._context2D.createLinearGradient(p0.x, p0.y, p1.x, p1.y);
 		} catch(e) {

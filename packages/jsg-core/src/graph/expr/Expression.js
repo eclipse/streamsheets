@@ -197,7 +197,9 @@ class Expression {
 	getValue() {
 		if (this._term) {
 			if (this._termValue !== undefined) {
-				this._value = this._termValue;
+				this._value = this._constraint
+					? this._constraint.getValue(this._termValue)
+					: this._termValue;
 			} else {
 				const val = this._term.value;
 				if (val === undefined) {
