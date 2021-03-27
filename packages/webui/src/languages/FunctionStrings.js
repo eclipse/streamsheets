@@ -18,7 +18,7 @@ const { CellEditor } = JSG;
 // setup help:
 const reduceCategories = (categories, [name, category]) => {
 	if (category) {
-		const { en, de } = category;
+		const { en = name, de = name } = category;
 		categories[name] = { en, de };
 	}
 	return categories;
