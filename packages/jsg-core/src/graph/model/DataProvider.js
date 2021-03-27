@@ -1084,6 +1084,8 @@ module.exports = class DataProvider {
 						break;
 				}
 			}
+			// might have been replace
+			targetCell = this.getRC(x, y);
 			switch (action) {
 				case 'all':
 				case 'formats': {
