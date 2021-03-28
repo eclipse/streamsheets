@@ -25,6 +25,7 @@ const statistical = require('../src/functions/statistical/help');
 const streamsheet = require('../src/functions/streamsheet/help');
 const text = require('../src/functions/text/help');
 const timeseries = require('../src/functions/timeseries/help');
+const url = require('../src/functions/url/help');
 
 module.exports = {
 	crypto,
@@ -43,5 +44,6 @@ module.exports = {
 	statistical,
 	streamsheet,
 	text,
-	timeseries
+	timeseries,
+	url
 };
