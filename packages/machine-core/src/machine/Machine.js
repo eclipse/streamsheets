@@ -44,6 +44,15 @@ const DEF_CONF = {
 		lastModifiedBy: 'unknown'
 	},
 	settings: {
+		view: {
+			maximize: '',
+			showInbox: false,
+			showGrid: false,
+			showHeader: false,
+			showOutbox: false,
+			allowZoom: false,
+			allowScroll: true
+		},
 		locale: 'en',
 		isOPCUA: false,
 		cycletime: 100
@@ -106,7 +115,7 @@ class Machine {
 			state: this.state,
 			metadata: { ...this.metadata },
 			streamsheets: this.streamsheets.map((streamsheet) => streamsheet.toJSON()),
-			settings: this.settings,
+			settings: {...this.settings, view: this.view},
 			className: this.className,
 			scope: this.scope,
 			namedCells: this.namedCells.getDescriptors(),
@@ -265,7 +274,13 @@ class Machine {
 	}
 
 	get view() {
-		return this.settings.view;
+		const maximize =
+			this.settings.view.maximize && this.streamsheets.some((s) => s.name === this.settings.view.maximize)
+				? this.settings.view.maximize
+				: this.streamsheets[0]
+				? this.streamsheets[0].name
+				: '';
+		return { ...this.settings.view, maximize };
 	}
 
 	set view(newView) {
