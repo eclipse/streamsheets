@@ -884,7 +884,7 @@
   "StreamChartProperties.axisTypeLogarithmic": "Logarithmic",
   "StreamChartProperties.LabelRotation": "Rotate Labels",
   "StreamChartProperties.AxisLabelRotation": "Rotate Axis Labels",
-  "StreamChartProperties.AxisLabelDistance": "Distance between Axis and Label",
+  "StreamChartProperties.AxisLabelDistance": "Distance between Axis Label and Axis",
   "StreamChartProperties.Axis": "Axis",
   "StreamChartProperties.grid": "Gridline",
   "StreamChartProperties.Invert": "Invert",
