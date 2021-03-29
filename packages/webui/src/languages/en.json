@@ -311,7 +311,7 @@
   "ViewModeProperties.Header": "Show Headers",
   "ViewModeProperties.Grid": "Show Grid",
   "ViewModeProperties.Inbox": "Show Inbox",
-  "ViewModeProperties.ShowOutbox": "SHow Outbox",
+  "ViewModeProperties.ShowOutbox": "Show Outbox",
   "ViewModeProperties.Scrollbars": "Allow scrolling",
   "ViewModeProperties.Zoom": "Allow Zooming",
   "Import.Error.InvalidFile.Title": "Invalid File",

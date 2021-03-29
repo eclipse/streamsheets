@@ -164,8 +164,8 @@ export class ViewModeProperties extends Component {
 								onChange={(event) => this.handleMaximizeChange(event)}
 							>
 								{sheetNames.map((key) => (
-									<MenuItem value={key} key={key}>
-										{key}
+									<MenuItem value={key.id} key={key.id}>
+										{key.name}
 									</MenuItem>
 								))}
 							</TextField>

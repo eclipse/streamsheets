@@ -284,15 +284,10 @@ module.exports = class WorksheetNode extends ContentNode {
 	}
 
 	isGridVisible() {
-		const graph = this.getGraph();
+		const parent = this.getParent();
 
-		if (graph !== undefined) {
-			const view = graph.getViewParams();
-			if (view) {
-				if (view.hidegrid !== null) {
-					return false;
-				}
-			}
+		if (parent && parent.viewSettings.active) {
+			return parent.viewSettings.showGrid;
 		}
 
 		return this.getWorksheetAttributes()
@@ -311,8 +306,8 @@ module.exports = class WorksheetNode extends ContentNode {
 			if (graph.overrideProtection) {
 				return false;
 			}
-			const view = graph.getViewParams();
-			if (view && view.viewMode !== null) {
+			const view = graph.viewSettings;
+			if (view.active === true) {
 				return true;
 			}
 		}

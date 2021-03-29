@@ -496,12 +496,9 @@ module.exports = class MachineGraph extends Graph {
 		const container = this.getStreamSheetsContainer();
 		const sheetNames = [];
 		container.enumerateStreamSheetContainers((sheet) => {
-			sheetNames.push(
-				sheet
-					.getStreamSheet()
-					.getName()
-					.getValue()
-			);
+			sheetNames.push({
+				name: sheet.getStreamSheet().getName().getValue(), id: sheet.getStreamSheetContainerAttributes().getSheetId().getValue()
+			});
 		});
 		return sheetNames;
 	}

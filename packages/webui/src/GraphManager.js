@@ -485,7 +485,12 @@ export default class GraphManager {
 				maximize: settings.maximize
 			}
 			graph.clearViewSettings();
-			const sheet = graph.getItemByName(settings.maximize);		// Worksheetnode
+			let sheetContainer = graph.getStreamSheetContainerById(settings.maximize)
+			if (!sheetContainer) {
+				sheetContainer = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
+
+			}
+			const sheet = sheetContainer.getStreamSheet();
 			const graphController = this._graphEditor.getGraphViewer().getGraphController();
 			if (sheet) {
 				sheet.getParent().viewSettings = settings;
