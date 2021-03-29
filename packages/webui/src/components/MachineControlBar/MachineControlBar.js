@@ -176,7 +176,7 @@ class MachineControlBar extends React.Component {
 	};
 
 	onConfigureViewMode = () => {
-		this.props.setAppState({ showViewModeProperties: true });
+		this.props.setAppState({ showViewMode: true });
 	}
 
 	render() {
@@ -663,6 +663,7 @@ function mapStateToProps(state) {
 	return {
 		experimental: state.appState.experimental,
 		debug: state.appState.debug,
+		viewMode: state.appState.viewMode,
 		machineId: state.monitor.machine.id,
 		machineState: state.monitor.machine.state,
 		machineCyclesPerSecond: state.monitor.performance.cyclesPerSecond,

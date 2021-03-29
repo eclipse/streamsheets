@@ -16,6 +16,7 @@ const defaultState = {
 	drawerOpen: false,
 	showStreamChartProperties: false,
 	showViewModeProperties: false,
+	showViewMode: false,
 	showImportDialog: false,
 	showNewDialog: false,
 	showOpenDialog: false,

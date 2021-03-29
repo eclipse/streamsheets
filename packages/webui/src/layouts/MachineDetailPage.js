@@ -65,7 +65,7 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewModeProperties } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewMode } = props;
 	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
@@ -94,7 +94,7 @@ export function MachineDetailPage(props) {
 	useEffect(() => {
 		const settings = {
 			...viewSettings,
-			active: showViewModeProperties && !!viewSettings.maximize,
+			active: showViewMode && !!viewSettings.maximize,
 		};
 
 		props.setAppState({
@@ -102,7 +102,7 @@ export function MachineDetailPage(props) {
 			showTools: settings.active === false,
 		});
 		graphManager.updateCanvas(showTools,settings);
-	}, [showViewModeProperties, viewSettings, showTools]);
+	}, [showViewMode, viewSettings, showTools]);
 
 	const loadUser = async () => {
 		try {
@@ -379,7 +379,7 @@ function mapStateToProps(state) {
 		isConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
 		machine: state.monitor.machine,
 		machineName: state.monitor.machine.name,
-		viewSettings: state.monitor.machine.settings && state.monitor.machine.settings.view,
+		viewSettings: state.monitor.machine.settings ? state.monitor.machine.settings.view : null,
 		viewMode: state.appState.viewMode,
 		showTools: state.appState.showTools,
 		searchParams: state.router.location.search,
@@ -391,7 +391,7 @@ function mapStateToProps(state) {
 		showPasteFunctionsDialog: state.appState.showPasteFunctionsDialog,
 		showEditNamesDialog: state.appState.showEditNamesDialog,
 		experimental: state.appState.experimental,
-		showViewModeProperties: state.appState.showViewModeProperties,
+		showViewMode: state.appState.showViewMode,
 		adminSecurity: state.adminSecurity
 	};
 }
