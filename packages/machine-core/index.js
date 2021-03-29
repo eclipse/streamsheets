@@ -18,6 +18,7 @@ const LoggerMessagingClient = require('./src/messaging/LoggerClient');
 const Machine = require('./src/machine/Machine');
 const Message = require('./src/machine/Message');
 const Outbox = require('./src/machine/Outbox');
+const RequestState = require('./src/machine/RequestState');
 const Sheet = require('./src/machine/Sheet');
 const SheetIndex = require('./src/machine/SheetIndex');
 const { ObjectTerm, SheetParser } = require('./src/parser/SheetParser');
@@ -26,6 +27,7 @@ const { ErrorTerm } = require('./src/parser/Error');
 const SheetRange = require('./src/machine/SheetRange');
 const State = require('./src/State');
 const StreamSheet = require('./src/machine/StreamSheet');
+const TaskQueue = require('./src/machine/TaskQueue');
 const sheettriggers = require('./src/machine/sheettrigger');
 const { CellRangeReference, CellReference, referenceFromString } = require('./src/parser/References');
 
@@ -52,6 +54,7 @@ module.exports = {
 	Message,
 	ObjectTerm,
 	Outbox,
+	RequestState,
 	Sheet,
 	SheetIndex,
 	SheetParser,
@@ -60,6 +63,7 @@ module.exports = {
 	State,
 	Streams,
 	StreamSheet,
+	TaskQueue,
 	isType,
 	locale,
 	referenceFromString,

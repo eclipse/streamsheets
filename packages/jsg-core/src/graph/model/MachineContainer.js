@@ -141,16 +141,18 @@ module.exports = class MachineContainer extends Node {
 		this._assignItems();
 	}
 
+	isOutboxVisible() {
+		const viewSettings = this.getGraph().viewSettings;
+		return viewSettings.active ?
+			viewSettings.showOutbox:
+			this.getMachineContainerAttributes().getOutboxVisible().getValue();
+	}
+
 	layout() {
 		const box = JSG.boxCache.get();
 		const size = this.getSize().toPoint();
 		const sizeOutbox = this._outboxContainer.getSize().toPoint();
-		let outbox = this.getMachineContainerAttributes()
-			.getOutboxVisible()
-			.getValue();
-		if (!this.getGraph().isOutboxVisible()) {
-			outbox = false;
-		}
+		const outbox = this.isOutboxVisible();
 
 		this._outboxContainer.getItemAttributes().setVisible(outbox);
 		this._outboxContainer.updateSubAttributes();

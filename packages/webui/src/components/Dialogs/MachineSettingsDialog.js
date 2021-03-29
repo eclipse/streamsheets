@@ -56,32 +56,17 @@ export class MachineSettingsDialog extends React.Component {
 	}
 
 	static getDerivedStateFromProps(props, state) {
-		if (!props.openSettings && graphManager.getGraph()) {
-			const container = graphManager.getGraph().getMachineContainer();
-			if (container === undefined) {
-				return null;
-			}
-
+		const graph = graphManager.getGraph();
+		if (!props.openSettings && graph) {
+			const container = graph.getMachineContainer();
 			const attr = container.getMachineContainerAttributes();
 
-			sheetNames = [];
-			graphManager
-				.getGraph()
-				.getStreamSheetsContainer()
-				.enumerateStreamSheetContainers((sheet) => {
-					sheetNames.push(
-						sheet
-							.getStreamSheet()
-							.getName()
-							.getValue()
-					);
-				});
+			sheetNames = graph.getStreamSheetNames();
 
 			return {
 				...state,
 				showOutbox: attr.getOutboxVisible().getValue(),
 				maximizeSheet: attr.getMaximizeSheet().getValue(),
-				toolBarVisibleSize: attr.getHideToolbarThreshold().getValue(),
 				machineLocale: props.machine.locale,
 				exposeViaOPCUA: props.machine.isOPCUA
 			};
@@ -125,12 +110,6 @@ export class MachineSettingsDialog extends React.Component {
 		);
 		cmd.add(new SetAttributeAtPathCommand(container, path, this.state.maximizeSheet));
 
-		path = AttributeUtils.createPath(
-			JSG.MachineContainerAttributes.NAME,
-			JSG.MachineContainerAttributes.HIDETOOLBARTHRESHOLD
-		);
-		cmd.add(new SetAttributeAtPathCommand(container, path, this.state.toolBarVisibleSize));
-
 		graphManager.synchronizedExecute(cmd);
 		graphManager
 			.getGraph()
@@ -157,10 +136,6 @@ export class MachineSettingsDialog extends React.Component {
 
 	handleShowOutbox = (event, state) => {
 		this.setState({ showOutbox: state });
-	};
-
-	handleToolbar = (event) => {
-		this.setState({ toolBarVisibleSize: Number(event.target.value) });
 	};
 
 	handleExposeViaOPCUA = (event, state) => {
@@ -249,28 +224,6 @@ export class MachineSettingsDialog extends React.Component {
 											</MenuItem>
 										))}
 									</TextField>
-								</FormControl>
-								<FormControl>
-									<TextField
-										id="number"
-										variant="outlined"
-										size="small"
-										label={
-											<FormattedMessage
-												id="DialogSettings.toolbarMin"
-												defaultMessage="Hide Toolbar, if Browser is smaller than Pixels:"
-											/>
-										}
-										inputProps={{
-											min: 0,
-											max: 2000,
-											step: 10
-										}}
-										value={this.state.toolBarVisibleSize}
-										onChange={(event) => this.handleToolbar(event)}
-										type="number"
-										margin="normal"
-									/>
 								</FormControl>
 								<FormControlLabel
 									control={

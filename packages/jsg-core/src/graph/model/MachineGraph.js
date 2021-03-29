@@ -492,20 +492,31 @@ module.exports = class MachineGraph extends Graph {
 		this.markDirty();
 	}
 
-	setViewParams(params) {
-		this._viewParams = params;
+	getStreamSheetNames() {
+		const container = this.getStreamSheetsContainer();
+		const sheetNames = [];
+		container.enumerateStreamSheetContainers((sheet) => {
+			sheetNames.push(
+				sheet
+					.getStreamSheet()
+					.getName()
+					.getValue()
+			);
+		});
+		return sheetNames;
 	}
 
-	isOutboxVisible() {
-		if (!this._viewParams) {
-			return true;
+	clearViewSettings() {
+		const container = this.getStreamSheetsContainer();
+		if (!container) {
+			return;
 		}
+		container.enumerateStreamSheetContainers((sheet) => {
+			sheet.viewSettings = {};
+			sheet.getStreamSheet().setHorizontalScrollbarMode(JSG.ScrollBarMode.AUTO);
+			sheet.getStreamSheet().setVerticalScrollbarMode(JSG.ScrollBarMode.AUTO);
 
-		return this._viewParams.viewMode === null || this._viewParams.viewMode === 'machine';
-	}
-
-	getViewParams() {
-		return this._viewParams;
+		});
 	}
 
 	getMachineDescriptor() {

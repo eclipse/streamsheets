@@ -22,32 +22,8 @@ const { Cell, Message, SheetRange, Streams } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
-const createPendingRequest = (promise) => ({ promise, status: 'pending' });
-const updatePendingRequest = (request, status) => {
-	if (request) {
-		request.status = status;
-	}
-};
-const getPendingRequestInfo = (request) => {
-	const status = request && request.status;
-	let info = false;
-	switch (status) {
-		case 'resolved':
-			info = true;
-			break;
-		case 'rejected':
-			info = ERROR.ERR;
-			break;
-		default:
-			info = false;
-	}
-	return info;
-};
-
-const isPendingRequest = (sheet, reqId) => {
-	const request = sheet.getPendingRequests().get(reqId);
-	return request != null && request.status === 'pending';
-};
+// eslint-disable-next-line no-nested-ternary
+const getPendingRequestInfo = (state) => (state === 'resolved' ? true : state === 'rejected' ? ERROR.ERR : false);
 
 const setRequestId = (funcTerm, reqId) => {
 	if (funcTerm) {
@@ -235,12 +211,11 @@ const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) =>
 };
 const createRequest = (sheet, funcTerm, oldReqId, target, resultKeys, promise) => {
 	const reqId = IdGenerator.generate();
-	const pendingRequests = sheet.getPendingRequests();
-	pendingRequests.delete(oldReqId);
-	pendingRequests.set(reqId, createPendingRequest(promise));
+	sheet.removeRequest(oldReqId);
+	sheet.registerRequest(reqId, 'pending');
 	promise
 		.then((json) => {
-			if (pendingRequests.has(reqId)) {
+			if (sheet.hasRequest(reqId)) {
 				const type = json && json.type;
 				const responseHandle = type === 'response' && json.responseHandle;
 				const messsageData = type === 'response' ? json.response : json;
@@ -260,17 +235,17 @@ const createRequest = (sheet, funcTerm, oldReqId, target, resultKeys, promise) =
 				} else {
 					putToTarget(sheet, target, message);
 				}
-				updatePendingRequest(pendingRequests.get(reqId), 'resolved');
+				sheet.setRequestState(reqId, 'resolved');
 			}
 		})
 		.catch((error) => {
-			if (pendingRequests.has(reqId)) {
+			if (sheet.hasRequest(reqId)) {
 				if (target instanceof SheetRange) {
 					// putToRange(sheet, target, resultKeys, { data: [] });
 				} else {
 					putToTarget(sheet, target, { error: error.message || 'Unknown error' });
 				}
-				updatePendingRequest(pendingRequests.get(reqId), 'rejected');
+				sheet.setRequestState(reqId, 'rejected');
 			}
 		});
 	return reqId;
@@ -279,7 +254,7 @@ const createRequest = (sheet, funcTerm, oldReqId, target, resultKeys, promise) =
 const setDisposeHandler = (funcTerm, reqId, sheet) => {
 	if (funcTerm) {
 		funcTerm.dispose = () => {
-			sheet.getPendingRequests().delete(reqId);
+			sheet.removeRequest(reqId);
 			const proto = Object.getPrototypeOf(funcTerm);
 			if (proto) proto.dispose.call(funcTerm);
 		};
@@ -330,7 +305,7 @@ const requestinternal = (funcTerm, s, ...t) =>
 		)
 		.run(({ sheet, streamId, message, internal: { target, resultKeys, timeout } }, targetRange) => {
 			let reqId = getRequestId(funcTerm);
-			if (!isPendingRequest(sheet, reqId)) {
+			if (!sheet.isPendingRequest(reqId)) {
 				message.metadata.requestId = reqId;
 				if (sheet.machine) message.metadata.machineId = sheet.machine.id;
 				const target_ = targetRange || target;
@@ -366,7 +341,7 @@ const requestinternallegacy = (funcTerm, s, ...t) =>
 		.with(({ timeoutTerm }) => termAsNumber(timeoutTerm))
 		.run(({ sheet, targetTerm, streamId, message }, resultKeys, timeout) => {
 			let reqId = getRequestId(funcTerm);
-			if (!isPendingRequest(sheet, reqId)) {
+			if (!sheet.isPendingRequest(reqId)) {
 				message.metadata.requestId = reqId;
 				if (sheet.machine) message.metadata.machineId = sheet.machine.id;
 				reqId = createRequest(
@@ -404,8 +379,8 @@ const requestinfo = (s, ...t) =>
 		.withArgs(1, ['reqIdTerm'])
 		.isProcessing()
 		.run(({ sheet, reqIdTerm }) => {
-			const pendingRequest = sheet.getPendingRequests().get(reqIdTerm.value);
-			return getPendingRequestInfo(pendingRequest);
+			const state = sheet.getRequestState(reqIdTerm.value);
+			return getPendingRequestInfo(state);
 		});
 
 module.exports = {

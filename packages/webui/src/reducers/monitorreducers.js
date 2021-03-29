@@ -153,6 +153,11 @@ export default function doRequest(state = defState, reqaction) {
 			newstate.cycletime = cycletime;
 			break;
 		}
+		case ActionTypes.RECEIVE_VIEW_SETTINGS_FROM_MACHINE: {
+			const { view } = reqaction;
+			newstate.machine.settings.view = view;
+			break;
+		}
 		case ActionTypes.RECEIVE_START_MACHINE:
 		case ActionTypes.RECEIVE_STOP_MACHINE:
 		case ActionTypes.RECEIVE_PAUSE_MACHINE:

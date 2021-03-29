@@ -14,6 +14,8 @@ import React, { Component } from 'react';
 import { Button, Typography, Slide } from '@material-ui/core';
 import { connect } from 'react-redux';
 import AddIcon from '@material-ui/icons/Add';
+import CloseIcon from '@material-ui/icons/Close';
+import SettingsIcon from '@material-ui/icons/Settings';
 import * as Colors from '@material-ui/core/colors';
 import JSG from '@cedalo/jsg-ui';
 import SvgIcon from '@material-ui/core/SvgIcon/SvgIcon';
@@ -32,6 +34,7 @@ import MachineHelper from '../../helper/MachineHelper';
 import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
 import GraphItemProperties from "./GraphItemProperties";
+import ViewModeProperties from "./ViewModeProperties";
 // import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 
 export class CanvasComponent extends Component {
@@ -154,6 +157,13 @@ export class CanvasComponent extends Component {
 		});
 	}
 
+	onCloseViewMode = () => {
+		this.props.setAppState({ showViewModeProperties: false });
+	}
+
+	onViewModeProperties = () => {
+		this.props.setAppState({ showViewModeProperties: true });
+	}
 	/**
 	 * Resize canvas and inform GraphEditor
 	 */
@@ -210,6 +220,7 @@ export class CanvasComponent extends Component {
 			const graphEditor = graphManager.createEditor(canvas);
 			const graph = graphEditor.getGraph();
 			window.addEventListener('resize', () => this.updateDimensions());
+			// window.addEventListener('resize', () => this.updateDimensions());
 			this.updateDimensions();
 			graphEditor.invalidate();
 			this.setState({ graphEditor, graph });
@@ -274,7 +285,7 @@ export class CanvasComponent extends Component {
 					visibility: this.props.showMachine ? 'visible' : 'hidden',
 				}}
 			>
-				{viewMode.viewMode !== null || !canEdit ? null : (
+				{viewMode.active === true || !canEdit ? null : (
 					<React.Fragment>
 						<SheetDeleteDialog />
 						<ContextMenu />
@@ -286,7 +297,8 @@ export class CanvasComponent extends Component {
 				<canvas
 					id="canvas"
 					style={{
-						width: 'calc(100%)',
+						width: `calc(100% - ${this.props.showViewModeProperties ? '300px' : '0px'})`,
+						// width: `calc(100%)`,
 						height: '100%',
 						outline: 'none',
 					}}
@@ -298,13 +310,15 @@ export class CanvasComponent extends Component {
 					tabIndex="0"
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
-				{viewMode.viewMode !== null || !canEdit ? null : <GraphItemProperties dummy={this.state.dummy} />}
-				{viewMode.viewMode !== null || !canEdit ? null : (
+				{viewMode.active === true || !canEdit ? null : <GraphItemProperties dummy={this.state.dummy} />}
+				{viewMode.active === true && canEdit ?  <ViewModeProperties viewMode={viewMode}/> : null}
+				{viewMode.active === true || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>
 						<FunctionWizard />
 					</Slide>
 				)}
-				{viewMode.viewMode !== null || !canEdit ? null : (
+
+				{viewMode.active === true || !canEdit ? null : (
 					<Tooltip
 						enterDelay={300}
 						title={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}
@@ -331,6 +345,54 @@ export class CanvasComponent extends Component {
 						</Fab>
 					</Tooltip>
 				)}
+				{viewMode.active === true && canEdit ? [
+					<Tooltip
+						enterDelay={300}
+						title={<FormattedMessage id="Tooltip.CloseViewMode" defaultMessage="Close View Mode" />}
+					>
+						<Fab
+							color="primary"
+							id="closeViewMode"
+							size="medium"
+							style={{
+								position: 'absolute',
+								zIndex: 1200,
+								right: '30px',
+								bottom: '26px',
+							}}
+							onClick={this.onCloseViewMode}
+						>
+							<CloseIcon
+								style={{
+									color: '#FFFFFF',
+								}}
+							/>
+						</Fab>
+					</Tooltip>,
+					<Tooltip
+						enterDelay={300}
+						title={<FormattedMessage id="Tooltip.ViewModeSettings" defaultMessage="View Mode Settings" />}
+					>
+						<Fab
+							color="primary"
+							id="viewModeProperties"
+							size="medium"
+							style={{
+								position: 'absolute',
+								zIndex: 1200,
+								right: '90px',
+								bottom: '26px',
+							}}
+							onClick={this.onViewModeProperties}
+						>
+							<SettingsIcon
+								style={{
+									color: '#FFFFFF',
+								}}
+							/>
+						</Fab>
+					</Tooltip>
+				] : null}
 				{sheets.map((sheet, index) => (
 					<div
 						key={index.toString()}
@@ -387,6 +449,7 @@ function mapStateToProps(state) {
 		showMachine: MachineHelper.showMachine(state),
 		machineId: state.monitor.machine.id,
 		viewMode: state.appState.viewMode,
+		showViewModeProperties: state.appState.showViewModeProperties,
 		showTools: state.appState.showTools,
 		functionWizardVisible: state.appState.functionWizard.show,
 		adminSecurity: state.adminSecurity,

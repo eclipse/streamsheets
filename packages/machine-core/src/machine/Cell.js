@@ -129,6 +129,10 @@ class Cell {
 		setTerm(undefined, this);
 	}
 
+	get context() {
+		return this._term && this._term.context;
+	}
+
 	get isDefined() {
 		return this._term != null || this._value != null;
 	}

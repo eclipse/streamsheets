@@ -214,7 +214,6 @@ class Graph extends GraphItem {
 	}
 
 	_doRefresh(force) {
-		const now = Date.now();
 		// console.log('refresh');
 
 		if (this._refreshAll(force, 1)) {
@@ -228,10 +227,6 @@ class Graph extends GraphItem {
 			event.source = this;
 			this.sendPostEvent(event);
 			this.setRefreshNeeded(false);
-		}
-
-		if (this.__timeRefresh === undefined) {
-			this.__timeRefresh = Date.now() - now;
 		}
 	}
 

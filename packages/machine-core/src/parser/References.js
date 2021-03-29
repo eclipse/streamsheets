@@ -126,7 +126,7 @@ class CellReference extends AbstractCellReference {
 		this.index = index;
 	}
 
-	get	isCellReference() {
+	get isCellReference() {
 		return true;
 	}
 
@@ -134,7 +134,8 @@ class CellReference extends AbstractCellReference {
 		const index = this.index;
 		const sheet = this.sheet;
 		const error =
-			FunctionErrors.isError(sheet) || (sheet && !isValidIndex(index, sheet) ? FunctionErrors.code.REF : undefined);
+			FunctionErrors.isError(sheet) ||
+			(sheet && !isValidIndex(index, sheet) ? FunctionErrors.code.REF : undefined);
 		return error || sheet.cellAt(index);
 	}
 
@@ -145,6 +146,13 @@ class CellReference extends AbstractCellReference {
 
 	get target() {
 		return this.cell;
+	}
+
+	// since target property is used within parser, add additional one
+	get targetedCell() {
+		const cell = this.cell;
+		const term = cell && cell.term;
+		return term && term.operand.isCellReference ? term.operand.targetedCell : cell;
 	}
 
 	isTypeOf(type) {

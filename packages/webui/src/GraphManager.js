@@ -109,23 +109,23 @@ export default class GraphManager {
 
 	set streamsStatusMap(streamsStatusMap) {
 		this._streamsStatusMap = streamsStatusMap;
-		if(this._machine) {
+		if (this._machine) {
 			let dirty = false;
 			this._machine.streamsheets.forEach(t => {
 				const {stream} = t.inbox;
-				if(stream && this._streamsStatusMap[stream.id]) {
+				if (stream && this._streamsStatusMap[stream.id]) {
 					this.updateStream(t.id, stream);
 					dirty = true;
 				}
 			});
-			if(dirty) {
+			if (dirty) {
 				this.redraw();
 			}
 		}
 	}
 
 	getStreamStatus(stream) {
-		if(stream && stream.id
+		if (stream && stream.id
 		) {
 			return StreamHelper.getStreamState(stream);
 		}
@@ -219,14 +219,14 @@ export default class GraphManager {
 	}
 
 	getLocaleSettings() {
-		const { locale } = store.getState().machine;
+		const {locale} = store.getState().machine;
 
 		switch (locale) {
-		case 'de':
-			return Locale.DE;
-		case 'en':
-		default:
-			return Locale.EN;
+			case 'de':
+				return Locale.DE;
+			case 'en':
+			default:
+				return Locale.EN;
 		}
 	}
 
@@ -270,30 +270,36 @@ export default class GraphManager {
 		this.updateControls();
 
 		this.updateGraph(machine);
-
-		if (graph.getStreamSheetContainerCount() === 1) {
-			const container = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
-			graph.setViewMode(container, 2);
-			graph.markDirty();
-		} else {
-			const container = graph.getMachineContainer();
-			const maxSheet = container.getMachineContainerAttributes().getMaximizeSheet().getValue();
-			if (maxSheet !== 'none') {
-				const processContainer = graph.getStreamSheetContainerByStreamSheetName(maxSheet);
-				if (processContainer !== undefined) {
-					graph.setViewMode(processContainer, 2);
-					graph.markDirty();
-				}
-			}
-		}
+		this.updateViewMode(graph);
 
 		JSG.setDrawingDisabled(false);
 		this.redraw();
 
 		if (sheet) {
 			NotificationCenter.getInstance()
-				.send(new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, { item: sheet, updateFinal: true }));
+				.send(new Notification(WorksheetNode.SELECTION_CHANGED_NOTIFICATION, {item: sheet, updateFinal: true}));
 		}
+	}
+
+	updateViewMode(graph, econtainer) {
+		if (econtainer) {
+			graph.setViewMode(econtainer, 2);
+		} else if (graph.getStreamSheetContainerCount() === 1) {
+			const container = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
+			graph.setViewMode(container, 2);
+		} else {
+			const container = graph.getMachineContainer();
+			const maxSheet = container.getMachineContainerAttributes().getMaximizeSheet().getValue();
+			if (maxSheet === 'none') {
+				graph.setViewMode(undefined, 0);
+			} else {
+				const processContainer = graph.getStreamSheetContainerByStreamSheetName(maxSheet);
+				if (processContainer !== undefined) {
+					graph.setViewMode(processContainer, 2);
+				}
+			}
+		}
+		graph.markDirty();
 	}
 
 	undo() {
@@ -468,93 +474,33 @@ export default class GraphManager {
 		canvas.height = oldHeight * ratio;
 	}
 
-	updateCanvas(tools, viewMode) {
+	updateCanvas(tools, settings) {
 		const canvas = document.getElementById('canvas');
 		const graph = this.getGraph();
-		if (canvas && graph) {
-			graph.setViewParams(viewMode);
-			const container = graph.getMachineContainer();
-			if (container) {
-				const attr = container.getMachineContainerAttributes();
-				if (attr) {
-					attr.setHideToolbars(tools === false);
-				}
+		if (canvas && graph && graph.getItemCount() && settings) {
+			graph.viewSettings = {
+				active: settings.active,
+				showOutbox: settings.showOutbox,
+				allowZoom: settings.allowZoom,
+				maximize: settings.maximize
 			}
-			if (viewMode) {
-				switch (viewMode.viewMode) {
-				case 'drawing':
-					if (viewMode.view) {
-						let name = viewMode.view;
-						const index = name.indexOf('!');
-						if (index !== -1) {
-							const sheetName = name.substring(0, index);
-							name = name.substring(index + 1);
-							const node = graph.getItemById(Number(name));
-							const sheet = graph.getItemByName(sheetName);
-							if (node && sheet) {
-								const graphController = this._graphEditor.getGraphViewer().getGraphController();
-								const controller = graphController.getControllerByModelId(sheet.getId());
-								const view = controller.getView();
-								const rect = node.getBoundingBox().getBoundingRectangle();
-								view.getItem().setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-								view.getItem().setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-								const scrollview = view.getScrollView();
-								scrollview.setScrollBarsMode(
-									JSG.ScrollBarMode.HIDDEN,
-									JSG.ScrollBarMode.HIDDEN
-								);
-								const cs = this._graphEditor.getCoordinateSystem();
-								if (rect.width) {
-									const viewport = view.getViewPort();
-
-									let model = viewport.getHorizontalRangeModel();
-									viewport
-										.getHorizontalRangeModel()
-										.setValue(model._min + rect.x);
-									model = viewport.getVerticalRangeModel();
-									viewport
-										.getVerticalRangeModel()
-										.setValue(model._min + rect.y);
-
-									const zoom = canvas.clientWidth / cs.logToDeviceX(rect.width, false);
-									this._graphEditor.setZoom(zoom);
-								}
-							}
-						}
-					}
-					break;
-				case 'range': {
-					const range = JSG.CellRange.parse(viewMode.view, this);
-					if (range) {
-						range.shiftFromSheet();
-						const graphController = this._graphEditor.getGraphViewer().getGraphController();
-						const controller = graphController.getControllerByModelId(range.getSheet().getId());
-						if (controller) {
-							const view = controller.getView();
-							view.scrollToRange(range);
-							// range._x2 -= 1;
-							// range._y2 -= 1;
-							view.getItem().setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-							view.getItem().setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
-							const rect = view.getRangeRect(range);
-							const scrollview = view.getScrollView();
-							scrollview.setScrollBarsMode(
-								JSG.ScrollBarMode.HIDDEN,
-								JSG.ScrollBarMode.HIDDEN
-							);
-							const cs = this._graphEditor.getCoordinateSystem();
-							if (rect.width) {
-								const zoom = canvas.clientWidth / cs.logToDeviceX(rect.width, false);
-								this._graphEditor.setZoom(zoom);
-							}
-						}
-					}
-					break;
+			graph.clearViewSettings();
+			const sheet = graph.getItemByName(settings.maximize);		// Worksheetnode
+			const graphController = this._graphEditor.getGraphViewer().getGraphController();
+			if (sheet) {
+				sheet.getParent().viewSettings = settings;
+				const controller = graphController.getControllerByModelId(sheet.getId());
+				const view = controller.getView();
+				if (!settings.allowScroll) {
+					sheet.setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
+					sheet.setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
+					sheet.layout();
 				}
-				default:
-					break;
-				}
+				view.layout();
 			}
+			this.updateViewMode(graph, settings.active && sheet ? sheet.getParent() : undefined);
+			graph.setRefreshNeeded(true);
+			graph.markDirty();
 
 			if (canvas.height !== canvas.clientHeight || canvas.width !== canvas.clientWidth) {
 				this.updateDimensions();

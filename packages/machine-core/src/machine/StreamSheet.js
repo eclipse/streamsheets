@@ -298,7 +298,7 @@ class StreamSheet {
 		this.detachMessage(this._msgHandler.message);
 		this.inbox.clear();
 		this.inbox.subscribe();
-		this.sheet.getPendingRequests().clear();
+		this.sheet.removeAllRequests();
 		this.trigger.start();
 	}
 	stop(forced) {
@@ -306,7 +306,7 @@ class StreamSheet {
 		if (stopped) {
 			this.reset();
 			this.inbox.unsubscribe();
-			this.sheet.getPendingRequests().clear();
+			this.sheet.removeAllRequests();
 		}
 		return stopped;
 	}

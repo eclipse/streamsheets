@@ -148,6 +148,7 @@ export class GraphItemProperties extends Component {
 				category: data[0]
 			})
 		} else {
+			// this.updateState();
 			JSG.NotificationCenter.getInstance().send(
 				new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, item)
 			);
@@ -189,6 +190,35 @@ export class GraphItemProperties extends Component {
 	handleClose = () => {
 		this.props.setAppState({ showStreamChartProperties: false });
 	};
+
+	updateState() {
+		const view = GraphItemProperties.getView();
+		if (view === undefined) {
+			return;
+		}
+
+		this.setState({
+			view
+		});
+	}
+
+	getFormula(index) {
+		const item = GraphItemProperties.getView().getItem();
+		const attr = item.getItemAttributes().getAttribute('sheetformula');
+
+		if (attr && attr.getExpression()) {
+			const term = attr.getExpression().getTerm();
+			if (term && term.params && term.params.length > index) {
+				const param = term.params[index];
+				if (param.isStatic) {
+					return `${param.toString()}`;
+				} else {
+					return `=${param.toString()}`;
+				}
+			}
+		}
+		return '';
+	}
 
 	getProperties() {
 		const category = this.getSelectedCategory() || this.state.category;

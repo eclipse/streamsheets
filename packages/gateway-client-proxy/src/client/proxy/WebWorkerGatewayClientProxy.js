@@ -60,6 +60,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 	}
 
 	connect(config) {
+		// TODO: current config only necessary because of "restore" quick fix
+		this._currentConfig = config;
 		return this._proxy('connect', config);
 	}
 
@@ -83,8 +85,27 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('backup');
 	}
 
-	restore(file) {
-		return this._proxy('restore', file);
+	async restore(file) {
+		// TODO: this results in a Chrome RESULT_CODE_KILLED_BAD_MESSAGE error
+		// return this._proxy('restore', file);
+
+		// Quick fix:
+		const formData = new FormData();
+		formData.append('restoreData', file);
+		const config = {
+			headers: {
+				"Accept": "application/json",
+				"Authorization": `JWT ${this._currentConfig.token}`
+			},
+			method: 'POST',
+			body: formData
+		}
+		const response = await fetch(
+			`${this._currentConfig.restEndpointURL}/restore`,
+			config
+		);
+		const data = await response.json();
+		return data;
 	}
 
 	cloneMachine(machineId, newNameSuffix = 'Copy') {

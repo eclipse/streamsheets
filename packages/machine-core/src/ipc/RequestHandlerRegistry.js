@@ -543,7 +543,7 @@ class MarkRequests extends ARequestHandler {
 				if (cell) {
 					const term = cell.term;
 					const reqId = term._pendingRequestId;
-					if (reqId) cellsheet.getPendingRequests().delete(reqId);
+					if (reqId) cellsheet.removeRequest(reqId);
 					term._marker = marker;
 				}
 			});
@@ -854,8 +854,8 @@ class Unsubscribe extends ARequestHandler {
 class Update extends ARequestHandler {
 	handle(msg) {
 		this.machine.update(msg.props);
-		const { cycletime, id, isOPCUA, locale, name, state } = this.machine;
-		return Promise.resolve({ machine: { cycletime, id, isOPCUA, locale, name, state } });
+		const { cycletime, id, isOPCUA, locale, name, state, view } = this.machine;
+		return Promise.resolve({ machine: { cycletime, id, isOPCUA, locale, name, state, view } });
 	}
 }
 class UpdateMachine extends ARequestHandler {

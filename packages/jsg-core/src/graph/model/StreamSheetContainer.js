@@ -405,37 +405,18 @@ module.exports = class StreamSheetContainer extends Node {
 		const sizeInbox = this._inboxContainer.getSize().toPoint();
 		let heightCaption = 650;
 		let left = 0;
-		let inbox = this.getStreamSheetContainerAttributes()
-			.getInboxVisible()
-			.getValue();
-		const graph = this.getGraph();
+		let inbox;
 		let hideButtons = false;
 		let captions = true;
 
-		if (graph) {
-			const container = graph.getMachineContainer();
-			if (container) {
-				hideButtons = container
-					.getMachineContainerAttributes()
-					.getHideToolbars()
-					.getValue();
-			}
-			const view = graph.getViewParams();
-			if (view) {
-				switch (view.viewMode) {
-					case 'name':
-					case 'range':
-					case 'drawing':
-					case 'sheet':
-						hideButtons = true;
-						inbox = false;
-						captions = false;
-						heightCaption = 0;
-						break;
-					default:
-						break;
-				}
-			}
+		const settings = this.viewSettings;
+		if (settings.active === true) {
+			hideButtons = true;
+			captions = false;
+			heightCaption = 0;
+			inbox = settings.showInbox;
+		} else {
+			inbox = this.getStreamSheetContainerAttributes().getInboxVisible().getValue();
 		}
 
 		this.getInboxContainer()
@@ -452,6 +433,7 @@ module.exports = class StreamSheetContainer extends Node {
 		this._splitter.getItemAttributes().setVisible(inbox);
 
 		if (captions) {
+			this._sheetCaption.getItemAttributes().setVisible(true);
 			this._sheetCaption.getItems().forEach((subItem) => {
 				subItem.getItemAttributes().setVisible(hideButtons === false);
 			});

@@ -56,8 +56,7 @@ import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import HelpButton from './HelpButton';
-import { ResizeHandler } from './ResizeHandler';
-import { ViewModeHandler, ViewModePropTypes } from './ViewModeHandler';
+// import { ResizeHandler } from './ResizeHandler';
 import { Path } from '../helper/Path';
 import { DialogExtensions } from '@cedalo/webui-extensions';
 
@@ -66,12 +65,11 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, location, hashParams } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewModeProperties } = props;
 	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
 	const { token, userId } = qs.parse(location.search);
-	const { viewConfig } = qs.parse(hashParams);
 
 	if (token && !accessManager.authToken) {
 		const newUrl = window.location.origin + Path.machine(machineId, window.location.search);
@@ -92,24 +90,19 @@ export function MachineDetailPage(props) {
 		}
 	}, [isConnected]);
 
-	// TODO: remove viewMode and merge this and the next effect
-	useEffect(() => {
-		if (viewConfig) {
-			props.setAppState({
-				viewMode: {
-					hidegrid: true,
-					viewMode: 'sheet',
-					hideheader: true
-				}
-			});
-		}
-		return () => {};
-	}, [viewConfig]);
-
 	// Update canvas if showTools or viewMode change
 	useEffect(() => {
-		graphManager.updateCanvas(showTools, viewMode);
-	}, [showTools, viewMode]);
+		const settings = {
+			...viewSettings,
+			active: showViewModeProperties && !!viewSettings.maximize,
+		};
+
+		props.setAppState({
+			viewMode: settings,
+			showTools: settings.active === false,
+		});
+		graphManager.updateCanvas(showTools,settings);
+	}, [showViewModeProperties, viewSettings, showTools]);
 
 	const loadUser = async () => {
 		try {
@@ -201,17 +194,16 @@ export function MachineDetailPage(props) {
 		document.title = intl.formatMessage({ id: 'TitleMachine' }, { name: machineName || 'Machine' });
 	}, [machineName]);
 
-	const showTools_ = viewMode.viewMode === null && showTools;
+	const showTools_ = viewMode.active === false && showTools;
 	let contentMargin = canEditMachine ? 115 : 58;
 	contentMargin = showTools_ ? contentMargin : 0;
 	if (!userLoaded) {
 		return (
 			<MuiThemeProvider theme={theme}>
-				<ViewModeHandler />
 				<RequestStatusDialog />
 				<ServerStatusDialog />
 				<ErrorDialog />
-				<ResizeHandler />
+				{/* <ResizeHandler /> */}
 			</MuiThemeProvider>
 		);
 	}
@@ -225,11 +217,10 @@ export function MachineDetailPage(props) {
 					width: 'inherit'
 				}}
 			>
-				<ViewModeHandler />
-				<ResizeHandler />
+				{/* <ResizeHandler /> */}
 				<GraphLocaleHandler />
 				<DialogExtensions />
-				{viewMode.viewMode === null ? (
+				{viewMode.active === false ? (
 					<div>
 						<ImportDialog />
 						<NewMachineDialog />
@@ -362,7 +353,8 @@ MachineDetailPage.propTypes = {
 	locale: PropTypes.string,
 	isConnected: PropTypes.bool.isRequired,
 	machineName: PropTypes.string,
-	viewMode: ViewModePropTypes,
+	viewMode: PropTypes.object,
+	viewSettings: PropTypes.object,
 	showTools: PropTypes.bool.isRequired,
 	searchParams: PropTypes.string.isRequired,
 	history: PropTypes.shape({
@@ -377,8 +369,9 @@ MachineDetailPage.propTypes = {
 
 MachineDetailPage.defaultProps = {
 	locale: undefined,
+	viewMode: {},
 	machineName: '',
-	viewMode: {}
+	viewSettings: {}
 };
 
 function mapStateToProps(state) {
@@ -386,10 +379,10 @@ function mapStateToProps(state) {
 		isConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
 		machine: state.monitor.machine,
 		machineName: state.monitor.machine.name,
+		viewSettings: state.monitor.machine.settings && state.monitor.machine.settings.view,
 		viewMode: state.appState.viewMode,
 		showTools: state.appState.showTools,
 		searchParams: state.router.location.search,
-		hashParams: state.router.location.hash,
 		locale: state.locales.locale,
 		meta: state.meta,
 		showDeleteCellContentDialog: state.appState.showDeleteCellContentDialog,
@@ -398,6 +391,7 @@ function mapStateToProps(state) {
 		showPasteFunctionsDialog: state.appState.showPasteFunctionsDialog,
 		showEditNamesDialog: state.appState.showEditNamesDialog,
 		experimental: state.appState.experimental,
+		showViewModeProperties: state.appState.showViewModeProperties,
 		adminSecurity: state.adminSecurity
 	};
 }

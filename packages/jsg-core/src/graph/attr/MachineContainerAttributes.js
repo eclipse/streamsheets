@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -22,7 +22,6 @@ const MachineState = {
 const MACHINESTATE = 'machinestate';
 const OUTBOXVISIBLE = 'outboxvisible';
 const MAXIMIZESHEET = 'maximizesheet';
-const HIDETOOLBARTHRESHOLD = 'hidetoolbarthreshold';
 const HIDETOOLBARS = 'hidetoolbars';
 const PROTECTED = 'protected';
 
@@ -72,7 +71,6 @@ const MachineContainerAttributes = class MachineContainerAttributes extends Attr
 		);
 		addAttribute(new StringAttribute(ATTR.MAXIMIZESHEET), 'none');
 		addAttribute(new BooleanAttribute(ATTR.OUTBOXVISIBLE), false);
-		addAttribute(new NumberAttribute(ATTR.HIDETOOLBARTHRESHOLD), 550);
 		addAttribute(new BooleanAttribute(ATTR.HIDETOOLBARS), false);
 		addAttribute(new BooleanAttribute(ATTR.PROTECTED), false);
 
@@ -93,19 +91,6 @@ const MachineContainerAttributes = class MachineContainerAttributes extends Attr
 
 	getMaximizeSheet() {
 		return this.getAttribute(MachineContainerAttributes.MAXIMIZESHEET);
-	}
-
-	setHideToolbarThreshold(threshold) {
-		this.setAttribute(
-			MachineContainerAttributes.HIDETOOLBARTHRESHOLD,
-			threshold
-		);
-	}
-
-	getHideToolbarThreshold() {
-		return this.getAttribute(
-			MachineContainerAttributes.HIDETOOLBARTHRESHOLD
-		);
 	}
 
 	setHideToolbars(state) {
@@ -164,10 +149,6 @@ const MachineContainerAttributes = class MachineContainerAttributes extends Attr
 
 	static get MAXIMIZESHEET() {
 		return MAXIMIZESHEET;
-	}
-
-	static get HIDETOOLBARTHRESHOLD() {
-		return HIDETOOLBARTHRESHOLD;
 	}
 
 	static get HIDETOOLBARS() {

@@ -29,7 +29,7 @@ const attachExecuteMessage = (message, streamsheet) => {
 const RepeatedExecuteCycle = (BaseClass) =>
 	class extends RepeatedMessageLoopCycle.withBaseClass(BaseClass) {
 		schedule() {
-			if (this.trigger.repetitions < 1) this.trigger.resumeExecute();
+			if (this.trigger.repetitions < 1 && this.sheet.isProcessed) this.trigger.resumeExecute();
 			else super.schedule();
 		}
 		step() {
@@ -83,7 +83,7 @@ class ManualRepeatedExecuteCycle extends RepeatedExecuteCycle(ManualCycle) {
 		super.run();
 	}
 	schedule() {
-		if (this.trigger.repetitions < 1) this.hasExecuted = false;
+		if (this.trigger.repetitions < 1 && this.sheet.isProcessed) this.hasExecuted = false;
 		super.schedule();
 	}
 

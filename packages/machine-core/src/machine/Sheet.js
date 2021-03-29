@@ -20,6 +20,7 @@ const State = require('../State');
 const { SheetParser } = require('../parser/SheetParser');
 const { getSheetCellsAsObject } = require('../ipc/utils');
 const { updateArray } = require('../utils');
+const SheetRequests = require('./SheetRequests');
 
 
 const setRowsAt = (rowidx, rows, prerows) => {
@@ -128,7 +129,7 @@ const DEF_CONF = {
 	cells: {}
 };
 
-module.exports = class Sheet {
+class Sheet {
 	constructor(streamsheet, config = {}) {
 		this._rows = [];
 		this._prerows = [];
@@ -139,8 +140,6 @@ module.exports = class Sheet {
 		this.processor = new SheetProcessor(this);
 		this.onUpdate = undefined;
 		this.onCellRangeChange = undefined;
-		// support request function:
-		this._pendingRequests = new Map(); /* id, promise */
 		// tmp. => need a better mechanism...
 		this._forceExecution = false;
 		this._isProcessing = false;
@@ -195,7 +194,6 @@ module.exports = class Sheet {
 		this.iterate((cell) => cell.dispose());
 		this._rows = [];
 		this._prerows = [];
-		this._pendingRequests.clear();
 	}
 
 	executeFunctions(fns) {
@@ -589,11 +587,10 @@ module.exports = class Sheet {
 		this.processor.resume(retval);
 	}
 
-	getPendingRequests() {
-		return this._pendingRequests;
-	}
-
 	getShapes() {
 		return this.shapes;
 	}
 };
+
+// if we have more better use compose(SheetEdit, SheetRequests,...)(Sheet)
+module.exports = SheetRequests(Sheet);

@@ -205,6 +205,10 @@ module.exports = class MongoDBMachineRepository extends mix(
 		return this.updateDocument(this.collection, id, { name });
 	}
 
+	updateMachineView(id, view) {
+		return this.updateDocument(this.collection, id, { 'settings.view': view });
+	}
+
 	updateMachineLocale(id, locale) {
 		return this.updateDocument(this.collection, id, { 'settings.locale': locale });
 	}

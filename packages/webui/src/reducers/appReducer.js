@@ -15,6 +15,7 @@ const defaultState = {
 	deviceRatio: true,
 	drawerOpen: false,
 	showStreamChartProperties: false,
+	showViewModeProperties: false,
 	showImportDialog: false,
 	showNewDialog: false,
 	showOpenDialog: false,
@@ -28,11 +29,8 @@ const defaultState = {
 	functionWizard: { show: false },
 	showTools: true,
 	viewMode: {
-		hidegrid: null,
-		hideheader: null,
-		view: null,
-		viewMode: null,
-		zoomdisabled: null
+		active: false,
+		sheets: []
 	},
 	showEditNamesDialog: false,
 	formatOpen: false,

@@ -161,25 +161,24 @@ module.exports = class WorksheetNode extends ContentNode {
 	 */
 	layout() {
 		const wsattributes = this.getWorksheetAttributes();
-		let header = wsattributes.getShowHeader().getValue();
+		const parent = this.getParent();
+		let header;
 
-		const graph = this.getGraph();
-		const colSize = this._columns.getInternalSize();
-		const rowSize = this._rows.getInternalSize();
+		if (parent && parent.viewSettings.active) {
+			header = parent.viewSettings.showHeader;
+		} else {
+			header = wsattributes.getShowHeader().getValue();
+		}
 
 		this._rowCount = wsattributes.getRows().getValue();
 		this._columnCount = wsattributes.getRows().getValue();
 
-		if (graph !== undefined) {
-			const view = graph.getViewParams();
-			if (view && view.hideheader !== null) {
-				header = false;
-			}
-		}
-
 		this._corner.getItemAttributes().setVisible(header);
 		this._rows.getItemAttributes().setVisible(header);
 		this._columns.getItemAttributes().setVisible(header);
+
+		const colSize = this._columns.getInternalSize();
+		const rowSize = this._rows.getInternalSize();
 
 		const box = JSG.boxCache.get();
 
@@ -332,28 +331,33 @@ module.exports = class WorksheetNode extends ContentNode {
 		this.getWorksheetAttributes().setProtected(flag);
 	}
 
+	updateRowCount() {
+		if (this._cells === undefined) {
+			// not initialized yet
+			return;
+		}
+		const rows = Math.max(0, this.getDataProvider().getRowCount());
+		this.setRowCount(rows);
+	}
+
 	setRowCount(count) {
-		this._rowCount = undefined
 		this.getWorksheetAttributes().setRows(count);
 	}
 
 	getRowCount() {
-		if (this._rowCount === undefined) {
-			this._rowCount = this.getWorksheetAttributes().getRows().getValue();
-		}
-		return this._rowCount;
+		return this.getWorksheetAttributes()
+			.getRows()
+			.getValue();
 	}
 
 	setColumnCount(count) {
-		this._columnCount = undefined;
 		this.getWorksheetAttributes().setColumns(count);
 	}
 
 	getColumnCount() {
-		if (this._columnCount === undefined) {
-			this._columnCount = this.getWorksheetAttributes().getColumns().getValue();
-		}
-		return this._columnCount;
+		return this.getWorksheetAttributes()
+			.getColumns()
+			.getValue();
 	}
 
 	getColumns() {
@@ -380,14 +384,12 @@ module.exports = class WorksheetNode extends ContentNode {
 		return this._cells;
 	}
 
-	getItemType() {
-		return 'worksheetnode';
-	}
-
 	saveContent(writer, absolute) {
 		this.compress();
 
 		super.saveContent(writer, absolute);
+
+		writer.writeAttributeString('type', 'worksheetnode');
 
 		writer.writeStartElement('defaultcell');
 		this._defaultCell.save(writer);
@@ -980,7 +982,7 @@ module.exports = class WorksheetNode extends ContentNode {
 		return result;
 	}
 
-	textToExpression(text, forItem) {
+	textToExpression(text) {
 		const isFormula = text.charAt(0) === '=';
 		let term;
 		const graph = this.getGraph();
@@ -1099,7 +1101,7 @@ module.exports = class WorksheetNode extends ContentNode {
 			throw e;
 		}
 
-		const formula = term ? term.toLocaleString('en', { item: forItem || this, useName: true }) : '';
+		const formula = term ? term.toLocaleString('en', { item: this, useName: true }) : '';
 		const expr = isFormula ? new Expression(0, formula) : ExpressionHelper.createExpressionFromValueTerm(term);
 
 		if (term) {

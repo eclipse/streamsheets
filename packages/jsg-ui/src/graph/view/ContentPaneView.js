@@ -134,7 +134,7 @@ class ContentPaneView extends GraphItemView {
 		if (this.hasSubviews()) {
 			const tmprect = JSG.rectCache.get();
 
-			let max = this._subviews.some(
+			const max = this._subviews.some(
 				(subview) =>
 					subview
 						.getItem()
@@ -143,19 +143,19 @@ class ContentPaneView extends GraphItemView {
 						.getValue() === 2
 			);
 
-			const graph = this.getItem().getGraph();
-			if (graph !== undefined) {
-				const view = graph.getViewParams && graph.getViewParams();
-				if (view) {
-					switch (view.viewMode) {
-						case 'name':
-						case 'range':
-						case 'drawing':
-							max = true;
-							break;
-					}
-				}
-			}
+			// const graph = this.getItem().getGraph();
+			// if (graph !== undefined) {
+			// 	const view = graph.getViewParams && graph.getViewParams();
+			// 	if (view) {
+			// 		switch (view.viewMode) {
+			// 			case 'name':
+			// 			case 'range':
+			// 			case 'drawing':
+			// 				max = true;
+			// 				break;
+			// 		}
+			// 	}
+			// }
 
 			if (max) {
 				rect.set(0, 0, 100, 100);

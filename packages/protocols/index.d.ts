@@ -134,6 +134,7 @@ declare module '@cedalo/protocols' {
 			MACHINE_DESCRIPTOR_UPDATE_EVENT: 'machine_descriptor_update';
 			MACHINE_LAST_MODIFIED_EVENT: 'machine_lastmodified';
 			MACHINE_LOCALE_EVENT: 'machine_locale';
+			MACHINE_VIEW_SETTINGS_EVENT: 'machine_view_settings';
 			MACHINE_OPCUA_EVENT: 'machine_opcua';
 			MACHINE_RENAME_EVENT: 'machine_rename';
 			MACHINE_FUNCTIONS_EVENT: 'machine_functions';
