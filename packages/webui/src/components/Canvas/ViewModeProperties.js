@@ -127,7 +127,7 @@ export class ViewModeProperties extends Component {
 								color: 'white'
 							}}
 						>
-							<FormattedMessage id="ViewModeSettings" defaultMessage="View Mode Settings" />
+							<FormattedMessage id="ViewModeProperties.Title" defaultMessage="View Mode Settings" />
 						</Typography>
 						<IconButton
 							style={{

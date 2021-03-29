@@ -257,7 +257,7 @@ class MachineControlBar extends React.Component {
 								</IconButton>
 							</div>
 						</CustomTooltip>
-						<CustomTooltip header="Tooltip.PreviewModeHeader" message="Tooltip.PrevievMode">
+						<CustomTooltip header="Tooltip.ViewModeHeader" message="Tooltip.ViewModeMessage">
 							<div>
 								<IconButton
 									color="inherit"
