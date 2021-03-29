@@ -92,10 +92,8 @@ module.exports = class TreeNode extends ContentNode {
 		return false;
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-
-		file.writeAttributeString('type', 'treenode');
+	getItemType() {
+		return 'treenode';
 	}
 
 	_assignName(id) {

@@ -24,7 +24,7 @@ const createExpression = ({ formula, type, value }) => {
 			return new NumberExpression(value, formula);
 		case 'string':
 			return new StringExpression(value, formula);
-	default:
+		default:
 			return new Expression(value, formula);
 	}
 };
@@ -47,19 +47,17 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			? new SetSheetCellsCommand(
 					item,
 					data.cells,
-					data.drawings,
-					data.graphItems
+					data.shapes
 			  ).initWithObject(data)
 			: undefined;
 	}
 
-	constructor(item, data, drawings, graphItems, graphCells, namedCells) {
+	constructor(item, data, shapes, namedCells) {
 		super(item);
 
 		this._data = data;
-		this._graphItems = graphItems;
+		this._shapes = shapes;
 		this._namedCells = namedCells;
-		this._graphCells = graphCells;
 
 		// TODO save undo info
 	}
@@ -72,9 +70,8 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 		const data = super.toObject();
 
 		data.cells = this._data;
-		data.graphItems = this._graphItems;
+		data.shapes = this._shapes;
 		data.namedCells = this._namedCells;
-		data.graphCells = this._graphCells;
 
 		return data;
 	}
@@ -86,7 +83,7 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 	redo() {
 		const data = this._graphItem.getCells().getDataProvider();
 
-		data.clearContent();
+		data.markUpdate();
 
 		this._data.forEach((cellData) => {
 			const res = CellRange.refToRC(cellData.reference, this._graphItem);
@@ -105,20 +102,66 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			) {
 				cell.clearContent();
 			} else {
+				let expr = cell.getExpression();
+				if (expr) {
+					const term = expr.getTerm();
+					if (term && expr.getFormula() !== cellData.formula) {
+						expr = createExpression(cellData);
+						cell.setExpression(expr);
+					}
+				}
+				if (expr) {
+					switch (cellData.type) {
+						case 'bool':
+							if (!(expr instanceof BooleanExpression)) {
+								expr = createExpression(cellData);
+								cell.setExpression(expr);
+							}
+							break;
+						case 'number':
+							if (!(expr instanceof NumberExpression)) {
+								expr = createExpression(cellData);
+								cell.setExpression(expr);
+							}
+							break;
+						case 'string':
+							if (!(expr instanceof StringExpression)) {
+								expr = createExpression(cellData);
+								cell.setExpression(expr);
+							}
+							break;
+						default:
+							if (!(expr instanceof Expression)) {
+								expr = createExpression(cellData);
+								cell.setExpression(expr);
+							}
+							break;
+					}
+				} else {
+					expr = createExpression(cellData);
+					cell.setExpression(expr);
+				}
+
 				// this is to ensure that temporary values form ui interaction (e.g. slider) are not overwritten
 				const value = cellData.value;
 				if (cell._targetValue !== undefined && cellData.value !== cell._targetValue) {
 					cellData.value = cell._targetValue;
 				}
-				const expr = createExpression(cellData);
-				cell.setExpression(expr);
+
 				cell.setValue(cellData.value);
+
 				if (cell._targetValue !== undefined && value === cell._targetValue) {
 					cell._targetValue = undefined;
 				}
+
 			}
 			cell.setInfo(cellData.info);
+
+			// mark cell as updated, not updated cells will be cleared
+			cell._updated = true;
 		});
+
+		data.clearNotUpdated();
 
 		if (this._namedCells) {
 			Object.keys(this._namedCells).forEach((key) => {
@@ -136,8 +179,8 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			});
 		}
 
-		if (this._graphItems) {
-			this._graphItem.setGraphItems(this._graphItems);
+		if (this._shapes) {
+			this._graphItem.setShapes(this._shapes);
 		}
 
 		data.evaluate(this._graphItem);

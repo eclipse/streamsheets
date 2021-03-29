@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -45,7 +45,6 @@ const updateAllReferences = (machine, termUpdater) => {
 		machine.namedCells.forEach(cell => updateCell(cell, termUpdater));
 		machine.streamsheets.forEach((streamsheet) => {
 			const sheet = streamsheet.sheet;
-			sheet.graphCells.forEach(cell => updateCell(cell, termUpdater));
 			sheet.namedCells.forEach(cell => updateCell(cell, termUpdater));
 			sheet.iterate(cell => updateCell(cell, termUpdater));
 		});

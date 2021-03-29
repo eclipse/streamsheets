@@ -413,10 +413,12 @@ module.exports = class HeaderNode extends Node {
 		writer.writeEndElement();
 	}
 
+	getItemType() {
+		return 'headernode';
+	}
+
 	saveContent(writer, absolute) {
 		super.saveContent(writer, absolute);
-
-		writer.writeAttributeString('type', 'headernode');
 
 		writer.writeStartElement('sections');
 		writer.writeStartArray('section');
@@ -465,6 +467,11 @@ module.exports = class HeaderNode extends Node {
 					break;
 			}
 		});
+
+		// to compensate old template
+		this.getFormat().setLineColor(JSG.theme.frame);
+		this.getFormat().setFillColor(JSG.theme.header);
+		this.getTextFormat().setFontColor(JSG.theme.text);
 	}
 
 	assignProperties(data) {

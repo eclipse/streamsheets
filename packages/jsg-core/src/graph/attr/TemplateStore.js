@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,6 +10,7 @@
  ********************************************************************************/
 const AttributeList = require('./AttributeList');
 const EdgeAttributes = require('./EdgeAttributes');
+const EventAttributes = require('./EventAttributes');
 const ItemAttributes = require('./ItemAttributes');
 const LayoutAttributes = require('./LayoutAttributes');
 const FormatAttributes = require('./FormatAttributes');
@@ -48,6 +49,7 @@ class TemplateStore extends AttributeList {
 	addDefaultTemplates() {
 		// add our default framework templates...
 		this.addTemplate(EdgeAttributes.template);
+		this.addTemplate(EventAttributes.template);
 		this.addTemplate(FormatAttributes.template);
 		this.addTemplate(ItemAttributes.template);
 		this.addTemplate(LayoutAttributes.template);

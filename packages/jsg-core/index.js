@@ -101,6 +101,7 @@ JSG.ItemAttributes = require('./src/graph/attr/ItemAttributes');
 JSG.EdgeAttributes = require('./src/graph/attr/EdgeAttributes');
 JSG.TextNodeAttributes = require('./src/graph/attr/TextNodeAttributes');
 JSG.LayoutAttributes = require('./src/graph/attr/LayoutAttributes');
+JSG.EventAttributes = require('./src/graph/attr/EventAttributes');
 JSG.FormatAttributes = require('./src/graph/attr/FormatAttributes');
 JSG.TextFormatAttributes = require('./src/graph/attr/TextFormatAttributes');
 JSG.TemplateStore = require('./src/graph/attr/TemplateStore');
@@ -170,6 +171,7 @@ JSG.RotateItemCommand = require('./src/graph/command/RotateItemCommand');
 JSG.FormatItemCommand = require('./src/graph/command/FormatItemCommand');
 JSG.TextFormatItemCommand = require('./src/graph/command/TextFormatItemCommand');
 JSG.SetTextCommand = require('./src/graph/command/SetTextCommand');
+JSG.SetPointSourceCommand = require('./src/graph/command/SetPointSourceCommand');
 JSG.SetSelectionCommand = require('./src/graph/command/SetSelectionCommand');
 JSG.RemoveSelectionCommand = require('./src/graph/command/RemoveSelectionCommand');
 JSG.SetNameCommand = require('./src/graph/command/SetNameCommand');
@@ -201,15 +203,12 @@ JSG.RemoveShapeCoordinateAtCommand = require('./src/graph/command/RemoveShapeCoo
 JSG.SetPinCommand = require('./src/graph/command/SetPinCommand');
 JSG.SetSizeCommand = require('./src/graph/command/SetSizeCommand');
 JSG.SetLinePointAtCommand = require('./src/graph/command/SetLinePointAtCommand');
+JSG.SetLineCoordinateAtCommand = require('./src/graph/command/SetLineCoordinateAtCommand');
 JSG.SetLineShapePointsCommand = require('./src/graph/command/SetLineShapePointsCommand');
 JSG.SetBezierShapePointsCommand = require('./src/graph/command/SetBezierShapePointsCommand');
-JSG.SetGraphCommand = require('./src/graph/command/SetGraphCommand');
-
 const UpdateNamesCommands = require('./src/graph/command/UpdateNamesCommands');
 
 JSG.UpdateSheetNamesCommand = UpdateNamesCommands.UpdateSheetNamesCommand;
-JSG.UpdateGraphCellsCommand = UpdateNamesCommands.UpdateGraphCellsCommand;
-JSG.SetGraphCellsCommand = UpdateNamesCommands.SetGraphCellsCommand;
 JSG.SetGraphItemsCommand = UpdateNamesCommands.SetGraphItemsCommand;
 
 JSG.SetBezierLineShapePointCommand = require('./src/graph/command/SetBezierLineShapePointCommand');

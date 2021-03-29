@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,7 +10,6 @@
  ********************************************************************************/
 const Point = require('../../geometry/Point');
 const HeaderNode = require('./HeaderNode');
-const CellRange = require('./CellRange');
 
 const HEIGHT = 500;
 
@@ -28,9 +27,8 @@ module.exports = class ColumnHeaderNode extends HeaderNode {
 		return 2000;
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'columnheadernode');
+	getItemType() {
+		return 'columnheadernode';
 	}
 
 	_assignName(id) {

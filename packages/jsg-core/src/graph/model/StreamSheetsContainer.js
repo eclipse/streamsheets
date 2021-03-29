@@ -123,10 +123,8 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 		writer.writeEndArray('graphitem');
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-
-		file.writeAttributeString('type', 'processcontainer');
+	getItemType() {
+		return 'processcontainer';
 	}
 
 	_assignName(id) {

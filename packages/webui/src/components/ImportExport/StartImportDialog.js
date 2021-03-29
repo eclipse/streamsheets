@@ -21,6 +21,9 @@ import * as Actions from '../../actions/actions';
 import ImportDropzone from './ImportDropzone';
 
 function StartImportDialog(props) {
+	if (!props.open) {
+		return <div />
+	}
 	return (
 		<Dialog fullWidth open={props.open} onClose={props.closeImportDialog}>
 			<DialogTitle>

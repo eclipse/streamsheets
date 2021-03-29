@@ -91,6 +91,10 @@ class Shape {
 		return Shape.TYPE;
 	}
 
+	fromJSON(json) {
+
+	}
+
 	toJSON() {
 		return {
 			type: this.getType(),
@@ -545,6 +549,9 @@ class Shape {
 		return this._coordpointlist;
 	}
 
+	formulasToValues() {
+	}
+
 	/**
 	 * Refreshes the shapes {{#crossLink "PointList"}}{{/crossLink}}.</br>
 	 * The points are calculated by calling {{#crossLink "Coordinate/toPoint:method"}}{{/crossLink}}
@@ -948,7 +955,7 @@ class Shape {
 
 	_evalCoords(coords) {
 		// TODO: JSG.idUpdater is set by JSGGlobals
-		if (this._item !== undefined && !this._item._reading && (JSG.idUpdater && !JSG.idUpdater.isActive)) {
+		if (this._item !== undefined && /*this._item._parent !== undefined && */!this._item._reading && (JSG.idUpdater && !JSG.idUpdater.isActive)) {
 			let coordinate;
 			for (let i = 0; i < coords.length; i += 1) {
 				coordinate = coords[i];

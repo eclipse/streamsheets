@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -65,11 +65,13 @@ module.exports = class GraphManager {
 	}
 
 	// returns id under which graph was added or undefined...
-	addGraph({ id = IdGenerator.generate(), graph, machineId }) {
+	addGraph({ id = IdGenerator.generate(), graph, machineId, migrations }) {
 		const add = graph && !this._graphWrappers.has(id);
 		if (add) {
 			graph.setType(id); // <-- TODO: remove this, should not be required!! misuse of type attribute...
-			this._graphWrappers.set(id, new GraphWrapper(graph, machineId));
+			const wrapper = new GraphWrapper(graph, machineId);
+			wrapper.migrations = migrations;
+			this._graphWrappers.set(id, wrapper);
 		}
 		return add ? id : undefined;
 	}
@@ -201,17 +203,13 @@ module.exports = class GraphManager {
 		streamsheetId,
 		cells,
 		namedCells,
-		graphCells,
-		drawings,
-		graphItems,
+		shapes,
 	) {
 		this.updateCells(
 			machineId,
 			streamsheetId,
 			cells,
-			drawings,
-			graphItems,
-			graphCells,
+			shapes,
 			namedCells
 		);
 	}
@@ -220,9 +218,7 @@ module.exports = class GraphManager {
 		machineId,
 		streamsheetId,
 		data,
-		drawings,
-		graphItems,
-		graphCells,
+		shapes,
 		namedCells
 	) {
 		const processSheet = this.getStreamSheet(machineId, streamsheetId);
@@ -230,9 +226,7 @@ module.exports = class GraphManager {
 			const command = new JSG.SetSheetCellsCommand(
 				processSheet,
 				data,
-				drawings,
-				graphItems,
-				graphCells,
+				shapes,
 				namedCells
 			);
 			command.execute();

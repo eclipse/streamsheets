@@ -19,11 +19,13 @@ import JSG from '@cedalo/jsg-ui';
 
 import { graphManager } from '../../GraphManager';
 import CellRangeComponent from './CellRangeComponent';
+import {intl} from "../../helper/IntlGlobalProvider";
+import MenuItem from "@material-ui/core/MenuItem";
 
 function MyInputComponent(props) {
 	const { inputRef, ...other } = props;
 
-	// implement `InputElement` interface
+	// implement  `InputElement` interface
 	React.useImperativeHandle(inputRef, () => ({
 		focus: () => {}
 	}));
@@ -32,6 +34,10 @@ function MyInputComponent(props) {
 }
 
 export class GeometryProperties extends Component {
+	state = {
+		dummy: 0,
+	}
+
 	getSheetView() {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection === undefined || selection.length !== 1) {
@@ -63,223 +69,431 @@ export class GeometryProperties extends Component {
 		return ws;
 	}
 
-	handleX = () => {};
-	updateFormula(item, expr) {
-		const path = JSG.AttributeUtils.createPath(JSG.ItemAttributes.NAME, "sheetformula");
-		let formula = expr.toLocaleString('en', {item, useName: true, forceName: true});
-		if (formula.length && formula[0] === '=') {
-			formula = formula.substring(1);
-		}
-
-		const cmd = new JSG.SetAttributeAtPathCommand(item, path, new JSG.Expression(0, formula));
-		// this is necessary, to keep changes, otherwise formula will be recreated from graphitem
-		item.setAttributeAtPath(path, new JSG.Expression(0, formula));
-		item._noFormulaUpdate = true;
-		graphManager.getGraphViewer().getInteractionHandler().execute(cmd);
-		const attr = item.getItemAttributes().getAttribute('sheetformula');
-		if (attr && attr.getExpression()) {
-			console.log(`update 2 ${attr.getExpression().getFormula()}`);
-		}
+	getFormula(expr, round) {
+		const item = this.props.view.getItem();
+		return expr.toLocaleString(JSG.getParserLocaleSettings(), {
+			item: this.getSheet(item),
+			useName: true,
+			round
+		});
 	}
 
-	handleParameter = (event, index) => {
+	getExpression(item, event) {
+		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+	}
+
+	getAttributeHandler(label, item, name, round = 0) {
+		const sheetView = this.getSheetView();
+
+		return (
+			<TextField
+				variant="outlined"
+				size="small"
+				margin="normal"
+				label={intl.formatMessage({ id: label })}
+				onBlur={(event) => this.handleAttribute(event, item, name)}
+				InputLabelProps={{shrink: true}}
+				InputProps={{
+					inputComponent: MyInputComponent,
+					inputProps: {
+						component: CellRangeComponent,
+						sheetView,
+						range: this.getFormula(item.getAttributeAtPath(name).getExpression(), round)
+					}
+				}}
+			/>
+		)
+	}
+
+	getPropertyHandler(label, handler, expression, round = 0) {
+		const sheetView = this.getSheetView();
+
+		return (
+			<TextField
+				key={label}
+				variant="outlined"
+				size="small"
+				margin="normal"
+				label={intl.formatMessage({ id: label })}
+				onBlur={(event) => handler(event)}
+				InputLabelProps={{shrink: true}}
+				InputProps={{
+					inputComponent: MyInputComponent,
+					inputProps: {
+						component: CellRangeComponent,
+						sheetView,
+						range: this.getFormula(expression, round)
+					}
+				}}
+			/>
+		)
+	}
+
+	handleAttribute(event, item, name) {
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.SetAttributeAtPathCommand(item, name, expr.expression);
+
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleX = (event) => {
 		const item = this.props.view.getItem();
-		const attr = item.getItemAttributes().getAttribute('sheetformula');
+		const expr = this.getExpression(item, event).expression;
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
+		let cmd;
 
-		if (attr && attr.getExpression()) {
-			const expr = attr.getExpression();
-			this.getSheet(item).replaceTerm(event.target.textContent, expr, index);
-			this.updateFormula(item, expr);
-		}
-	};
+		if (line) {
+			const startCoor = item.getStartCoordinate();
 
-	getFormula(index) {
-		const item = this.props.view.getItem();
-		const attr = item.getItemAttributes().getAttribute('sheetformula');
-
-		if (attr && attr.getExpression()) {
-			const term = attr.getExpression().getTerm();
-			if (term && term.params && term.params.length > index) {
-				const param = term.params[index];
-				if (param.isStatic) {
-					return `${param.toString()}`;
-				} else {
-					return `=${param.toString()}`;
-				}
+			if (expr.hasFormula()) {
+				startCoor.setX(expr);
+			} else {
+				const point = new JSG.Point(expr.getValue(), 0);
+				item.translateFromParent(point);
+				startCoor.setX(new JSG.NumberExpression(point.x));
 			}
+
+			cmd = new JSG.SetLineCoordinateAtCommand(item, 0, startCoor);
+		} else {
+			item.getPin().setX(expr);
+			cmd = new JSG.SetPinCommand(item, item.getPin());
 		}
-		return '';
+
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleY = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event).expression;
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
+		let cmd;
+
+		if (line) {
+			const startCoor = item.getStartCoordinate();
+
+			if (expr.hasFormula()) {
+				startCoor.setY(expr);
+			} else {
+				const point = new JSG.Point(0, expr.getValue());
+				item.translateFromParent(point);
+				startCoor.setY(new JSG.NumberExpression(point.y));
+			}
+
+			cmd = new JSG.SetLineCoordinateAtCommand(item, 0, startCoor);
+		} else {
+			item.getPin().setY(expr);
+			cmd = new JSG.SetPinCommand(item, item.getPin());
+		}
+
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleWidth = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event).expression;
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
+		let cmd;
+
+		if (line) {
+			const endCoor = item.getEndCoordinate();
+
+			if (expr.hasFormula()) {
+				endCoor.setX(expr);
+			} else {
+				const point = new JSG.Point(expr.getValue(), 0);
+				item.translateFromParent(point);
+				endCoor.setX(new JSG.NumberExpression(point.x));
+			}
+
+			cmd = new JSG.SetLineCoordinateAtCommand(item, 1, endCoor);
+		} else {
+			cmd = new JSG.SetSizeCommand(item, new JSG.Size(expr, item.getHeight()));
+		}
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleHeight = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event).expression;
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
+		let cmd;
+
+		if (line) {
+			const endCoor = item.getEndCoordinate();
+
+			if (expr.hasFormula()) {
+				endCoor.setY(expr);
+			} else {
+				const point = new JSG.Point(0, expr.getValue());
+				item.translateFromParent(point);
+				endCoor.setY(new JSG.NumberExpression(point.y));
+			}
+
+			cmd = new JSG.SetLineCoordinateAtCommand(item, 1, endCoor);
+		} else {
+			cmd = new JSG.SetSizeCommand(item, new JSG.Size(item.getWidth(), expr));
+		}
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleRotation = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.RotateItemCommand(item, expr.expression);
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleRotationCenter = (event) => {
+		const item = this.props.view.getItem();
+		const pin = item.getPin();
+		const local = pin.getLocalPoint();
+
+		switch (event.target.value) {
+			case '0':
+				pin.setLocalCoordinate(new JSG.NumberExpression(0), new JSG.NumberExpression(0));
+				pin.evaluate();
+				break;
+			case '1':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH * 0.5'),
+					new JSG.NumberExpression(0)
+				);
+				break;
+			case '2':
+				pin.setLocalCoordinate(new JSG.NumberExpression(local.x, 'WIDTH'), new JSG.NumberExpression(0));
+				break;
+			case '3':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(0),
+					new JSG.NumberExpression(local.y, 'HEIGHT * 0.5')
+				);
+				break;
+			default:
+			case '4':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH * 0.5'),
+					new JSG.NumberExpression(local.y, 'HEIGHT * 0.5')
+				);
+				break;
+			case '5':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH'),
+					new JSG.NumberExpression(local.y, 'HEIGHT * 0.5')
+				);
+				break;
+			case '6':
+				pin.setLocalCoordinate(new JSG.NumberExpression(0), new JSG.NumberExpression(local.y, 'HEIGHT'));
+				break;
+			case '7':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH * 0.5'),
+					new JSG.NumberExpression(local.y, 'HEIGHT')
+				);
+				break;
+			case '8':
+				pin.setLocalCoordinate(
+					new JSG.NumberExpression(local.x, 'WIDTH'),
+					new JSG.NumberExpression(local.y, 'HEIGHT')
+				);
+				break;
+		}
+
+		const cmd = new JSG.SetPinCommand(item, pin);
+
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	}
+
+	handlePointRange = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.SetPointSourceCommand(item, expr.expression);
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleText = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.SetTextCommand(item, item.getText(), expr.expression);
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	getX() {
+		const item = this.props.view.getItem();
+		const type = item.getShape().getType();
+		let ret;
+
+		if (type === JSG.LineShape.TYPE) {
+			const coor = item.getStartCoordinate();
+			ret = coor.getX().hasFormula() ? coor.getX() : new JSG.NumberExpression(item.getStartPoint().x);
+		} else {
+			ret = item.getPin().getX();
+		}
+
+		return ret;
+	}
+
+	getY() {
+		const item = this.props.view.getItem();
+		const type = item.getShape().getType();
+		let ret;
+
+		if (type === JSG.LineShape.TYPE) {
+			const coor = item.getStartCoordinate();
+			ret = coor.getY().hasFormula() ? coor.getY() : new JSG.NumberExpression(item.getStartPoint().y);
+		} else {
+			ret = item.getPin().getY();
+		}
+
+		return ret;
+	}
+
+	getWidth() {
+		const item = this.props.view.getItem();
+		const type = item.getShape().getType();
+		let ret;
+
+		if (type === JSG.LineShape.TYPE) {
+			const coor = item.getEndCoordinate();
+			ret = coor.getX().hasFormula() ? coor.getX() : new JSG.NumberExpression(item.getEndPoint().x);
+		} else {
+			ret = item.getWidth();
+		}
+
+		return ret;
+	}
+
+	getHeight() {
+		const item = this.props.view.getItem();
+		const type = item.getShape().getType();
+		let ret;
+
+		if (type === JSG.LineShape.TYPE) {
+			const coor = item.getEndCoordinate();
+			ret = coor.getY().hasFormula() ? coor.getY() : new JSG.NumberExpression(item.getEndPoint().y);
+		} else {
+			ret = item.getHeight();
+		}
+
+		return ret;
+	}
+
+	getRotationCenter() {
+		const item = this.props.view.getItem();
+		const pin = item.getPin();
+		const x = pin.getLocalX().getFormula();
+		const y = pin.getLocalY().getFormula();
+		let ret = 4;
+
+		if (x === undefined) {
+			if (y === undefined) {
+				ret = 0;
+			} else if (y === 'HEIGHT * 0.5') {
+				ret = 3;
+			} else {
+				ret = 6;
+			}
+		} else if (x === 'WIDTH * 0.5') {
+			if (y === undefined) {
+				ret = 1;
+			} else if (y === 'HEIGHT * 0.5') {
+				ret = 4;
+			} else {
+				ret = 7;
+			}
+		} else if (y === undefined) {
+			ret = 2;
+		} else if (y === 'HEIGHT * 0.5') {
+			ret = 5;
+		} else {
+			ret = 8;
+		}
+
+		return ret;
 	}
 
 	render() {
-		const sheetView = this.props.view;
+		const sheetView = this.getSheetView();
 		if (!sheetView) {
 			return <div />;
 		}
+		const item = this.props.view.getItem();
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		return (
 			<FormGroup>
-				<TextField
-					variant="outlined"
-					size="small"
-					margin="normal"
-					label={
-						<FormattedMessage
-							id="GraphItemProperties.Container"
-							defaultMessage="Container"
-						/>
-					}
-					onBlur={(event) => this.handleParameter(event, 2)}
-					value={this.getFormula(1)}
-					InputLabelProps={{ shrink: true }}
-					InputProps={{
-						inputComponent: MyInputComponent,
-						inputProps: {
-							component: CellRangeComponent,
-							sheetView,
-							value: {},
-							range: this.getFormula(1)
+				{this.getPropertyHandler(line ? "GraphItemProperties.StartX" : "GraphItemProperties.HorizontalPosition", this.handleX, this.getX())}
+				{this.getPropertyHandler(line ? "GraphItemProperties.StartY" : "GraphItemProperties.VerticalPosition", this.handleY, this.getY())}
+				{this.getPropertyHandler(line ? "GraphItemProperties.EndX" : "GraphItemProperties.Width", this.handleWidth, this.getWidth())}
+				{this.getPropertyHandler(line ? "GraphItemProperties.EndY" : "GraphItemProperties.Height", this.handleHeight, this.getHeight())}
+				{line ? null : this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), 2)}
+				{line ? null : (
+					<TextField
+						variant="outlined"
+						size="small"
+						margin="normal"
+						select
+						value={this.getRotationCenter()}
+						onChange={event => this.handleRotationCenter(event)}
+						label={
+							<FormattedMessage id="GraphItemProperties.RotationCenter" defaultMessage="Rotation Center" />
 						}
-					}}
-				/>
-				<TextField
-					variant="outlined"
-					size="small"
-					margin="normal"
-					label={
-						<FormattedMessage
-							id="GraphItemProperties.HorizontalPosition"
-							defaultMessage="Horizontal Position"
-						/>
-					}
-					onBlur={(event) => this.handleParameter(event, 3)}
-					value={this.getFormula(3)}
-					InputLabelProps={{ shrink: true }}
-					InputProps={{
-						inputComponent: MyInputComponent,
-						inputProps: {
-							component: CellRangeComponent,
-							sheetView,
-							value: {},
-							range: this.getFormula(3)
-						}
-					}}
-				/>
-				<TextField
-					variant="outlined"
-					size="small"
-					margin="normal"
-					label={
-						<FormattedMessage
-							id="GraphItemProperties.VerticalPosition"
-							defaultMessage="Vertical Position"
-						/>
-					}
-					onBlur={(event) => this.handleParameter(event, 4)}
-					value={this.getFormula(4)}
-					InputLabelProps={{ shrink: true }}
-					InputProps={{
-						inputComponent: MyInputComponent,
-						inputProps: {
-							component: CellRangeComponent,
-							sheetView,
-							value: {},
-							range: this.getFormula(4)
-						}
-					}}
-				/>
-				<TextField
-					variant="outlined"
-					size="small"
-					margin="normal"
-					label={<FormattedMessage id="GraphItemProperties.Width" defaultMessage="Width" />}
-					onBlur={(event) => this.handleParameter(event, 5)}
-					value={this.getFormula(5)}
-					InputLabelProps={{ shrink: true }}
-					InputProps={{
-						inputComponent: MyInputComponent,
-						inputProps: {
-							component: CellRangeComponent,
-							sheetView,
-							value: {},
-							range: this.getFormula(5)
-						}
-					}}
-				/>
-				<TextField
-					variant="outlined"
-					size="small"
-					margin="normal"
-					label={<FormattedMessage id="GraphItemProperties.Height" defaultMessage="Height" />}
-					onBlur={(event) => this.handleParameter(event, 6)}
-					value={this.getFormula(6)}
-					InputLabelProps={{ shrink: true }}
-					InputProps={{
-						inputComponent: MyInputComponent,
-						inputProps: {
-							component: CellRangeComponent,
-							sheetView,
-							value: {},
-							range: this.getFormula(6)
-						}
-					}}
-				/>
-				<TextField
-					variant="outlined"
-					size="small"
-					margin="normal"
-					label={<FormattedMessage id="GraphItemProperties.Rotation" defaultMessage="Rotation" />}
-					onBlur={(event) => this.handleParameter(event, 11)}
-					value={this.getFormula(11)}
-					InputLabelProps={{ shrink: true }}
-					InputProps={{
-						inputComponent: MyInputComponent,
-						inputProps: {
-							component: CellRangeComponent,
-							sheetView,
-							value: {},
-							range: this.getFormula(11)
-						}
-					}}
-				/>
-				<TextField
-					variant="outlined"
-					size="small"
-					margin="normal"
-					label={
-						<FormattedMessage id="GraphItemProperties.RotationCenter" defaultMessage="Rotation Center" />
-					}
-					onBlur={(event) => this.handleParameter(event, 12)}
-					onKeyPress={(event) => {
-						if (event.key === 'Enter') {
-							this.handleParameter(event, 12);
-						}
-					}}
-					value={this.getFormula(12)}
-					InputLabelProps={{
-						shrink: true
-					}}
-					InputProps={{
-						inputComponent: MyInputComponent,
-						inputProps: {
-							component: CellRangeComponent,
-							inputEditorType: 'string',
-							inputEditorOptions: [
-								{value: '0', label: 'GraphItemProperties.LeftTop'},
-								{value: '1', label: 'GraphItemProperties.CenterTop'},
-								{value: '2', label: 'GraphItemProperties.RightTop'},
-								{value: '3', label: 'GraphItemProperties.LeftMiddle'},
-								{value: '4', label: 'GraphItemProperties.Center'},
-								{value: '5', label: 'GraphItemProperties.RightMiddle'},
-								{value: '6', label: 'GraphItemProperties.LeftBottom'},
-								{value: '7', label: 'GraphItemProperties.CenterBottom'},
-								{value: '8', label: 'GraphItemProperties.RightBottom'}
-							],
-							sheetView,
-							value: {},
-							range: this.getFormula(12)
-						}
-					}}
-				/>
+					>
+						<MenuItem value="0">
+							<FormattedMessage id="GraphItemProperties.LeftTop" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="1">
+							<FormattedMessage id="GraphItemProperties.CenterTop" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="2">
+							<FormattedMessage id="GraphItemProperties.RightTop" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="3">
+							<FormattedMessage id="GraphItemProperties.LeftMiddle" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="4">
+							<FormattedMessage id="GraphItemProperties.Center" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="5">
+							<FormattedMessage id="GraphItemProperties.RightMiddle" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="6">
+							<FormattedMessage id="GraphItemProperties.LeftBottom" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="7">
+							<FormattedMessage id="GraphItemProperties.CenterBottom" defaultMessage="Left Top"/>
+						</MenuItem>
+						<MenuItem value="8">
+							<FormattedMessage id="GraphItemProperties.RightBottom" defaultMessage="Left Top"/>
+						</MenuItem>
+					</TextField>
+				)}
+				{item.getShape() instanceof JSG.PolygonShape ? (
+					this.getPropertyHandler("GraphItemProperties.PointRange", this.handlePointRange, item.getShape().getSource())
+				) : null}
+				{item instanceof JSG.TextNode ? (
+					this.getPropertyHandler("GraphItemProperties.Text", this.handleText, item.getText())
+				) : null}
+				{(item instanceof JSG.SheetButtonNode) ||
+				(item instanceof JSG.SheetSliderNode) ||
+				(item instanceof JSG.SheetKnobNode) ||
+				(item instanceof JSG.SheetCheckboxNode) ? [
+					this.getAttributeHandler("GraphItemProperties.Title", item, 'title'),
+					this.getAttributeHandler("GraphItemProperties.Value", item, 'value'),
+				] : null}
+				{(item instanceof JSG.SheetKnobNode) ||
+				(item instanceof JSG.SheetSliderNode) ? [
+					this.getAttributeHandler("GraphItemProperties.Minimum", item, 'min', -1),
+					this.getAttributeHandler("GraphItemProperties.Maximum", item, 'max', -1),
+					this.getAttributeHandler("GraphItemProperties.Step", item, 'step', -1),
+					this.getAttributeHandler("GraphItemProperties.Marker", item, 'marker'),
+					this.getAttributeHandler("GraphItemProperties.FormatRange", item, 'formatrange'),
+				] : null}
+				{(item instanceof JSG.SheetKnobNode) ? [
+					this.getAttributeHandler("GraphItemProperties.StartAngle", item, 'start', 2),
+					this.getAttributeHandler("GraphItemProperties.EndAngle", item, 'end', 2),
+				] : null}
 			</FormGroup>
 		);
 	}

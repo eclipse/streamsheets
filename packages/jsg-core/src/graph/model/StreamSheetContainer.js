@@ -333,9 +333,8 @@ module.exports = class StreamSheetContainer extends Node {
 		writer.writeEndElement('graphitem');
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'processsheetcontainer');
+	getItemType() {
+		return 'processsheetcontainer';
 	}
 
 	_createId() {

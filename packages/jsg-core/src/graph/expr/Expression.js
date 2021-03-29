@@ -15,6 +15,7 @@ const ObjectFactory = require('../../ObjectFactory');
 const Numbers = require('../../commons/Numbers');
 const Strings = require('../../commons/Strings');
 const ExpressionConstraint = require('./ExpressionConstraint');
+const MathUtils = require('../../geometry/MathUtils');
 
 /**
  * An Expression is used to determine a value by a formula or a {{#crossLink
@@ -72,6 +73,7 @@ class Expression {
 		this._constraint = new ExpressionConstraint();
 		this._term = undefined;
 		this._value = undefined;
+		this._termValue = undefined; // this is used to store server calculated values
 		this._formula = undefined;
 		this.set(value, formula, term);
 		// performance: we store last item path under which this Expression was evaluated since it marks a kind of
@@ -116,6 +118,7 @@ class Expression {
 			this._constraint !== undefined
 				? this._constraint.copy()
 				: undefined;
+		copy._termValue = this._termValue;
 
 		return copy;
 	}
@@ -193,13 +196,19 @@ class Expression {
 	 */
 	getValue() {
 		if (this._term) {
-			const val = this._term.value;
-			if (val === undefined) {
-				this._term = undefined;
-			} else {
+			if (this._termValue !== undefined) {
 				this._value = this._constraint
-					? this._constraint.getValue(val)
-					: val;
+					? this._constraint.getValue(this._termValue)
+					: this._termValue;
+			} else {
+				const val = this._term.value;
+				if (val === undefined) {
+					this._term = undefined;
+				} else {
+					this._value = this._constraint
+						? this._constraint.getValue(val)
+						: val;
+				}
 			}
 		}
 		// return this._value;
@@ -292,6 +301,14 @@ class Expression {
 			}
 		}
 		return false;
+	}
+
+	setTermValue(value) {
+		this._termValue = value;
+	}
+
+	getTermValue() {
+		return this._termValue;
 	}
 
 	/**
@@ -539,11 +556,43 @@ class Expression {
 			if (typeof value === 'boolean') {
 				str = value.toString().toUpperCase();
 			}
-			str =
-				str ||
-				(Numbers.isNumber(value)
-					? Locale.localizeNumber(value, locale)
-					: `${value}`);
+			if (Numbers.isNumber(value)) {
+				if (params && params.length && params[0].round !== undefined) {
+					str = Locale.localizeNumber(MathUtils.roundTo(value, params[0].round), locale);
+				} else {
+					str = Locale.localizeNumber(value, locale);
+				}
+			} else {
+				str = str || `${value}`;
+			}
+		}
+		return str;
+	}
+
+	toParamString(item, round = 0) {
+		// let str = this._formula != null ? this._formula : null;
+		const locale = JSG.getParserLocaleSettings();
+		let str =
+			this._term != null
+				? `${this._term.toLocaleString(locale, {item, useName: true})}`
+				: null;
+		if (str == null) {
+			const value = this.getValue();
+			if (value === undefined || value === null) {
+				str = '';
+			} else if (typeof value === 'boolean') {
+				str = value.toString().toUpperCase();
+			} else if (Numbers.isNumber(value)) {
+				if (round === -1) {
+					str = Locale.localizeNumber(value, locale);
+				} else {
+					str = Locale.localizeNumber(MathUtils.roundTo(value, round), locale);
+				}
+			} else if (String(value) !== '') {
+				str = `"${value}"`;
+			} else {
+				str = '';
+			}
 		}
 		return str;
 	}
@@ -590,19 +639,56 @@ class Expression {
 		this._isLocked = locked;
 	}
 
-	toJSON() {
+	fromJSON(json) {
+		if (json === undefined) {
+			return;
+		}
+
+		const type = json.t || 'n';
+
+		const toValue = (input) => {
+			let out = input;
+			if (input === undefined) {
+				out = 0;
+			} else if (type === 'n') {
+				out = Number(input);
+			} else if (type === 'b') {
+				out = input === 'true' || input === true;
+			} else {
+				out = Strings.decode(String(input));
+			}
+
+			return out;
+		};
+
+		const formula = json.f ? Strings.decode(json.f) : undefined;
+
+		this.set(toValue(json.v), formula);
+		if (json.msc) {
+			this.setTermValue(toValue(json.sv));
+		}
+
+		if (json.ref) {
+			this._cellref = json.ref;
+		}
+	}
+
+	toJSON(serverCalc) {
 		const ret =  {};
 
 		if (this._formula !== undefined) {
 			ret.f = Strings.encode(this._formula);
 		}
 		if (this._value !== undefined) {
-			ret.v = Strings.encode(this._value.toString())
+			ret.v = Strings.encode(this.getValue().toString())
 		}
-		const type = typeof this._value;
+		const type = typeof this.getValue();
 
 		if (type[0] !== 'n') {
 			ret.t = type[0];
+		}
+		if (serverCalc && this._formula) {
+			ret.msc = true;
 		}
 		return ret;
 	}
@@ -724,6 +810,9 @@ class Expression {
 		const formula = this._readFormulaAttribute(reader, node);
 		const constraint = this._readConstraint(reader, node);
 		const locked = reader.getAttribute(node, 'locked');
+		const termValue = reader.getAttribute(node, 'sv');
+
+		this.setTermValue(termValue);
 
 		this._isLocked = false;
 		this.set(value, formula);

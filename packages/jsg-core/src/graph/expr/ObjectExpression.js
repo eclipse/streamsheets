@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -88,6 +88,25 @@ class ObjectExpression extends Expression {
 		return this.toString();
 	}
 
+	toJSON(serverCalc) {
+		if (
+			this._value !== undefined &&
+			this._value.save &&
+			this._value.getClassName
+		) {
+			const ret = {
+				t: 'o',
+				cl: this._value.getClassName()
+			};
+
+			ret.v = this._value.toJSON();
+
+			return ret;
+		}
+
+		return undefined;
+	}
+
 	save(name, writer) {
 		writer.writeStartElement(name);
 		this._writeValue(writer);
@@ -102,6 +121,14 @@ class ObjectExpression extends Expression {
 		) {
 			writer.writeAttributeString('cl', this._value.getClassName());
 			this._value.save(writer);
+		}
+	}
+
+	fromJSON(json) {
+		const obj = ObjectFactory.create(json.cl);
+		if (obj) {
+			obj.fromJSON(json.v);
+			this.set(obj);
 		}
 	}
 

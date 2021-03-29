@@ -402,7 +402,7 @@ export default class SheetInteraction extends Interaction {
 	}
 
 	_getTargetView(event, viewer) {
-		let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => true);
+		let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => cont.getModel().isVisible());
 		if (!controller) {
 			return this._controller.getView();
 		}
@@ -755,7 +755,9 @@ export default class SheetInteraction extends Interaction {
 					false,
 					this._hitCode !== WorksheetView.HitCode.SHEET
 				);
-				if (this._endCell) {
+				if (this._endCell &&
+					!(this._endCell.x === -1 && this._hitCode === WorksheetView.HitCode.COLUMN) &&
+					!(this._endCell.y === -1 && this._hitCode === WorksheetView.HitCode.ROW)) {
 					this.deActivateTimer();
 					this._doSelect(event, viewer, true, false);
 				} else {
@@ -862,7 +864,7 @@ export default class SheetInteraction extends Interaction {
 		if (this._controller === undefined) {
 			return false;
 		}
-		let controller = viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => true);
+		let controller = viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => cont.getModel().isVisible());
 
 		if (!controller) {
 			return false;
@@ -921,6 +923,10 @@ export default class SheetInteraction extends Interaction {
 		// cannot ignore onMouseUp, which is fired document wide!! => need it to get mouse click outside GraphEditor
 		// if not handled inner div simply lose focus...!!
 		this.deActivateTimer();
+
+		if (!this._controller) {
+			return;
+		}
 
 		const view = this._controller.getView();
 		const cellEditor = CellEditor.getActiveCellEditor();

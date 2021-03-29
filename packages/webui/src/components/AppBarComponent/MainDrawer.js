@@ -102,7 +102,7 @@ export class MainDrawer extends Component {
 	render() {
 		const { user } = this.props.user;
 		const { open, isAdminPage, isMachineDetailPage } = this.props;
-		if (!user) return null;
+		if (!user || !open) return null;
 		return (
 			<Drawer width={300} open={open} onClose={() => this.setAppState({ drawerOpen: false })}>
 				<div

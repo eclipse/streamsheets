@@ -15,7 +15,8 @@ import {
 	ItemAttributes,
 	FormatAttributes,
 	TextFormatAttributes,
-	Rectangle, GraphUtils
+	Rectangle,
+	MathUtils
 } from '@cedalo/jsg-core';
 import View from '../../ui/View';
 import ShapeRenderer from './shapes/ShapeRenderer';
@@ -537,7 +538,7 @@ class GraphItemView extends View {
 		this._collapseBtn.draw(graphics);
 
 		let deco;
-		const {decorations} = this;
+		const { decorations } = this;
 
 		// eslint-disable-next-line no-restricted-syntax,guard-for-in
 		for (const id in decorations) {
@@ -568,7 +569,7 @@ class GraphItemView extends View {
 		const textY0 = rect.y + rect.height / 2 - 25;
 		const markerY0 = rect.y + (rect.height * 3) / 8 - 1;
 		const markerY1 = rect.y + (rect.height * 5) / 8;
-		const {width} = rect;
+		const { width } = rect;
 		const cs = graphics.getCoordinateSystem();
 		const zoom = cs.getZoom();
 
@@ -586,8 +587,8 @@ class GraphItemView extends View {
 		// draw marker:
 		graphics.beginPath();
 		graphics.setFillColor('#777777');
-		for (; steps.minor < width || steps.major < width;) {
-			if (zoom > 0.4 && (steps.minor > 0 && steps.minor < width)) {
+		for (; steps.minor < width || steps.major < width; ) {
+			if (zoom > 0.4 && steps.minor > 0 && steps.minor < width) {
 				graphics.moveTo(steps.minor, markerY0);
 				graphics.lineTo(steps.minor, markerY1);
 			}
@@ -604,7 +605,7 @@ class GraphItemView extends View {
 		const textX0 = rect.x + rect.width / 2 - 25;
 		const markerX0 = rect.x + (rect.width * 3) / 8;
 		const markerX1 = rect.x + (rect.width * 5) / 8;
-		const {height} = rect;
+		const { height } = rect;
 		const cs = graphics.getCoordinateSystem();
 		const zoom = cs.getZoom();
 
@@ -619,8 +620,8 @@ class GraphItemView extends View {
 		// draw marker...
 		graphics.beginPath();
 		graphics.setFillColor('#777777');
-		for (; steps.minor < height || steps.major < height;) {
-			if (zoom > 0.4 && (steps.minor > 0 && steps.minor < height)) {
+		for (; steps.minor < height || steps.major < height; ) {
+			if (zoom > 0.4 && steps.minor > 0 && steps.minor < height) {
 				graphics.moveTo(markerX0, steps.minor);
 				graphics.lineTo(markerX1, steps.minor);
 			}
@@ -638,7 +639,7 @@ class GraphItemView extends View {
 	}
 
 	getNextSteps(value, cs) {
-		const steps = {major: 0, minor: 0};
+		const steps = { major: 0, minor: 0 };
 		steps.major = Math.abs(value) % cs._majorUnit;
 		steps.major = value < 0 ? steps.major : cs._majorUnit - steps.major;
 		if (steps.major > cs._minorUnit) {
@@ -759,28 +760,219 @@ class GraphItemView extends View {
 	 *     created.
 	 * @return {Rectangle} The preferred Rectangle this view needs to draw itself.
 	 */
-	getPreferredBounds(recthint, reuserect) {
-	}
+	getPreferredBounds(recthint, reuserect) {}
 
-	adaptHighlight(highlight) {
-	}
+	adaptHighlight(highlight) {}
 
 	checkMaximumImageDimensions(image) {
 		return true;
 	}
 
-	getSelectedFormula(sheet) {
-		let formula = '';
-		const attrFormula = this.getItem().getItemAttributes().getAttribute('sheetformula');
-		const expr = attrFormula ? attrFormula.getExpression() : undefined;
-		if (expr && expr.getTerm()) {
-			formula = `=${expr.getTerm().toLocaleString(JSG.getParserLocaleSettings(), {
-				item: sheet,
-				useName: true,
-			})}`;
-		} else {
-			return expr && expr.getFormula() ? expr.getFormula() : '';
+	getLineFormula(sheet, item) {
+		const format = item.getFormat();
+
+		if (format.getLineColor().getTerm() != null) {
+			return format.getLineColor().toParamString(sheet, 0);
 		}
+
+		const color = format.getLineColor().getValue();
+		const style = format.getLineStyle().getValue();
+		const width = format.getLineWidth().getValue();
+
+		if (style === FormatAttributes.LineStyle.SOLID) {
+			if ((width === 1 || width === -1) && color !== JSG.theme.color) {
+				return `"${color}"`;
+			}
+		} else if (style === FormatAttributes.LineStyle.NONE) {
+			return `"None"`;
+		}
+
+		// const sep = JSG.getParserLocaleSettings().separators.parameter;
+		//
+		// let formula = 'LINEFORMAT(';
+		// formula += color === JSG.theme.border ? '' : `${color}`;
+		// formula += style === FormatAttributes.LineStyle.SOLID ? '' : `${sep}${style}`;
+		// if (style === FormatAttributes.LineStyle.SOLID && width !== -1) {
+		// 	formula += ',';
+		// }
+		// formula += width === -1 ? ')' : `${sep}${width})`;
+
+		return '';
+	}
+
+	getFillFormula(item) {
+		const format = item.getFormat();
+		const style = format.getFillStyle().getValue();
+
+		switch (style) {
+			case FormatAttributes.FillStyle.SOLID: {
+				const color = format.getFillColor().getValue();
+				if (color.toUpperCase() !== JSG.theme.fill) {
+					return `"${color}"`;
+				}
+				return '';
+			}
+			case FormatAttributes.FillStyle.NONE:
+				return `"None"`;
+			case FormatAttributes.FillStyle.PATTERN:
+				return `FILLPATTERN("${format.getPattern().getValue()}")`;
+			case FormatAttributes.FillStyle.GRADIENT: {
+				const color = format.getFillColor().getValue();
+				const grColor = format.getGradientColor().getValue();
+				const sep = JSG.getParserLocaleSettings().separators.parameter;
+				switch (format.getGradientType().getValue()) {
+					case 0:
+						return `FILLLINEARGRADIENT("${color}"${sep}"${grColor}"${sep}${format
+							.getGradientAngle()
+							.getValue()})`;
+					case 1:
+						return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format
+							.getGradientOffsetX().getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
+					default:
+				}
+				return '';
+			}
+			default:
+				break;
+		}
+
+		return '';
+	}
+
+	getAttributesFormula(item) {
+		const attr = item.getItemAttributes();
+		const clip = attr.getClipChildren().getValue();
+		const visible = attr.getVisible().getValue();
+		const selectable = attr.getSelectionMode().getValue();
+		const container = attr.getContainer().getValue();
+
+		if (clip === false && visible === true && selectable === 4 && container === true) {
+			return '';
+		}
+
+		const sep = JSG.getParserLocaleSettings().separators.parameter;
+
+		let formula = 'ATTRIBUTES(';
+		formula += visible ? '' : `FALSE`;
+		formula += sep;
+		formula += container ? '' : `FALSE`;
+		formula += sep;
+		formula += clip ? 'TRUE' : '';
+		formula += sep;
+		formula += selectable === 4 ? '' : String(selectable);
+		formula += ')';
+
+		return formula;
+	}
+
+	getSelectedFormula(sheet) {
+		const item = this.getItem();
+		let type = item.getShape().getType();
+		if (type === undefined) {
+			return undefined;
+		}
+
+		if (item instanceof JSG.TextNode) {
+			type = 'label';
+		} else if (item instanceof JSG.SheetButtonNode) {
+			type = 'button';
+		} else if (item instanceof JSG.SheetCheckboxNode) {
+			type = 'checkbox';
+		} else if (item instanceof JSG.SheetSliderNode) {
+			type = 'slider';
+		} else if (item instanceof JSG.SheetKnobNode) {
+			type = 'knob';
+		} else if (item instanceof JSG.SheetPlotNode) {
+			type = 'streamchart';
+		}
+
+		let formula = `=DRAW.${type.toUpperCase()}(`;
+		let param;
+		const sep = JSG.getParserLocaleSettings().separators.parameter;
+
+		// DRAW.*(X, Y, Width, Height, LineFormat, FillFormat...)
+		formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY().toParamString(sheet, 0)}${sep}`;
+		formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}`;
+
+		const options = [];
+
+		if (item.getFormat().hasAttribute(JSG.FormatAttributes.LINECOLOR)) {
+			param = item.getFormat().getLineColor().toParamString(sheet, 0);
+			if (param !== '') {
+				options[0] = param;
+			}
+		}
+		if (item.getFormat().hasAttribute(JSG.FormatAttributes.FILLCOLOR)) {
+			param = item.getFormat().getFillColor().toParamString(sheet, 0);
+			if (param !== '') {
+				options[1] = param;
+			}
+		}
+
+		param = item.getAngle().toParamString(sheet, 2);
+		if (param !== '0') {
+			options[2] = param;
+		}
+
+		switch (type) {
+			case 'label':
+				options[3] = item.getText().toParamString(sheet);
+				item.getTextFormat().setRichText(false);
+				break;
+			case 'checkbox':
+			case 'button':
+				options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+				param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+				if (param !== '') {
+					options[4] = param;
+				}
+				break;
+			case 'slider':
+			case 'knob':
+				options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+				param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+				if (param !== '') {
+					options[4] = param;
+				}
+				options[5] = item.getAttributeAtPath('min').getExpression().toParamString(sheet);
+				options[6] = item.getAttributeAtPath('max').getExpression().toParamString(sheet);
+				options[7] = item.getAttributeAtPath('step').getExpression().toParamString(sheet);
+				param = item.getAttributeAtPath('marker').getExpression().toParamString(sheet);
+				if (param !== '') {
+					options[8] = param;
+				}
+				param = item.getAttributeAtPath('formatrange').getExpression().toParamString(sheet);
+				if (param !== '') {
+					options[9] = param;
+				}
+				if (type === 'knob') {
+					options[10] = item.getAttributeAtPath('start').getExpression().toParamString(sheet, 2);
+					options[11] = item.getAttributeAtPath('end').getExpression().toParamString(sheet, 2);
+				}
+				break;
+			case 'bezier':
+			case 'polygon':
+				param = item.getShape().getSource().toParamString(sheet);
+				if (param !== '') {
+					options[3] = param;
+				}
+				param = item.getItemAttributes().getClosed().toParamString(sheet);
+				if (param !== 'TRUE') {
+					options[4] = param;
+				}
+				break;
+			default:
+				break;
+		}
+		for (let i = 0; i < options.length; i += 1) {
+			const option = options[i];
+			formula += sep;
+			if (option) {
+				formula += option;
+			}
+		}
+
+		formula += ')';
 
 		return formula;
 	}
@@ -793,15 +985,14 @@ class GraphItemView extends View {
 		return undefined;
 	}
 
-	setSelectedPropertyCategory(data) {
-	}
+	setSelectedPropertyCategory(data) {}
 
 	getDefaultPropertyCategory() {
-		return 'geometry';
+		return 'general';
 	}
 
 	isValidPropertyCategory(category) {
-		return category === 'geometry';
+		return category === 'general' || category === 'format' || category === 'textformat' || category === 'attributes' || category === 'events';
 	}
 }
 

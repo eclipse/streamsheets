@@ -168,6 +168,10 @@ export default class SheetPlotActivator extends InteractionActivator {
 
 		const item = interaction._controller.getModel();
 		if (!item.isProtected()) {
+			const hit = interaction.isElementHit(event, viewer);
+			if (hit && hit.element === 'action') {
+				return;
+			}
 			NotificationCenter.getInstance().send(
 				new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {
 					open: true
@@ -230,6 +234,18 @@ export default class SheetPlotActivator extends InteractionActivator {
 		// NotificationCenter.getInstance().send(
 		// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION)
 		// );
+	}
+
+	onMouseUp(event, viewer, dispatcher) {
+		const interaction = this.getInteraction(event, viewer);
+		if (interaction === undefined) {
+			return;
+		}
+		const hit = interaction.isElementHit(event, viewer);
+		if (hit && hit.element === 'action') {
+			event.isConsumed = true;
+			event.hasActivated = true;
+		}
 	}
 
 	onMouseMove(event, viewer) {

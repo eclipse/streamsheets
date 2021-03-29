@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+/* global window */
 import {
 	default as JSG,
 	Notification,
@@ -77,89 +78,87 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 	}
 
 	handleEvent(event, viewer, name) {
-		const events = this._controller.getModel()._sheetEvents;
-		if (events && events instanceof Array) {
-			events.forEach((sheetEvent) => {
-				if (sheetEvent.event === name) {
-					const sheet = this.getSheet();
-					if (sheet) {
-						if (sheetEvent.func.indexOf('SHOWVALUES') !== -1) {
-							try {
-								const term = JSG.FormulaParser.parse(sheetEvent.func, sheet.getGraph(), sheet);
-								const view = this.getView();
-								if (view && term && term.params.length > 1) {
-									const { operand } = term.params[0];
-									if (operand instanceof SheetReference && operand._range) {
-										const range = operand._range.copy();
-										range.shiftFromSheet();
-										const cell = range._worksheet.getDataProvider().getRC(range._x1, range._y1);
-										if (cell) {
-											const operandTarget = term.params[1].operand;
-											if (operandTarget instanceof SheetReference && operandTarget._range) {
-												const rangeTarget = operandTarget._range.copy();
-												rangeTarget.shiftFromSheet();
-												view.handleDataView(range._worksheet, {x: range._x1, y: range._y1}, rangeTarget, viewer);
-											}
-										}
+		const item = this._controller.getModel();
+		const eventAttr = item.getEvents().getAttribute(name);
+		const eventValue = eventAttr.getValue();
+		if (eventValue && eventValue.length) {
+			const sheet = this.getSheet();
+			if (sheet) {
+				if (eventValue.indexOf('SHOWVALUES') !== -1) {
+					try {
+						const term = JSG.FormulaParser.parse(eventValue, sheet.getGraph(), sheet);
+						const view = this.getView();
+						if (view && term && term.params.length > 1) {
+							const { operand } = term.params[0];
+							if (operand instanceof SheetReference && operand._range) {
+								const range = operand._range.copy();
+								range.shiftFromSheet();
+								const cell = range._worksheet.getDataProvider().getRC(range._x1, range._y1);
+								if (cell) {
+									const operandTarget = term.params[1].operand;
+									if (operandTarget instanceof SheetReference && operandTarget._range) {
+										const rangeTarget = operandTarget._range.copy();
+										rangeTarget.shiftFromSheet();
+										view.handleDataView(range._worksheet, {x: range._x1, y: range._y1}, rangeTarget, viewer);
 									}
 								}
-								// eslint-disable-next-line no-empty
-							} catch (e) {
-
-							}
-							event.isConsumed = true;
-							event.hasActivated = true;
-						} else if (sheetEvent.func.indexOf('SHOWDIALOG') !== -1) {
-							const funcsparams = sheetEvent.funcsparams || {};
-							const showParams = funcsparams.SHOWDIALOG;
-							if (showParams) {
-								const [type, ...params] = showParams;
-								const showDialog = `showDialog:${type || 'File'}`;
-								// wrap params in object for future enhancements
-								NotificationCenter.getInstance().send(new Notification(showDialog, { params }));
-								// first params is dialog-type
-								// all others are dialog params
-							} else {
-								// NotificationCenter.getInstance().send(new Notification('showFileDialog', this));
-								NotificationCenter.getInstance().send(new Notification('showDialog:File', this));
-							}
-							event.isConsumed = true;
-							event.hasActivated = true;
-						} else if (sheetEvent.func.indexOf('OPEN.URL') !== -1) {
-							try {
-								const term = JSG.FormulaParser.parse(sheetEvent.func, sheet.getGraph(), sheet)
-								if (term && term.params.length) {
-									const url = term.params[0].value;
-									const sameTab = term.params.length > 1 && term.params[1].value === false;
-									if (sameTab) {
-										window.location.href = url;
-									} else {
-										window.open(url, '_blank');
-									}
-								}
-								// eslint-disable-next-line no-empty
-							} catch (e) {
-
-							}
-							event.isConsumed = true;
-							event.hasActivated = true;
-						} else {
-							const cmd = new ExecuteFunctionCommand(sheet, sheetEvent.func);
-							viewer.getInteractionHandler().execute(cmd);
-							if (
-								sheet
-									.getGraph()
-									.getMachineContainer()
-									.getMachineState()
-									.getValue() === 0
-							) {
-								event.isConsumed = true;
-								event.hasActivated = true;
 							}
 						}
+						// eslint-disable-next-line no-empty
+					} catch (e) {
+
+					}
+					event.isConsumed = true;
+					event.hasActivated = true;
+				} else if (eventValue.indexOf('SHOWDIALOG') !== -1) {
+					// const funcsparams = sheetEvent.funcsparams || {};
+					// const showParams = funcsparams.SHOWDIALOG;
+					// if (showParams) {
+					// 	const [type, ...params] = showParams;
+					// 	const showDialog = `showDialog:${type || 'File'}`;
+					// 	// wrap params in object for future enhancements
+					// 	NotificationCenter.getInstance().send(new Notification(showDialog, { params }));
+					// 	// first params is dialog-type
+					// 	// all others are dialog params
+					// } else {
+					// 	// NotificationCenter.getInstance().send(new Notification('showFileDialog', this));
+						NotificationCenter.getInstance().send(new Notification('showDialog:File', this));
+					// }
+					event.isConsumed = true;
+					event.hasActivated = true;
+				} else if (eventValue.indexOf('OPEN.URL') !== -1) {
+					try {
+						const term = JSG.FormulaParser.parse(eventValue, sheet.getGraph(), sheet)
+						if (term && term.params.length) {
+							const url = term.params[0].value;
+							const sameTab = term.params.length > 1 && term.params[1].value === false;
+							if (sameTab) {
+								window.location.href = url;
+							} else {
+								window.open(url, '_blank');
+							}
+						}
+						// eslint-disable-next-line no-empty
+					} catch (e) {
+
+					}
+					event.isConsumed = true;
+					event.hasActivated = true;
+				} else {
+					const cmd = new ExecuteFunctionCommand(sheet, eventValue);
+					viewer.getInteractionHandler().execute(cmd);
+					if (
+						sheet
+							.getGraph()
+							.getMachineContainer()
+							.getMachineState()
+							.getValue() === 0
+					) {
+						event.isConsumed = true;
+						event.hasActivated = true;
 					}
 				}
-			});
+			}
 		}
 	}
 

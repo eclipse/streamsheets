@@ -28,6 +28,11 @@ function ServerStatusDialog(props) {
 		open,
 		connectingIn,
 	} = props;
+
+	if (!open) {
+		return null;
+	}
+
 	const getDialogContent = () => {
 		if (!allServicesConnected) {
 			return (

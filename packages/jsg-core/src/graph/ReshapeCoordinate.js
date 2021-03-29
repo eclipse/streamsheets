@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,6 +10,7 @@
  ********************************************************************************/
 const Coordinate = require('./Coordinate');
 const ShapeBuilder = require('./model/ShapeBuilder');
+const GraphItemProperties = require('./properties/GraphItemProperties');
 
 /**
  * Reshape Type definitions.
@@ -185,6 +186,69 @@ class ReshapeCoordinate extends Coordinate {
 		return ReshapeType;
 	}
 
+	fromJSON(json) {
+		super.fromJSON(json);
+		this._xMin = 0;
+		this._xMax = 0;
+		this._yMin = 0;
+		this._yMax = 0;
+
+		this._name = json.name;
+		this._xtype = json.xType;
+		this._ytype = json.yType;
+
+		if (json.xMin) {
+			this._xMin = json.xMin;
+		}
+		if (json.xMax) {
+			this._xMax = json.xMax;
+		}
+		if (json.yMin) {
+			this._yMin = json.yMin;
+		}
+		if (json.yMax) {
+			this._yMax = json.yMax;
+		}
+
+		if (json.builder && json.builderName) {
+			this._builderName = json.builderName;
+			this._builder =
+				ShapeBuilder[
+					this._builderName
+					];
+		}
+	}
+
+	toJSON() {
+		const json = super.toJSON();
+
+		json.name = this._name;
+		json.xType = this._xtype;
+		json.yType = this._ytype;
+
+		if (this._xMin) {
+			json.xMin = this._xMin;
+		}
+		if (this._xMax) {
+			json.xMax = this._xMax;
+		}
+		if (this._yMin) {
+			json.yMin = this._yMin;
+		}
+		if (this._yMax) {
+			json.yMax = this._yMax;
+		}
+
+		if (this._builder) {
+			json.builder = true;
+		}
+
+		if (this._builderName) {
+			json.builderName = this._builderName;
+		}
+
+		return json;
+	}
 	/**
 	 * Save the ReshapeCoordinate.
 	 *
@@ -355,6 +419,44 @@ class ReshapeCoordinate extends Coordinate {
 					break;
 			}
 		});
+	}
+
+	addIndexProperties(reshapeProperties, index) {
+		const properties = GraphItemProperties;
+
+		if (this.getXType() !== ReshapeCoordinate.ReshapeType.RADIAL) {
+			if (
+				this.getXType() !== ReshapeCoordinate.ReshapeType.NONE &&
+				this.getYType() !== ReshapeCoordinate.ReshapeType.NONE
+			) {
+				reshapeProperties.addIndexProperty(
+					`${this.getName()}X`,
+					properties.getReshapePointX,
+					properties.setReshapePointX,
+					index
+				);
+				reshapeProperties.addIndexProperty(
+					`${this.getName()}Y`,
+					properties.getReshapePointY,
+					properties.setReshapePointY,
+					index
+				);
+			} else if (this.getXType() !== ReshapeCoordinate.ReshapeType.NONE) {
+				reshapeProperties.addIndexProperty(
+					this.getName(),
+					properties.getReshapePointX,
+					properties.setReshapePointX,
+					index
+				);
+			} else if (this.getYType() !== ReshapeCoordinate.ReshapeType.NONE) {
+				reshapeProperties.addIndexProperty(
+					this.getName(),
+					properties.getReshapePointY,
+					properties.setReshapePointY,
+					index
+				);
+			}
+		}
 	}
 
 	/**

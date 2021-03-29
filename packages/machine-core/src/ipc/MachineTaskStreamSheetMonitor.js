@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -195,9 +195,7 @@ class MachineTaskStreamSheetMonitor {
 				// include editable-web-component:
 				// properties: sheet.properties.toJSON(),
 				namedCells: sheet.namedCells.getDescriptors(),
-				graphCells: sheet.graphCells.getDescriptors(),
-				drawings: sheet.getDrawings().toJSON(),
-				graphItems: sheet.getDrawings().toGraphItemsJSON()
+				shapes: sheet.getShapes().toJSON(),
 			}
 		};
 		MachineTaskMessagingClient.publishEvent(event);
@@ -216,8 +214,7 @@ class MachineTaskStreamSheetMonitor {
 			srcId: streamsheet.id,
 			machineId: streamsheet.machine.id,
 			cells,
-			drawings: streamsheet.sheet.getDrawings().toJSON(),
-			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON()
+			shapes: streamsheet.sheet.getShapes().toJSON(),
 		};
 		MachineTaskMessagingClient.publishEvent(event);
 	}
@@ -258,8 +255,7 @@ class MachineTaskStreamSheetMonitor {
 					totalSize: streamsheet.machine.outbox.size,
 					messages: streamsheet.machine.outbox.getFirstMessages()
 				},
-				drawings: streamsheet.sheet.getDrawings().toJSON(),
-				graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON()
+				shapes: streamsheet.sheet.getShapes().toJSON(),
 			};
 			this._steps = 0;
 			MachineTaskMessagingClient.publishEvent(event);
@@ -274,9 +270,7 @@ class MachineTaskStreamSheetMonitor {
 			name: streamsheet.name,
 			cells: getSheetCellsAsList(streamsheet.sheet),
 			namedCells: streamsheet.sheet.namedCells.getDescriptors(),
-			graphCells: streamsheet.sheet.graphCells.getDescriptors(),
-			drawings: streamsheet.sheet.getDrawings().toJSON(),
-			graphItems: streamsheet.sheet.getDrawings().toGraphItemsJSON(),
+			shapes: streamsheet.sheet.getShapes().toJSON(),
 			inbox: {
 				totalSize: this.inboxAdapter.totalSize,
 				messages: streamsheet.inbox.messages.slice(0),

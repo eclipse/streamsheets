@@ -8,6 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+
+const { FuncTerm, NullTerm } = require('@cedalo/parser');
+
 const JSG = require('../../JSG');
 const Strings = require('../../commons/Strings');
 const Arrays = require('../../commons/Arrays');
@@ -18,14 +21,18 @@ const Size = require('../Size');
 const GraphUtils = require('../GraphUtils');
 const ReshapeCoordinate = require('../ReshapeCoordinate');
 const Path = require('./Path');
+const Expression = require('../expr/Expression');
 const NumberExpression = require('../expr/NumberExpression');
 const StringExpression = require('../expr/StringExpression');
+const BooleanExpression = require('../expr/BooleanExpression');
 const Shape = require('./shapes/Shape');
 const ShapeFactory = require('./shapes/ShapeFactory');
 const BezierShape = require('./shapes/BezierShape');
 const FormatAttributes = require('../attr/FormatAttributes');
+const AttributeUtils = require('../attr/AttributeUtils');
 const ItemAttributes = require('../attr/ItemAttributes');
 const LayoutAttributes = require('../attr/LayoutAttributes');
+const EventAttributes = require('../attr/EventAttributes');
 const MathUtils = require('../../geometry/MathUtils');
 const Point = require('../../geometry/Point');
 const BoundingBox = require('../../geometry/BoundingBox');
@@ -33,14 +40,17 @@ const TextFormatAttributes = require('../attr/TextFormatAttributes');
 const Attribute = require('../attr/Attribute');
 const StringAttribute = require('../attr/StringAttribute');
 const AttributeList = require('../attr/AttributeList');
-const AttributeExpression = require('../expr/AttributeExpression');
 const AttributeChangeEvent = require('./events/AttributeChangeEvent');
 const Event = require('./events/Event');
-const GraphItemProperties = require('../properties/GraphItemProperties');
 const Properties = require('../properties/Properties');
+const CompoundCommand = require('../command/CompoundCommand');
 
 const _tmpEvent = new Event(Event.ALL);
-
+const ptCache = [
+	new Point(0, 0),
+	new Point(0, 0)
+];
+const boxCache = new BoundingBox(0, 0);
 /**
  * A GraphItem defines the aspects common to all graph objects such as
  * {{#crossLink "Node"}}{{/crossLink}}s, {{#crossLink "Edge"}}{{/crossLink}}s
@@ -77,6 +87,7 @@ class GraphItem extends Model {
 		this.addAttribute(new FormatAttributes());
 		this.addAttribute(new ItemAttributes());
 		this.addAttribute(new LayoutAttributes());
+		this.addAttribute(new EventAttributes());
 
 		this._reshapeProperties = new Properties();
 
@@ -227,6 +238,7 @@ class GraphItem extends Model {
 
 		if (this._shape) {
 			copy.setShapeTo(this._shape.copy());
+			copy._shape._item = copy;
 		}
 
 		if (this._layout) {
@@ -515,6 +527,10 @@ class GraphItem extends Model {
 	 * @return {Boolean} <code>true</code> if shape should be closed, <code>false</code> otherwise.
 	 */
 	isClosed() {
+		if (this._attrCache.closed !== undefined) {
+			return this._attrCache.closed;
+		}
+
 		return this.getItemAttribute(ItemAttributes.CLOSED).getValue();
 	}
 
@@ -525,11 +541,12 @@ class GraphItem extends Model {
 	 * @return {Boolean} <code>true</code> if item is collapsable, <code>false</code> otherwise.
 	 */
 	isCollapsable() {
-		if (this._attrCache.collapsable !== undefined) {
-			return this._attrCache.collapsable;
-		}
-
-		return this.getItemAttribute(ItemAttributes.COLLAPSABLE).getValue();
+		return false;
+		// if (this._attrCache.collapsable !== undefined) {
+		// 	return this._attrCache.collapsable;
+		// }
+		//
+		// return this.getItemAttribute(ItemAttributes.COLLAPSABLE).getValue();
 	}
 
 	/**
@@ -539,11 +556,12 @@ class GraphItem extends Model {
 	 * @return {Boolean} <code>true</code> if item is collapsed, <code>false</code> otherwise.
 	 */
 	isCollapsed() {
-		if (this._attrCache.collapsed !== undefined) {
-			return this._attrCache.collapsed;
-		}
-
-		return this.getItemAttribute(ItemAttributes.COLLAPSED).getValue();
+		return false;
+		// if (this._attrCache.collapsed !== undefined) {
+		// 	return this._attrCache.collapsed;
+		// }
+		//
+		// return this.getItemAttribute(ItemAttributes.COLLAPSED).getValue();
 	}
 
 	/**
@@ -716,6 +734,9 @@ class GraphItem extends Model {
 				visible = !!visible;
 			}
 		}
+		if (Strings.isString(visible)) {
+			visible = visible.toLowerCase() !== 'false';
+		}
 
 		if (visible) {
 			if (this._parent !== undefined && !this._parent.isVisible()) {
@@ -853,6 +874,10 @@ class GraphItem extends Model {
 	 */
 	setLayoutAttributes(layoutattr) {
 		this.addAttribute(layoutattr);
+	}
+
+	getEvents() {
+		return this.getModelAttributes().getAttribute(EventAttributes.NAME);
 	}
 
 	/**
@@ -1053,6 +1078,9 @@ class GraphItem extends Model {
 		let frame = this.getFormat()
 			.getLineWidth()
 			.getValue();
+		if (!Numbers.isNumber(frame)) {
+			frame = 0;
+		}
 		const shadow = Math.max(
 			this.getFormat()
 				.getShadowOffsetX()
@@ -2703,6 +2731,8 @@ class GraphItem extends Model {
 	 * relative to its Graph.
 	 */
 	saveContent(file, absolute) {
+		file.writeAttributeString('type', this.getItemType());
+
 		this._pin.save('pin', file, absolute);
 		this._size.save('size', file);
 
@@ -2809,7 +2839,6 @@ class GraphItem extends Model {
 					this._updateOrigin();
 					break;
 				case 'rscoordinates': {
-					const properties = GraphItemProperties;
 					let index = 0;
 					reader.iterateObjects(subnode, (childname, child) => {
 						switch (childname) {
@@ -2817,39 +2846,7 @@ class GraphItem extends Model {
 								const coordinate = new ReshapeCoordinate();
 								coordinate.read(reader, child);
 								this._reshapeCoordinates.push(coordinate);
-								if (coordinate.getXType() !== ReshapeCoordinate.ReshapeType.RADIAL) {
-									if (
-										coordinate.getXType() !== ReshapeCoordinate.ReshapeType.NONE &&
-										coordinate.getYType() !== ReshapeCoordinate.ReshapeType.NONE
-									) {
-										this._reshapeProperties.addIndexProperty(
-											`${coordinate.getName()}X`,
-											properties.getReshapePointX,
-											properties.setReshapePointX,
-											index
-										);
-										this._reshapeProperties.addIndexProperty(
-											`${coordinate.getName()}Y`,
-											properties.getReshapePointY,
-											properties.setReshapePointY,
-											index
-										);
-									} else if (coordinate.getXType() !== ReshapeCoordinate.ReshapeType.NONE) {
-										this._reshapeProperties.addIndexProperty(
-											coordinate.getName(),
-											properties.getReshapePointX,
-											properties.setReshapePointX,
-											index
-										);
-									} else if (coordinate.getYType() !== ReshapeCoordinate.ReshapeType.NONE) {
-										this._reshapeProperties.addIndexProperty(
-											coordinate.getName(),
-											properties.getReshapePointY,
-											properties.setReshapePointY,
-											index
-										);
-									}
-								}
+								coordinate.addIndexProperties(this._reshapeProperties, index);
 								index += 1;
 								break;
 							}
@@ -3216,15 +3213,14 @@ class GraphItem extends Model {
 	 * @private
 	 */
 	_updateOrigin() {
-		const pin = this._pin.getPoint(JSG.ptCache.get());
-		let localpin = this._pin.getLocalPoint(JSG.ptCache.get());
+		const pin = this._pin.getPoint(ptCache[0]);
+		let localpin = this._pin.getLocalPoint(ptCache[1]);
 		localpin = MathUtils.rotatePoint(localpin, this._angle.getValue());
 		pin.subtract(localpin);
 		const ret = pin.isEqualTo(this._origincache, 0.1);
 		if (!ret) {
 			this._origincache.setTo(pin);
 		}
-		JSG.ptCache.release(pin, localpin);
 		return !ret;
 	}
 
@@ -3236,15 +3232,12 @@ class GraphItem extends Model {
 	 * @private
 	 */
 	_updateBoundingBox() {
-		const size = this.getSizeAsPoint(JSG.ptCache.get());
-		const oldbbox = JSG.boxCache.get().setTo(this._bboxcache);
+		const size = this.getSizeAsPoint(ptCache[0]);
+		const oldbbox = boxCache.setTo(this._bboxcache);
 
 		this._bboxcache.setTopLeftTo(this._origincache);
 		this._bboxcache.setSizeTo(size);
 		this._bboxcache.setAngle(this._angle.getValue());
-
-		JSG.ptCache.release(size);
-		JSG.boxCache.release(oldbbox);
 
 		return !oldbbox.isEqualTo(this._bboxcache, 0.1);
 	}
@@ -3266,12 +3259,14 @@ class GraphItem extends Model {
 		this._attrCache.itemAttributes = this.getModelAttributes().getAttribute(ItemAttributes.NAME);
 
 		// set to undefined in order for funcs not to use cache
+		this._attrCache.closed = undefined;
 		this._attrCache.visible = undefined;
 		this._attrCache.itemvisible = undefined;
 		this._attrCache.collapsable = undefined;
 		this._attrCache.collapsed = undefined;
 		this._attrCache.selectable = undefined;
 
+		this._attrCache.closed = this.isClosed();
 		this._attrCache.visible = this.isVisible();
 		this._attrCache.itemvisible = this.isItemVisible();
 		this._attrCache.collapsable = this.isCollapsable();
@@ -3387,27 +3382,105 @@ class GraphItem extends Model {
 	getPropertyCategories() {
 		return [
 			{
-				key: 'geometry',
-				label: 'GraphItemProperties.Geometry',
+				key: 'general',
+				label: 'GraphItemProperties.General',
+				name: '',
+			},
+			{
+				key: 'format',
+				label: 'GraphItemProperties.Format',
+				name: '',
+			},
+			{
+				key: 'textformat',
+				label: 'GraphItemProperties.TextFormat',
+				name: '',
+			},
+			{
+				key: 'attributes',
+				label: 'GraphItemProperties.Attributes',
+				name: '',
+			},
+			{
+				key: 'events',
+				label: 'GraphItemProperties.Events',
 				name: '',
 			}
 		]
+	}
+
+	fromJSON(json) {
+		this._id = json.id;
+		this.getPin().getX().fromJSON(json.x);
+		this.getPin().getY().fromJSON(json.y);
+		this.getPin().getLocalX().fromJSON(json.localX);
+		this.getPin().getLocalY().fromJSON(json.localY);
+		this.getWidth().fromJSON(json.width);
+		this.getHeight().fromJSON(json.height);
+		if (json.angle !== undefined) {
+			this.getAngle().fromJSON(json.angle);
+		}
+		if (json.type !== undefined) {
+			this.getType().fromJSON(json.type);
+		}
+
+		if (json.reshape) {
+			this._reshapeCoordinates = [];
+			this._reshapeProperties.clear();
+			json.reshape.forEach((coor, index) => {
+				const coordinate = new ReshapeCoordinate();
+				coordinate.fromJSON(coor);
+				this._reshapeCoordinates.push(coordinate);
+				coordinate.addIndexProperties(this._reshapeProperties, index);
+			});
+		}
+
+		this._shape.fromJSON(json.shape);
+		if (json.format) {
+			this.getFormat().fromJSON(json.format);
+		}
+		if (json.textformat) {
+			this.getTextFormat().fromJSON(json.textformat);
+		}
+		if (json.attributes) {
+			this.getItemAttributes().fromJSON(json.attributes);
+		}
+		if (json.events) {
+			this.getEvents().fromJSON(json.events);
+		}
+		if (json.modelattributes) {
+			this.getModelAttributes().fromJSON(json.modelattributes);
+		}
+		if (json.layoutattributes) {
+			this.getLayoutAttributes().fromJSON(json.layoutattributes);
+			const old = this._reading;
+			this._reading = true;
+			this.setLayout(
+				this.getLayoutAttributes()
+					.getLayout()
+					.getValue()
+			);
+			this._reading = old;
+		}
 	}
 
 	toJSON() {
 		const ret = {
 			id: this._id,
 			parent: this._parent.getId(),
-			x: this.getPin().getX().toJSON(),
-			y: this.getPin().getY().toJSON(),
-			width: this.getWidth().toJSON(),
-			height: this.getHeight().toJSON(),
+			itemType: this.getItemType(),
+			x: this.getPin().getX().toJSON(true),
+			y: this.getPin().getY().toJSON(true),
+			localX: this.getPin().getLocalX().toJSON(),
+			localY: this.getPin().getLocalY().toJSON(),
+			width: this.getWidth().toJSON(true),
+			height: this.getHeight().toJSON(true),
 		};
-		if (this._angle.getValue() !== 0) {
-			ret.angle = this.getAngle().toJSON();
+		if (this._angle.getValue() !== 0 || this._angle.hasFormula()) {
+			ret.angle = this.getAngle().toJSON(true);
 		}
 
-		if (this._name.getValue() !== 0) {
+		if (this._name.getValue() !== '') {
 			ret.name = this.getName().getValue();
 		}
 
@@ -3415,27 +3488,382 @@ class GraphItem extends Model {
 			ret.type = this.getType().getValue();
 		}
 
+		if (this._reshapeCoordinates.length) {
+			ret.reshape = [];
+			this._reshapeCoordinates.forEach((coordinate) => {
+				ret.reshape.push(coordinate.toJSON());
+			});
+		}
+
 		ret.shape = this._shape.toJSON();
 
-		if (this._subItems.length) {
-			ret.items = this.subItemsToJSON();
-		}
+		ret.format = this.getFormat().toJSON(true);
+		ret.textformat = this.getTextFormat().toJSON(true);
+		ret.attributes = this.getItemAttributes().toJSON(true);
+		ret.events = this.getEvents().toJSON();
+		ret.modelattributes = this.getModelAttributes().toJSON(true);
+		ret.layoutattributes = this.getLayoutAttributes().toJSON(true);
 
 		return ret;
 	}
 
 	subItemsToJSON() {
-		const items = [];
+		const json = {
+			shapes: [],
+			changed: true,
+			version: 1
+		};
+		this._shapesChanged = true;
 
-		this._subItems.forEach((subItem) => {
-			items.push(subItem.toJSON());
+		GraphUtils.traverseItem(this, item => {
+			json.shapes.push(item.toJSON());
+		}, false);
+
+		return json;
+	}
+
+	oldTermToProperties(sheet, term) {
+		if (!term || !(term instanceof FuncTerm)) {
+			return;
+		}
+
+		const pin = this.getPin();
+		const size = this.getSize();
+		let expr;
+		const params = { useName: true, item: sheet };
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 3:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						pin.setX(expr);
+					}
+					break;
+				case 4:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						pin.setY(expr);
+					}
+					break;
+				case 5:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						size.setWidth(expr);
+					}
+					break;
+				case 6:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						size.setHeight(expr);
+					}
+					break;
+				case 7:	// lineformat
+					if ((param instanceof FuncTerm) && param.name === 'LINEFORMAT') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new StringExpression('', param.params[0].toString(params));
+							this.getFormat().setLineColor(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new NumberExpression(0, param.params[1].toString(params));
+							this.getFormat().setLineStyle(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new NumberExpression(0, param.params[2].toString(params));
+							this.getFormat().setLineWidth(expr);
+						}
+					} else if (!param.isStatic) {
+						expr = new StringExpression('', param.toString(params));
+						this.getFormat().setLineColor(expr);
+					} else if (String(param.value).toLowerCase() === 'none') {
+						const path = AttributeUtils.createPath(FormatAttributes.NAME, 'linecolor');
+						this.removeAttributeAtPath(path);
+					}
+ 					break;
+				case 8: // fillformat
+					if (param instanceof FuncTerm) {
+						switch (param.name) {
+							case 'FILLPATTERN':
+								if (param.params.length > 0 && !param.params[0].isStatic) {
+									expr = new StringExpression('', param.params[0].toString(params));
+									this.getFormat().setPattern(expr);
+								}
+								break;
+							case 'FILLLINEARGRADIENT':
+								if (param.params.length > 0 && !param.params[0].isStatic) {
+									expr = new StringExpression('', param.params[0].toString(params));
+									this.getFormat().setFillColor(expr);
+								}
+								if (param.params.length > 1 && !param.params[1].isStatic) {
+									expr = new StringExpression('', param.params[1].toString(params));
+									this.getFormat().setGradientColor(expr);
+								}
+								if (param.params.length > 2 && !param.params[2].isStatic) {
+									expr = new NumberExpression(0, param.params[2].toString(params));
+									this.getFormat().setGradientAngle(expr);
+								}
+								break;
+							case 'FILLRADIALGRADIENT':
+								if (param.params.length > 0 && !param.params[0].isStatic) {
+									expr = new StringExpression('', param.params[0].toString(params));
+									this.getFormat().setFillColor(expr);
+								}
+								if (param.params.length > 1 && !param.params[1].isStatic) {
+									expr = new StringExpression('', param.params[1].toString(params));
+									this.getFormat().setGradientColor(expr);
+								}
+								if (param.params.length > 2 && !param.params[2].isStatic) {
+									expr = new NumberExpression(0, param.params[2].toString(params));
+									this.getFormat().setGradientOffsetX(expr);
+								}
+								if (param.params.length > 3 && !param.params[3].isStatic) {
+									expr = new NumberExpression(0, param.params[3].toString(params));
+									this.getFormat().setGradientOffsetY(expr);
+								}
+								break;
+							default:
+								if (!param.isStatic) {
+									expr = new StringExpression('', param.toString(params));
+									this.getFormat().setFillColor(expr);
+								}
+								break;
+						}
+					} else if (!param.isStatic) {
+						expr = new StringExpression('', param.toString(params));
+						this.getFormat().setFillColor(expr);
+					}
+					break;
+				case 9: // Attributes
+					if ((param instanceof FuncTerm) && param.name === 'ATTRIBUTES') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new Expression(true, param.params[0].toString(params));
+							this.getItemAttributes().setVisible(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new BooleanExpression(true, param.params[1].toString(params));
+							this.getItemAttributes().setContainer(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new BooleanExpression(true, param.params[2].toString(params));
+							this.getItemAttributes().setClipChildren(expr);
+						}
+						if (param.params.length > 3 && !param.params[3].isStatic) {
+							expr = new NumberExpression(0, param.params[3].toString(params));
+							this.getItemAttributes().setSelectionMode(expr);
+						}
+					}
+					break;
+				case 10: // Events
+					if ((param instanceof FuncTerm) && param.name === 'EVENTS') {
+						param.params.forEach(eventParam => {
+							if (eventParam instanceof FuncTerm) {
+								expr = new StringExpression(eventParam.params[0].toString(params));
+								switch (eventParam.name) {
+									case 'ONMOUSEDOWN':
+										this.getEvents().setOnMouseDown(expr);
+										break;
+									case 'ONMOUSEUP':
+										this.getEvents().setOnMouseUp(expr);
+										break;
+									case 'ONCLICK':
+										this.getEvents().setOnClick(expr);
+										break;
+									case 'ONDOUBLECLICK':
+										this.getEvents().setOnDoubleClick(expr);
+										break;
+									case 'ONVALUECHANGE':
+										this.getEvents().setOnValueChange(expr);
+										break;
+									default:
+										break;
+								}
+							}
+						});
+					}
+					break;
+				case 11:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						this.setAngle(expr);
+					}
+					break;
+				case 12:	// rotcenter
+					// 	will be ignored, currently only static setting possible
+					break;
+				case 13:	// polygon source
+					if (this.getShape() instanceof JSG.PolygonShape) {
+						expr = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
+						this.getShape().setSource(expr);
+					}
+					break;
+				case 14:	// polygon close flag
+					if (this.getShape() instanceof JSG.PolygonShape) {
+						expr = new JSG.BooleanExpression(param.value, param.isStatic ? undefined : param.toString(params));
+						this.getItemAttributes().setClosed(expr);
+					}
+					break;
+				default:
+					break;
+			}
 		});
 
-		return items;
+		let path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetformula');
+		this.removeAttributeAtPath(path);
+		path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetsource');
+		this.removeAttributeAtPath(path);
+	}
+
+	termToPropertiesCommands(sheet, term) {
+		if (!term || !(term instanceof FuncTerm)) {
+			return undefined;
+		}
+
+		const cmp = new CompoundCommand();
+		const pin = this.getPin().copy();
+		const size = this.getSize().copy();
+		let lineColor;
+		let fillColor;
+		let path;
+		let rotate;
+		let expr;
+		let points;
+		let closed;
+		const params = { useName: true, item: sheet };
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 0:
+					if (param instanceof NullTerm) {
+						expr = new NumberExpression(0);
+					} else {
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
+					}
+					pin.setX(expr);
+					break;
+				case 1:
+					if (param instanceof NullTerm) {
+						expr = new NumberExpression(0);
+					} else {
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
+					}
+					pin.setY(expr);
+					break;
+				case 2:
+					if (param instanceof NullTerm) {
+						expr = new NumberExpression(0);
+					} else {
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
+					}
+					size.setWidth(expr);
+					break;
+				case 3:
+					if (param instanceof NullTerm) {
+						expr = new NumberExpression(0);
+					} else {
+						expr = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
+					}
+					size.setHeight(expr);
+					break;
+				case 4:
+					if (!(param instanceof NullTerm)) {
+						lineColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString(params));
+						lineColor.evaluate(this);
+					}
+					break;
+				case 5:
+					if (!(param instanceof NullTerm)) {
+						fillColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString(params));
+						fillColor.evaluate(this);
+					}
+					break;
+				case 6:
+					if (param instanceof NullTerm) {
+						rotate = new NumberExpression(0);
+					} else {
+						rotate = new NumberExpression(param.value, param.isStatic ? undefined : param.toString(params));
+					}
+					rotate.evaluate(this);
+					break;
+				case 7:
+					if (this.getShape() instanceof JSG.PolygonShape) {
+						if (param instanceof NullTerm) {
+							points = new Expression('');
+						} else {
+							points = new JSG.Expression(param.value, param.isStatic ? undefined : param.toString(params));
+						}
+						points.evaluate(this);
+					}
+					break;
+				case 8:
+					if (this.getShape() instanceof JSG.PolygonShape) {
+						if (param instanceof NullTerm) {
+							closed = new JSG.BooleanExpression(false);
+						} else {
+							closed = new JSG.BooleanExpression(param.value, param.isStatic ? undefined : param.toString(params));
+						}
+						closed.evaluate(this);
+					}
+					break;
+				default:
+					break;
+			}
+		});
+
+		cmp.add(new JSG.SetPinCommand(this, pin));
+		cmp.add(new JSG.SetSizeCommand(this, size));
+		path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
+		if (lineColor) {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, lineColor));
+		} else {
+			cmp.add(new JSG.RemoveAttributeCommand(this, path));
+		}
+		path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.FILLCOLOR);
+		if (fillColor) {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, fillColor));
+		} else {
+			cmp.add(new JSG.RemoveAttributeCommand(this, path));
+		}
+		if (rotate !== undefined) {
+			cmp.add(new JSG.RotateItemCommand(this, rotate));
+		}
+		if (points !== undefined) {
+			cmp.add(new JSG.SetPointSourceCommand(this, points));
+		}
+		path = JSG.AttributeUtils.createPath(ItemAttributes.NAME, ItemAttributes.CLOSED);
+		if (closed) {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, closed));
+		}
+
+		return cmp;
 	}
 
 	get expressions() {
-		return [];
+		const exprs = [];
+		const add = (expr => {
+			if (expr.hasFormula()) {
+				exprs.push(expr);
+			}
+		});
+
+		add(this._pin.getX());
+		add(this._pin.getY());
+		add(this._size.getWidth());
+		add(this._size.getHeight());
+		add(this._angle);
+		if (this.getShape() instanceof JSG.PolygonShape) {
+			add(this.getShape().getSource());
+		}
+
+		this.getModelAttributes().iterate(attr => {
+			if (!(attr instanceof JSG.AttributeList)) {
+				add(attr.getExpression());
+			}
+		})
+		this.getFormat().iterate(attr => {
+			add(attr.getExpression());
+		})
+
+		return exprs;
 	}
 
 	set viewSettings(mode) {

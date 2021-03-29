@@ -40,10 +40,8 @@ module.exports = class CaptionNode extends Node {
 		return copy;
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-
-		file.writeAttributeString('type', 'captionnode');
+	getItemType() {
+		return 'captionnode';
 	}
 
 	_assignName() {
@@ -52,6 +50,15 @@ module.exports = class CaptionNode extends Node {
 
 	isAddLabelAllowed() {
 		return false;
+	}
+
+	read(reader, object) {
+		super.read(reader, object);
+
+		// overwrite old settings
+		this.getFormat().setFillColor(JSG.theme.caption);
+		this.getFormat().setLineColor(JSG.theme.frame);
+		this.getTextFormat().setFontColor(JSG.theme.captiontext);
 	}
 
 	setIcon(name) {

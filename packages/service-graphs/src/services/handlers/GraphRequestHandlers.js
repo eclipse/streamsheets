@@ -39,6 +39,19 @@ const loadGraphWrapper = async (machineId, graphManager, graphRepository) => {
 	}
 };
 
+const saveUpdatedGraph = async (graphWrapper, graphRepository) => {
+	try {
+		const graph = {
+			id: graphWrapper.id,
+			graphdef: graphWrapper.getGraphAsJSON(),
+			machineId: graphWrapper.machineId
+		};
+		await graphRepository.updateGraph(graph.id, graph);
+	} catch (err) {
+		logger.error('Failed to save updated graph!', err);
+	}
+};
+
 const createGraphIfMachineLoadedFromTemplate = async (
 	machineId,
 	templateId,
@@ -619,6 +632,9 @@ class LoadSubscribeGraphRequestHandler extends RequestHandler {
 				graphManager,
 				options
 			);
+			if (graphWrapper.checkMigrations(request.machine)) {
+				await saveUpdatedGraph(graphWrapper, options);
+			}
 			graphWrapper.updateProcessSheets(request.machine.streamsheets);
 			graphWrapper.updateMachineLoadSubscribe(request.machine);
 			monitorManager.subscribe(graphWrapper);
@@ -765,6 +781,23 @@ class MetaInformationRequestHandler extends RequestHandler {
 	}
 }
 
+class PreloadGraphRequestHandler extends RequestHandler {
+	constructor() {
+		super('preload_graph');
+	}
+
+	async handle(request, graphManager, monitorManager, options) {
+		logger.debug('Preload graph');
+		try {
+			const graphWrapper = await loadGraphWrapper(request.machineId, graphManager, options);
+			return this.confirm(request, { migrations: graphWrapper.migrations });
+		} catch (error) {
+			logger.error(error);
+			throw this.reject(request);
+		}
+	}
+}
+
 module.exports = {
 	CommandRequestHandler,
 	CreateGraphRequestHandler,
@@ -780,5 +813,6 @@ module.exports = {
 	UnsubscribeGraphRequestHandler,
 	UpdateProcessSheetRequestHandler,
 	PingRequestHandler,
-	SelectionRequestHandler
+	SelectionRequestHandler,
+	PreloadGraphRequestHandler
 };

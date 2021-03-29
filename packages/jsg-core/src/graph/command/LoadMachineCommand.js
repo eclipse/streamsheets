@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -123,24 +123,8 @@ module.exports = class LoadMachineCommand extends AbstractItemCommand {
 					);
 				}
 
-				if (streamsheet.sheet.graphCells) {
-					Object.entries(streamsheet.sheet.graphCells).forEach(
-						([name, value]) => {
-							const serverName = data.getOrCreateGraph(name);
-							if (serverName) {
-								const expr = new Expression(
-									value.value,
-									value.formula
-								);
-								serverName.setExpression(expr);
-								serverName.setValue(value.value);
-							}
-						}
-					);
-				}
-
-				if (streamsheet.sheet.graphItems) {
-					sheet.setGraphItems(streamsheet.sheet.graphItems);
+				if (streamsheet.sheet.shapes) {
+					sheet.setShapes(streamsheet.sheet.shapes);
 				}
 			}
 		});

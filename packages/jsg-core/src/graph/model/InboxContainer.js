@@ -145,8 +145,7 @@ module.exports = class InboxContainer extends MessageContainer {
 		return this.getParent().getStreamSheet();
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'inboxcontainer');
+	getItemType() {
+		return 'inboxcontainer';
 	}
 };

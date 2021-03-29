@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const fnshelp = require('@cedalo/functions/help');
 const JSG = require('@cedalo/jsg-core');
 
 const { GraphParserContext } = JSG;
@@ -15,7 +16,12 @@ const { GraphParserContext } = JSG;
 const isFunctionParam = (node, parent) => parent && parent.type === 'function' && node.type === 'string';
 
 const FN_CALC = () => '#CALC';
-const ALL_FUNCTIONS = new Set();
+const FN_NAMES = Object.values(fnshelp).reduce((all, { functions = {} } = {}) => {
+	Object.keys(functions).forEach((name) => all.push(name));
+	return all;
+}, []);
+const ALL_FUNCTIONS = new Set(FN_NAMES);
+
 
 module.exports = class SheetParserContext extends GraphParserContext {
 	static updateFunctions(fnDefinitions = []) {
@@ -28,7 +34,7 @@ module.exports = class SheetParserContext extends GraphParserContext {
 	}
 
 	hasFunction(id) {
-		return ALL_FUNCTIONS.has(id.toUpperCase());
+		return ALL_FUNCTIONS.has(id.toUpperCase()) || super.hasFunction(id);
 	}
 
 	getFunction(id) {

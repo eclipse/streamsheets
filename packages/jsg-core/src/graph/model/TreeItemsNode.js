@@ -885,10 +885,12 @@ module.exports = class TreeItemsNode extends Node {
 		}
 	}
 
+	getItemType() {
+		return 'treeitemsnode';
+	}
+
 	saveContent(writer, absolute) {
 		super.saveContent(writer, absolute);
-
-		writer.writeAttributeString('type', 'treeitemsnode');
 
 		writer.writeStartElement('data');
 		writer.writeStartArray('item');

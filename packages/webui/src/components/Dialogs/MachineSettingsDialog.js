@@ -154,6 +154,9 @@ export class MachineSettingsDialog extends React.Component {
 	};
 
 	render() {
+		if (!this.props.openSettings) {
+			return <div />
+		}
 		return (
 			<Dialog
 				open={this.props.openSettings}
@@ -216,8 +219,8 @@ export class MachineSettingsDialog extends React.Component {
 											<FormattedMessage id="Nones" defaultMessage="None" />
 										</MenuItem>
 										{sheetNames.map((name) => (
-											<MenuItem key={name} value={name}>
-												{name}
+											<MenuItem key={name.name} value={name.name}>
+												{name.name}
 											</MenuItem>
 										))}
 									</TextField>

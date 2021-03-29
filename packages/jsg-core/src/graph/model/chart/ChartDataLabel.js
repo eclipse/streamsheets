@@ -17,15 +17,22 @@ module.exports = class ChartDataLabel {
 		this.format.linkNumberFormat = true;
 		this.position = 'behindend';
 		this.separator = '&lf';
-		this.content = {'x': false, y: true};
+		this.content = {x: false, y: true};
+		this.visible = false;
 	}
 
 	save(name, writer) {
 		writer.writeStartElement(name);
-		writer.writeAttributeString('position', this.position);
-		writer.writeAttributeString('separator', this.separator);
-		writer.writeAttributeString('content', JSON.stringify(this.content));
-		if (this.visible !== undefined) {
+		if (this.position !== 'behindend') {
+			writer.writeAttributeString('position', this.position);
+		}
+		if (this.separator !== '&lf') {
+			writer.writeAttributeString('separator', this.separator);
+		}
+		if (!(this.content.x === false && this.content.y === true)) {
+			writer.writeAttributeString('content', JSON.stringify(this.content));
+		}
+		if (this.visible) {
 			writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
 		}
 		this.format.save('format', writer);
@@ -35,15 +42,12 @@ module.exports = class ChartDataLabel {
 	read(reader, object) {
 		this.position = reader.getAttributeString(object, 'position', 'behindend');
 		this.separator = reader.getAttributeString(object, 'separator', '&lf');
-		const val = reader.getAttribute(object, 'visible');
-		if (val !== undefined) {
-			this.visible = !!Number(val);
-		}
+		this.visible = reader.getAttributeBoolean(object, 'visible', false);
 
 		try {
-			this.content = JSON.parse(reader.getAttributeString(object, 'content', '{"x":false}, "y":true}'));
+			this.content = JSON.parse(reader.getAttributeString(object, 'content', '{"x":false, "y":true}'));
 		} catch (e) {
-			this.content = {'x': false, y: true};
+			this.content = {x: false, y: true};
 		}
 
 		reader.iterateObjects(object, (name, child) => {

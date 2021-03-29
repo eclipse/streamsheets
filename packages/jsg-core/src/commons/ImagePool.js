@@ -11,6 +11,7 @@
 /* global Image window */
 
 const Arrays = require('./Arrays');
+const Numbers = require('./Numbers');
 const Dictionary = require('../commons/Dictionary');
 const Notification = require('../graph/notifications/Notification');
 const NotificationCenter = require('../graph/notifications/NotificationCenter');
@@ -49,7 +50,7 @@ class ImagePool extends Dictionary {
 	 * @return {Image} Returns the new image. It may not be loaded directly upon return.
 	 */
 	add(url, key) {
-		if (url === 0) {
+		if (Numbers.isNumber(url)) {
 			return undefined;
 		}
 		const uri = url.indexOf('data:image') !== -1;
