@@ -426,10 +426,6 @@ export class CanvasToolBar extends Component {
 		this.props.showFunctionWizard();
 	};
 
-	onConfigureViewMode = () => {
-		this.props.setAppState({ showViewModeProperties: true });
-	}
-
 	onPasteFunction = () => {
 		// const sheetView = graphManager.getActiveSheetView();
 		// if (sheetView) {
