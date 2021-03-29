@@ -274,12 +274,13 @@ class Machine {
 	}
 
 	get view() {
-		const maximize =
-			this.settings.view.maximize && this.streamsheets.some((s) => s.name === this.settings.view.maximize)
-				? this.settings.view.maximize
-				: this.streamsheets[0]
-				? this.streamsheets[0].name
-				: '';
+		let maximize = '';
+		if (this.settings.view.maximize && this.streamsheets.some((s) => s.name === this.settings.view.maximize)) {
+			maximize = this.settings.view.maximize;
+		} else if (this.streamsheets[0]) {
+			maximize = this.streamsheets[0].name;
+		}
+
 		return { ...this.settings.view, maximize };
 	}
 
