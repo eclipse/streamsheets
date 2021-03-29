@@ -275,10 +275,10 @@ class Machine {
 
 	get view() {
 		let maximize = '';
-		if (this.settings.view.maximize && this.streamsheets.some((s) => s.name === this.settings.view.maximize)) {
+		if (this.settings.view.maximize && this.streamsheets.some((s) => s.id === this.settings.view.maximize)) {
 			maximize = this.settings.view.maximize;
 		} else if (this.streamsheets[0]) {
-			maximize = this.streamsheets[0].name;
+			maximize = this.streamsheets[0].id;
 		}
 
 		return { ...this.settings.view, maximize };
