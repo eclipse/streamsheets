@@ -181,7 +181,7 @@ export function MachineDetailPage(props) {
 			console.log(error);
 			console.log(`${error ? error.toString() : ''}`);
 		} finally {
-			// graphManager.updateCanvas(showTools, viewMode);
+			graphManager.updateCanvas(showTools, viewMode);
 			graphManager.redraw();
 		}
 	};
