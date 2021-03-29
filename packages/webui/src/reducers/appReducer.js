@@ -30,8 +30,7 @@ const defaultState = {
 	functionWizard: { show: false },
 	showTools: true,
 	viewMode: {
-		active: false,
-		sheets: []
+		active: false
 	},
 	showEditNamesDialog: false,
 	formatOpen: false,

@@ -65,7 +65,7 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewMode } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewMode, sharedMachine = false } = props;
 	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
@@ -94,14 +94,14 @@ export function MachineDetailPage(props) {
 	useEffect(() => {
 		const settings = {
 			...viewSettings,
-			active: showViewMode && !!viewSettings.maximize,
+			active: showViewMode && !!viewSettings && !!viewSettings.maximize
 		};
 
 		props.setAppState({
 			viewMode: settings,
-			showTools: settings.active === false,
+			showTools: settings.active === false
 		});
-		graphManager.updateCanvas(showTools,settings);
+		graphManager.updateCanvas(showTools, settings);
 	}, [showViewMode, viewSettings, showTools]);
 
 	const loadUser = async () => {
@@ -167,7 +167,11 @@ export function MachineDetailPage(props) {
 			`,
 				{ machineId }
 			);
-			setCanEditMachine(scopedByMachine.machine.canEdit);
+			if(!sharedMachine){
+				setCanEditMachine(scopedByMachine.machine.canEdit);
+			} else {
+				props.setAppState({ showViewMode: true });
+			}
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
 			props.setScope(scopedByMachine.machine.scope.id);
 			if (scopedByMachine.machine.canEdit === false) {
@@ -177,7 +181,7 @@ export function MachineDetailPage(props) {
 			console.log(error);
 			console.log(`${error ? error.toString() : ''}`);
 		} finally {
-			graphManager.updateCanvas(showTools, viewMode);
+			// graphManager.updateCanvas(showTools, viewMode);
 			graphManager.redraw();
 		}
 	};
