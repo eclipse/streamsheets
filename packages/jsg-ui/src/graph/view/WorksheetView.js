@@ -1969,6 +1969,12 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	handleMouseWheel(event, viewer) {
+		const viewSettings = this.getItem().getParent().viewSettings;
+
+		if (viewSettings.active && viewSettings.allowScroll === false) {
+			return;
+		}
+
 		const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
 		const scrollView = this.getScrollView();
 		const pt = scrollView.getScrollPosition();
