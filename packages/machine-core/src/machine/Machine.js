@@ -138,6 +138,8 @@ class Machine {
 		this._settings = { ...this.settings, ...settings };
 		// handle nested view object, which might be null, but shouldn't!!
 		this._settings.view = { ...this.settings.view, ...settings.view };
+		this.titleImage = definition.titleImage;
+		this.previewImage = definition.previewImage;
 
 		// first time load named cells so that reference to named cells are resolved on streamsheets load
 		this.namedCells.load(this, def.namedCells);
