@@ -166,5 +166,9 @@ module.exports = class ChartSeries {
 				}
 			}
 		});
+
+		if (this.type === 'map' && !this.map) {
+			this.map = new ChartMap();
+		}
 	}
 };

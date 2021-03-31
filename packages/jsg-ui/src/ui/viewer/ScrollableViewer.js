@@ -24,7 +24,7 @@ import Cursor from '../Cursor';
 
 const isZoomAllowed = (graph) => {
 	const viewParams = graph.viewSettings;
-	return viewParams.allowZoom !== false;
+	return !viewParams.active || viewParams.allowZoom !== false;
 };
 
 // =====================================================================================================================

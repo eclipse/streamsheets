@@ -347,12 +347,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return;
 		}
 
-		if (this.getCells().shapesChanged && !json.changed) {
+		const changed = this.getCells()._shapesChanged;
+		if (changed !== undefined && json.changed !== changed) {
 			// to prevent, that old updates are processed
 			return;
 		}
 
-		this.getCells().shapesChanged = undefined;
+		this.getCells()._shapesChanged = undefined;
 		const itemMap = {};
 		const parentMap = {};
 

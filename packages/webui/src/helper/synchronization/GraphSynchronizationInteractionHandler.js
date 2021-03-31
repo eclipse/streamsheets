@@ -217,6 +217,9 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			return item;
 		}
 
+		if (command instanceof JSG.PasteItemsCommand) {
+			return true;
+		}
 		if (command instanceof JSG.AddItemCommand) {
 			return isShape(command._parent);
 		}

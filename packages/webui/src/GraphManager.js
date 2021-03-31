@@ -478,12 +478,7 @@ export default class GraphManager {
 		const canvas = document.getElementById('canvas');
 		const graph = this.getGraph();
 		if (canvas && graph && graph.getItemCount() && settings) {
-			graph.viewSettings = {
-				active: settings.active,
-				showOutbox: settings.showOutbox,
-				allowZoom: settings.allowZoom,
-				maximize: settings.maximize
-			}
+			graph.viewSettings = settings;
 			graph.clearViewSettings();
 			let sheetContainer = graph.getStreamSheetContainerById(settings.maximize)
 			if (!sheetContainer) {
