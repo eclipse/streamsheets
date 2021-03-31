@@ -146,6 +146,7 @@ module.exports = class MachineServer {
 		} else {
 			const definition = await loadMachineDefinition();
 			result = await this._doLoadMachine(definition, session);
+			result.initialLoad = true;
 		}
 		result.machine.metadata.machineservice = {
 			id: this.machineservice.id

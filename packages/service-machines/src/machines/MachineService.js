@@ -313,8 +313,10 @@ module.exports = class MachineService extends MessagingService {
 		switch (message.requestType) {
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_MACHINE_MESSAGE_TYPE:
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE:
-				logger.debug('PersistenceService: save machine after load');
-				await RepositoryManager.machineRepository.updateMachine(response.machine.id, response.machine);
+				if (response.initialLoad) {
+					logger.debug('PersistenceService: save machine after load');
+					await RepositoryManager.machineRepository.updateMachine(response.machine.id, response.machine);
+				}
 				break;
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.START_MACHINE_MESSAGE_TYPE:
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.PAUSE_MACHINE_MESSAGE_TYPE:
