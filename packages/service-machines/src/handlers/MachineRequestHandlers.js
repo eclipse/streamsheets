@@ -226,6 +226,17 @@ class RenameMachineRequestHandler extends RequestHandler {
 	}
 }
 
+class UpdateMachineImageRequestHandler extends RequestHandler {
+	constructor() {
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_IMAGE_MESSAGE_TYPE);
+	}
+
+	async handle(request, machineserver) {
+		const { previewImage, titleImage } = request;
+		return handleRequest(this, machineserver, request, 'update', { props: { previewImage, titleImage } });
+	}
+}
+
 class UpdateStreamSheetStreamsRequestHandler extends RequestHandler {
 	constructor() {
 		super(
@@ -1122,5 +1133,6 @@ module.exports = {
 	StopMachineRequestHandler,
 	SubscribeMachineRequestHandler,
 	UnloadMachineRequestHandler,
-	UnsubscribeMachineRequestHandler
+	UnsubscribeMachineRequestHandler,
+	UpdateMachineImageRequestHandler
 };
