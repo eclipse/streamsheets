@@ -83,6 +83,8 @@ class Machine {
 		this._isManualStep = false;
 		this.metadata = { ...DEF_CONF.metadata };
 		this._settings = { ...DEF_CONF.settings };
+		this.titleImage = undefined;
+		this.previewImage = undefined;
 		// read only properties...
 		Object.defineProperties(this, {
 			stats: { value: { steps: 0 } },
@@ -299,6 +301,8 @@ class Machine {
 		this.locale = props.locale || this.locale;
 		this.cycletime = props.cycletime || this.cycletime;
 		this.view = props.view || this.view;
+		this.titleImage = props.titleImage || this.titleImage;
+		this.previewImage = props.previewImage || this.previewImage;
 		if (props.isOPCUA != null) this.isOPCUA = props.isOPCUA;
 	}
 
