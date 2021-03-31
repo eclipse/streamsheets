@@ -178,8 +178,13 @@ module.exports = class MachineService extends MessagingService {
 	}
 
 	async _updateMachineImage(message) {
-		const handler = new MachineRequestHandlers.UpdateMachineImageRequestHandler();
-		return handler.handle(message, this._machineServer);
+		try {
+			const handler = new MachineRequestHandlers.UpdateMachineImageRequestHandler();
+			await handler.handle(message, this._machineServer);
+		} catch(err) {
+			// e.g. if machine is not open
+			// ignore error to store image in DB anyway
+		}
 	}
 	async _storeMachineImage(message) {
 		const { machineId, previewImage, titleImage } = message;
