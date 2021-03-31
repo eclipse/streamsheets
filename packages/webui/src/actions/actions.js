@@ -811,12 +811,12 @@ export function openDashboard(currentMachineId, newTab = false) {
 			if (previewImage) {
 				await gatewayClient.updateMachineImage(currentMachineId, previewImage);
 			}
-			if (newTab) {
-				window.open(Path.dashboard(), '_blank');
-			} else {
-				await dispatch(push(Path.dashboard()));
-				reloadDashboard();
-			}
+		}
+		if (newTab) {
+			window.open(Path.dashboard(), '_blank');
+		} else {
+			await dispatch(push(Path.dashboard()));
+			reloadDashboard();
 		}
 	};
 }
