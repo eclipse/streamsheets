@@ -63,6 +63,9 @@ const machine2json = (machine) => {
 		streamsheet.inbox.messages = _streamsheet.inbox.messages.slice(0);
 		streamsheet.loop.currentPath = _streamsheet.getCurrentLoopPath();
 	});
+	// DL-4847: add machine images for complete definition only
+	json.titleImage = machine.titleImage;
+	json.previewImage = machine.previewImage;
 	return json;
 };
 const getDefinition = (machine) => {
