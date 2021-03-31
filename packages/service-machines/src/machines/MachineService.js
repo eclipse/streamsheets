@@ -177,43 +177,44 @@ module.exports = class MachineService extends MessagingService {
 		}
 	}
 
-	async _handleRequestMessage(topic, message) {
-		switch (topic) {
-			case Topics.SERVICES_PERSISTENCE_INPUT:
-				switch (message.type) {
-					case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_IMAGE_MESSAGE_TYPE:
-						// eslint-disable-next-line no-case-declarations
-						const { machineId, previewImage } = message;
-						if (previewImage !== null && typeof previewImage !== 'undefined') {
-							await RepositoryManager.machineRepository.updateMachinePreviewImage(
-								machineId,
-								previewImage
-							);
-						}
+	async _updateMachineImage(message) {
+		const handler = new MachineRequestHandlers.UpdateMachineImageRequestHandler();
+		return handler.handle(message, this._machineServer);
+	}
+	async _storeMachineImage(message) {
+		const { machineId, previewImage, titleImage } = message;
+		return titleImage
+			? RepositoryManager.machineRepository.updateMachineTitleImage(machineId, titleImage)
+			: RepositoryManager.machineRepository.updateMachinePreviewImage(machineId, previewImage);
+	}
+	async _handlePersistenceInput(message) {
+		switch (message.type) {
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_IMAGE_MESSAGE_TYPE:
+			case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE: {
+				const { machineId, previewImage, titleImage, requestId } = message;
+				if (titleImage || previewImage) {
+					try {
+						await this._updateMachineImage(message);
+						await this._storeMachineImage(message);
 						this.publishMessage(Topics.SERVICES_PERSISTENCE_EVENTS, {
-							requestId: message.requestId,
+							requestId,
 							machineId,
 							type: 'response'
 						});
-						break;
-					case MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_TITLE_IMAGE_MESSAGE_TYPE:
-						// eslint-disable-next-line no-case-declarations
-						const { titleImage } = message;
-						if (titleImage !== null && typeof titleImage !== 'undefined') {
-							await RepositoryManager.machineRepository.updateMachineTitleImage(
-								message.machineId,
-								titleImage
-							);
-						}
-						this.publishMessage(Topics.SERVICES_PERSISTENCE_EVENTS, {
-							requestId: message.requestId,
-							machineId: message.machineId,
-							type: 'response'
-						});
-						break;
-					default:
-						break;
+					} catch (err) {
+						logger.error('Failed to set machine image!', err);
+					}
 				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
+	async _handleRequestMessage(topic, message) {
+		switch (topic) {
+			case Topics.SERVICES_PERSISTENCE_INPUT:
+				await this._handlePersistenceInput(message);
 				break;
 			default:
 				break;
