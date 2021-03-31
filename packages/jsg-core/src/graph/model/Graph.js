@@ -295,8 +295,11 @@ class Graph extends GraphItem {
 		}
 	}
 
+	getItemType() {
+		return 'graph';
+	}
+
 	saveContent(file, absolute) {
-		file.writeAttributeString('type', 'graph');
 		file.writeAttributeString('uniqueid', this._uniqueId);
 
 		this._settings.save(file);

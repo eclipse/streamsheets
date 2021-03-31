@@ -170,6 +170,9 @@ module.exports = class WorksheetNode extends ContentNode {
 			header = wsattributes.getShowHeader().getValue();
 		}
 
+		this._rowCount = wsattributes.getRows().getValue();
+		this._columnCount = wsattributes.getRows().getValue();
+
 		this._corner.getItemAttributes().setVisible(header);
 		this._rows.getItemAttributes().setVisible(header);
 		this._columns.getItemAttributes().setVisible(header);

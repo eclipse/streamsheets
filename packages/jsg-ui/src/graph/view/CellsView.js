@@ -103,7 +103,7 @@ export default class CellsView extends NodeView {
 		}
 
 		this.setFont(graphics);
-		graphics.setFillColor('#000000');
+		graphics.setFillColor(JSG.theme.text);
 		graphics.setTextBaseline('bottom');
 
 		// draw cell content
@@ -1150,7 +1150,8 @@ export default class CellsView extends NodeView {
 			graphics.restore();
 		}
 
-		graphics.setFillColor('#000000');
+
+		graphics.setFillColor(JSG.theme.text);
 
 		if (font) {
 			this.resetFont(graphics);

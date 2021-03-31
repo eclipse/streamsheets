@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -122,15 +122,11 @@ class SetAttributeAtPathCommand extends AbstractItemCommand {
 	}
 
 	_setAttributeTo(value) {
-		let attr = this._graphItem.getAttributeAtPath(this._path);
+		const attr = this._graphItem.getAttributeAtPath(this._path);
 
 		// value of 0 or false should be allowed
 		if (attr) {
 			attr.setExpressionOrValue(value);
-			attr.evaluate(this._graphItem);
-		} else if (this._create) {
-			attr = new Attribute('sheetformula', value);
-			this._graphItem.addAttributeAtPath(this._path, attr);
 			attr.evaluate(this._graphItem);
 		}
 

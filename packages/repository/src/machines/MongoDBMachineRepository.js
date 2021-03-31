@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -315,32 +315,30 @@ module.exports = class MongoDBMachineRepository extends mix(
 
 	// streamsheets = [{ id, cells = {}, namedCells = {}, graphCells = {} }, ...]
 	updateStreamSheets(machineId, streamsheets) {
-		const bulkUpdates = streamsheets.map(({ id, cells, namedCells, graphCells } = {}) => {
+		const bulkUpdates = streamsheets.map(({ id, cells, namedCells } = {}) => {
 			const update = { $set: {} };
 			update.$set['streamsheets.$.sheet.cells'] = deletePropsFromCells(cells);
 			update.$set['streamsheets.$.sheet.namedCells'] = namedCells;
-			update.$set['streamsheets.$.sheet.graphCells'] = graphCells;
 			return {
 				updateOne: {
 					filter: { _id: machineId, 'streamsheets.id': id },
 					update
 				}
 			};
-		}); 
+		});
 		return this.db
 			.collection(this.collection)
 			.bulkWrite(bulkUpdates)
 			.then((resp) => resp.result && resp.result.ok);
 	}
 	updateSheet(machineId, streamsheetId, sheetdef = {}) {
-		const { cells, namedCells, graphCells, properties } = sheetdef;
+		const { cells, namedCells, properties } = sheetdef;
 		const selector = { _id: machineId, 'streamsheets.id': streamsheetId };
 		const update = {};
 		update.$set = {};
 		if (cells) update.$set['streamsheets.$.sheet.cells'] = deletePropsFromCells(cells);
 		if (properties) update.$set['streamsheets.$.sheet.properties'] = properties;
 		if (namedCells)	update.$set['streamsheets.$.sheet.namedCells'] = namedCells;
-		if (graphCells)	update.$set['streamsheets.$.sheet.graphCells'] = graphCells;
 		return this.db
 			.collection(this.collection)
 			.updateOne(selector, update)
@@ -351,16 +349,6 @@ module.exports = class MongoDBMachineRepository extends mix(
 		const update = { $set: {} };
 		const selector = { _id: machineId, 'streamsheets.id': streamsheetId };
 		update.$set['streamsheets.$.sheet.namedCells'] = namedCells;
-		return this.db
-			.collection(this.collection)
-			.updateOne(selector, update)
-			.then((resp) => resp.result && resp.result.ok);
-	}
-
-	updateGraphNamedCells(machineId, streamsheetId, graphCells = {}) {
-		const update = { $set: {} };
-		const selector = { _id: machineId, 'streamsheets.id': streamsheetId };
-		update.$set['streamsheets.$.sheet.graphCells'] = graphCells;
 		return this.db
 			.collection(this.collection)
 			.updateOne(selector, update)

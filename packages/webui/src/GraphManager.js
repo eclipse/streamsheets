@@ -11,16 +11,12 @@
 import JSG from '@cedalo/jsg-ui';
 import { NumberFormatter } from '@cedalo/number-format';
 import { Locale } from '@cedalo/parser';
-
-// import * as Actions from './actions/actions';
 import SheetParserContext from './SheetParserContext';
 import CommandStack from './helper/synchronization/CommandStack';
 import GraphSynchronizationInteractionHandler from './helper/synchronization/GraphSynchronizationInteractionHandler';
 import store from './store';
 import StreamHelper from './helper/StreamHelper';
 import { intl } from './helper/IntlGlobalProvider';
-// import { Path } from './helper/Path';
-
 
 const {
 	AddTreeItemCommand,
@@ -33,7 +29,6 @@ const {
 	GraphEditor,
 	SheetGraphItemEventActivator,
 	SheetPlotActivator,
-	// CreateEdgeActivator,
 	EditTextActivator,
 	JSONReader,
 	MarqueeActivator,
@@ -49,7 +44,6 @@ const {
 	RotateActivator,
 	SheetActivator,
 	LinkActivator,
-	StreamSheet,
 	Rectangle,
 	CaptionActivator,
 	ButtonActivator,
@@ -175,8 +169,8 @@ export default class GraphManager {
 		defInteraction.addActivator(SheetActivator.KEY, new SheetActivator());
 		defInteraction.addActivator(EditTextActivator.KEY, new EditTextActivator());
 		defInteraction.addActivator(MoveActivator.KEY, new MoveActivator());
-		defInteraction.addActivator(MarqueeActivator.KEY, new MarqueeActivator());
 		defInteraction.addActivator(SheetPlotActivator.KEY, new SheetPlotActivator());
+		defInteraction.addActivator(MarqueeActivator.KEY, new MarqueeActivator());
 		defInteraction.addActivator(PinchActivator.KEY, new PinchActivator());
 		defInteraction.addActivator(PanActivator.KEY, new PanActivator());
 		defInteraction.addActivator(SplitterActivator.KEY, new SplitterActivator());
@@ -346,23 +340,9 @@ export default class GraphManager {
 	}
 
 	getActiveSheetView() {
-		let view;
-
-		if (this._graphEditor === undefined || this._graphEditor.getGraphViewer() === undefined) {
-			return undefined;
-		}
-
-		this._graphEditor.getGraphViewer().getGraphController().findControllerByCondition((controller) => {
-			const item = controller.getModel();
-			if (item instanceof StreamSheet) {
-				if (item.getOwnSelection().hasSelection()) {
-					view = controller.getView();
-					return true;
-				}
-			}
-			return false;
-		});
-		return view;
+		return (this._graphEditor && this._graphEditor.getGraphViewer()) ?
+			this._graphEditor.getGraphViewer().activeView :
+			undefined;
 	}
 
 	getInboxMessageTreeItems(streamsheetId) {
@@ -382,9 +362,7 @@ export default class GraphManager {
 		jsonpath,
 		cells,
 		namedCells,
-		graphCells,
-		drawings,
-		graphItems,
+		shapes,
 		outbox,
 		stats,
 		inbox,
@@ -393,7 +371,7 @@ export default class GraphManager {
 		this.updateStreamSheetId(streamsheetId);
 		const updatePathCommand = this.updatePath(streamsheetId, jsonpath);
 		this.updateLoopIndex(streamsheetId, jsonpath);
-		const updateCellsCommand = this.updateCells(streamsheetId, cells, drawings, graphItems, graphCells, namedCells);
+		const updateCellsCommand = this.updateCells(streamsheetId, cells, shapes, namedCells);
 		const command = new CompoundCommand();
 		if (updatePathCommand) {
 			command.add(updatePathCommand);
@@ -438,10 +416,9 @@ export default class GraphManager {
 				const {
 					streamsheetId,
 					cells,
-					drawings,
-					graphItems,
+					shapes,
 				} = response.machineserver;
-				this.updateCellValues(streamsheetId, cells, drawings, graphItems);
+				this.updateCellValues(streamsheetId, cells, shapes);
 				this.redraw();
 			}
 		}
@@ -451,8 +428,8 @@ export default class GraphManager {
 		}
 	}
 
-	updateCellValues(streamsheetId, cells, drawings, graphItems, graphCells, namedCells) {
-		const updateCellsCommand = this.updateCells(streamsheetId, cells, drawings, graphItems, graphCells, namedCells);
+	updateCellValues(streamsheetId, cells, shapes, namedCells) {
+		const updateCellsCommand = this.updateCells(streamsheetId, cells, shapes, namedCells);
 		if (updateCellsCommand) {
 			updateCellsCommand.execute();
 			// to update editbar
@@ -472,10 +449,10 @@ export default class GraphManager {
 		}
 	}
 
-	updateCells(streamsheetId, data, drawings, graphItems, graphCells, namedCells) {
+	updateCells(streamsheetId, data, shapes, namedCells) {
 		const processSheet = this.getStreamSheet(streamsheetId);
 		if (processSheet) {
-			const command = new SetSheetCellsCommand(processSheet, data, drawings, graphItems, graphCells, namedCells);
+			const command = new SetSheetCellsCommand(processSheet, data, shapes, namedCells);
 			// this.redraw();
 			return command;
 		}
@@ -501,14 +478,14 @@ export default class GraphManager {
 		const canvas = document.getElementById('canvas');
 		const graph = this.getGraph();
 		if (canvas && graph && graph.getItemCount() && settings) {
-			graph.viewSettings = {
-				active: settings.active,
-				showOutbox: settings.showOutbox,
-				allowZoom: settings.allowZoom,
-				maximize: settings.maximize
-			}
+			graph.viewSettings = settings;
 			graph.clearViewSettings();
-			const sheet = graph.getItemByName(settings.maximize);		// Worksheetnode
+			let sheetContainer = graph.getStreamSheetContainerById(settings.maximize)
+			if (!sheetContainer) {
+				sheetContainer = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
+
+			}
+			const sheet = sheetContainer.getStreamSheet();
 			const graphController = this._graphEditor.getGraphViewer().getGraphController();
 			if (sheet) {
 				sheet.getParent().viewSettings = settings;
@@ -1014,7 +991,6 @@ export default class GraphManager {
 			sheetCopy.setSize(cs.deviceToLogX(width * 3) + 500, cs.deviceToLogX(height * 3) + 500);
 			sheetCopy.setOrigin(0, 0);
 			sheetCopy.getWorksheetAttributes().setShowHeader(false);
-			sheetCopy._drawings = sheet.getDrawings();
 			sheetCopy.layout();
 
 			const view = graphEditor.getGraphViewer().getGraphView();

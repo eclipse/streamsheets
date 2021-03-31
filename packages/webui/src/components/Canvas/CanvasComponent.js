@@ -158,7 +158,7 @@ export class CanvasComponent extends Component {
 	}
 
 	onCloseViewMode = () => {
-		this.props.setAppState({ showViewModeProperties: false });
+		this.props.setAppState({ showViewMode: false });
 	}
 
 	onViewModeProperties = () => {

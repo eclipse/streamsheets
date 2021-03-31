@@ -39,12 +39,13 @@ module.exports = class SheetHeaderNode extends Node {
 
 	read(reader, object) {
 		super.read(reader, object);
+
 		// overwrite old settings
-		this.getFormat().setFillColor('#F2F2F2');
+		this.getFormat().setLineColor(JSG.theme.frame);
+		this.getFormat().setFillColor(JSG.theme.header);
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'sheetheadernode');
+	getItemType() {
+		return 'sheetheadernode';
 	}
 };

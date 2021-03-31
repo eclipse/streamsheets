@@ -65,14 +65,9 @@ export class MainDrawer extends Component {
 	};
 
 	handleOpenPreview = () => {
-		window.open(
-			// add "&zoomdisabled" param to disable zoom feature in preview!
-			`${window.location.origin}${window.location.pathname}?viewmode=sheet&hideheader&hidegrid${window.location.hash}`,
-			'newwindow',
-			`width=${window.innerWidth},height=${window.outerHeight - 290}`
-		);
 		this.setAppState({
-			drawerOpen: false
+			drawerOpen: false,
+			showViewMode: true
 		});
 	};
 
@@ -107,7 +102,7 @@ export class MainDrawer extends Component {
 	render() {
 		const { user } = this.props.user;
 		const { open, isAdminPage, isMachineDetailPage } = this.props;
-		if (!user) return null;
+		if (!user || !open) return null;
 		return (
 			<Drawer width={300} open={open} onClose={() => this.setAppState({ drawerOpen: false })}>
 				<div

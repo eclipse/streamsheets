@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -655,8 +655,6 @@ module.exports = class CellRange {
 		let i = 0;
 		let j;
 		let colVal = 0;
-		let rowVal = 0;
-		let row;
 		let col;
 		let absCnt = 0;
 
@@ -664,49 +662,37 @@ module.exports = class CellRange {
 			return undefined;
 		}
 
+		let char;
+
 		while (i < reference.length) {
-			if (reference.charAt(i) >= '0' && reference.charAt(i) <= '9') {
+			char = reference.charAt(i)
+			if (char >= '0' && char <= '9') {
 				break;
 			}
-			if ((reference.charAt(i) < 'A' || reference.charAt(i) > 'Z') && reference.charAt(i) !== '$') {
+			if ((char < 'A' || char > 'Z') && char !== '$') {
 				return undefined;
 			}
-			absCnt += reference.charAt(i) === '$' ? 1 : 0;
+			absCnt += char === '$' ? 1 : 0;
 			i += 1;
 		}
 
-		// if (i === 0 || i === reference.length || i > 2 + absCnt) {
-		// 	return undefined;
-		// }
+		char = reference.charAt(i - 1);
 
-		const endOfCol = reference.charAt(i - 1) === '$' ? i - 1 : i;
+		const endOfCol = char === '$' ? i - 1 : i;
 		const colRel = reference[0] !== '$';
-		const rowRel = reference.charAt(i - 1) !== '$';
+		const rowRel = char !== '$';
 
 		// skip $ of col, if any
 		j = reference[0] === '$' ? 1 : 0;
 
 		// j now points to first character of column address
 		// check column names for negative columns
-		const initC = sheet.getColumns().getInitialSection();
-		if (initC < 0) {
-			let k = initC;
-			let name;
-			let colref;
-
-			for (k; k < 0; k += 1) {
-				name = sheet.getColumns().getSectionTitle(k - initC);
-				if (name !== undefined) {
-					colref = reference.slice(j, endOfCol);
-					if (colref === name) {
-						col = k + 1;
-						break;
-					}
-				}
-			}
-		}
-
-		if (col === undefined) {
+		const colref = reference.slice(j, endOfCol);
+		if (colref === 'IF') {
+			col = 0;
+		} else if (colref === 'COMMENT') {
+			col = -1;
+		} else {
 			if (i > 2 + absCnt) {
 				return undefined;
 			}
@@ -735,31 +721,14 @@ module.exports = class CellRange {
 			};
 		}
 
-		// check for negative reference
-		const neg = reference.charAt(i) === '-';
-		if (neg) {
-			i += 1;
-		}
+		const rowVal = Number(reference.substring(i));
 
-		for (i; i < reference.length; i += 1) {
-			// 48 -> '0'
-			if (reference.charCodeAt(i) < 48 || reference.charCodeAt(i) > 57) {
-				return undefined;
-			}
-			rowVal = rowVal * 10 + reference.charCodeAt(i) - 48;
-		}
-
-		row = rowVal;
-		if (neg) {
-			row = -row;
-		}
-
-		if (noLimit === false && row > sheet.getRowCount()) {
+		if (noLimit === false && rowVal - 1 > sheet._rowCount) {
 			return undefined;
 		}
 
 		return {
-			row: row - 1,
+			row: rowVal - 1,
 			rowRel,
 			column: col === undefined ? undefined : col - 1,
 			colRel: col === undefined ? undefined : colRel

@@ -73,29 +73,31 @@ const addValue = (fromObj) => (toObj, key) => {
 	return toObj;
 };
 const extract = (keys, fromObj) => keys.reduce(addValue(fromObj), {});
-const createResult = (requestId, obj, dataFields = DATA) => {
-	const data = extract(dataFields, obj);
+const getErrorData = (error) => extract(ERRORDATA, error);
+const getResultData = (result) => extract(DATA, result);
+const createResult = (extractData) => (requestId, obj) => {
+	const data = extractData(obj);
 	const metadata = extract(METADATA, obj);
 	if (obj.config) metadata.request = { requestId, ...extract(REQUESTDATA, obj.config) };
 	return { data, metadata };
 };
-const createErrorResult = (requestId, obj, dataFields = ERRORDATA) => createResult(requestId, obj, dataFields);
-
-const createRequestCallback = (sheet, target) => (context, response, error) => {
-	const term = context.term;
-	const reqId = context._reqId;
-	const resobj = error ? createErrorResult(reqId, error) : createResult(reqId, response);
-	resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
-	if (target) addResultToTarget(sheet, target, resobj);
-	if (term && !term.isDisposed) {
-		term.cellValue = error ? ERROR.RESPONSE : undefined;
-	}
-	return error ? RequestState.REJECTED : undefined;
+const createRequestCallback = (sheet, target, extractErrorData, extractResultData) => {
+	const createErrorResult = createResult(extractErrorData || getErrorData);
+	const createResponseResult = createResult(extractResultData || getResultData);
+	return (context, response, error) => {
+		const term = context.term;
+		const reqId = context._reqId;
+		const resobj = error ? createErrorResult(reqId, error) : createResponseResult(reqId, response);
+		resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
+		if (target) addResultToTarget(sheet, target, resobj);
+		if (term && !term.isDisposed) {
+			term.cellValue = error ? ERROR.RESPONSE : undefined;
+		}
+		return error ? RequestState.REJECTED : undefined;
+	};
 };
 
 module.exports = {
 	addResultToTarget,
-	createResult,
-	createErrorResult,
 	createRequestCallback
 };

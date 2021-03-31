@@ -24,6 +24,7 @@ const {
 	GetGraphMessage,
 	LoadGraphMessage,
 	LoadSubscribeGraphMessage,
+	PreloadGraph,
 	SubscribeGraphMessage,
 	UnsubscribeGraphMessage
 } = require('../messages/Messages');
@@ -108,6 +109,12 @@ const REQUEST_MAPPINGS = new Map([
 	}]
 ]);
 
+const isLoadMachineMessage = (type) => {
+	return (
+		type === GatewayMessagingProtocol.MESSAGE_TYPES.LOAD_MACHINE_MESSAGE_TYPE ||
+		type === GatewayMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE
+	);
+};
 module.exports = class GraphServerInterceptor extends Interceptor {
 	beforeSendToClient(context) {
 		if (context.message && context.message.type === 'event') {
@@ -123,20 +130,19 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 		const graphserver = context.connection.graphserver;
 		if (graphserver) {
 			switch (event.type) {
-			// eslint-disable-next-line
-			case MachineServerMessagingProtocol.EVENTS.STREAMSHEET_STEP: {
-				const message = {
-					type: GraphServerMessagingProtocol.MESSAGE_TYPES.UPDATE_PROCESS_SHEET_MESSAGE_TYPE,
-					streamsheet: {
-						id: event.srcId,
-						cells: event.result
-					},
-					machineId: event.machineId
-				};
-				return graphserver.send(message)
-					.then(() => Promise.resolve(context));
-			}
-			/*
+				// eslint-disable-next-line
+				case MachineServerMessagingProtocol.EVENTS.STREAMSHEET_STEP: {
+					const message = {
+						type: GraphServerMessagingProtocol.MESSAGE_TYPES.UPDATE_PROCESS_SHEET_MESSAGE_TYPE,
+						streamsheet: {
+							id: event.srcId,
+							cells: event.result
+						},
+						machineId: event.machineId
+					};
+					return graphserver.send(message).then(() => Promise.resolve(context));
+				}
+				/*
 			// eslint-disable-next-line
 			case MachineServerMessagingProtocol.EVENTS.MESSAGE_PUT:
 				const messagePutMessage = {
@@ -157,7 +163,7 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 					// additionally the initial message pop event is send to the client
 					.then(() => Promise.resolve(context));
 			*/
-			default:
+				default:
 			}
 		}
 		return Promise.resolve(context);
@@ -181,6 +187,7 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 				const request = new requestClass(parameters);
 				const response = await serverConnection.send(request.toJSON(), request.id);
 				message.graphserver = response.response;
+				// if (message.graphserver.graph.shapes) addShapesToMachineDefinition(message);
 				return context;
 			} catch (err) {
 				logger.error('Failed to handle machine-server response!', err, message);
@@ -202,8 +209,30 @@ module.exports = class GraphServerInterceptor extends Interceptor {
 	}
 
 	beforeSendToServer(context) {
-		const interceptBeforeSendToServer = this.interceptBeforeSendToServer(context.message);
+		const { message } = context;
+		if (isLoadMachineMessage(message.type)) {
+			return this.preloadGraph(context).then(() => {
+				// set to false since graphserver handles load_machine-messages later in _handleMachineServerResponse()
+				context.graphserver = false;
+				return Promise.resolve(context);
+			});
+		}
+		const interceptBeforeSendToServer = this.interceptBeforeSendToServer(message);
 		context.graphserver = interceptBeforeSendToServer;
 		return Promise.resolve(context);
+	}
+	async preloadGraph(context) {
+		logger.info('*** PRELOAD GRAPH!!');
+		const { message } = context;
+		try {
+			const serverConnection = context.connection[TARGET_GRAPH_SERVER];
+			const request = new PreloadGraph({ machineId: message.machineId });
+			const response = await serverConnection.send(request.toJSON(), request.id);
+			if (response.response) message.migrations = response.response.migrations;
+			// return context;
+		} catch (err) {
+			logger.error('Failed to preload graph!', err, message);
+		}
+		return context;
 	}
 };

@@ -127,7 +127,7 @@ export class ViewModeProperties extends Component {
 								color: 'white'
 							}}
 						>
-							<FormattedMessage id="ViewModeSettings" defaultMessage="View Mode Settings" />
+							<FormattedMessage id="ViewModeProperties.Title" defaultMessage="View Mode Settings" />
 						</Typography>
 						<IconButton
 							style={{
@@ -164,8 +164,8 @@ export class ViewModeProperties extends Component {
 								onChange={(event) => this.handleMaximizeChange(event)}
 							>
 								{sheetNames.map((key) => (
-									<MenuItem value={key} key={key}>
-										{key}
+									<MenuItem value={key.id} key={key.id}>
+										{key.name}
 									</MenuItem>
 								))}
 							</TextField>

@@ -11,7 +11,7 @@
 /* global document NodeFilter window */
 
 
-const { Operand } = require('@cedalo/parser');
+const { NullTerm, FuncTerm } = require('@cedalo/parser');
 
 const JSG = require('../../JSG');
 const Node = require('./Node');
@@ -26,9 +26,9 @@ const GraphUtils = require('../GraphUtils');
 const Event = require('./events/Event');
 const ItemAttributes = require('../attr/ItemAttributes');
 const StringExpression = require('../expr/StringExpression');
+const NumberExpression = require('../expr/NumberExpression');
 const Point = require('../../geometry/Point');
 const XML = require('../../commons/XML');
-const MathUtils = require('../../geometry/MathUtils');
 
 /**
  * The TextNode class extends a Node with Text capabilities. It contains the text itself and some
@@ -112,9 +112,26 @@ class TextNode extends Node {
 		return super.containsPoint(point, Shape.FindFlags.AREA);
 	}
 
+	getItemType() {
+		return 'text';
+	}
+
+	toJSON() {
+		const ret = super.toJSON();
+		ret.text = this._text.toJSON(true);
+
+		return ret;
+	}
+
+	fromJSON(json) {
+		super.fromJSON(json);
+
+		json.text.t = 's';
+		this._text.fromJSON(json.text);
+	}
+
 	saveContent(file, absolute) {
 		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'text');
 
 		this._text.save('text', file, absolute ? this : undefined);
 	}
@@ -173,23 +190,23 @@ class TextNode extends Node {
 	setText(text) {
 		let changed = false;
 
-		function getReferencedAttribute(term) {
-			const operand = term && term.operand;
-			return operand && operand.type === Operand.TYPE.REFERENCE ? operand.getAttribute() : undefined;
-		}
+		// function getReferencedAttribute(term) {
+		// 	const operand = term && term.operand;
+		// 	return operand && operand.type === Operand.TYPE.REFERENCE ? operand.getAttribute() : undefined;
+		// }
 
 		if (text instanceof Expression) {
 			// simply apply new expression
 			changed = this._text.setExpressionOrValue(text);
 		} else if (text !== undefined) {
 			// we might have to change an attribute value:
-			const attribute = getReferencedAttribute(this._text.getTerm());
-			if (attribute !== undefined) {
-				attribute.setExpressionOrValue(text);
-				changed = true;
-			} else {
+			// const attribute = getReferencedAttribute(this._text.getTerm());
+			// if (attribute !== undefined) {
+			// 	attribute.setExpressionOrValue(text);
+			// 	changed = true;
+			// } else {
 				changed = this._text.setExpressionOrValue(text);
-			}
+			// }
 		}
 
 		this.invalidateSize();
@@ -281,12 +298,17 @@ class TextNode extends Node {
 			}
 		}
 
-		if (text === '#[LocalDate]') {
+		const local = text === '#[LocalDate]';
+		if (local) {
 			const d = new Date();
 			text = `${d.toLocaleDateString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit'})} ${d.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})}`;
 		}
 
 		this._paras = this._splitParas(text);
+
+		if (local) {
+			this._lastUpdateInfo.text = '#[LocalDate]';
+		}
 
 		let width = this._sizeText.x;
 		let height = this._sizeText.y;
@@ -711,6 +733,91 @@ class TextNode extends Node {
 		return undefined;
 	}
 
+	get expressions() {
+		const exprs = super.expressions;
+
+		if (this._text.hasFormula()) {
+			exprs.push(this._text);
+		}
+		return exprs;
+	}
+
+	oldTermToProperties(sheet, term) {
+		super.oldTermToProperties(sheet, term);
+
+		if (!term || !(term instanceof FuncTerm)) {
+			return;
+		}
+
+		let expr;
+		const params = { useName: true, item: sheet };
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 13:
+					if (!param.isStatic) {
+						expr = new StringExpression('', param.toString(params));
+						this.setText(expr);
+					}
+					break;
+				case 14:	// Name,Größe,Stil,Farbe,HorizontaleAusrichtung'
+					if ((param instanceof FuncTerm) && param.name === 'FONTFORMAT') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new StringExpression('', param.params[0].toString(params));
+							this.getTextFormat().setFontName(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new NumberExpression(0, param.params[1].toString(params));
+							this.getTextFormat().setFontSize(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new NumberExpression(0, param.params[2].toString(params));
+							this.getTextFormat().setFontStyle(expr);
+						}
+						if (param.params.length > 3 && !param.params[3].isStatic) {
+							expr = new StringExpression(0, param.params[3].toString(params));
+							this.getTextFormat().setFontColor(expr);
+						}
+						if (param.params.length > 4 && !param.params[4].isStatic) {
+							expr = new NumberExpression(0, param.params[4].toString(params));
+							this.getTextFormat().setHorizontalAlignment(expr);
+						}
+					}
+					break;
+			}
+		});
+	}
+
+	termToPropertiesCommands(sheet, term) {
+		const cmp = super.termToPropertiesCommands(sheet, term);
+		if (!cmp) {
+			return undefined;
+		}
+
+		let label;
+		const params = { useName: true, item: sheet };
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 7:
+					if (param instanceof NullTerm) {
+						label = new StringExpression('');
+					} else {
+						label = new StringExpression(String(param.value), param.isStatic ? undefined : param.toString(params));
+					}
+					label.evaluate(this);
+					break;
+				default:
+					break;
+			}
+		});
+
+		if (label !== undefined) {
+			cmp.add(new JSG.SetTextCommand(this, this.getText(), label));
+		}
+
+		return cmp;
+	}
 }
 
 module.exports = TextNode;

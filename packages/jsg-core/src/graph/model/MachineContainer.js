@@ -114,9 +114,8 @@ module.exports = class MachineContainer extends Node {
 		this._processContainer.saveCondensed(writer);
 	}
 
-	saveContent(file, absolute) {
-		super.saveContent(file, absolute);
-		file.writeAttributeString('type', 'machinecontainer');
+	getItemType() {
+		return 'machinecontainer';
 	}
 
 	read(reader, object) {

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -20,6 +20,7 @@ const AddPortCommand = require('./AddPortCommand');
 const AlignItemsCommand = require('./AlignItemsCommand');
 const SizeItemsCommand = require('./SizeItemsCommand');
 const SetTextCommand = require('./SetTextCommand');
+const SetPointSourceCommand = require('./SetPointSourceCommand');
 const SetLinkCommand = require('./SetLinkCommand');
 const SetPinCommand = require('./SetPinCommand');
 const SetSizeCommand = require('./SetSizeCommand');
@@ -44,6 +45,7 @@ const ResizeEdgeCommand = require('./ResizeEdgeCommand');
 const ReshapeItemCommand = require('./ReshapeItemCommand');
 const SetLineShapePointsCommand = require('./SetLineShapePointsCommand');
 const SetLinePointAtCommand = require('./SetLinePointAtCommand');
+const SetLineCoordinateAtCommand = require('./SetLineCoordinateAtCommand');
 const RotateItemCommand = require('./RotateItemCommand');
 const RotateEdgeCommand = require('./RotateEdgeCommand');
 const RotateNodeCommand = require('./RotateNodeCommand');
@@ -78,6 +80,7 @@ const Registry = {
 	'command.AlignItemsCommand': AlignItemsCommand,
 	'command.SizeItemsCommand': SizeItemsCommand,
 	'command.SetTextCommand': SetTextCommand,
+	'command.SetPointSourceCommand': SetPointSourceCommand,
 	'command.SetLinkCommand': SetLinkCommand,
 	'command.SetPinCommand': SetPinCommand,
 	'command.SetSizeCommand': SetSizeCommand,
@@ -102,6 +105,7 @@ const Registry = {
 	'command.ReshapeItemCommand': ReshapeItemCommand,
 	'command.SetLineShapePointsCommand': SetLineShapePointsCommand,
 	'command.SetLinePointAtCommand': SetLinePointAtCommand,
+	'command.SetLineCoordinateAtCommand': SetLineCoordinateAtCommand,
 	'command.RotateItemCommand': RotateItemCommand,
 	'command.RotateEdgeCommand': RotateEdgeCommand,
 	'command.RotateNodeCommand': RotateNodeCommand,

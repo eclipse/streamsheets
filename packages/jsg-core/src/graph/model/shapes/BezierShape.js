@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -363,6 +363,56 @@ class BezierShape extends PolygonShape {
 		}
 	}
 
+	fromJSON(json) {
+		const ret = super.fromJSON(json);
+
+		if (json.from) {
+			this._cpFromCoordinates = [];
+			json.from.forEach(point => {
+				const coordinate = new Coordinate();
+				coordinate.fromJSON(point);
+				this._cpFromCoordinates.push(coordinate);
+
+			});
+		}
+
+		if (json.to) {
+			this._cpToCoordinates = [];
+			json.to.forEach(point => {
+				const coordinate = new Coordinate();
+				coordinate.fromJSON(point);
+				this._cpToCoordinates.push(coordinate);
+
+			});
+		}
+
+		if (json.pie !== undefined) {
+			this._pie = json.pie;
+		}
+
+		return ret;
+	}
+
+	toJSON() {
+		const json = super.toJSON();
+		json.to = [];
+		json.from = [];
+
+		this._cpFromCoordinates.forEach((coor) => {
+			json.from.push(coor.toJSON());
+		});
+
+		this._cpToCoordinates.forEach((coor) => {
+			json.to.push(coor.toJSON());
+		});
+
+		if (this._pie) {
+			json.pie = true;
+		}
+
+		return json;
+	}
+
 	saveContent(writer) {
 		super.saveContent(writer);
 
@@ -483,15 +533,29 @@ class BezierShape extends PolygonShape {
 		return pointList.distance(point, closed) < radius;
 	}
 
-	refresh() {
-		super.refresh();
-
-		if (this._cpFromCoordinates.length > 0) {
-			this._fillPointList(this._cpFromPoints, this._cpFromCoordinates);
+	refreshFromSource() {
+		if( super.refreshFromSource()) {
+			this._item._reshapeCoordinates = [];
+			this._item._reshapeProperties.clear();
+			this._cpToCoordinates = [];
+			this._cpFromCoordinates = [];
+			this.getBezierPoints(this.getPoints());
 		}
+	}
 
-		if (this._cpToCoordinates.length > 0) {
-			this._fillPointList(this._cpToPoints, this._cpToCoordinates);
+	refresh() {
+		if (this._refreshEnabled === true) {
+			this.refreshFromSource();
+
+			this._fillPointList(this._coordpointlist, this.getCoordinates());
+
+			if (this._cpFromCoordinates.length > 0) {
+				this._fillPointList(this._cpFromPoints, this._cpFromCoordinates);
+			}
+
+			if (this._cpToCoordinates.length > 0) {
+				this._fillPointList(this._cpToPoints, this._cpToCoordinates);
+			}
 		}
 	}
 

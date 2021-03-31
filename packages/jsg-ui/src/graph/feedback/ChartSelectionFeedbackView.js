@@ -437,7 +437,7 @@ export default class ChartSelectionFeedbackView extends View {
 								});
 							}
 						} else if (serie.type === 'map') {
-							if (serie.map.mapData) {
+							if (serie.map && serie.map.mapData) {
 								const features = serie.map.mapData.features;
 								const mapInfo = item.getMapInfo(plotRect, serie, ref);
 								if (!mapInfo) {
@@ -518,7 +518,7 @@ export default class ChartSelectionFeedbackView extends View {
 					};
 
 					if (serie.type === 'map') {
-						if (!serie.map.mapData) {
+						if (!serie.map || !serie.map.mapData) {
 							return;
 						}
 						const features = serie.map.mapData.features;

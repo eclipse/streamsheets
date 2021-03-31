@@ -35,6 +35,7 @@ module.exports = class ChartAxis {
 		this.zoomGroup = '';
 		this.autoZero = true;
 		this.betweenTicks = false;
+		this.labelDistance = 200;
 		this.valueRanges = [];
 	}
 
@@ -48,30 +49,55 @@ module.exports = class ChartAxis {
 		writer.writeAttributeString('align', this.align);
 		writer.writeAttributeString('type', this.type);
 		writer.writeAttributeString('name', this.name);
-		writer.writeAttributeNumber('gridvisible', this.gridVisible ? 1 : 0);
-		writer.writeAttributeNumber('valuerangesvisible', this.valueRangesVisible ? 1 : 0);
-		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
-		writer.writeAttributeNumber('autozero', this.autoZero ? 1 : 0);
-		writer.writeAttributeNumber('allowzoom', this.allowZoom ? 1 : 0);
-		writer.writeAttributeNumber('updatezoom', this.updateZoom ? 1 : 0);
-		writer.writeAttributeNumber('invert', this.invert ? 1 : 0);
-		writer.writeAttributeNumber('betweenticks', this.betweenTicks ? 1 : 0);
-		writer.writeAttributeString('zoomgroup', this.zoomGroup);
+		if (this.gridVisible === false) {
+			writer.writeAttributeNumber('gridvisible', this.gridVisible ? 1 : 0);
+		}
+		if (this.valueRangesVisible === false) {
+			writer.writeAttributeNumber('valuerangesvisible', this.valueRangesVisible ? 1 : 0);
+		}
+		if (this.visible === false) {
+			writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
+		}
+		if (this.autoZero === false) {
+			writer.writeAttributeNumber('autozero', this.autoZero ? 1 : 0);
+		}
+		if (this.allowZoom === true) {
+			writer.writeAttributeNumber('allowzoom', this.allowZoom ? 1 : 0);
+		}
+		if (this.updateZoom === true) {
+			writer.writeAttributeNumber('updatezoom', this.updateZoom ? 1 : 0);
+		}
+		if (this.invert === true) {
+			writer.writeAttributeNumber('invert', this.invert ? 1 : 0);
+		}
+		if (this.betweenTicks === true) {
+			writer.writeAttributeNumber('betweenticks', this.betweenTicks ? 1 : 0);
+		}
+		if (this.zoomGroup.length) {
+			writer.writeAttributeString('zoomgroup', this.zoomGroup);
+		}
+		if (this.labelDistance !== 200) {
+			writer.writeAttributeNumber('labeldistance', this.labelDistance);
+		}
+
 		writer.writeAttributeString('position', this.position.toString());
+
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.formatGrid.save('formatGrid', writer);
 		this.title.save('axistitle', writer);
 
-		writer.writeStartArray('valueranges');
+		if (this.valueRanges.length) {
+			writer.writeStartArray('valueranges');
 
-		this.valueRanges.forEach((range) => {
-			writer.writeStartElement('valuerange');
-			range.format.save('format', writer);
-			range.formula.save('formula', writer);
-			writer.writeEndElement();
-		});
-		writer.writeEndArray('valueranges');
+			this.valueRanges.forEach((range) => {
+				writer.writeStartElement('valuerange');
+				range.format.save('format', writer);
+				range.formula.save('formula', writer);
+				writer.writeEndElement();
+			});
+			writer.writeEndArray('valueranges');
+		}
 
 		writer.writeEndElement();
 	}
@@ -86,10 +112,11 @@ module.exports = class ChartAxis {
 		this.valueRangesVisible = reader.getAttributeBoolean(object, 'valuerangesvisible', true);
 		this.visible = reader.getAttributeBoolean(object, 'visible', true);
 		this.autoZero = reader.getAttributeBoolean(object, 'autozero', true);
-		this.allowZoom = reader.getAttributeBoolean(object, 'allowzoom', true);
+		this.allowZoom = reader.getAttributeBoolean(object, 'allowzoom', false);
 		this.updateZoom = reader.getAttributeBoolean(object, 'updatezoom', false);
 		this.betweenTicks = reader.getAttributeBoolean(object, 'betweenticks', false);
 		this.invert = reader.getAttributeBoolean(object, 'invert', false);
+		this.labelDistance = reader.getAttributeNumber(object, 'labeldistance', 200);
 		this.valueRanges = [];
 
 		reader.iterateObjects(object, (subName, subChild) => {

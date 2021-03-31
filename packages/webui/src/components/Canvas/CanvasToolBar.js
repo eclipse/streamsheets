@@ -426,10 +426,6 @@ export class CanvasToolBar extends Component {
 		this.props.showFunctionWizard();
 	};
 
-	onConfigureViewMode = () => {
-		this.props.setAppState({ showViewModeProperties: true });
-	}
-
 	onPasteFunction = () => {
 		// const sheetView = graphManager.getActiveSheetView();
 		// if (sheetView) {
@@ -481,7 +477,6 @@ export class CanvasToolBar extends Component {
 		});
 
 		const node = new JSG.Node(new JSG.EllipseShape());
-
 		graphManager
 			.getGraphViewer()
 			.getInteractionHandler()
@@ -2125,11 +2120,13 @@ export class CanvasToolBar extends Component {
 			colors.push({ title: 'Automatic', color: '#FFFFFE' });
 		}
 
-		colors.forEach(colorl => {
-			if (colorl.color === color.toLowerCase()) {
-				colorl.title += `${intl.formatMessage({ id: 'Current' }, {})}`;
-			}
-		});
+		if (color) {
+			colors.forEach(colorl => {
+				if (colorl.color === color.toLowerCase()) {
+					colorl.title += `${intl.formatMessage({id: 'Current'}, {})}`;
+				}
+			});
+		}
 
 		return colors;
 	}
@@ -2413,9 +2410,6 @@ export class CanvasToolBar extends Component {
 					</MenuItem>
 					<MenuItem dense value="Trebuchet MS" key="s8">
 						Trebuchet MS
-					</MenuItem>
-					<MenuItem dense value="Tahoma" key="s9">
-						Tahoma
 					</MenuItem>
 					<MenuItem dense value="Verdana" key="s10">
 						Verdana
@@ -3379,6 +3373,7 @@ export class CanvasToolBar extends Component {
 					anchorEl={this.state.anchorEl}
 					anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
 					transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+					transitionDuration={{exit: 0}}
 					onExited={this.handleFocus}
 					onClose={this.onToolsClose}
 					style={{
@@ -3951,54 +3946,6 @@ export class CanvasToolBar extends Component {
 										// eslint-disable-next-line max-len
 										d="M8.31,21.05 C15.33,23.5 23.67,20.98 26.79,15.47 C29.91,9.95 26.7,3.4 19.69,0.95 C12.67,-1.5 4.33,1.02 1.21,6.53 C-1.91,12.05 1.29,18.6 8.31,21.05 C8.31,21.05 2.8,30.8 2.8,30.8 C2.8,30.8 8.31,21.05 8.31,21.05 Z"
 									/>
-								</SvgIcon>
-							</IconButton>
-						</GridListTile>
-						<GridListTile
-							cols={6}
-							style={{
-								height: '23px'
-							}}
-						>
-							<div
-								style={{
-									backgroundColor: gridTitleColor,
-									color: 'white',
-									fontSize: '9pt',
-									padding: '3px'
-								}}
-							>
-								<FormattedMessage id="ToolsContainer" defaultMessage="Container" />
-							</div>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('scale')}>
-								<SvgIcon>
-									<path
-										// eslint-disable-next-line max-len
-										d="M13,11H18L16.5,9.5L17.92,8.08L21.84,12L17.92,15.92L16.5,14.5L18,13H13V18L14.5,16.5L15.92,17.92L12,21.84L8.08,17.92L9.5,16.5L11,18V13H6L7.5,14.5L6.08,15.92L2.16,12L6.08,8.08L7.5,9.5L6,11H11V6L9.5,7.5L8.08,6.08L12,2.16L15.92,6.08L14.5,7.5L13,6V11Z"
-									/>
-								</SvgIcon>
-							</IconButton>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('top')}>
-								<SvgIcon>
-									<path d="M5,6.41L6.41,5L17,15.59V9H19V19H9V17H15.59L5,6.41Z" />
-								</SvgIcon>
-							</IconButton>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('bottom')}>
-								<SvgIcon>
-									<path d="M5,17.59L15.59,7H9V5H19V15H17V8.41L6.41,19L5,17.59Z" />
-								</SvgIcon>
-							</IconButton>
-						</GridListTile>
-						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('matrix2')}>
-								<SvgIcon>
-									<path d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3" />
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>

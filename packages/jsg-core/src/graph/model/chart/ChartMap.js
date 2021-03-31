@@ -13,7 +13,6 @@ const Expression = require('../../expr/Expression');
 
 module.exports = class ChartMap {
 	constructor() {
-		this.items = new Expression('');
 		this.name = '';
 		this.label = 'name';
 		this.displayType = ['color'];
@@ -26,7 +25,6 @@ module.exports = class ChartMap {
 		writer.writeAttributeString('label', this.label);
 		writer.writeAttributeString('display', this.displayType.join(';'));
 		writer.writeAttributeString('chart', this.chartType);
-		this.items.save('items', writer);
 
 		writer.writeEndElement();
 	}
@@ -37,14 +35,5 @@ module.exports = class ChartMap {
 		const displayType = reader.getAttributeString(object, 'display', ['color']);
 		this.displayType = displayType === '' ? [] : displayType.split(';');
 		this.chartType = reader.getAttributeString(object, 'chart', 'pie');
-
-		reader.iterateObjects(object, (name, child) => {
-			switch (name) {
-				case 'items':
-					this.items = new Expression(0);
-					this.items.read(reader, child);
-					break;
-			}
-		});
 	}
 };

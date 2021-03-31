@@ -219,6 +219,9 @@ export default class NamesDialog extends React.Component {
 	}
 
 	render() {
+		if (!this.state.open) {
+			return <div />
+		}
 		return (
 			<Dialog open={this.state.open} onClose={() => this.handleCancel()} maxWidth={false}>
 				<DialogTitle>

@@ -4839,10 +4839,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		save(this.yAxes, 'yaxis');
 	}
 
+	getItemType() {
+		return 'streamchart';
+	}
+
 	saveContent(writer, absolute) {
 		super.saveContent(writer, absolute);
-
-		writer.writeAttributeString('type', 'streamchart');
 
 		writer.writeStartElement('plot');
 
@@ -4929,147 +4931,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				}
 				default:
 					break;
-			}
-		});
-	}
-
-	migrate(reader, object) {
-		const getJSON = (tag) => {
-			const data = reader.getAttribute(object, tag);
-			if (data) {
-				return JSON.parse(Strings.decodeXML(data));
-			}
-			return undefined;
-		};
-
-		const attrFormula = this.getItemAttributes().getAttribute('sheetformula');
-		if (attrFormula) {
-			const formula = attrFormula
-				.getExpression()
-				.getFormula()
-				.replace('DRAW.CHART', 'DRAW.STREAMCHART');
-			attrFormula.setExpressionOrValue(new Expression(0, formula));
-		}
-
-		this.migrationData = {
-			data: getJSON('data'),
-			title: getJSON('title'),
-			legend: getJSON('legend'),
-			scales: getJSON('scales')
-		};
-	}
-
-	migrateData(migrationData) {
-		const { data, title, legend, scales } = migrationData;
-
-		if (data.range) {
-			const formula = data.range.replace(/^=/, '');
-			this.chart.dataInRows = data.direction === 'columns';
-			this.updateFormulas(undefined, formula, undefined);
-		}
-
-		this.chart.stacked = data.stacked;
-		let type = 'line';
-
-		switch (data.chartType) {
-			case 'pie':
-				this.chart.stacked = true;
-				this.chart.relative = true;
-				this.chart.hole = 0;
-				this.chart.rotation = type === 'pie3d' ? Math.PI / 6 : Math.PI / 2;
-				this.chart.startAngle = type === 'piehalf' ? Math.PI_2 * 3 : 0;
-				this.chart.endAngle = type === 'piehalf' ? Math.PI_2 * 5 : Math.PI * 2;
-				this.legend.align = 'bottom';
-				this.xAxes[0].type = 'category';
-				this.xAxes[0].visible = false;
-				this.yAxes[0].visible = false;
-				type = 'pie';
-				break;
-			case 'doughnut':
-				this.chart.stacked = true;
-				this.chart.relative = true;
-				this.chart.hole = 0.5;
-				this.legend.align = 'bottom';
-				this.xAxes[0].type = 'category';
-				this.xAxes[0].visible = false;
-				this.yAxes[0].visible = false;
-				type = 'doughnut';
-				break;
-			case 'radar':
-			case 'polarArea':
-			case 'columnstacked':
-			case 'column':
-				this.xAxes[0].type = 'category';
-				type = 'column';
-				break;
-			case 'bar':
-			case 'barstacked':
-				this.xAxes[0].type = 'category';
-				this.xAxes[0].align = 'left';
-				this.yAxes[0].align = 'bottom';
-				type = 'bar';
-				break;
-			case 'area':
-				this.xAxes[0].type = 'category';
-				type = 'area';
-				break;
-			case 'line':
-			case 'linestacked':
-				this.xAxes[0].type = 'category';
-				type = 'line';
-				break;
-			case 'scatter':
-			case 'scatterLine':
-				type = 'scatter';
-				this.xAxes[0].type = 'linear';
-				break;
-			case 'bubble':
-				this.xAxes[0].type = 'linear';
-				break;
-			default:
-				break;
-		}
-
-		this.title.visible = title.title.length > 0;
-		this.title.formula = new Expression(title.title);
-
-		if (legend.position === 'none') {
-			this.legend.visibe = false;
-		} else {
-			this.legend.align = legend.position;
-			this.legend.visibe = true;
-		}
-
-		const migrateAxis = (oldAxis, newAxis) => {
-			if (oldAxis.ticks.reverse) {
-				newAxis.invert = true;
-			}
-			const min = oldAxis.ticks.min === undefined ? '' : oldAxis.ticks.min;
-			const max = oldAxis.ticks.max === undefined ? '' : oldAxis.ticks.max;
-			const step = oldAxis.ticks.stepSize === undefined ? '' : oldAxis.ticks.stepSize;
-			newAxis.formula = new Expression(0, `AXIS(${min},${max},${step})`);
-			if (oldAxis.ticks.fontStyle === 'italic') {
-				newAxis.format.fontStyle = 2;
-			}
-			if (oldAxis.ticks.fontStyle === 'bold') {
-				newAxis.format.fontStyle = 1;
-			}
-		};
-
-		migrateAxis(scales.xAxes[0], this.xAxes[0]);
-		migrateAxis(scales.yAxes[0], this.yAxes[0]);
-
-		this.series.forEach((serie, index) => {
-			serie.type = type;
-			serie.smooth = data.smooth;
-			if (data.series && this.series.length === data.series.length) {
-				serie.dataLabel.visible = data.series[index].showDataLabels === true;
-				if (data.series[index].fillColor !== undefined) {
-					serie.format.fillColor = data.series[index].fillColor;
-				}
-				if (data.series[index].lineColor !== undefined) {
-					serie.format.lineColor = data.series[index].lineColor;
-				}
 			}
 		});
 	}

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -48,10 +48,11 @@ class ConstExpression extends Expression {
 			expr.getFormula(),
 			term
 		);
-		Object.getPrototypeOf(constexpr).setConstraint.call(
-			constexpr,
-			get(expr.getConstraint())
-		);
+		constexpr._constraint = get(expr.getConstraint());
+		// Object.getPrototypeOf(constexpr).setConstraint.call(
+		// 	constexpr,
+		// 	get(expr.getConstraint())
+		// );
 		return constexpr;
 	}
 

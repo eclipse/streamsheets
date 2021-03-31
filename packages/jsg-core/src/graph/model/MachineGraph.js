@@ -311,11 +311,14 @@ module.exports = class MachineGraph extends Graph {
 		return false;
 	}
 
+	getItemType() {
+		return 'machinegraph';
+	}
+
 	save(file, absolute) {
 		file.writeStartElement('graphitem');
 
-		file.writeAttributeString('type', 'machinegraph');
-		file.writeAttributeNumber('version', 2);
+		file.writeAttributeNumber('version', 3);
 		file.writeAttributeString('uniqueid', this._uniqueId);
 		if (this.getId() !== undefined) {
 			file.writeAttributeString('id', this.getId());
@@ -332,7 +335,7 @@ module.exports = class MachineGraph extends Graph {
 				.getFormat()
 				.getPattern()
 				.getValue();
-			if (pattern.indexOf('dataimage') !== -1) {
+			if (String(pattern).indexOf('dataimage') !== -1) {
 				file.writeStartElement(pattern);
 				const image = JSG.imagePool.get(pattern);
 				if (image !== undefined) {
@@ -384,6 +387,27 @@ module.exports = class MachineGraph extends Graph {
 		this._reading = false;
 
 		this.reassignIds();
+
+		let sheet;
+		GraphUtils.traverseItem(
+			this,
+			(item) => {
+				if (item.isStreamSheet) {
+					sheet = item;
+				}
+				if (sheet) {
+					const attrFormula = item.getItemAttributes().getAttribute('sheetformula');
+					if (attrFormula) {
+						const expr = attrFormula.getExpression();
+						if (expr !== undefined && expr.hasFormula()) {
+							expr.evaluate(item);
+							item.oldTermToProperties(sheet, expr.getTerm());
+						}
+					}
+				}
+			},
+			false
+		);
 
 		this._restoreConnections(this);
 		this.invalidateTerms();
@@ -472,12 +496,9 @@ module.exports = class MachineGraph extends Graph {
 		const container = this.getStreamSheetsContainer();
 		const sheetNames = [];
 		container.enumerateStreamSheetContainers((sheet) => {
-			sheetNames.push(
-				sheet
-					.getStreamSheet()
-					.getName()
-					.getValue()
-			);
+			sheetNames.push({
+				name: sheet.getStreamSheet().getName().getValue(), id: sheet.getStreamSheetContainerAttributes().getSheetId().getValue()
+			});
 		});
 		return sheetNames;
 	}

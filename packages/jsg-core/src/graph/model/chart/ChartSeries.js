@@ -67,18 +67,41 @@ module.exports = class ChartSeries {
 	save(writer) {
 		writer.writeStartElement('series');
 		writer.writeAttributeString('type', this.type);
-		writer.writeAttributeString('xaxis', this.xAxis);
-		writer.writeAttributeString('yaxis', this.yAxis);
-		writer.writeAttributeNumber('smooth', this.smooth ? 1 : 0);
-		writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
-		writer.writeAttributeNumber('innerpoints', this.innerPoints ? 1 : 0);
-		writer.writeAttributeNumber('outerpoints', this.outerPoints ? 1 : 0);
-		writer.writeAttributeNumber('average', this.average ? 1 : 0);
-		writer.writeAttributeNumber('autosum', this.autoSum ? 1 : 0);
+		if (this.xAxis !== 'XAxis1') {
+			writer.writeAttributeString('xaxis', this.xAxis);
+		}
+		if (this.yAxis !== 'YAxis1') {
+			writer.writeAttributeString('yaxis', this.yAxis);
+		}
+		if (this.smooth) {
+			writer.writeAttributeNumber('smooth', this.smooth ? 1 : 0);
+		}
+		if (this.visible === false) {
+			writer.writeAttributeNumber('visible', this.visible ? 1 : 0);
+		}
+		if (this.innerPoints === false) {
+			writer.writeAttributeNumber('innerpoints', this.innerPoints ? 1 : 0);
+		}
+		if (this.outerPoints === false) {
+			writer.writeAttributeNumber('outerpoints', this.outerPoints ? 1 : 0);
+		}
+		if (this.average === false) {
+			writer.writeAttributeNumber('average', this.average ? 1 : 0);
+		}
+		if (this.autoSum === true) {
+			writer.writeAttributeNumber('autosum', this.autoSum ? 1 : 0);
+		}
 		writer.writeAttributeNumber('bargap', this.barGap, 2);
-		writer.writeAttributeString('pointertype', this.pointerType);
-		writer.writeAttributeString('pointerlength', this.pointerLength);
-		writer.writeAttributeString('tooltip', this.tooltip);
+		if (this.pointerType !== 'narrowingline') {
+			writer.writeAttributeString('pointertype', this.pointerType);
+		}
+		if (this.pointerLength !== 'center') {
+			writer.writeAttributeString('pointerlength', this.pointerLength);
+		}
+		if (this.tooltip !== 'value') {
+			writer.writeAttributeString('tooltip', this.tooltip);
+		}
+
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
@@ -113,33 +136,39 @@ module.exports = class ChartSeries {
 
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
-			case 'formula':
-				this.formula = new Expression(0);
-				this.formula.read(reader, child);
-				break;
-			case 'format':
-				this.format = new ChartFormat();
-				this.format.read(reader, child);
-				break;
-			case 'marker':
-				this.marker = new ChartMarker();
-				this.marker.read(reader, child);
-				break;
-			case 'datalabel':
-				this.dataLabel = new ChartDataLabel();
-				this.dataLabel.read(reader, child);
-				break;
-			case 'map':
-				this.map = new ChartMap();
-				this.map.read(reader, child);
-				break;
-			case 'points': {
-				const point = new ChartPoint();
-				const index = point.read(reader, child);
-				this.points[index] = point;
-				break;
-			}
+				case 'formula':
+					this.formula = new Expression(0);
+					this.formula.read(reader, child);
+					break;
+				case 'format':
+					this.format = new ChartFormat();
+					this.format.read(reader, child);
+					break;
+				case 'marker':
+					this.marker = new ChartMarker();
+					this.marker.read(reader, child);
+					break;
+				case 'datalabel':
+					this.dataLabel = new ChartDataLabel();
+					this.dataLabel.read(reader, child);
+					break;
+				case 'map':
+					if (!this.map) {
+						this.map = new ChartMap();
+					}
+					this.map.read(reader, child);
+					break;
+				case 'points': {
+					const point = new ChartPoint();
+					const index = point.read(reader, child);
+					this.points[index] = point;
+					break;
+				}
 			}
 		});
+
+		if (this.type === 'map' && !this.map) {
+			this.map = new ChartMap();
+		}
 	}
 };

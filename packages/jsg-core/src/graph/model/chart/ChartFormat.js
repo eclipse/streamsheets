@@ -21,7 +21,7 @@ module.exports = class ChartFormat {
 		this.fontSize = fontSize;
 		this.fontStyle = fontStyle;
 		this.fontColor = fontColor;
-		this.fontRotation = 0;
+		this.fontRotation = undefined;
 		this.transparency = transparency;
 	}
 
@@ -229,8 +229,20 @@ module.exports = class ChartFormat {
 		this.font.linknumber = value;
 	}
 
+	getSizeChangeInfo() {
+		return {
+			name: this.font.name,
+			size: this.font.size,
+			style: this.font.style,
+			number: this.font.number,
+			rotation: this.font.rotation,
+			link: this.font.linknumber
+		}
+	}
+
 	save(name, writer) {
 		writer.writeStartElement(name);
+		let write = false;
 		if (this.line) {
 			writer.writeStartElement('line');
 			if (this.lineColor) {
@@ -242,7 +254,7 @@ module.exports = class ChartFormat {
 			if (this.lineStyle !== undefined) {
 				writer.writeAttributeNumber('style', this.lineStyle, 0);
 			}
-			writer.writeEndElement();
+			write |= writer.writeEndElement();
 		}
 		if (this.fill) {
 			writer.writeStartElement('fill');
@@ -255,9 +267,11 @@ module.exports = class ChartFormat {
 			if (this.transparency !== undefined) {
 				writer.writeAttributeNumber('transparency', this.transparency, 0);
 			}
-			writer.writeEndElement();
+			write |= writer.writeEndElement();
 		}
-		if (this.font) {
+		if (this.font && (this.fontColor || this.fontName || this.fontSize !== undefined ||
+			this.fontStyle !== undefined || this.numberFormat || this.localCulture || this.linkNumberFormat ||
+			this.fontRotation !== undefined)) {
 			writer.writeStartElement('font');
 			if (this.fontColor) {
 				writer.writeAttributeString('color', this.fontColor);
@@ -265,7 +279,7 @@ module.exports = class ChartFormat {
 			if (this.fontName) {
 				writer.writeAttributeString('name', this.fontName);
 			}
-			if (this.fontSize) {
+			if (this.fontSize !== undefined) {
 				writer.writeAttributeNumber('size', this.fontSize, 0);
 			}
 			if (this.fontStyle !== undefined) {
@@ -283,9 +297,9 @@ module.exports = class ChartFormat {
 			if (this.fontRotation !== undefined) {
 				writer.writeAttributeNumber('rotation', this.fontRotation, 0);
 			}
-			writer.writeEndElement();
+			write |= writer.writeEndElement();
 		}
-		writer.writeEndElement();
+		writer.writeEndElement(write === false);
 	}
 
 	read(reader, object) {

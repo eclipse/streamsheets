@@ -65,7 +65,7 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewModeProperties } = props;
+	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewMode, sharedMachine = false } = props;
 	let { showTools } = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
@@ -94,15 +94,15 @@ export function MachineDetailPage(props) {
 	useEffect(() => {
 		const settings = {
 			...viewSettings,
-			active: showViewModeProperties && !!viewSettings.maximize,
+			active: showViewMode && !!viewSettings && !!viewSettings.maximize
 		};
 
 		props.setAppState({
 			viewMode: settings,
-			showTools: settings.active === false,
+			showTools: settings.active === false
 		});
-		graphManager.updateCanvas(showTools,settings);
-	}, [showViewModeProperties, viewSettings, showTools]);
+		graphManager.updateCanvas(showTools, settings);
+	}, [showViewMode, viewSettings, showTools]);
 
 	const loadUser = async () => {
 		try {
@@ -167,7 +167,11 @@ export function MachineDetailPage(props) {
 			`,
 				{ machineId }
 			);
-			setCanEditMachine(scopedByMachine.machine.canEdit);
+			if(!sharedMachine){
+				setCanEditMachine(scopedByMachine.machine.canEdit);
+			} else {
+				props.setAppState({ showViewMode: true });
+			}
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
 			props.setScope(scopedByMachine.machine.scope.id);
 			if (scopedByMachine.machine.canEdit === false) {
@@ -379,7 +383,7 @@ function mapStateToProps(state) {
 		isConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
 		machine: state.monitor.machine,
 		machineName: state.monitor.machine.name,
-		viewSettings: state.monitor.machine.settings && state.monitor.machine.settings.view,
+		viewSettings: state.monitor.machine.settings ? state.monitor.machine.settings.view : null,
 		viewMode: state.appState.viewMode,
 		showTools: state.appState.showTools,
 		searchParams: state.router.location.search,
@@ -391,7 +395,7 @@ function mapStateToProps(state) {
 		showPasteFunctionsDialog: state.appState.showPasteFunctionsDialog,
 		showEditNamesDialog: state.appState.showEditNamesDialog,
 		experimental: state.appState.experimental,
-		showViewModeProperties: state.appState.showViewModeProperties,
+		showViewMode: state.appState.showViewMode,
 		adminSecurity: state.adminSecurity
 	};
 }

@@ -125,6 +125,7 @@ export default class WorksheetView extends ContentNodeView {
 			this.getOwnSelection().toStringMulti()
 		);
 		cmd._noDraw = true;
+		viewer.activeView = this;
 		viewer.getInteractionHandler().execute(cmd);
 
 		this.activateLayerSelection();
@@ -1021,7 +1022,8 @@ export default class WorksheetView extends ContentNodeView {
 		const cell = this.getCell(point);
 		if (cell === undefined) {
 			return WorksheetView.HitCode.NONE;
-		} else if (this.isDataView(point, cell, viewer)) {
+		}
+		if (this.isDataView(point, cell, viewer)) {
 			return WorksheetView.HitCode.DATAVIEW;
 		}
 
@@ -1967,6 +1969,12 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	handleMouseWheel(event, viewer) {
+		const viewSettings = this.getItem().getParent().viewSettings;
+
+		if (viewSettings.active && viewSettings.allowScroll === false) {
+			return;
+		}
+
 		const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
 		const scrollView = this.getScrollView();
 		const pt = scrollView.getScrollPosition();

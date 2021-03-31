@@ -1,22 +1,31 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { FuncTerm, NullTerm } = require('@cedalo/parser');
+
 const JSG = require('../../JSG');
 const LineConnection = require('./LineConnection');
 const Arrays = require('../../commons/Arrays');
 const Coordinate = require('../Coordinate');
+const AttributeUtils = require('../attr/AttributeUtils');
+const StringExpression = require('../expr/StringExpression');
+const NumberExpression = require('../expr/NumberExpression');
 const CoordinateProxy = require('../CoordinateProxy');
+const FormatAttributes = require('../attr/FormatAttributes');
+const ItemAttributes = require('../attr/ItemAttributes');
 const GraphUtils = require('../GraphUtils');
 const PortCoordinateProxy = require('../PortCoordinateProxy');
 const Event = require('./events/Event');
 const ShapeEvent = require('./events/ShapeEvent');
+const CompoundCommand = require('../command/CompoundCommand');
+const Point = require('../../geometry/Point');
 
 /**
  * An edge connects two {{#crossLink "Node"}}{{/crossLink}}s by establishing a
@@ -73,10 +82,12 @@ class Edge extends LineConnection {
 		return true;
 	}
 
+	getItemType() {
+		return 'edge';
+	}
+
 	saveContent(file, absolute) {
 		super.saveContent(file, absolute);
-
-		file.writeAttributeString('type', 'edge');
 
 		this.getStartCoordinate().save('start', file);
 		this.getEndCoordinate().save('end', file);
@@ -449,6 +460,149 @@ class Edge extends LineConnection {
 		GraphUtils.translatePointDown(center, graph, this.getParent());
 		return center;
 	}
+
+	oldTermToProperties(sheet, term) {
+		if (!term || !(term instanceof FuncTerm)) {
+			return;
+		}
+
+		let expr;
+		const startCoor = this.getStartCoordinate();
+		const endCoor = this.getEndCoordinate();
+		const params = { useName: true, item: sheet };
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 3:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						startCoor.setX(expr);
+					}
+					break;
+				case 4:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						startCoor.setY(expr);
+					}
+					break;
+				case 5:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						endCoor.setX(expr);
+					}
+					break;
+				case 6:
+					if (!param.isStatic) {
+						expr = new NumberExpression(0, param.toString(params));
+						endCoor.setY(expr);
+					}
+					break;
+				case 7:	// lineformat
+					if ((param instanceof FuncTerm) && param.name === 'LINEFORMAT') {
+						if (param.params.length > 0 && !param.params[0].isStatic) {
+							expr = new StringExpression('', param.params[0].toString(params));
+							this.getFormat().setLineColor(expr);
+						}
+						if (param.params.length > 1 && !param.params[1].isStatic) {
+							expr = new NumberExpression(0, param.params[1].toString(params));
+							this.getFormat().setLineStyle(expr);
+						}
+						if (param.params.length > 2 && !param.params[2].isStatic) {
+							expr = new NumberExpression(0, param.params[2].toString(params));
+							this.getFormat().setLineWidth(expr);
+						}
+					} else if (!param.isStatic) {
+						expr = new StringExpression('', param.toString(params));
+						this.getFormat().setLineColor(expr);
+					}
+					break;
+				default:
+					break;
+			}
+		});
+
+		let path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetformula');
+		this.removeAttributeAtPath(path);
+		path = AttributeUtils.createPath(ItemAttributes.NAME, 'sheetsource');
+		this.removeAttributeAtPath(path);
+	}
+
+	termToPropertiesCommands(sheet, term) {
+		if (!term || !(term instanceof FuncTerm)) {
+			return undefined;
+		}
+
+		const cmp = new CompoundCommand();
+		let lineColor;
+		const startCoor = this.getStartCoordinate();
+		const endCoor = this.getEndCoordinate();
+		const params = { useName: true, item: sheet };
+
+		term.iterateParams((param, index) => {
+			switch (index) {
+				case 0:
+					if (param.isStatic) {
+						const point = new Point(param.value, 0);
+						this.translateFromParent(point);
+						startCoor.getX().set(point.x);
+					} else {
+						startCoor.getX().setTerm(param);
+						startCoor.getX().correctFormula(sheet);
+					}
+					break;
+				case 1:
+					if (param.isStatic) {
+						const point = new Point(0, param.value);
+						this.translateFromParent(point);
+						startCoor.getY().set(point.y);
+					} else {
+						startCoor.getY().setTerm(param);
+						startCoor.getY().correctFormula(sheet);
+					}
+					break;
+				case 2:
+					if (param.isStatic) {
+						const point = new Point(param.value, 0);
+						this.translateFromParent(point);
+						endCoor.getX().set(point.x);
+					} else {
+						endCoor.getX().setTerm(param);
+						endCoor.getX().correctFormula(sheet);
+					}
+					break;
+				case 3:
+					if (param.isStatic) {
+						const point = new Point(0, param.value);
+						this.translateFromParent(point);
+						endCoor.getY().set(point.y);
+					} else {
+						endCoor.getY().setTerm(param);
+						endCoor.getY().correctFormula(sheet);
+					}
+					break;
+				case 4:
+					if (!(param instanceof NullTerm)) {
+						lineColor = new StringExpression(param.value, param.isStatic ? undefined : param.toString(params));
+						lineColor.evaluate(this);
+					}
+					break;
+				default:
+					break;
+			}
+		});
+
+		cmp.add(new JSG.SetLineCoordinateAtCommand(this, 0, startCoor));
+		cmp.add(new JSG.SetLineCoordinateAtCommand(this, 1, endCoor));
+		const path = JSG.AttributeUtils.createPath(FormatAttributes.NAME, FormatAttributes.LINECOLOR);
+		if (lineColor) {
+			cmp.add(new JSG.SetAttributeAtPathCommand(this, path, lineColor));
+		} else {
+			cmp.add(new JSG.RemoveAttributeCommand(this, path));
+		}
+
+		return cmp;
+	}
+
 }
 
 module.exports = Edge;

@@ -66,11 +66,6 @@ const setNamedCells = (namedCells, container, onEach) => {
 	const factory = cellFactory(container.getOrCreateName.bind(container), onEach);
 	Object.entries(namedCells).forEach(factory);
 };
-const setGraphCells = (graphCells, container, onEach) => {
-	const factory = cellFactory(container.getOrCreateGraph.bind(container), onEach);
-	Object.entries(graphCells).forEach(factory);
-};
-
 const applyProperties = (properties, processSheet) => {
 	const dataProvider = processSheet.getDataProvider();
 	if (properties && processSheet && dataProvider) {
@@ -449,30 +444,6 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 			});
 
 			setNamedCells(sheet.namedCells || {}, dataProvider);
-			setGraphCells(sheet.graphCells || {}, dataProvider);
-
-			if (sheet.drawings) {
-				const reader = new JSONReader();
-				const cells = processSheet.getCells();
-				reader.version = 2;
-				reader.setRoot(sheet.drawings);
-				// const root = reader.getObject(reader.getRoot(), 'processsheet');
-
-				Object.values(sheet.drawings).forEach((value) => {
-					const type = reader.getAttribute(value, 'type');
-					const graphItem = JSG.graphItemFactory.createItemFromString(type, true);
-					if (graphItem) {
-						graphItem.read(reader, value);
-						graphItem._reading = true;
-						cells.addItem(graphItem);
-						graphItem._reading = false;
-						cells.onReadSubItem(graphItem, this, reader);
-					}
-				});
-				cells.evaluate();
-			}
-
-			if (sheet.graphItems) processSheet.setGraphItems(sheet.graphItems);
 
 			this.updateInbox(sheet.id, sheet.inbox);
 
@@ -532,8 +503,6 @@ export default class StreamMachine extends MachineElement { // HTMLElement {
 				});
 
 				setNamedCells(sheet.namedCells || {}, psDataProvider);
-				setGraphCells(sheet.graphCells || {}, psDataProvider);
-				if (sheet.graphItems) processSheet.setGraphItems(sheet.graphItems);
 
 				psDataProvider.evaluate(processSheet);
 			}

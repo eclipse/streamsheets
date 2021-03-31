@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -38,11 +38,6 @@ const updateNamedCells = async (repository, response) => {
 		: repository.updateMachineNamedCells(machineId, namedCells);
 };
 
-const updateGraphCells = async (repository, response) => {
-	const { machineId, graphCells, streamsheetId } = response;
-	return repository.updateGraphNamedCells(machineId, streamsheetId, graphCells);
-};
-
 const toMapObject = (arr, key = 'name') =>
 	arr ? arr.reduce((map, val) => {
 		map[val[key]] = val;
@@ -50,11 +45,10 @@ const toMapObject = (arr, key = 'name') =>
 		return map;
 	}, {}) : {};
 
-const sheetDescriptor = ({ id, cells, names, graphs, namedCells, graphCells }) => ({
+const sheetDescriptor = ({ id, cells, names, namedCells }) => ({
 	id,
 	cells: toMapObject(cells, 'reference'),
 	namedCells: names ? toMapObject(names) : namedCells,
-	graphCells: graphs ? toMapObject(graphs) : graphCells
 });
 
 module.exports = class MachineService extends MessagingService {
@@ -319,8 +313,10 @@ module.exports = class MachineService extends MessagingService {
 		switch (message.requestType) {
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_MACHINE_MESSAGE_TYPE:
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE:
-				logger.debug('PersistenceService: save machine after load');
-				await RepositoryManager.machineRepository.updateMachine(response.machine.id, response.machine);
+				if (response.initialLoad) {
+					logger.debug('PersistenceService: save machine after load');
+					await RepositoryManager.machineRepository.updateMachine(response.machine.id, response.machine);
+				}
 				break;
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.START_MACHINE_MESSAGE_TYPE:
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.PAUSE_MACHINE_MESSAGE_TYPE:
@@ -362,10 +358,6 @@ module.exports = class MachineService extends MessagingService {
 				await RepositoryManager.machineRepository.updateStreamSheets(machineId, streamsheets);
 				break;
 			}
-			case MachineServerMessagingProtocol.MESSAGE_TYPES.SET_GRAPH_CELLS:
-				logger.debug('PersistenceService: handle setting graph-cells');
-				await updateGraphCells(RepositoryManager.machineRepository, response);
-				break;
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE:
 				logger.info(`PersistenceService: persist new machine cycle time: ${response.machine.cycletime}`);
 				await RepositoryManager.machineRepository.updateMachineCycleTime(
@@ -400,20 +392,6 @@ module.exports = class MachineService extends MessagingService {
 				break;
 			case 'command.UpdateSheetNamesCommand':
 				await updateNamedCells(RepositoryManager.machineRepository, response);
-				break;
-			case 'command.SetGraphCellsCommand': {
-				const { machineId, streamsheetIds, graphCells } = response;
-				streamsheetIds.forEach(async (id, index) => {
-					await updateGraphCells(RepositoryManager.machineRepository, {
-						machineId,
-						streamsheetId: id,
-						graphCells: graphCells[index]
-					});
-				});
-				break;
-			}
-			case 'command.UpdateGraphCellsCommand':
-				await updateGraphCells(RepositoryManager.machineRepository, response);
 				break;
 			default:
 				break;

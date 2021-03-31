@@ -206,6 +206,19 @@ class UnsubscribeGraphMessage extends RequestMessage {
 
 }
 
+class PreloadGraph extends RequestMessage {
+	constructor({ machineId }) {
+		super('preload_graph');
+		this._machineId = machineId;
+	}
+
+	_getConfig() {
+		return {
+			machineId: this._machineId
+		};
+	}
+}
+
 module.exports = {
 	CreateGraphMessage,
 	CreateStreamSheetMessage,
@@ -215,6 +228,7 @@ module.exports = {
 	LoadGraphMessage,
 	LoadSubscribeGraphMessage,
 	LoadSheetCellsMessage,
+	PreloadGraph,
 	SubscribeGraphMessage,
 	UnsubscribeGraphMessage
 };

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -59,6 +59,11 @@ const redisConnection = (machineId) => {
 	};
 };
 
+const clearShapes = (cellsnode) => {
+	const shapes = [...cellsnode.getItems()];
+	shapes.forEach((shape) => cellsnode.removeItem(shape));
+};
+
 module.exports = class GraphWrapper {
 	constructor(graph, machineId) {
 		this.id = graph.getType().getValue(); // <-- remove! should not be required! misuse of type attribute...
@@ -82,6 +87,13 @@ module.exports = class GraphWrapper {
 
 	get machineId() {
 		return this._machineId;
+	}
+
+	get migrations() {
+		return this._migrations;
+	}
+	set migrations(obj) {
+		this._migrations = obj;
 	}
 
 	// TODO: use utility methods
@@ -149,6 +161,28 @@ module.exports = class GraphWrapper {
 		command.execute();
 	}
 
+	checkMigrations(machine) {
+		if (this.migrations) {
+			// currently only shapes
+			const machineShapes = machine.streamsheets.reduce((map, streamsheet) => {
+				const sheetshapes = streamsheet.sheet.shapes;
+				const shapes = sheetshapes && sheetshapes.shapes;
+				map[streamsheet.id] = !!(shapes && shapes.length);
+				return map;
+			}, {});
+			const { shapes } = this.migrations;
+			const migratedShapes = shapes.filter(({ streamsheetId }) => {
+				const graphsheet = machineShapes[streamsheetId] && this._getProcessSheet(streamsheetId);
+				// remove from graph:
+				if (graphsheet) clearShapes(graphsheet.getCells());
+				return !!graphsheet;
+			});
+			this.migrations.shapes = shapes.filter((sheetshapes) => !migratedShapes.includes(sheetshapes));
+			return migratedShapes.length > 0;
+		}
+		return false;
+	}
+
 	updateProcessSheets(streamsheets) {
 		if (streamsheets && streamsheets[0]) {
 			streamsheets.forEach((streamsheet) => {
@@ -157,9 +191,7 @@ module.exports = class GraphWrapper {
 					const command = new SetSheetCellsCommand(
 						processSheet,
 						streamsheet.sheet.cells,
-						streamsheet.sheet.drawings,
-						streamsheet.sheet.graphItems,
-						streamsheet.sheet.graphCells,
+						streamsheet.sheet.shapes,
 						streamsheet.sheet.namedCells
 					);
 					command.execute();

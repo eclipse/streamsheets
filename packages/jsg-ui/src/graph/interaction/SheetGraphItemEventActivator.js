@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, NotificationCenter, Notification, Shape } from '@cedalo/jsg-core';
+import { default as JSG, NotificationCenter, Notification, Shape, CellsNode } from '@cedalo/jsg-core';
 
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
 import SheetGraphItemEventInteraction from './SheetGraphItemEventInteraction';
@@ -35,29 +35,36 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			const attr = cont
-				.getModel()
-				.getItemAttributes()
-				.getAttribute('sheetsource');
-			if (attr) {
-				const name = attr.getValue();
-				if (name && name.length) {
-					return true;
-				}
+			const item = cont.getModel()
+			return (item.getAttributeValueAtPath('value') !== undefined ||
+				item.getEvents().hasMouseEvent());
+		});
+	}
+
+	_getShapeControllerAt(location, viewer, dispatcher) {
+		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
+			let item = cont.getModel().getParent();
+			while (item && !(item instanceof CellsNode)) {
+				item = item.getParent();
 			}
-			return false;
+
+			return item !== undefined;
 		});
 	}
 
 	onMouseDoubleClick(event, viewer, dispatcher) {
-		this.handleClick(event, viewer, dispatcher, true);
+		this.handleClick(event, viewer, dispatcher, 'double');
 	}
 
 	onMouseDown(event, viewer, dispatcher) {
-		this.handleClick(event, viewer, dispatcher, false);
+		this.handleClick(event, viewer, dispatcher, 'down');
 	}
 
-	handleClick(event, viewer, dispatcher, double) {
+	onMouseUp(event, viewer, dispatcher) {
+		this.handleClick(event, viewer, dispatcher, 'up');
+	}
+
+	handleClick(event, viewer, dispatcher, type) {
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller === undefined) {
 			return;
@@ -71,15 +78,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 			parent.getView().moveSheetToTop(viewer);
 		}
 
-		if (
-			viewer
-				.getGraph()
-				.getMachineContainer()
-				.getMachineState()
-				.getValue() === 1 ||
-			(controller.getModel().getAttributeValueAtPath('value') === undefined &&
-				controller.getModel()._sheetEvents === undefined)
-		) {
+		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
 			return;
 		}
 
@@ -87,10 +86,13 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 
 		const interaction = this.activateInteraction(new SheetGraphItemEventInteraction(), dispatcher);
 		interaction._controller = controller;
-		if (double) {
+		switch (type) {
+		case 'double':
 			interaction.onMouseDoubleClick(event, viewer);
-		} else {
+			break;
+		case 'down':
 			interaction.onMouseDown(event, viewer);
+			break;
 		}
 
 		event.isConsumed = true;
@@ -140,21 +142,22 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 		}
 
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
-		if (controller && this._getFeedback(controller, viewer)) {
-			event.doRepaint = true;
-		} else if (this._controller) {
+		if (controller) {
+			const events = controller.getModel().getEvents().hasMouseEvent();
+			if (events) {
+				this._getFeedback(controller, viewer);
+				dispatcher.setCursor(Cursor.Style.EXECUTE);
+				event.hasActivated = true;
+				event.doRepaint = true;
+				return;
+			}
+		}
+		if (this._controller) {
 			viewer.clearInteractionFeedback();
 			this._controller.getModel().hover = false;
 			this._feedback = undefined;
 			this._controller = undefined;
 			event.doRepaint = true;
-		}
-		if (controller) {
-			const events = controller.getModel()._sheetEvents;
-			if (events && events instanceof Array) {
-				dispatcher.setCursor(Cursor.Style.EXECUTE);
-				event.hasActivated = true;
-			}
 		}
 	}
 
@@ -166,7 +169,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 		}
 
 		if (!controller) {
-			controller = this._getControllerAt(event.location, viewer, dispatcher);
+			controller = this._getShapeControllerAt(event.location, viewer, dispatcher);
 		}
 		if (controller) {
 			if (controller.getModel().isProtected()) {

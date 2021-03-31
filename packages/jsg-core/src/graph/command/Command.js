@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const JSG = require('../../JSG');
-const Graph = require('../model/Graph');
+// const JSG = require('../../JSG');
+// const Graph = require('../model/Graph');
 
 /**
  * The Command class is the abstract base class of all commands and simply defines the methods each
@@ -156,7 +156,7 @@ class Command {
 		const ctrlr = viewer.findControllerForItem(item);
 		if (
 			ctrlr !== undefined &&
-			!(ctrlr.getModel() instanceof Graph)
+			!(ctrlr.getModel()._graphId !== undefined)
 		) {
 			controllers.push(ctrlr);
 		}

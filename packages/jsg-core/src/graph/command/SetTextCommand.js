@@ -37,7 +37,18 @@ class SetTextCommand extends AbstractItemCommand {
 	static createFromObject(data = {}, { graph }) {
 		const item = graph.getItemById(data.itemId);
 		return item
-			? new SetTextCommand(item, data.newName).initWithObject(data)
+			? new SetTextCommand(item,
+				readObject(
+					'oldtext',
+					data.oldText,
+					new StringExpression()
+				),
+				readObject(
+					'newtext',
+					data.newText,
+					new StringExpression()
+				)
+			).initWithObject(data)
 			: undefined;
 	}
 
@@ -48,22 +59,25 @@ class SetTextCommand extends AbstractItemCommand {
 			undoText instanceof Expression
 				? undoText.copy()
 				: new StringExpression(undoText);
-		this._newText = text;
+		this._newText =	text instanceof Expression
+			? text.copy()
+			: new StringExpression(text);
+		;
 	}
 
 	initWithObject(data) {
 		const cmd = super.initWithObject(data);
-		cmd._oldText = readObject(
-			'oldtext',
-			data.oldText,
-			new StringExpression()
-		);
+		// cmd._oldText = readObject(
+		// 	'oldtext',
+		// 	data.oldText,
+		// 	new StringExpression()
+		// );
 		return cmd;
 	}
 
 	toObject() {
 		const data = super.toObject();
-		data.newText = this._newText;
+		data.newText = writeJSON('newtext', this._newText);
 		data.oldText = writeJSON('oldtext', this._oldText);
 		return data;
 	}

@@ -163,7 +163,8 @@ class ContentPaneView extends GraphItemView {
 				this._subviews.forEach((subview) => {
 					if (subview.getItem().isItemVisible()) {
 						subview.layout();
-						rect.union(subview.getItem().getTotalBoundingRect(undefined, tmprect));
+						const rect2 = subview.getItem().getTotalBoundingRect(undefined, tmprect)
+						rect.union(rect2);
 					}
 				});
 			}
@@ -181,6 +182,9 @@ class ContentPaneView extends GraphItemView {
 	 * @since 1.6.2
 	 */
 	setScrollTo(point) {
+		// this approach circumvents setRefreshNeeded for the complete graph and provides better performance
+		// this.getItem().getPin()._pin.setToPoint(point);
+		// this.getItem().getGraph().markDirty();
 		this.getItem().setPinPointTo(point);
 	}
 
@@ -202,7 +206,7 @@ class ContentPaneView extends GraphItemView {
 		this.drawSubViews(graphics);
 	}
 
-	onResize(view) {
+	onResize() {
 		this.revalidate();
 	}
 }

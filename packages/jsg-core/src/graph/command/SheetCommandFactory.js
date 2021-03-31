@@ -42,7 +42,6 @@ const SetSheetNameCommand = require('./SetSheetNameCommand');
 const DeleteSheetNameCommand = require('./DeleteSheetNameCommand');
 const AddGraphCellCommand = require('./AddGraphCellCommand');
 const SetGraphCellCommand = require('./SetGraphCellCommand');
-const SetGraphCommand = require('./SetGraphCommand');
 const DeleteGraphCellCommand = require('./DeleteGraphCellCommand');
 const CellAttributesCommand = require('./CellAttributesCommand');
 const FormatCellsCommand = require('./FormatCellsCommand');
@@ -53,17 +52,12 @@ const MarkCellValuesCommand = require('./MarkCellValuesCommand');
 const ZoomChartCommand = require('./ZoomChartCommand');
 const {
 	UpdateSheetNamesCommand,
-	UpdateGraphCellsCommand,
-	SetGraphCellsCommand,
 	SetGraphItemsCommand
 } = require('./UpdateNamesCommands');
 
 const Registry = {
 	'command.UpdateSheetNamesCommand': UpdateSheetNamesCommand,
-	'command.UpdateGraphCellsCommand': UpdateGraphCellsCommand,
-	'command.SetGraphCellsCommand': SetGraphCellsCommand,
 	'command.SetGraphItemsCommand': SetGraphItemsCommand,
-	'command.SetGraphCommand': SetGraphCommand,
 	'command.SetCellDataCommand': SetCellDataCommand,
 	'command.SetPlotDataCommand': SetPlotDataCommand,
 	'command.SetChartFormulaCommand': SetChartFormulaCommand,

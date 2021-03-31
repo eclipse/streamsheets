@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -82,6 +82,18 @@ class Coordinate {
 	 */
 	static Factory() {
 		return Coordinate.fromXY(0, 0);
+	}
+
+	fromJSON(json) {
+		this._xExpression.fromJSON(json.x);
+		this._yExpression.fromJSON(json.y);
+	}
+
+	toJSON(serverCalc = false) {
+		return {
+			x: this._xExpression.toJSON(serverCalc),
+			y: this._yExpression.toJSON(serverCalc),
+		}
 	}
 
 	/**

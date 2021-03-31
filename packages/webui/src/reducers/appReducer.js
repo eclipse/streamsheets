@@ -16,6 +16,7 @@ const defaultState = {
 	drawerOpen: false,
 	showStreamChartProperties: false,
 	showViewModeProperties: false,
+	showViewMode: false,
 	showImportDialog: false,
 	showNewDialog: false,
 	showOpenDialog: false,
@@ -29,8 +30,7 @@ const defaultState = {
 	functionWizard: { show: false },
 	showTools: true,
 	viewMode: {
-		active: false,
-		sheets: []
+		active: false
 	},
 	showEditNamesDialog: false,
 	formatOpen: false,

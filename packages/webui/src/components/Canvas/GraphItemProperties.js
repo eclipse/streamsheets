@@ -36,7 +36,11 @@ import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import {intl} from "../../helper/IntlGlobalProvider";
 import {StreamChartProperties} from "./StreamChartProperties";
+import {FormatProperties} from "./FormatProperties";
+import {TextFormatProperties} from "./TextFormatProperties";
 import {GeometryProperties} from "./GeometryProperties";
+import {AttributeProperties} from "./AttributeProperties";
+import {EventProperties} from "./EventProperties";
 
 const styles = {
 	icon: {
@@ -71,7 +75,6 @@ export class GraphItemProperties extends Component {
 	};
 
 	componentDidMount() {
-		document.addEventListener('keydown', this.escFunction, false);
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.PLOT_DOUBLE_CLICK_NOTIFICATION,
@@ -87,7 +90,6 @@ export class GraphItemProperties extends Component {
 	componentWillUnmount() {
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.PLOT_DOUBLE_CLICK_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION);
-		document.removeEventListener('keydown', this.escFunction, false);
 	}
 
 	onGraphSelectionChanged() {
@@ -139,7 +141,7 @@ export class GraphItemProperties extends Component {
 		const view = this.state.view;
 		const data = event.target.value.split(';');
 
-		view.setSelectedPropertyCategory(data);
+		view.setSelectedPropertyCategory(data, 0);
 
 		if (view.isValidPropertyCategory(data[0])) {
 			this.setState({
@@ -150,8 +152,8 @@ export class GraphItemProperties extends Component {
 			JSG.NotificationCenter.getInstance().send(
 				new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, item)
 			);
-			graphManager.redraw();
 		}
+		graphManager.redraw();
 	};
 
 	getSheetView() {
@@ -183,12 +185,6 @@ export class GraphItemProperties extends Component {
 		}
 
 		return ws;
-	}
-
-	escFunction(event) {
-		if (event.keyCode === 27 && event.target && event.target.contentEditable !== 'true') {
-			// this.props.setAppState({ showStreamChartProperties: false });
-		}
 	}
 
 	handleClose = () => {
@@ -227,8 +223,16 @@ export class GraphItemProperties extends Component {
 	getProperties() {
 		const category = this.getSelectedCategory() || this.state.category;
 		switch (category) {
-			case 'geometry':
+			case 'general':
 				return <GeometryProperties view={this.state.view}/>;
+			case 'format':
+				return <FormatProperties view={this.state.view}/>;
+			case 'textformat':
+				return <TextFormatProperties view={this.state.view}/>;
+			case 'attributes':
+				return <AttributeProperties view={this.state.view}/>;
+			case 'events':
+				return <EventProperties view={this.state.view}/>;
 			default:
 				if (this.state.view.isNewChart) {
 					return <StreamChartProperties view={this.state.view}/>;
@@ -239,7 +243,7 @@ export class GraphItemProperties extends Component {
 	}
 
 	render() {
-		if (!this.state.view) {
+		if (!this.state.view || !this.props.showStreamChartProperties) {
 			return <div />;
 		}
 		const item = this.state.view.getItem();

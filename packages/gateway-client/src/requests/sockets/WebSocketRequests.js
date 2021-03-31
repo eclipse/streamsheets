@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -582,23 +582,6 @@ class SetNamedCellsWebSocketRequest extends WebSocketRequest {
 	}
 }
 
-class SetGraphCellsWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, streamsheetId, graphCells) {
-		super(ws, SET_GRAPH_CELLS);
-		this._machineId = machineId;
-		this._streamsheetId = streamsheetId;
-		this.graphCells = graphCells;
-	}
-
-	_getConfig() {
-		return {
-			machineId: this._machineId,
-			streamsheetId: this._streamsheetId,
-			graphCells: this.graphCells
-		};
-	}
-}
-
 class AddInboxMessageWebSocketRequest extends WebSocketRequest {
 	constructor(ws, machineId, streamsheetId, message, metadata) {
 		super(ws, ADD_INBOX_MESSAGE);
@@ -904,7 +887,6 @@ module.exports = {
 	SetStreamSheetStepIntervalWebSocketRequest,
 	ConfirmProcessedMachineStepRequest,
 	SetNamedCellsWebSocketRequest,
-	SetGraphCellsWebSocketRequest,
 	StartMachineWebSocketRequest,
 	StartMachinesWebSocketRequest,
 	StepMachineWebSocketRequest,
