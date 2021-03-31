@@ -126,7 +126,7 @@ export default class ChartInfoFeedbackView extends View {
 						label = item.getLabel(ref, axis, Math.floor(value.x));
 						label = `${label}: ${item.formatNumber(value.y, 'General')}`;
 					}
-				} else if (map && xValue) {
+				} else if (serie.map && map && xValue) {
 					if (value.x >= 0 && value.x < serie.map.mapData.features.length) {
 						const feature = serie.map.mapData.features[value.x];
 						label = feature.properties[serie.map.label] || '';
@@ -220,6 +220,9 @@ export default class ChartInfoFeedbackView extends View {
 			} else if (map) {
 				const serie = item.series[this.selection.dataPoints[0].index];
 				const value = {};
+				if (!serie.map) {
+					return;
+				}
 				const features = serie.map.mapData.features;
 				const ref = item.getDataSourceInfo(serie.formula);
 				mapInfo = item.getMapInfo(plotRect, serie, ref);

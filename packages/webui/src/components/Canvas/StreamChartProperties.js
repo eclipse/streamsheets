@@ -979,7 +979,7 @@ export class StreamChartProperties extends Component {
 	handleSeriesCopyMapLabels = () => {
 		const data = this.getData();
 
-		if (!data.map.mapData) {
+		if (!data.map || !data.map.mapData) {
 			return;
 		}
 
@@ -3315,7 +3315,7 @@ export class StreamChartProperties extends Component {
 										onChange={(event) => this.handleSeriesMapLabelChange(event)}
 										margin="normal"
 									>
-										{data.map.mapData && data.map.mapData.features.length ?
+										{data.map && data.map.mapData && data.map.mapData.features.length ?
 											Object.keys(data.map.mapData.features[0].properties).map((prop) => (
 											<MenuItem value={prop} key={prop}>
 												{prop}
