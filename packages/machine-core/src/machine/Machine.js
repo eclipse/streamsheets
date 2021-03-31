@@ -127,12 +127,16 @@ class Machine {
 	async load(definition = {}, functionDefinitions = [], currentStreams = []) {
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
+		const { settings = {}, metadata } = definition;
 		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
 		this._name = def.isTemplate ? defaultMachineName() : def.name;
 		this._scope = def.scope;
-		this.metadata = { ...this.metadata, ...definition.metadata };
-		this._settings = { ...this.settings, ...definition.settings };
+		this.metadata = { ...this.metadata, ...metadata };
+		this._settings = { ...this.settings, ...settings };
+		// handle nested view object, which might be null, but shouldn't!!
+		this._settings.view = { ...this.settings.view, ...settings.view };
+
 		// first time load named cells so that reference to named cells are resolved on streamsheets load
 		this.namedCells.load(this, def.namedCells);
 		// at least one streamsheet (required by graph-service!!):
