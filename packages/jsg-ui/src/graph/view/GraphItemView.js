@@ -890,7 +890,7 @@ class GraphItemView extends View {
 		let param;
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
-		// DRAW.*(X, Y, Width, Height, LineFormat, FillFormat...)
+		// DRAW.*(X, Y, Width, Height, LineColor, FillColor...)
 		formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY().toParamString(sheet, 0)}${sep}`;
 		formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}`;
 

@@ -534,7 +534,7 @@ const Strings = {
 	// 	},
 	// 	de: {
 	// 		argumentList:
-	// 			'Name,Bezug,Linienformat,Füllformat,XMin,XMax,YMin,YMax,EventFunktion',
+	// 			'Name,Bezug,Linienfarbe,Füllfarbe,XMin,XMax,YMin,YMax,EventFunktion',
 	// 		description: 'Create a drawing are',
 	// 	},
 	// },
@@ -547,7 +547,7 @@ const Strings = {
 		},
 		de: {
 			argumentList:
-				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
 			description: 'Erzeugt ein Button Objekt',
 		},
 	},
@@ -560,7 +560,7 @@ const Strings = {
 		},
 		de: {
 			argumentList:
-				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert',
 			description: 'Erzeugt ein Button Objekt',
 		},
 	},
@@ -572,7 +572,7 @@ const Strings = {
 		},
 		de: {
 			argumentList:
-				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt',
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Attribute,Events,Winkel,Ankerpunkt',
 			description: 'Erzeugt eine Ellipse in der angegebenen Zeichnung',
 		},
 	},
@@ -585,18 +585,18 @@ const Strings = {
 		},
 		de: {
 			argumentList:
-				'UniqueID,Container,Name,X,Y,Breite,Höhe,LinienFormat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Text,Font',
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,LinienFarbe,Füllfarbe,Attribute,Events,Winkel,Ankerpunkt,Text,Font',
 			description: 'Erzeugt ein Textelement',
 		},
 	},
 	'DRAW.LINE': {
 		category: 'drawing',
 		en: {
-			argumentList: 'UniqueID,Container,Name,X1,Y1,X2,Y2,LineFormat',
+			argumentList: 'UniqueID,Container,Name,X1,Y1,X2,Y2,LineColor',
 			description: 'Creates a line',
 		},
 		de: {
-			argumentList: 'UniqueID,Container,Name,X1,Y1,X2,Y2,Linienformat',
+			argumentList: 'UniqueID,Container,Name,X1,Y1,X2,Y2,Linienfarbe',
 			description: 'Erzeugt eine Linie',
 		},
 	},
@@ -609,7 +609,7 @@ const Strings = {
 		},
 		de: {
 			argumentList:
-				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich',
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Attribute,Events,Winkel,Ankerpunkt,Diagrammtyp,Datenbereich',
 			description: 'Erzeugt ein Diagramm',
 		},
 	},
@@ -622,7 +622,7 @@ const Strings = {
 		},
 		de: {
 			argumentList:
-				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,PunkteBereich,Schließen',
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Attribute,Events,Winkel,Ankerpunkt,PunkteBereich,Schließen',
 			description: 'Erzeugt ein Polygon mit den angegebenen Koordinaten',
 		},
 	},
@@ -634,7 +634,7 @@ const Strings = {
 		},
 		de: {
 			argumentList:
-				'UniqueID,Zeichnung,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt',
+				'UniqueID,Zeichnung,Name,X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Attribute,Events,Winkel,Ankerpunkt',
 			description: 'Erzeugt ein Rechteck in der angegebenen Zeichnung',
 		},
 	},
@@ -647,7 +647,7 @@ const Strings = {
 		},
 		de: {
 			argumentList:
-				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienformat,Füllformat,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert,Minimum,Maximum,Schritt,Skalenschrift,Marker,Skalenformat',
+				'UniqueID,Container,Name,X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Attribute,Events,Winkel,Ankerpunkt,Label,Labelschrift,Wert,Minimum,Maximum,Schritt,Skalenschrift,Marker,Skalenformat',
 			description: 'Erzeugt ein Schieberegler Objekt',
 		},
 	},
@@ -1145,13 +1145,13 @@ const Strings = {
 	// 	category: 'drawing',
 	// 	en: {
 	// 		argumentList:
-	// 			'DrawingName,Name,PointRange,LineFormat,FillFormat,Closed,EventFunction',
+	// 			'DrawingName,Name,PointRange,LineFormat,FillColor,Closed,EventFunction',
 	// 		description:
 	// 			'Creates a Polygon within the given drawing with absolute points given',
 	// 	},
 	// 	de: {
 	// 		argumentList:
-	// 			'Zeichnung,Name,PunkteBereich,Linienformat,Füllformat,Schließen,EventFunktion',
+	// 			'Zeichnung,Name,PunkteBereich,Linienfarbe,Füllfarbe,Schließen,EventFunktion',
 	// 		description:
 	// 			'Erzeugt ein Polygon in der angegebenen Zeichnung mit absoluten Koordinaten',
 	// 	},

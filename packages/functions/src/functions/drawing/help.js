@@ -52,124 +52,124 @@ module.exports = {
 		'DRAW.BUTTON': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle,Label,Value',
+					'X,Y,Width,Height,LineColor,FillColor,Angle,Label,Value',
 				description: 'Creates a button control'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel,Label,Wert',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel,Label,Wert',
 				description: 'Erzeugt ein Button Objekt'
 			}
 		},
 		'DRAW.CHECKBOX': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle,Label,Value',
+					'X,Y,Width,Height,LineColor,FillColor,Angle,Label,Value',
 				description: 'Creates a checkbox control'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel,Label,Wert',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel,Label,Wert',
 				description: 'Erzeugt ein Checkbox Objekt'
 			}
 		},
 		'DRAW.ELLIPSE': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle',
+					'X,Y,Width,Height,LineColor,FillColor,Angle',
 				description: 'Creates an ellipse within the given drawing'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel',
 				description: 'Erzeugt eine Ellipse in der angegebenen Zeichnung'
 			}
 		},
 		'DRAW.LABEL': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle,Text,Font',
+					'X,Y,Width,Height,LineColor,FillColor,Angle,Text,Font',
 				description: 'Creates a text element'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,LinienFormat,Füllformat,Winkel,Text',
+					'X,Y,Breite,Höhe,LinienFarbe,Füllfarbe,Winkel,Text',
 				description: 'Erzeugt ein Textelement'
 			}
 		},
 		'DRAW.LINE': {
-			en: { argumentList: 'X1,Y1,X2,Y2,LineFormat', description: 'Creates a line' },
-			de: { argumentList: 'X1,Y1,X2,Y2,Linienformat', description: 'Erzeugt eine Linie' }
+			en: { argumentList: 'X1,Y1,X2,Y2,LineColor', description: 'Creates a line' },
+			de: { argumentList: 'X1,Y1,X2,Y2,Linienfarbe', description: 'Erzeugt eine Linie' }
 		},
 		'DRAW.KNOB': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle,Label,Value,Min,Max,Step,Marker,FormatRange,StartAngle,EndAngle',
+					'X,Y,Width,Height,LineColor,FillColor,Angle,Label,Value,Min,Max,Step,Marker,FormatRange,StartAngle,EndAngle',
 				description: 'Creates a knob control'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel,Label,Wert,Minimum,Maximum,Schritt,Marker,Skalenformat,StartWinkel,EndWinkel',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel,Label,Wert,Minimum,Maximum,Schritt,Marker,Skalenformat,StartWinkel,EndWinkel',
 				description: 'Erzeugt ein Drehregler Objekt'
 			}
 		},
 		'DRAW.STREAMCHART': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle',
+					'X,Y,Width,Height,LineColor,FillColor,Angle',
 				description: 'Creates a chart'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel',
 				description: 'Erzeugt ein Diagramm'
 			}
 		},
 		'DRAW.POLYGON': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle,PointRange,Close',
+					'X,Y,Width,Height,LineColor,FillColor,Angle,PointRange,Close',
 				description: 'Creates a polygon within the given drawing using proportional coordinates'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel,PunkteBereich,Schließen',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel,PunkteBereich,Schließen',
 				description: 'Erzeugt ein Polygon mit den angegebenen Koordinaten'
 			}
 		},
 		'DRAW.BEZIER': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle,PointRange,Close',
+					'X,Y,Width,Height,LineColor,FillColor,Angle,PointRange,Close',
 				description: 'Creates a bezier within the given drawing using proportional coordinates'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel,PunkteBereich,Schließen',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel,PunkteBereich,Schließen',
 				description: 'Erzeugt eine Bezier Kurve mit den angegebenen Koordinaten'
 			}
 		},
 		'DRAW.RECTANGLE': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle',
+					'X,Y,Width,Height,LineColor,FillColor,Angle',
 				description: 'Creates a rectangle within the given drawing'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel',
 				description: 'Erzeugt ein Rechteck in der angegebenen Zeichnung'
 			}
 		},
 		'DRAW.SLIDER': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineFormat,FillFormat,Angle,Label,Value,Min,Max,Step,Marker,FormatRange',
+					'X,Y,Width,Height,LineColor,FillColor,Angle,Label,Value,Min,Max,Step,Marker,FormatRange',
 				description: 'Creates a slider control'
 			},
 			de: {
 				argumentList:
-					'X,Y,Breite,Höhe,Linienformat,Füllformat,Winkel,Label,Wert,Minimum,Maximum,Schritt,Marker,Skalenformat',
+					'X,Y,Breite,Höhe,Linienfarbe,Füllfarbe,Winkel,Label,Wert,Minimum,Maximum,Schritt,Marker,Skalenformat',
 				description: 'Erzeugt ein Schieberegler Objekt'
 			}
 		},
