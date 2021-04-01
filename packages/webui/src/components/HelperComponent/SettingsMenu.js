@@ -115,8 +115,12 @@ export class SettingsMenu extends React.Component {
 		this.props.setAppState({ openHelp: true });
 	};
 
+	getLocale = () => {
+		return this.props.locale || this.state.prevLocale || 'EN';
+	}
+
 	showLicenseAgreement = () => {
-		const locale = this.props.locale || this.state.prevLocale || 'EN';
+		const locale = this.getLocale();
 		// window.location.href = `/license_${locale.toUpperCase()}.pdf`;
 		window.open(`/license_${locale.toUpperCase()}.pdf`);
 	}
@@ -258,20 +262,22 @@ export class SettingsMenu extends React.Component {
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="Info" defaultMessage="Info"/>}/>
 						</MenuItem>
-						<MenuItem dense onClick={() => this.showLicenseAgreement('DE')}>
+						{ this.getLocale().toUpperCase() === 'DE' && <MenuItem dense onClick={() => this.showLicenseAgreement('DE')}>
 							<ListItemIcon>
 								<Assignment/>
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseDE"
-																	 defaultMessage="Download license (English)"/>}/>
+																	 defaultMessage="Download license (German)"/>}/>
 						</MenuItem>
-						<MenuItem dense onClick={() => this.showLicenseAgreement('EN')}>
+						}
+						{ this.getLocale().toUpperCase() === 'EN' && <MenuItem dense onClick={() => this.showLicenseAgreement('EN')}>
 							<ListItemIcon>
 								<Assignment/>
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseEN"
-																	 defaultMessage="Download license (German)"/>}/>
+																	 defaultMessage="Download license (English)"/>}/>
 						</MenuItem>
+						}
 						<Divider/>
 						<MenuItem dense onClick={this.logout}>
 							<ListItemIcon>
