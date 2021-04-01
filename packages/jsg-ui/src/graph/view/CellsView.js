@@ -1563,8 +1563,9 @@ export default class CellsView extends NodeView {
 				.getFocus()
 				.getView() === wsView;
 		const selections = ws.getSelectionList();
+		const parent = ws.getParent();
 
-		if (selections !== undefined) {
+		if (selections !== undefined && !parent.viewSettings.active) {
 			graphics.setTextBaseline('top');
 			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
 			graphics.setFontTo('7pt Verdana');
