@@ -161,14 +161,7 @@ module.exports = class WorksheetNode extends ContentNode {
 	 */
 	layout() {
 		const wsattributes = this.getWorksheetAttributes();
-		const parent = this.getParent();
-		let header;
-
-		if (parent && parent.viewSettings.active) {
-			header = parent.viewSettings.showHeader;
-		} else {
-			header = wsattributes.getShowHeader().getValue();
-		}
+		const header = this.isHeaderVisible();
 
 		this._rowCount = wsattributes.getRows().getValue();
 		this._columnCount = wsattributes.getRows().getValue();
@@ -297,6 +290,15 @@ module.exports = class WorksheetNode extends ContentNode {
 
 	setGridVisible(flag) {
 		return this.getWorksheetAttributes().setShowGrid(flag);
+	}
+
+	isHeaderVisible() {
+		const parent = this.getParent();
+
+		if (parent && parent.viewSettings.active) {
+			return parent.viewSettings.showHeader;
+		}
+		return this.getWorksheetAttributes().getShowHeader().getValue();
 	}
 
 	isProtected() {
