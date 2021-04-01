@@ -926,6 +926,9 @@ export default class CellsView extends NodeView {
 			}
 			return;
 		}
+		if (formattedValue.formattedValue.length > 500) {
+			formattedValue.formattedValue = `${formattedValue.formattedValue.slice(0, 500)   }...`;
+		}
 
 		if (columnInfo.index === 1) {
 			const state =
@@ -1323,7 +1326,7 @@ export default class CellsView extends NodeView {
 						pos -= 1;
 						data = dataProvider.getRC(pos, index);
 						width = this._columns.getSectionSize(pos)
-						if (width && data !== undefined && data.getValue() !== undefined) {
+						if (width && data !== undefined && data.getValue() !== undefined && data.getValue() !== null && data.getValue().toString() !== '') {
 							rowInfo.leftCellInfo = {
 								section: this._columns.getSection(pos),
 								index: pos,

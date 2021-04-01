@@ -491,7 +491,7 @@ export default class GraphManager {
 				sheet.getParent().viewSettings = settings;
 				const controller = graphController.getControllerByModelId(sheet.getId());
 				const view = controller.getView();
-				if (!settings.allowScroll) {
+				if (settings.allowScroll === false) {
 					sheet.setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
 					sheet.setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
 					sheet.layout();
