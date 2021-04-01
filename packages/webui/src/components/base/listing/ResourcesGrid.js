@@ -182,6 +182,7 @@ class ResourcesGrid extends React.Component {
 											textOverflow: 'ellipsis',
 											fontSize: '8pt',
 											fontWeight: 'bold',
+											whiteSpace: 'nowrap',
 											color: this.props.theme.palette.primary.main,
 											overflow: 'hidden',
 											maxWidth: '200px'
