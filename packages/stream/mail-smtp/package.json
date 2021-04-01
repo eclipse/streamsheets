@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-mail-smtp",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "DL SMTP feeder",
   "main": "index.js",
   "scripts": {
@@ -23,8 +23,8 @@
     "smtp-server": "3.4.6"
   },
   "dependencies": {
-    "@cedalo/logger": "2.2.0",
-    "@cedalo/sdk-streams": "2.2.0",
+    "@cedalo/logger": "2.3.0",
+    "@cedalo/sdk-streams": "2.3.0",
     "nodemailer": "4.6.8"
   },
   "jest": {

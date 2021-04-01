@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/repository",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Digital landscape repository",
   "main": "index.js",
   "scripts": {
@@ -17,10 +17,10 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/repository",
   "dependencies": {
-    "@cedalo/error-codes": "2.2.0",
-    "@cedalo/logger": "2.2.0",
-    "@cedalo/id-generator": "2.2.0",
-    "@cedalo/machine-core": "2.2.0",
+    "@cedalo/error-codes": "2.3.0",
+    "@cedalo/logger": "2.3.0",
+    "@cedalo/id-generator": "2.3.0",
+    "@cedalo/machine-core": "2.3.0",
     "fs-extra": "9.0.0",
     "lowdb": "0.14.0",
     "mixwith": "0.1.1",

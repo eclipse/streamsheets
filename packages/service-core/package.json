@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/service-core",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "A package providing basic service classes.",
   "main": "index.js",
   "scripts": {
@@ -17,11 +17,11 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/service-core",
   "dependencies": {
-    "@cedalo/error-codes": "2.2.0",
-    "@cedalo/id-generator": "2.2.0",
-    "@cedalo/logger": "2.2.0",
-    "@cedalo/messaging-client": "2.2.0",
-    "@cedalo/protocols": "2.2.0",
+    "@cedalo/error-codes": "2.3.0",
+    "@cedalo/id-generator": "2.3.0",
+    "@cedalo/logger": "2.3.0",
+    "@cedalo/messaging-client": "2.3.0",
+    "@cedalo/protocols": "2.3.0",
     "body-parser": "1.18.3",
     "compression": "1.7.3",
     "cors": "2.8.4",

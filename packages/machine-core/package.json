@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/machine-core",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Core classes and models for digital landscape machineserver",
   "main": "index.js",
   "scripts": {
@@ -21,15 +21,15 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
-    "@cedalo/commons": "2.2.0",
-    "@cedalo/error-codes": "2.2.0",
-    "@cedalo/id-generator": "2.2.0",
-    "@cedalo/logger": "2.2.0",
-    "@cedalo/messages": "2.2.0",
-    "@cedalo/messaging-client": "2.2.0",
-    "@cedalo/protocols": "2.2.0",
-    "@cedalo/number-format": "2.2.0",
-    "@cedalo/parser": "2.2.0",
+    "@cedalo/commons": "2.3.0",
+    "@cedalo/error-codes": "2.3.0",
+    "@cedalo/id-generator": "2.3.0",
+    "@cedalo/logger": "2.3.0",
+    "@cedalo/messages": "2.3.0",
+    "@cedalo/messaging-client": "2.3.0",
+    "@cedalo/protocols": "2.3.0",
+    "@cedalo/number-format": "2.3.0",
+    "@cedalo/parser": "2.3.0",
     "fs-extra": "9.0.0",
     "ioredis": "4.6.2",
     "levelup": "4.4.0",
