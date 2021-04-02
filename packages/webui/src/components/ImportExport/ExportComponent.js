@@ -72,7 +72,7 @@ const doExport = async (scope, machines, streams, fileName) => {
 		const { scoped } = await gatewayClient.graphql(EXPORT_QUERY, { machines, streams, scope });
 		if (scoped.export.success) {
 			const blob = new Blob([JSON.stringify(scoped.export.data, null, 2)], {
-				type: 'text/plain;charset=utf8;'
+				type: 'application/json;charset=utf8;'
 			});
 			saveAs(blob, fileName);
 			return true;
