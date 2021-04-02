@@ -155,7 +155,9 @@ export default function doRequest(state = defState, reqaction) {
 		}
 		case ActionTypes.RECEIVE_VIEW_SETTINGS_FROM_MACHINE: {
 			const { view } = reqaction;
-			newstate.machine.settings.view = view;
+			if(newstate.machine.settings){
+				newstate.machine.settings.view = view;
+			}
 			break;
 		}
 		case ActionTypes.RECEIVE_START_MACHINE:
