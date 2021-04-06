@@ -34,7 +34,8 @@ import ImportDialog from '../components/ImportExport/ImportDialog';
 import StartImportDialog from '../components/ImportExport/StartImportDialog';
 import MachineControlBar from '../components/MachineControlBar/MachineControlBar';
 import MachineDeleteDialog from '../components/MachineControlBar/MachineDeleteDialog';
-import MachineDetailComponent from '../components/MachineDetailComponent/MachineDetailComponent';
+import CanvasComponent from '../components/Canvas/CanvasComponent';
+import MachineLoadingDialog from '../components/Canvas/MachineLoadingDialog';
 import NotificationsComponent from '../components/NotificationsComponent/NotificationsComponent';
 import RequestStatusDialog from '../components/RequestStatusDialog/RequestStatusDialog';
 import ServerStatusDialog from '../components/ServerStatusDialog/ServerStatusDialog';
@@ -65,8 +66,18 @@ const useExperimental = (setAppState) => {
 };
 
 export function MachineDetailPage(props) {
-	const { locale, machineName, viewMode, searchParams, isConnected, location, viewSettings, showViewMode, sharedMachine = false } = props;
-	let { showTools } = props;
+	const {
+		locale,
+		machineName,
+		viewMode,
+		searchParams,
+		isConnected,
+		location,
+		viewSettings,
+		showViewMode,
+		sharedMachine = false,
+		showTools
+	} = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
 	const { token, userId } = qs.parse(location.search);
@@ -82,6 +93,8 @@ export function MachineDetailPage(props) {
 
 	const [userLoaded, setUserLoaded] = useState(false);
 	const [canEditMachine, setCanEditMachine] = useState(false);
+	const [machineLoaded, setMachineLoaded] = useState(false);
+
 	useExperimental(props.setAppState);
 
 	useEffect(() => {
@@ -90,19 +103,21 @@ export function MachineDetailPage(props) {
 		}
 	}, [isConnected]);
 
-	// Update canvas if showTools or viewMode change
+	// Update canvas if viewMode changes
 	useEffect(() => {
-		const settings = {
-			...viewSettings,
-			active: showViewMode && !!viewSettings && !!viewSettings.maximize
-		};
-
-		props.setAppState({
-			viewMode: settings,
-			showTools: settings.active === false
-		});
-		graphManager.updateCanvas(showTools, settings);
-	}, [showViewMode, viewSettings, showTools]);
+		if (machineLoaded) {
+			const settings = {
+				...viewSettings,
+				active: showViewMode && !!viewSettings && !!viewSettings.maximize
+			};
+			props.setAppState({
+				viewMode: settings,
+				showTools: settings.active === false
+			});
+			graphManager.updateCanvas(settings);
+			graphManager.redraw();
+		}
+	}, [showViewMode, viewSettings, machineLoaded]);
 
 	const loadUser = async () => {
 		try {
@@ -124,6 +139,7 @@ export function MachineDetailPage(props) {
 	}, [isConnected]);
 
 	const loadMachine = async () => {
+		setMachineLoaded(false);
 		const query = qs.parse(searchParams);
 		const stream = {
 			id: query.streamId,
@@ -167,22 +183,18 @@ export function MachineDetailPage(props) {
 			`,
 				{ machineId }
 			);
-			if(!sharedMachine){
+			if (!sharedMachine) {
 				setCanEditMachine(scopedByMachine.machine.canEdit);
 			} else {
 				props.setAppState({ showViewMode: true });
 			}
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
 			props.setScope(scopedByMachine.machine.scope.id);
-			if (scopedByMachine.machine.canEdit === false) {
-				showTools = false;
-			}
 		} catch (error) {
 			console.log(error);
 			console.log(`${error ? error.toString() : ''}`);
 		} finally {
-			graphManager.updateCanvas(showTools, viewMode);
-			graphManager.redraw();
+			setMachineLoaded(true);
 		}
 	};
 
@@ -198,7 +210,7 @@ export function MachineDetailPage(props) {
 		document.title = intl.formatMessage({ id: 'TitleMachine' }, { name: machineName || 'Machine' });
 	}, [machineName]);
 
-	const showTools_ = viewMode.active === false && showTools;
+	const showTools_ = viewMode.active === false && showTools && canEditMachine;
 	let contentMargin = canEditMachine ? 115 : 58;
 	contentMargin = showTools_ ? contentMargin : 0;
 	if (!userLoaded) {
@@ -339,7 +351,8 @@ export function MachineDetailPage(props) {
 							outline: 'none'
 						}}
 					>
-						<MachineDetailComponent canEditMachine={canEditMachine} />
+						<MachineLoadingDialog />
+						<CanvasComponent canEditMachine={canEditMachine} machineLoaded={machineLoaded} />
 					</div>
 				</Restricted>
 			</div>
