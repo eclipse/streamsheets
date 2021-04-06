@@ -19,7 +19,6 @@ import { accessManager } from '../helper/AccessManager';
 import ConfigManager from '../helper/ConfigManager';
 import gatewayClient from '../helper/GatewayClient';
 import { intl } from '../helper/IntlGlobalProvider';
-import MachineHelper from '../helper/MachineHelper';
 import { Path } from '../helper/Path';
 import { functionStrings } from '../languages/FunctionStrings';
 import SheetParserContext from '../SheetParserContext';
@@ -787,13 +786,9 @@ export function unsubscribe(machineId) {
 }
 
 export function openExport(machineId) {
-	return (dispatch) => {
+	return () => {
 		const path = Path.export(machineId);
-		if(MachineHelper.isMachineDetailsPage()){
-			window.open(path);
-		} else {
-			dispatch(push(path))
-		}
+		window.open(path);
 	}
 }
 

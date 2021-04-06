@@ -16,7 +16,7 @@ import Paper from '@material-ui/core/Paper';
 import ExportIcon from '@material-ui/icons/CloudUpload';
 import { saveAs } from 'file-saver';
 import PropTypes from 'prop-types';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { notifyExportFailed } from '../../actions/actions';
@@ -211,6 +211,14 @@ const ExportComponent = (props) => {
 		setShowDialog(true);
 	};
 
+	useEffect(() => {
+		if(data && props.initialMachine){
+			if(!data.scoped.machines.some(m => m.id === props.initialMachine)){
+				toggleMachine(props.initialMachine);
+			}
+		}
+	}, [data])
+
 	const selectLinkedStreamsColumn = {
 		header: (
 			<Restricted all={['stream']} key="selecteLinked">
@@ -379,6 +387,7 @@ function mapStateToProps(state) {
 	const initialMachineSelection = initialMachine ? { [initialMachine]: true } : {};
 	return {
 		initialMachineSelection,
+		initialMachine,
 		scope: state.user.user.scope
 	};
 }
