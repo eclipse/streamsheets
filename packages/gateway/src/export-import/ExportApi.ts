@@ -51,6 +51,9 @@ const doExport = async (
 				api.machine.findMachine(scope, machineId),
 				graphRepository.findGraphByMachineId(machineId)
 			]);
+			if(!result[0]){
+				throw 'Missing machine';
+			}
 			return {
 				machine: { ...result[0], state: 'stopped' },
 				graph: result[1]
