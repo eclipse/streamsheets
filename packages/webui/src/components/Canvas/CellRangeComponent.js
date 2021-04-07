@@ -71,7 +71,9 @@ class CellRangeComponent extends React.Component {
 			inputEditorOpen: true,
 			anchorEl: node
 		});
-		node.focus();
+		setTimeout(() => {
+			node.focus();
+		}, 0);
 	}
 
 	onCloseInputEditor = () => {
@@ -154,7 +156,6 @@ class CellRangeComponent extends React.Component {
 	handleBlur = (event) => {
 		if (event.relatedTarget) {
 			if (event.relatedTarget.id === 'RefInput') {
-				// this.onInputEditor(event);
 				return;
 			}
 			const cancel = event.relatedTarget.id === 'RefCancel';
