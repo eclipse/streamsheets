@@ -444,9 +444,9 @@ export class CanvasComponent extends Component {
 	}
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
 	return {
-		showMachine: MachineHelper.showMachine(state),
+		showMachine: MachineHelper.showMachine(state) && ownProps.machineLoaded,
 		machineId: state.monitor.machine.id,
 		viewMode: state.appState.viewMode,
 		showViewModeProperties: state.appState.showViewModeProperties,

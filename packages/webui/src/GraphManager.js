@@ -474,7 +474,7 @@ export default class GraphManager {
 		canvas.height = oldHeight * ratio;
 	}
 
-	updateCanvas(tools, settings) {
+	updateCanvas(settings) {
 		const canvas = document.getElementById('canvas');
 		const graph = this.getGraph();
 		if (canvas && graph && graph.getItemCount() && settings) {
