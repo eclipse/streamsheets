@@ -285,47 +285,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			let column = 0;
 
 			if (item.isMap()) {
-				const fontColor = legend.format.fontColor || template.legend.format.fontColor || template.font.color;
-
-				if (
-					legend.align === 'right' ||
-					legend.align === 'middleright' ||
-					legend.align === 'left' ||
-					legend.align === 'middleleft'
-				) {
-					graphics.beginPath();
-					const gradient = graphics.createLinearGradient(x, legend.position.bottom - margin, x, y);
-					if (gradient) {
-						gradient.addColorStop(0, legendData[0].color);
-						gradient.addColorStop(1, legendData[2].color);
-						graphics._context2D.fillStyle = gradient;
-						graphics.rect(x, y, 300, legend.position.height - margin * 2);
-						graphics.fill();
-					}
-					graphics.setFillColor(fontColor);
-					graphics.setTextBaseline('top');
-					graphics.fillText(legendData[2].name, x + 200 + margin, y);
-					graphics.setTextBaseline('middle');
-					graphics.fillText(legendData[1].name, x + 200 + margin, legend.position.top + legend.position.height / 2);
-					graphics.setTextBaseline('bottom');
-					graphics.fillText(legendData[0].name, x + 200 + margin, legend.position.bottom - margin);
-				} else {
-					graphics.beginPath();
-					const gradient = graphics.createLinearGradient(x + margin, y, legend.position.right - margin, y);
-					gradient.addColorStop(0, legendData[0].color);
-					gradient.addColorStop(1, legendData[2].color);
-					graphics._context2D.fillStyle = gradient;
-					graphics.rect(x, y, legend.position.width - margin * 2, 300);
-					graphics.fill();
-					graphics.setFillColor(fontColor);
-					graphics.setTextBaseline('top');
-					graphics.setTextAlignment(0);
-					graphics.fillText(legendData[0].name, x, y + 200 + margin);
-					graphics.setTextAlignment(1);
-					graphics.fillText(legendData[1].name, legend.position.left + legend.position.width / 2, y + 200 + margin);
-					graphics.setTextAlignment(2);
-					graphics.fillText(legendData[2].name, legend.position.right - margin, y + 200 + margin);
-				}
 			} else {
 				legendData.forEach((entry, index) => {
 					graphics.beginPath();
@@ -625,6 +584,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			const cs = graphics.getCoordinateSystem();
 			const thresholds = item.hasLegendRange() ? legendData : undefined;
 			let last;
+			// eslint-disable-next-line prefer-const
 			let first = true;
 			let width = 0;
 			let pos;
@@ -685,79 +645,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				}
 
 				switch (axis.align) {
-				case 'radialoutside':
-					if (gaugeInfo.angle % (Math.PI * 2) > 0.00001 || first === false) {
-						plot = gaugeInfo.startAngle + pos * gaugeInfo.angle;
-						let x = gaugeInfo.xc + Math.cos(plot) * gaugeInfo.xRadius;
-						let y = gaugeInfo.yc + Math.sin(plot) * gaugeInfo.xRadius;
-						if (grid) {
-							const radius = gaugeInfo.xRadius * item.chart.hole;
-							graphics.moveTo(x, y);
-							x = gaugeInfo.xc + Math.cos(plot) * radius;
-							y = gaugeInfo.yc + Math.sin(plot) * radius;
-							graphics.lineTo(x, y);
-						} else {
-							const textSize = item.measureText(
-								graphics,
-								graphics.getCoordinateSystem(),
-								axis.format,
-								'axis',
-								text
-							);
-							if (
-								thresholds &&
-								thresholds.length &&
-								axis.valueRangesVisible &&
-								item.chart.gaugePointer === false
-							) {
-								x += Math.cos(plot) * (textSize.width / 2 + 600);
-								y += Math.sin(plot) * (textSize.height / 2 + 600);
-							} else {
-								x += Math.cos(plot) * (textSize.width / 2 + axis.labelDistance);
-								y += Math.sin(plot) * (textSize.height / 2 + axis.labelDistance);
-							}
-
-							this.drawRotatedText(graphics, `${text}`, x, y, labelAngle, xLabelOffset, yLabelOffset);
-						}
-					}
-					first = false;
-					break;
-				case 'radialinside':
-					if (gaugeInfo.angle % (Math.PI * 2) > 0.00001 || first === false) {
-						const radius = gaugeInfo.xRadius * item.chart.hole;
-						plot = gaugeInfo.startAngle + pos * gaugeInfo.angle;
-						let x = gaugeInfo.xc + Math.cos(plot) * radius;
-						let y = gaugeInfo.yc + Math.sin(plot) * radius;
-						if (grid) {
-							graphics.moveTo(x, y);
-							x = gaugeInfo.xc + Math.cos(plot) * gaugeInfo.xRadius;
-							y = gaugeInfo.yc + Math.sin(plot) * gaugeInfo.xRadius;
-							graphics.lineTo(x, y);
-						} else {
-							const textSize = item.measureText(
-								graphics,
-								graphics.getCoordinateSystem(),
-								axis.format,
-								'axis',
-								text
-							);
-							if (
-								thresholds &&
-								thresholds.length &&
-								axis.valueRangesVisible &&
-								item.chart.gaugePointer === false
-							) {
-								x -= Math.cos(plot) * (textSize.width / 2 + 600);
-								y -= Math.sin(plot) * (textSize.height / 2 + 600);
-							} else {
-								x -= Math.cos(plot) * (textSize.width / 2 + axis.labelDistance);
-								y -= Math.sin(plot) * (textSize.height / 2 + axis.labelDistance);
-							}
-							this.drawRotatedText(graphics, `${text}`, x, y, labelAngle, xLabelOffset, yLabelOffset);
-						}
-					}
-					first = false;
-					break;
 				case 'left':
 					plot = plotRect.bottom - pos * plotRect.height;
 					if (grid) {
@@ -1704,27 +1591,6 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				graphics.stroke();
 			}
 
-			if (serie.type === 'heatmap') {
-				const colored = heatInfo.context.getImageData(
-					0,
-					0,
-					heatInfo.canvasPlot.width,
-					heatInfo.canvasPlot.height
-				);
-				const pixels = colored.data;
-				for (let i = 0, len = pixels.length, j; i < len; i += 4) {
-					j = pixels[i + 3] * 4; // get gradient color from opacity value
-
-					if (j) {
-						pixels[i] = heatInfo.gradient[j];
-						pixels[i + 1] = heatInfo.gradient[j + 1];
-						pixels[i + 2] = heatInfo.gradient[j + 2];
-					}
-				}
-				heatInfo.context.globalAlpha = 1;
-				heatInfo.context.putImageData(colored, 0, 0);
-				graphics.drawImage(heatInfo.canvasPlot, plotRect.left, plotRect.top);
-			}
 
 			graphics.setLineWidth(-1);
 			graphics.restore();
@@ -2905,6 +2771,14 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				};
 				break;
 			case 'point':
+				this.chartSelection = {
+					element: 'point',
+					index: 0,
+					selectionIndex: 0,
+					pointIndex: 0,
+					dataPoints: [],
+					data: item.series[index]
+				};
 				break;
 			default:
 				this.chartSelection = undefined;

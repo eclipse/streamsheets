@@ -3191,35 +3191,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	}
 
 	checkAxis(axis, pt, plotRect) {
-		if (this.isGauge()) {
-			const gaugeInfo = this.getGaugeInfo(plotRect);
-			let outer;
-			let inner;
-			const size = axis.size ? axis.size.width : 1000;
-			if (axis.align === 'radialoutside') {
-				outer = gaugeInfo.xRadius + size;
-				inner = gaugeInfo.xRadius;
-			} else {
-				outer = gaugeInfo.xRadius * this.chart.hole;
-				inner = (gaugeInfo.xRadius - size) * this.chart.hole;
-			}
-			const points = this.getEllipseSegmentPoints(
-				gaugeInfo.xc,
-				gaugeInfo.yc,
-				inner,
-				inner,
-				outer,
-				outer,
-				0,
-				gaugeInfo.startAngle,
-				gaugeInfo.startAngle + gaugeInfo.angle,
-				36
-			);
-			if (MathUtils.isPointInPolygon(points, pt)) {
-				return true;
-			}
-			return false;
-		}
 
 		return axis.position.containsPoint(pt);
 	}
@@ -3244,20 +3215,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			pos = this.scaleToAxis(axis, current.value, undefined, true);
 
 			switch (axis.align) {
-			case 'radialoutside':
-			case 'radialinside': {
-				pos = gaugeInfo.startAngle + pos * gaugeInfo.angle;
-				const pt1 = {
-					x: gaugeInfo.xc + Math.cos(pos) * gaugeInfo.xRadius,
-					y: gaugeInfo.yc + Math.sin(pos) * gaugeInfo.xRadius
-				};
-				const radius = gaugeInfo.xRadius * this.chart.hole;
-				const pt2 = { x: gaugeInfo.xc + Math.cos(pos) * radius, y: gaugeInfo.yc + Math.sin(pos) * radius };
-				if (MathUtils.getLinePointDistance(pt1, pt2, pt) < 200) {
-					return true;
-				}
-				break;
-			}
 			case 'left':
 			case 'right':
 				pos = plotRect.bottom - pos * plotRect.height;
@@ -5256,8 +5213,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 	saveContent(writer, absolute) {
 		super.saveContent(writer, absolute);
-
-		writer.writeAttributeString('type', 'streamchart');
 
 		writer.writeStartElement('plot');
 

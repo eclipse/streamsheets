@@ -229,7 +229,7 @@ export default class ChartSelectionFeedbackView extends View {
 				break;
 			case 'xAxis':
 			case 'yAxis':
-				if (item.isGauge() && gaugeInfo) {
+				if (item.isGauge()) {
 					const axis = selection.data;
 					if (!axis.position || !axis.scale) {
 						break;
@@ -244,7 +244,7 @@ export default class ChartSelectionFeedbackView extends View {
 					let outer;
 					const size = axis.size ? axis.size.width + 150 : 1000;
 
-					while (current.value <= final) {
+					while (gaugeInfo && current.value <= final) {
 						if (axis.type === 'category' && current.value > axis.scale.max) {
 							break;
 						}
