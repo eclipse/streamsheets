@@ -120,6 +120,7 @@ export class GeometryProperties extends Component {
 				InputProps={{
 					inputComponent: MyInputComponent,
 					inputProps: {
+						onlyReference: false,
 						component: CellRangeComponent,
 						sheetView,
 						range: this.getFormula(expression, round)

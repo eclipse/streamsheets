@@ -313,6 +313,23 @@ module.exports = class MongoDBMachineRepository extends mix(
 			.then((resp) => resp.result && resp.result.ok);
 	}
 
+	updateShapes(machineId, streamsheetIds, shapes) {
+		const bulkUpdates = streamsheetIds.map((id, index) => {
+			const update = { $set: {} };
+			update.$set['streamsheets.$.sheet.shapes'] = shapes[index];
+			return {
+				updateOne: {
+					filter: { _id: machineId, 'streamsheets.id': id },
+					update
+				}
+			};
+		});
+		return this.db
+			.collection(this.collection)
+			.bulkWrite(bulkUpdates)
+			.then((resp) => resp.result && resp.result.ok);
+	}
+
 	// streamsheets = [{ id, cells = {}, namedCells = {}, graphCells = {} }, ...]
 	updateStreamSheets(machineId, streamsheets) {
 		const bulkUpdates = streamsheets.map(({ id, cells, namedCells } = {}) => {

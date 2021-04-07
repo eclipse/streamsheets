@@ -16,7 +16,7 @@ import Paper from '@material-ui/core/Paper';
 import ExportIcon from '@material-ui/icons/CloudUpload';
 import { saveAs } from 'file-saver';
 import PropTypes from 'prop-types';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { notifyExportFailed } from '../../actions/actions';
@@ -72,7 +72,7 @@ const doExport = async (scope, machines, streams, fileName) => {
 		const { scoped } = await gatewayClient.graphql(EXPORT_QUERY, { machines, streams, scope });
 		if (scoped.export.success) {
 			const blob = new Blob([JSON.stringify(scoped.export.data, null, 2)], {
-				type: 'text/plain;charset=utf8;'
+				type: 'application/json;charset=utf8;'
 			});
 			saveAs(blob, fileName);
 			return true;
@@ -210,6 +210,14 @@ const ExportComponent = (props) => {
 		}
 		setShowDialog(true);
 	};
+
+	useEffect(() => {
+		if(data && props.initialMachine){
+			if(!data.scoped.machines.some(m => m.id === props.initialMachine)){
+				toggleMachine(props.initialMachine);
+			}
+		}
+	}, [data])
 
 	const selectLinkedStreamsColumn = {
 		header: (
@@ -379,6 +387,7 @@ function mapStateToProps(state) {
 	const initialMachineSelection = initialMachine ? { [initialMachine]: true } : {};
 	return {
 		initialMachineSelection,
+		initialMachine,
 		scope: state.user.user.scope
 	};
 }

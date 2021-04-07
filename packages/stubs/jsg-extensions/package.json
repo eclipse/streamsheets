@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@cedalo/number-format": "2.3.0",
-    "@cedalo/parser": "2.3.0"
+    "@cedalo/parser": "2.3.0",
+    "@cedalo/jsg-extensions": "2.3.0"
   },
   "peerDependencies": {
     "@cedalo/jsg-core": "2.3.0",

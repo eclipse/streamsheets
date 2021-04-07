@@ -372,7 +372,6 @@ module.exports = class MachineService extends MessagingService {
 				);
 				break;
 			case MachineServerMessagingProtocol.MESSAGE_TYPES.COMMAND_MESSAGE_TYPE:
-				logger.debug('PersistenceService: handle command for machine');
 				await this._handleCommandMessage(message);
 				break;
 			default:
@@ -390,13 +389,23 @@ module.exports = class MachineService extends MessagingService {
 			case 'command.SetCellDataCommand':
 			case 'command.SetCellLevelsCommand':
 			case 'command.SetCellsCommand':
+				logger.debug('PersistenceService: update cells');
 				await RepositoryManager.machineRepository.updateCells(
 					response.machineId,
 					response.streamsheetId,
 					response.cells
 				);
 				break;
+			case 'command.SetGraphItemsCommand':
+				logger.debug('PersistenceService: update shapes');
+				await RepositoryManager.machineRepository.updateShapes(
+					response.machineId,
+					response.streamsheetIds,
+					response.shapes
+				);
+				break;
 			case 'command.UpdateSheetNamesCommand':
+				logger.debug('PersistenceService: update named cells');
 				await updateNamedCells(RepositoryManager.machineRepository, response);
 				break;
 			default:

@@ -381,12 +381,14 @@ module.exports = class WorksheetNode extends ContentNode {
 		return this._cells;
 	}
 
+	getItemType() {
+		return 'worksheetnode';
+	}
+
 	saveContent(writer, absolute) {
 		this.compress();
 
 		super.saveContent(writer, absolute);
-
-		writer.writeAttributeString('type', 'worksheetnode');
 
 		writer.writeStartElement('defaultcell');
 		this._defaultCell.save(writer);

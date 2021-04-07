@@ -637,17 +637,16 @@ class RegisterStreams extends ARequestHandler {
 class ReplaceGraphItems extends ARequestHandler {
 	handle({ graphItems = [], streamsheetIds = [] }) {
 		// TODO: define what to return to client
-		const result = { streamsheetIds: [], graphItems: [] };
+		const result = { streamsheetIds: [], shapes: [] };
 		streamsheetIds.forEach((id , index) => {''
 			const streamsheet = this.machine.getStreamSheet(id);
 			const sheet = streamsheet && streamsheet.sheet;
 			if (sheet) {
 				try {
 					if (sheet.shapes.fromJSON(graphItems[index])) {
-					// if (itemDescriptors.length) {
 						result.streamsheetIds.push(id);
 						sheet.getShapes().evaluate();
-						// result.shapes.push(...itemDescriptors);
+						result.shapes.push(sheet.shapes.toJSON());
 						sheet._notifyUpdate();
 					}
 				} catch (err) {
