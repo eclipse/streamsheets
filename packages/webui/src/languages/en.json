@@ -1026,6 +1026,7 @@
   "StreamChart.TypesOther": "Other Charts",
   "StreamChart.Waterfall": "Waterfall (1 Serie)",
   "StreamChart.BoxPlot": "Box Plot",
+  "StreamChart.Map": "Map (Beta)",
   "StreamChart.Funnel": "Funnel vertical (only 1 Serie)",
   "StreamChart.FunnelBar": "Funnel Bars (only 1 Serie)",
   "StreamChart.HorizontalFunnel": "Funnel horizontal (only 1 Serie)",
