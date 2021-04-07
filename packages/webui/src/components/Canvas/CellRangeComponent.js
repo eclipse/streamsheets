@@ -66,16 +66,19 @@ class CellRangeComponent extends React.Component {
 	};
 
 	onInputEditor(event) {
+		const node = event.currentTarget.parentNode.querySelector('#sheet-ref');
 		this.setState({
 			inputEditorOpen: true,
-			anchorEl: event.currentTarget
+			anchorEl: node
 		});
+		node.focus();
 	}
 
 	onCloseInputEditor = () => {
 		this.setState({
 			inputEditorOpen: false
 		});
+		this.state.anchorEl.focus();
 	};
 
 	onSelectColor = (color, event) => {
@@ -151,7 +154,7 @@ class CellRangeComponent extends React.Component {
 	handleBlur = (event) => {
 		if (event.relatedTarget) {
 			if (event.relatedTarget.id === 'RefInput') {
-				this.onInputEditor(event);
+				// this.onInputEditor(event);
 				return;
 			}
 			const cancel = event.relatedTarget.id === 'RefCancel';
@@ -390,8 +393,8 @@ class CellRangeComponent extends React.Component {
 							padding: '5px',
 							display: 'inline',
 						}}
-						onClick={this.onInputEditor}
-						disabled={!this.state.focus}
+						onClick={(event) => this.onInputEditor(event)}
+						// disabled={this.state.inputEditorOpen}
 					>
 						<ArrowDropDownIcon fontSize="inherit" />
 					</IconButton>

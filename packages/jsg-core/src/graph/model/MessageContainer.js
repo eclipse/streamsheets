@@ -292,6 +292,8 @@ module.exports = class MessageContainer extends Node {
 	}
 
 	saveContent(file, absolute) {
+		file.writeAttributeString('type', this.getItemType());
+
 		if (this.getId() !== undefined) {
 			file.writeAttributeString('id', this.getId());
 			file.writeAttributeNumber('messageheight', this._messageList.getHeight().getValue(), 0);
