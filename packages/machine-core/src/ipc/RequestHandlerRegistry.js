@@ -269,7 +269,7 @@ class ApplyMigrations extends ARequestHandler {
 			else unknownSheet = streamsheetId;
 		});
 		return unknownSheet == null
-			? Promise.resolve({ shapes })
+			? Promise.resolve(getDefinition(this.machine))
 			: Promise.reject(new Error(`Unknown streamsheet id: ${unknownSheet}`));
 	}
 }
