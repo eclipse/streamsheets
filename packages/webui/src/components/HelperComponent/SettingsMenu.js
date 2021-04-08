@@ -267,7 +267,7 @@ export class SettingsMenu extends React.Component {
 								<Assignment/>
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseDE"
-																	 defaultMessage="Download license (German)"/>}/>
+																	 defaultMessage="Download license"/>}/>
 						</MenuItem>
 						}
 						{ this.getLocale().toUpperCase() === 'EN' && <MenuItem dense onClick={() => this.showLicenseAgreement('EN')}>
@@ -275,7 +275,7 @@ export class SettingsMenu extends React.Component {
 								<Assignment/>
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseEN"
-																	 defaultMessage="Download license (English)"/>}/>
+																	 defaultMessage="Download license"/>}/>
 						</MenuItem>
 						}
 						<Divider/>
