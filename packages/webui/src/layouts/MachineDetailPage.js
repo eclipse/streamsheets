@@ -13,7 +13,7 @@ import { MuiThemeProvider } from '@material-ui/core';
 import Toolbar from '@material-ui/core/Toolbar';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -114,10 +114,15 @@ export function MachineDetailPage(props) {
 				viewMode: settings,
 				showTools: settings.active === false
 			});
-			graphManager.updateCanvas(settings);
-			graphManager.redraw();
 		}
 	}, [showViewMode, viewSettings, machineLoaded]);
+
+	useLayoutEffect(() => {
+		if (machineLoaded) {
+			graphManager.updateCanvas(viewMode);
+			graphManager.redraw();
+		}
+	}, [machineLoaded, viewMode]);
 
 	const loadUser = async () => {
 		try {
