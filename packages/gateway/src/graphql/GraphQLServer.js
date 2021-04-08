@@ -259,9 +259,13 @@ const typeDefs = gql`
 		name: String
 	}
 
+	input MachineQuery {
+		name: String
+	}
+
 	type ScopedQuery {
 		machine(id: ID!): Machine
-		machines(name: String): [Machine!]!
+		machines(query: MachineQuery): [Machine!]!
 		streams: [Stream!]!
 		connectors: [Connector!]!
 		streamsLegacy: [StreamLegacy!]!

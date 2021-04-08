@@ -823,7 +823,7 @@ export async function machineWithSameNameExists(machineId, name) {
 		`
 		query MachinesWithName($name: String, $machineId: ID!) {
 			scopedByMachine(machineId: $machineId) {
-				machines(name: $name) {
+				machines(query: { name: $name }) {
 					id
 					name
 				}
