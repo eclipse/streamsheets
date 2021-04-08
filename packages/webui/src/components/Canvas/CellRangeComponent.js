@@ -67,13 +67,11 @@ class CellRangeComponent extends React.Component {
 
 	onInputEditor(event) {
 		const node = event.currentTarget.parentNode.querySelector('#sheet-ref');
+		// node.focus();
 		this.setState({
 			inputEditorOpen: true,
 			anchorEl: node
 		});
-		setTimeout(() => {
-			node.focus();
-		}, 0);
 	}
 
 	onCloseInputEditor = () => {
@@ -155,9 +153,6 @@ class CellRangeComponent extends React.Component {
 
 	handleBlur = (event) => {
 		if (event.relatedTarget) {
-			if (event.relatedTarget.id === 'RefInput') {
-				return;
-			}
 			const cancel = event.relatedTarget.id === 'RefCancel';
 			event.target.innerHTML = cancel ? this.state.oldValue : event.target.textContent;
 		}
@@ -394,7 +389,7 @@ class CellRangeComponent extends React.Component {
 							padding: '5px',
 							display: 'inline',
 						}}
-						onClick={(event) => this.onInputEditor(event)}
+						onMouseUp={(event) => this.onInputEditor(event)}
 						// disabled={this.state.inputEditorOpen}
 					>
 						<ArrowDropDownIcon fontSize="inherit" />
@@ -439,6 +434,8 @@ class CellRangeComponent extends React.Component {
 					id="RefOK"
 					style={{
 						width: '34px',
+						cursor: 'pointer important',
+						pointerEvents: 'auto',
 						height: '34px',
 						padding: '5px',
 						display: 'inline',
@@ -455,6 +452,8 @@ class CellRangeComponent extends React.Component {
 						height: '34px',
 						padding: '5px',
 						display: 'inline',
+						cursor: 'pointer important',
+						pointerEvents: 'auto',
 					}}
 					onClick={(e) => this.onCancel(e)}
 					disabled={!this.state.focus}
