@@ -1793,7 +1793,7 @@ class Graphics {
 	}
 
 	fillMultiLineText(text, x, y, lineHeight) {
-		const lines = text.split('\n');
+		const lines = String(text).split('\n');
 		let yNow = 0;
 
 		lines.forEach((line, index) => {
