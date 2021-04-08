@@ -482,13 +482,14 @@ class LoadMachineRequestHandler extends RequestHandler {
 		logger.info(`load machine: ${request.machineId}...`);
 		const { machineId, migrations, scope } = request;
 		try {
-			let result = await machineserver.loadMachine(machineId, scope, async () => {
+			const result = await machineserver.loadMachine(machineId, scope, async () => {
 				const machine = await repositoryManager.machineRepository.findMachine(machineId);
 				if (machine.isTemplate) machine.scope = scope;
 				return machine;
 			});
 			if (migrations) {
-				result = await machineserver.applyMigrations(machineId, scope, migrations);
+				const migrated = await machineserver.applyMigrations(machineId, scope, migrations);
+				result.machine = migrated.machine;
 			}
 			const newMachine = !!result.templateId;
 			if (newMachine) {
