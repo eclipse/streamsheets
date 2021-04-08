@@ -169,8 +169,7 @@ module.exports = class MachineServer {
 		if (runner) {
 			const user = session && session.user;
 			const userId = user && user.userId;
-			await runner.request('applyMigrations', userId, migrations);
-			return runner.getDefinition();
+			return runner.request('applyMigrations', userId, migrations);
 		}
 		return new Error(`Unknown machine with id: ${machineId}`);
 	}
