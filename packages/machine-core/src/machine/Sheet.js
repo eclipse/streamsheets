@@ -120,6 +120,7 @@ const doPasteCells = (cells, fromSheet, toSheet, offset, { cut, action = 'all' }
 const DEF_CONF = {
 	// precolumns: ['IF', 'COMMENT'], <-- THINK ABOUT ADDING THIS!!
 	settings: {
+		maxchars: 1000,
 		minrow: 1,
 		maxrow: 100,
 		mincol: -SheetIndex.PRE_COLUMNS.length,
@@ -206,11 +207,14 @@ class Sheet {
 
 	updateSettings(settings) {
 		const { maxcol, maxrow } = this.settings;
-		this.settings = settings != null ? Object.assign(this.settings, settings) : this.settings;
-		if (maxcol !== this.settings.maxcol || maxrow !== this.settings.maxrow) {
-			boundCells(this._rows, this._prerows, this.settings.maxcol, this.settings.maxrow);
-			// REVIEW: additional event to notify about cell bounds change! => need to persist with adjusted cells...
-			if (this.onCellRangeChange) this.onCellRangeChange();
+		if (settings != null) {
+			this.settings = Object.assign(this.settings, settings);
+			if (!settings.maxchars) this.settings.maxchars = -1;
+			if (maxcol !== this.settings.maxcol || maxrow !== this.settings.maxrow) {
+				boundCells(this._rows, this._prerows, this.settings.maxcol, this.settings.maxrow);
+				// REVIEW: additional event to notify about cell bounds change! => need to persist with adjusted cells...
+				if (this.onCellRangeChange) this.onCellRangeChange();
+			}
 		}
 	}
 
@@ -490,7 +494,7 @@ class Sheet {
 				// add cell first...
 				row[colidx] = cell;
 				// ...before init, since it may reference itself
-				if (cell != null) cell.init(idx.row, idx.col);
+				if (cell != null) cell.init(idx.row, idx.col, this);
 			}
 		}
 		return doIt;
