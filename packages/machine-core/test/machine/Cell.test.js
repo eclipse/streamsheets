@@ -183,7 +183,37 @@ describe('Cell', () => {
 			expect(json.cells.A1.value).toBe('hello world');
 			expect(json.cells.B1.value).toBe('john doe');
 			expect(json.cells.A2.value).toBe('hello worldjohn doe');
-			// TODO: check with 2 sheets, each have independent limit setting!!
+		});
+		test('sheet string limit should be independent per sheet', async () => {
+			const sheet1 = new StreamSheet().sheet.loadCells({ A1: 'hello world' });
+			const sheet2 = new StreamSheet().sheet.loadCells({ A2: 'killroy was here' });
+			const machine = new Machine();
+			machine.addStreamSheet(sheet1.streamsheet);
+			machine.addStreamSheet(sheet2.streamsheet);
+			sheet1.updateSettings({maxchars: 5});
+			sheet2.updateSettings({maxchars: 7});
+			await machine.step();
+			let json1 = sheet1.toJSON();
+			let json2 = sheet2.toJSON();
+			expect(json1.cells.A1.value).toBe('hello');
+			expect(json2.cells.A2.value).toBe('killroy');
+			sheet1.updateSettings({maxchars: -1});
+			json1 = sheet1.toJSON();
+			json2 = sheet2.toJSON();
+			expect(json1.cells.A1.value).toBe('hello world');
+			expect(json2.cells.A2.value).toBe('killroy');
+			sheet1.updateSettings({maxchars: 5});
+			sheet2.updateSettings({maxchars: undefined});
+			json1 = sheet1.toJSON();
+			json2 = sheet2.toJSON();
+			expect(json1.cells.A1.value).toBe('hello');
+			expect(json2.cells.A2.value).toBe('killroy was here');
+			sheet1.updateSettings({maxchars: undefined});
+			sheet2.updateSettings({maxchars: -1});
+			json1 = sheet1.toJSON();
+			json2 = sheet2.toJSON();
+			expect(json1.cells.A1.value).toBe('hello world');
+			expect(json2.cells.A2.value).toBe('killroy was here');
 		});
 	});
 	describe.skip('update', () => {
