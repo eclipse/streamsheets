@@ -45,24 +45,20 @@ class Queue {
 		if (this._maxParallel < 1 || this.running < this._maxParallel) this._run(request);
 		else this.queue.push(request);
 	}
-	_run(request) {
+	async _run(request) {
 		this.running += 1;
-		request
-			.requestFn()
-			.then((res) => {
-				request.state = RequestState.RESOLVED;
-				request.result = res;
-			})
-			.catch((err) => {
-				logger.error(`Request failed ${request.reqId()}`, err);
-				request.state = RequestState.REJECTED;
-				request.error = err;
-			})
-			.finally(async () => {
-				await resolve(request);
-				this.running -= 1;
-				this._runNextRequest();
-			});
+		try {
+			request.result = await request.requestFn();
+			request.state = RequestState.RESOLVED;
+		} catch (err) {
+			logger.error(`Request failed ${request.reqId()}`, err);
+			request.error = err;
+			request.state = RequestState.REJECTED;
+		} finally {
+			await resolve(request);
+			this.running -= 1;
+			this._runNextRequest();
+		}
 	}
 
 	_runNextRequest() {
@@ -134,6 +130,8 @@ class AsyncRequest {
 		if (this.state === RequestState.RESOLVED || this.state === RequestState.REJECTED)
 			fn(this.context, this.result, this.error);
 		else this.onResponse = fn;
+		// this.onResponse = fn;
+		// if (this.state === RequestState.RESOLVED || this.state === RequestState.REJECTED) resolve(this);
 		return this;
 	}
 
