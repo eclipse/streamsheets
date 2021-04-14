@@ -8,12 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { SheetRange } = require('../..');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 // SOME SIMPLE FUNCTIONS FOR TESTING PURPOSE ONLY:
 const termValue = (term, defVal) => term && term.value != null ? term.value : defVal;
-const concat = (sheet, ...terms) =>terms.reduce((res, term) => term ? res + termValue(term, '')  : res, '');
+const concat = (sheet, ...terms) => terms.reduce((res, term) => (term ? res + termValue(term, '') : res), '');
 const column = (/* sheet, ...terms */) => {
 	const term = column.term;
 	return term && (term.cell.col + 1);
