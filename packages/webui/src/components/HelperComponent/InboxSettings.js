@@ -84,6 +84,14 @@ const getStreamsFromProps = (props) => {
 	}
 	return [];
 };
+const getLimitText = (streamsheet) => {
+	const maxchars = streamsheet ? streamsheet.sheet.settings.maxchars : undefined;
+	const enabled = maxchars != null && maxchars > 0;
+	return {
+		enabled,
+		maxchars: enabled ? maxchars : 1000
+	};
+};
 
 /**
  * A modal dialog can only be closed by selecting one of the actions.
@@ -115,6 +123,7 @@ export class InboxSettings extends React.Component {
 	constructor(props) {
 		super(props);
 		const streams = getStreamsFromProps(props);
+		const limitText = getLimitText();
 		this.state = {
 			anchorEl: null,
 			streams,
@@ -136,7 +145,8 @@ export class InboxSettings extends React.Component {
 				sheetColumns: 52,
 				sheetRows: 100,
 				sheetProtect: false,
-				sheetShowFormulas: false
+				sheetShowFormulas: false,
+				limitText
 			}
 		};
 		this.handleClose = this.handleClose.bind(this);
@@ -259,7 +269,8 @@ export class InboxSettings extends React.Component {
 								sheetRows: wsAttr.getRows().getValue(),
 								sheetColumns: wsAttr.getColumns().getValue() - 2,
 								showHeader: wsAttr.getShowHeader().getValue(),
-								showFormulas: wsAttr.getShowFormulas().getValue()
+								showFormulas: wsAttr.getShowFormulas().getValue(),
+								limitText: getLimitText(streamsheet)
 							}
 						};
 						this.setState(settings);
@@ -375,6 +386,26 @@ export class InboxSettings extends React.Component {
 		});
 	};
 
+	handleLimitTextEnabled = (event, state) => {
+		const enabled = state;
+		const limitText = { ...this.state.preferences.limitText, enabled };
+		this.setState({
+			preferences: {
+				...this.state.preferences,
+				limitText
+			}
+		});
+	}
+	handleLimitTextMaxChars = (event) => {
+		const limitText = { ...this.state.preferences.limitText, maxchars: Number(event.target.value) };
+		this.setState({
+			preferences: {
+				...this.state.preferences,
+				limitText
+			}
+		});
+	};
+
 	handleSave = () => {
 		const settings = Object.assign({}, { ...this.state });
 		if (!settings.inbox.stream || settings.inbox.stream.name === 'none') {
@@ -382,7 +413,10 @@ export class InboxSettings extends React.Component {
 				name: ''
 			};
 		}
+		const limitText = settings.preferences.limitText;
+		settings.preferences.maxchars = limitText.enabled ? limitText.maxchars : -1;
 		delete settings.streams;
+		delete settings.preferences.limitText;
 		delete settings.loopPathError;
 
 		this.props.saveProcessSettings(settings);
@@ -1243,6 +1277,60 @@ export class InboxSettings extends React.Component {
 												<FormattedMessage id="ProtectSheet" defaultMessage="Protect Sheet" />
 											}
 										/>
+									<FormGroup style={styles.formControl}>
+										<div style={{ marginBottom: '5px' }}>
+											<FormControlLabel
+												disabled={!canEdit}
+												control={
+													<Checkbox
+														checked={this.state.preferences.limitText.enabled}
+														onChange={this.handleLimitTextEnabled}
+													/>
+												}
+												// eslint-disable-next-line
+												label={
+													<FormattedMessage
+														id="InboxSettings.limitText.checkbox"
+														defaultMessage="Limit text in cells"
+													/>
+												}
+											/>
+										</div>
+										<TextField
+											label={<FormattedMessage id="InboxSettings.limitText.textfield" defaultMessage="Max. Characters" />}
+											type="number"
+											disabled={!canEdit || !this.state.preferences.limitText.enabled}
+											variant="outlined"
+											value={this.state.preferences.limitText.maxchars}
+											onChange={this.handleLimitTextMaxChars}
+											margin="normal"
+											size="small"
+											style={{
+												marginTop: '2px',
+												marginLeft: '35px',
+												width: '120px'
+											}}
+											inputProps={{
+												min: 1,
+												max: Number.MAX_SAFE_INTEGER,
+												step: 1
+											}}
+											error={this.state.preferences.limitText.maxchars > Number.MAX_SAFE_INTEGER}
+											helperText={
+												this.state.preferences.limitText.maxchars > Number.MAX_SAFE_INTEGER ? (
+													<FormattedMessage
+													id="InboxSettings.limitText.error"
+													defaultMessage="At most {maxchars} characters allowed!"
+													values={{
+															maxchars: Number.MAX_SAFE_INTEGER
+														}}
+														/>
+														) : (
+															''
+															)
+														}
+										/>
+										</FormGroup>
 									</FormGroup>
 								</div>
 								<div
