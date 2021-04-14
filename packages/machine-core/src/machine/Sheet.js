@@ -531,8 +531,13 @@ class Sheet {
 	load(conf = {}) {
 		// prevent event on load:
 		const onUpdate = disableNotifyUpdate(this);
-		// settings is used in closure, so never overwrite it!!
-		this.settings = Object.assign(this.settings, DEF_CONF.settings, conf.settings);
+		const settings = conf.settings;
+		if (settings) {
+			// maxchars for existing machines
+			if (settings.maxchars == null) settings.maxchars = -1;
+			// settings is used in closure, so never overwrite it!!
+			this.settings = Object.assign(this.settings, DEF_CONF.settings, settings);
+		}
 		// include editable-web-component:
 		// this.properties = this.properties.load(conf.properties);
 		// load names first, they may be referenced by sheet cells...
