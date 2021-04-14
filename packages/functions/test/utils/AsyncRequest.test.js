@@ -47,6 +47,28 @@ const testRequest = (sheet, ...terms) =>
 				})
 				.reqId()
 		);
+const testRequestFailing = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.run(() =>
+			AsyncRequest.create(sheet, testRequestFailing.context)
+				.request(() => { throw new Error('Failing request'); })
+				.response(noop)
+				.reqId()
+		);
+const testRequestResponseFailing = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.onSheetCalculation()
+		.run(() =>
+			AsyncRequest.create(sheet, testRequestResponseFailing.context)
+				.request(() => new Promise((_resolve, _reject) => {
+					reject = _reject;
+					resolve = _resolve;
+					requestCounter += 1;
+				}))
+				.response(() => { throw new Error('Failing response'); })
+				.reqId()
+		);
 const sequentialRequest = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
@@ -70,6 +92,8 @@ const noRequest = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.run(() => AsyncRequest.create(sheet, noRequest.context).reqId());
 SheetParser.context.functions['TEST.REQUEST'] = testRequest;
+SheetParser.context.functions['TEST.REQUEST.FAILING'] = testRequestFailing;
+SheetParser.context.functions['TEST.REQUEST.RESPONSE.FAILING'] = testRequestResponseFailing;
 SheetParser.context.functions['TEST.NOREQUEST'] = noRequest;
 SheetParser.context.functions['TEST.SEQUENTIALREQUEST'] = sequentialRequest;
 
@@ -121,6 +145,40 @@ describe('AsyncRequest utilities', () => {
 		expect(sheet.cellAt('A2').value).toBe('replacedA2');
 		expect(sheet.getRequestState(reqId1)).toBe(RequestState.UNKNOWN);
 		expect(sheet.getRequestState(reqId2)).toBe(RequestState.UNKNOWN);
+	});
+	it('should remove request from sheets pending list even if request functions throws an error', async () => {
+		const machine = new Machine();
+		const sheet = new StreamSheet().sheet;
+		machine.addStreamSheet(sheet.streamsheet);
+		sheet.loadCells({ A1: { formula: 'test.request.failing()' }});
+		await machine.step();
+		// await machine.step();
+		const reqId1 = sheet.cellAt('A1').value;
+		expect(sheet.getRequestState(reqId1)).toBe(RequestState.REJECTED);
+		await resolve(RequestState.RESOLVED);
+		// TODO: review - it takes several steps until promise.finally gets called!!
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(sheet.getRequestState(reqId1)).toBe(RequestState.UNKNOWN);
+	});
+	it('should remove request from sheets pending list even if response functions throws an error', async () => {
+		const machine = new Machine();
+		const sheet = new StreamSheet().sheet;
+		machine.addStreamSheet(sheet.streamsheet);
+		sheet.loadCells({ A1: { formula: 'test.request.response.failing()' }});
+		await machine.step();
+		await machine.step();
+		const reqId1 = sheet.cellAt('A1').value;
+		expect(sheet.getRequestState(reqId1)).toBe(RequestState.PENDING);
+		await resolve(RequestState.RESOLVED);
+		// TODO: review - it takes several steps until promise.finally gets called!!
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		await machine.step();
+		expect(sheet.getRequestState(reqId1)).toBe(RequestState.UNKNOWN);
 	});
 	it('should not create new request if a current one is not resolved or rejected', async () => {
 		const machine = new Machine();
