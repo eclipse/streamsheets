@@ -363,7 +363,13 @@ function handleMessageChangedEvent(/* event */) {
 	// }
 }
 
-function handleStreamUpdatedEvent(/* event */) {
+function handleStreamUpdatedEvent(event) {
+	const streamsheetId = event.src === 'streamsheet' ? event.srcId : undefined;
+	if (streamsheetId) {
+		const preferences = event.settings.preferences;
+		const settings = { streamsheetId, preferences };
+		store.dispatch({ type: ActionTypes.RECEIVE_SAVE_PROCESS_SETTINGS, settings });
+	}
 	/*
 	graphManager.updateStream(event.settings.streamsheetId, event.settings.inbox.stream.name);
 	try {

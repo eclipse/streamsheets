@@ -219,6 +219,17 @@ export default function doRequest(state = defState, reqaction) {
 				return streamsheet;
 			});
 			break;
+		case ActionTypes.RECEIVE_SAVE_PROCESS_SETTINGS: {
+			const { streamsheetId, preferences } = reqaction.settings;
+			newstate.machine.streamsheets.map((streamsheet) => {
+				if (streamsheet.id === streamsheetId) {
+					// note: settings and preferences are different, so currently for maxchars only
+					streamsheet.sheet.settings.maxchars = preferences.maxchars;
+				}
+				return streamsheet;
+			});
+			break;
+		}
 		case ActionTypes.RECEIVE_MACHINE_STEP:
 			newstate.performance.cyclesPerSecond = reqaction.event.stats.cyclesPerSecond;
 			newstate.performance.events.add({});
@@ -231,6 +242,7 @@ export default function doRequest(state = defState, reqaction) {
 			newstate.machine.locale = applyNewLocale(reqaction.locale, newstate.machine.locale);
 			break;
 		}
+
 		default:
 			return state;
 	}
