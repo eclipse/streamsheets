@@ -22,7 +22,7 @@ describe('Cell', () => {
 	const streamsheet = new StreamSheet();
 	const sheet = streamsheet.sheet;
 
-	describe.skip('value', () => {
+	describe('value', () => {
 		it('should return value', () => {
 			const cell = new Cell('value');
 			expect(cell.value).toBe('value');
@@ -38,7 +38,7 @@ describe('Cell', () => {
 			expect(cell.value).toBe(40);
 		});
 	});
-	describe.skip('default value', () => {
+	describe('default value', () => {
 		it('should return 0 if value is NaN', () => {
 			const cell = new Cell(1 / undefined).init();
 			expect(cell.value).toBe(0);
@@ -48,7 +48,7 @@ describe('Cell', () => {
 			expect(new Cell(undefined).value).toBeUndefined();
 		});
 	});
-	describe.skip('formula', () => {
+	describe('formula', () => {
 		// if cell value is based on a cell reference or formula, otherwise undefined
 		it('should return formula if cell value is based on', () => {
 			let cell = SheetParser.createCell({ formula: 'A1' }, sheet).init();
@@ -82,14 +82,14 @@ describe('Cell', () => {
 		});
 	});
 	describe('description', () => {
-		it.skip('should return description with formula if cell value is based on formula', () => {
+		it('should return description with formula if cell value is based on formula', () => {
 			expect(SheetParser.createCell({ formula: 'A1' }, sheet).init().description().formula).toBe('A1');
 			expect(SheetParser.createCell({ formula: '2*5' }, sheet).init().description().formula).toBe('2*5');
 			expect(SheetParser.createCell({ formula: 'read(inboxdata(,"id"), C2)' }, sheet)
 					.init()
 					.description().formula).toBe('READ(INBOXDATA(,"id"),C2)');
 		});
-		it.skip('should return boolean if cell value is a not computed boolean', () => {
+		it('should return boolean if cell value is a not computed boolean', () => {
 			expect(description(new Cell(true)).isEqualTo({ value: true, type: 'boolean' })).toBeTruthy();
 			expect(description(new Cell(false)).isEqualTo({ value: false, type: 'boolean' })).toBeTruthy();
 			const cell = new Cell();
@@ -100,7 +100,7 @@ describe('Cell', () => {
 			expect(description(SheetParser.createCell(true, sheet).init()).isEqualTo({ value: true })).toBeTruthy();
 			expect(description(SheetParser.createCell(false, sheet).init()).isEqualTo({ value: false })).toBeTruthy();
 		});
-		it.skip('should return number if cell value is a not computed number', () => {
+		it('should return number if cell value is a not computed number', () => {
 			expect(description(new Cell(42)).isEqualTo({ value: 42, type: 'number', formula: undefined })).toBeTruthy();
 			expect(description(new Cell(-23)).isEqualTo({ value: -23, type: 'number', formula: undefined }))
 				.toBeTruthy();
@@ -111,7 +111,7 @@ describe('Cell', () => {
 				.isEqualTo({ value: 4567 })).toBeTruthy();
 			expect(description(SheetParser.createCell(-234, sheet).init()).isEqualTo({ value: -234 })).toBeTruthy();
 		});
-		it.skip('should return a string if cell value is a not computed string', () => {
+		it('should return a string if cell value is a not computed string', () => {
 			expect(description(new Cell('')).isEqualTo({ value: '', formula: undefined })).toBeTruthy();
 			expect(description(new Cell('hi')).isEqualTo({ value: 'hi', formula: undefined })).toBeTruthy();
 			const cell = new Cell();
@@ -124,7 +124,7 @@ describe('Cell', () => {
 			})).toBeTruthy();
 		});
 		// DL-4113:
-		it.skip(`should return ${Cell.VALUE_REPLACEMENT} for json values`, async () => {
+		it(`should return ${Cell.VALUE_REPLACEMENT} for json values`, async () => {
 			const sheet1 = new StreamSheet().sheet.load({
 				cells: { 
 					A1: 'key', B1: 42,
@@ -216,7 +216,7 @@ describe('Cell', () => {
 			expect(json2.cells.A2.value).toBe('killroy was here');
 		});
 	});
-	describe.skip('update', () => {
+	describe('update', () => {
 			// called instead of evaluate after load. should fix references without changing value!
 	// with evaluate() e.g. A1+1 would become 2 instead of 1 !!!!
 
