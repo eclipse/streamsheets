@@ -1111,6 +1111,7 @@ export class StreamChartProperties extends Component {
 				];
 			case 'doughnut':
 			case 'gauge':
+			case 'heatmap':
 				return [
 					<MenuItem value="center" key={3}>
 						<FormattedMessage id="StreamChartProperties.Center" defaultMessage="Center" />

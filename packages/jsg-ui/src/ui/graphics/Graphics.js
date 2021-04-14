@@ -1794,7 +1794,7 @@ class Graphics {
 
 	fillMultiLineText(text, x, y, lineHeight) {
 		const lines = String(text).split('\n');
-		const height = lines.length * lineHeight + (lines.length - 1) * lineHeight * 0.3;
+		const height = lines.length * lineHeight + (lines.length - 1) * lineHeight * 0.4;
 		let yNow = -height / 2;
 
 
@@ -1802,7 +1802,7 @@ class Graphics {
 			this.fillText(line, x, y + yNow);
 			yNow += lineHeight;
 			if (index < lines.length - 1) {
-				yNow += lineHeight * 0.3;
+				yNow += lineHeight * 0.4;
 			}
 		})
 
@@ -1927,7 +1927,7 @@ class Graphics {
 			size.x = Math.max(size.x, this._context2D.measureText(line).width);
 			size.y += lineHeight;
 			if (index < lines.length - 1) {
-				size.y += lineHeight * 0.3;
+				size.y += lineHeight * 0.4;
 			}
 		});
 
