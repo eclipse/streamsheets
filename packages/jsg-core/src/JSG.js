@@ -34,7 +34,8 @@ const ConsoleLogger = {
 // private static properties:
 const jsg = {
 	min_width_height: 50,
-	propertyEventsDisabled: false
+	propertyEventsDisabled: false,
+	useServerCommands: false
 };
 // eslint-disable-next-line
 const lazyRequire = (module) => require(`${module}`);
@@ -289,6 +290,15 @@ class JSG {
 
 	static getLocalizedString(str) {
 		return str;
+	}
+
+
+	/** tmp. flag for internal usage only! */
+	static get USE_SERVER_COMMANDS() {
+		return jsg.useServerCommands;
+	}
+	static set USE_SERVER_COMMANDS(doIt) {
+		jsg.useServerCommands = doIt;
 	}
 }
 
