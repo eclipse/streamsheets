@@ -9,9 +9,10 @@
  *
  ********************************************************************************/
 const AbstractItemCommand = require('./AbstractItemCommand');
-const Point = require('../../geometry/Point');
 const Expression = require('../expr/Expression');
-const CellRange = require('../model/CellRange');
+const { getOrCreateCell, applyPropertiesDefinitions } = require('../model/utils');
+const JSG = require('../../JSG');
+
 
 /**
  * const SampleData = {
@@ -87,25 +88,15 @@ module.exports = class LoadMachineCommand extends AbstractItemCommand {
 				data.clearContent();
 
 				streamsheet.sheet.cells.forEach((cellData) => {
-					const res = CellRange.refToRC(cellData.reference, sheet);
-					if (res === undefined) {
-						return;
+					const cell = getOrCreateCell(cellData.reference, data);
+					if (cell) {
+						cell.setExpression(new Expression(cellData.value, cellData.formula));
+						cell.setValue(cellData.value);
+						cell.setInfo(cellData.info);
 					}
-					const pos = new Point(
-						res.column - sheet.getColumns().getInitialSection(),
-						res.row
-					);
-
-					const cell = data.create(pos);
-					const expr = new Expression(
-						cellData.value,
-						cellData.formula
-					);
-
-					cell.setExpression(expr);
-					cell.setValue(cellData.value);
-					cell.setInfo(cellData.info);
 				});
+
+				if(JSG.USE_SERVER_COMMANDS) applyPropertiesDefinitions(sheet, streamsheet.sheet.properties);
 
 				if (streamsheet.sheet.namedCells) {
 					Object.entries(streamsheet.sheet.namedCells).forEach(
