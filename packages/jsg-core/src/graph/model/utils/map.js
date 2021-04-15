@@ -41,6 +41,7 @@ const applyValueMap = (map, toFormat) => {
 
 
 module.exports = {
+	// TODO: check usage -> never used?
 	applyValueMap,
 	createRetainMap,
 	toValuesMap
