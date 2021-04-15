@@ -45,7 +45,6 @@ const SetGraphCellCommand = require('./SetGraphCellCommand');
 const DeleteGraphCellCommand = require('./DeleteGraphCellCommand');
 const CellAttributesCommand = require('./CellAttributesCommand');
 const FormatCellsCommand = require('./FormatCellsCommand');
-const FormatCellsCommandWC = require('./FormatCellsCommandWC');
 const SetCellLevelsCommand = require('./SetCellLevelsCommand');
 const TextFormatCellsCommand = require('./TextFormatCellsCommand');
 const MarkCellValuesCommand = require('./MarkCellValuesCommand');
@@ -54,6 +53,8 @@ const {
 	UpdateSheetNamesCommand,
 	SetGraphItemsCommand
 } = require('./UpdateNamesCommands');
+const JSG = require('../../JSG');
+const ServerCommandFactory = require('./server/ServerCommandFactory');
 
 const Registry = {
 	'command.UpdateSheetNamesCommand': UpdateSheetNamesCommand,
@@ -94,23 +95,48 @@ const Registry = {
 	'command.DeleteGraphCellCommand': DeleteGraphCellCommand,
 	'command.CellAttributesCommand': CellAttributesCommand,
 	'command.FormatCellsCommand': FormatCellsCommand,
-	'command.FormatCellsCommandWC': FormatCellsCommandWC,
 	'command.SetCellLevelsCommand': SetCellLevelsCommand,
 	'command.TextFormatCellsCommand': TextFormatCellsCommand,
 	'command.MarkCellValuesCommand': MarkCellValuesCommand,
 	'command.ZoomChartCommand': ZoomChartCommand
 };
-module.exports = class SheetCommandFactory {
+class SheetCommandFactory {
 	// extends CommandFactory {
 	// viewer optional
 	static createCommand(graph, data, viewer) {
 		const cmd = data ? Registry[data.name] : undefined;
 		return cmd
 			? cmd.createFromObject(data, { graph, viewer, factory: this })
-			: CommandFactory.createCommand.bind(SheetCommandFactory)(
-					graph,
-					data,
-					viewer
-			  );
+			: CommandFactory.createCommand.bind(SheetCommandFactory)(graph, data, viewer);
+	}
+	static createPropertiesCommand(ranges, propsmap, propstype) {
+		let cmd;
+		switch (propstype) {
+			case 'border':
+			case 'attributes':
+				cmd = new CellAttributesCommand(ranges, propsmap);
+				break;
+			case 'formats':
+				cmd = new FormatCellsCommand(ranges, propsmap);
+				break;
+			case 'textFormats':
+				cmd = new TextFormatCellsCommand(ranges, propsmap);
+				break;
+		}
+		return cmd;
+	}
+	static createSetCellLevelsCommand(sheet, ranges, down) {
+		return new SetCellLevelsCommand(sheet, ranges, down);
+	}
+	static createDeleteCellsCommand(type, sheet, selref, action) {
+		// TODO:
+		return type === 'content' ? new DeleteCellContentCommand(sheet, selref, action) : new DeleteCellsCommand();
+	}
+	static createSetCellsCommand(sheet, cellrefs, execute) {
+		return new SetCellsCommand(sheet, cellrefs, execute);
+	}
+	static createSetCellDataCommand(sheet, cellref, expression, execute) {
+		return new SetCellDataCommand(sheet, cellref, expression, execute);
 	}
 };
+module.exports = JSG.USE_SERVER_COMMANDS ? ServerCommandFactory(SheetCommandFactory) : SheetCommandFactory;
