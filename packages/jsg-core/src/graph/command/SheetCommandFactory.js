@@ -53,8 +53,6 @@ const {
 	UpdateSheetNamesCommand,
 	SetGraphItemsCommand
 } = require('./UpdateNamesCommands');
-const JSG = require('../../JSG');
-const ServerCommandFactory = require('./server/ServerCommandFactory');
 
 const Registry = {
 	'command.UpdateSheetNamesCommand': UpdateSheetNamesCommand,
@@ -139,4 +137,6 @@ class SheetCommandFactory {
 		return new SetCellDataCommand(sheet, cellref, expression, execute);
 	}
 };
-module.exports = JSG.USE_SERVER_COMMANDS ? ServerCommandFactory(SheetCommandFactory) : SheetCommandFactory;
+
+// module.exports = require('./server/ServerCommandFactory')(SheetCommandFactory);
+module.exports = SheetCommandFactory;
