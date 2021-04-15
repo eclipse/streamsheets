@@ -282,7 +282,6 @@ JSG.SetCellsCommand = require('./src/graph/command/SetCellsCommand');
 JSG.SetMachineCommand = require('./src/graph/command/SetMachineCommand');
 JSG.LoadMachineCommand = require('./src/graph/command/LoadMachineCommand');
 JSG.FormatCellsCommand = require('./src/graph/command/FormatCellsCommand');
-JSG.FormatCellsCommandWC = require('./src/graph/command/FormatCellsCommandWC');
 JSG.SetCellLevelsCommand = require('./src/graph/command/SetCellLevelsCommand');
 JSG.CellAttributesCommand = require('./src/graph/command/CellAttributesCommand');
 JSG.TextFormatCellsCommand = require('./src/graph/command/TextFormatCellsCommand');
