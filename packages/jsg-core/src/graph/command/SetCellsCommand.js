@@ -12,20 +12,10 @@ const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const Expression = require('../expr/Expression');
 const CellRange = require('../model/CellRange');
-const { getSheetFromItem } = require('./utils');
+const { areEqual, cellDescriptor, getSheetFromItem } = require('./utils');
 
 const cellsFromResponse = ({ machineserver }) =>
 	machineserver ? machineserver.cells : {};
-const cellDescriptor = (reference, cell) => {
-	const expr = cell && cell.getExpression();
-	const value = cell ? cell.getValue() : undefined;
-	const formula = expr ? expr.getFormula() : undefined;
-	return { reference, formula, value, type: typeof value }; // level
-};
-const areEqual = (descr1, descr2) =>
-	descr1.expr === descr2.expr &&
-	descr1.value === descr2.value &&
-	descr1.formula === descr2.formula;
 
 /**
  * const SampleData = {
