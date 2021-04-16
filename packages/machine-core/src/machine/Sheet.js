@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { compose } = require('@cedalo/commons');
+const {	functions: { compose } } = require('@cedalo/commons');
 const State = require('../State');
 const { getSheetCellsAsObject } = require('../ipc/utils');
 const { SheetParser } = require('../parser/SheetParser');
