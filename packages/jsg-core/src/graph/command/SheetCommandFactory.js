@@ -107,34 +107,9 @@ class SheetCommandFactory {
 			? cmd.createFromObject(data, { graph, viewer, factory: this })
 			: CommandFactory.createCommand.bind(SheetCommandFactory)(graph, data, viewer);
 	}
-	static createPropertiesCommand(ranges, propsmap, propstype) {
-		let cmd;
-		switch (propstype) {
-			case 'border':
-			case 'attributes':
-				cmd = new CellAttributesCommand(ranges, propsmap);
-				break;
-			case 'formats':
-				cmd = new FormatCellsCommand(ranges, propsmap);
-				break;
-			case 'textFormats':
-				cmd = new TextFormatCellsCommand(ranges, propsmap);
-				break;
-		}
-		return cmd;
-	}
-	static createSetCellLevelsCommand(sheet, ranges, down) {
-		return new SetCellLevelsCommand(sheet, ranges, down);
-	}
-	static createDeleteCellsCommand(type, sheet, selref, action) {
-		// TODO:
-		return type === 'content' ? new DeleteCellContentCommand(sheet, selref, action) : new DeleteCellsCommand();
-	}
-	static createSetCellsCommand(sheet, cellrefs, execute) {
-		return new SetCellsCommand(sheet, cellrefs, execute);
-	}
-	static createSetCellDataCommand(sheet, cellref, expression, execute) {
-		return new SetCellDataCommand(sheet, cellref, expression, execute);
+	static create(cmdname, ...args) {
+		const Cmd = Registry[cmdname];
+		return Cmd ? new Cmd(...args) : CommandFactory.create(cmdname, ...args);
 	}
 };
 

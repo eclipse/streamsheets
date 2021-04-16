@@ -132,9 +132,12 @@ class CommandFactory {
 	// viewer optional
 	static createCommand(graph, data, viewer) {
 		const cmd = data ? Registry[data.name] : undefined;
-		return cmd
-			? cmd.createFromObject(data, { graph, viewer, factory: this })
-			: undefined;
+		return cmd ? cmd.createFromObject(data, { graph, viewer, factory: this }) : undefined;
+	}
+
+	static create(cmdname, ...args) {
+		const Cmd = Registry[cmdname];
+		return Cmd ? new Cmd(...args) : undefined;
 	}
 }
 
