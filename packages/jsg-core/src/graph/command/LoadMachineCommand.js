@@ -11,7 +11,6 @@
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Expression = require('../expr/Expression');
 const { getOrCreateCell, applyPropertiesDefinitions } = require('../model/utils');
-const JSG = require('../../JSG');
 
 
 /**
@@ -96,7 +95,7 @@ module.exports = class LoadMachineCommand extends AbstractItemCommand {
 					}
 				});
 
-				if(JSG.USE_SERVER_COMMANDS) applyPropertiesDefinitions(sheet, streamsheet.sheet.properties);
+				applyPropertiesDefinitions(sheet, streamsheet.sheet.properties);
 
 				if (streamsheet.sheet.namedCells) {
 					Object.entries(streamsheet.sheet.namedCells).forEach(

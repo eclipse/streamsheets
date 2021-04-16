@@ -112,6 +112,6 @@ class SheetCommandFactory {
 		return Cmd ? new Cmd(...args) : CommandFactory.create(cmdname, ...args);
 	}
 };
-
+// JSG.USE_SERVER_COMMANDS:
 // module.exports = require('./server/ServerCommandFactory')(SheetCommandFactory);
 module.exports = SheetCommandFactory;
