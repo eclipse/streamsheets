@@ -9,24 +9,7 @@
  *
  ********************************************************************************/
 const property = require('../utils/property');
-const { DEF_PROPS } = require('@cedalo/machine-core');
-
-const PRE_COLS = ['IF', 'COMMENT'];
-const colStr = (nr) => {
-	let rest;
-	let result = '';
-	let number = nr;
-	while (number >= 0) {
-		rest = number % 26;
-		number = Math.floor(number / 26) - 1;
-		result = String.fromCharCode(rest + 65) + result;
-	}
-	return result;
-};
-const columnAsStr = (colnr) => {
-	const precol = Math.abs(colnr) - 1;
-	return colnr < 0 ? (PRE_COLS[precol] || `-${colStr(precol)}`) : colStr(colnr);
-};
+const { DEF_PROPS, SheetIndex } = require('@cedalo/machine-core');
 
 const isEmpty = (obj) => obj == null || Object.keys(obj).length < 1;
 const getSheetId = (sheetdef) => property.get('o-attributes','o-sheetid')(sheetdef, {}).v; // sheetdef['o-attributes']['o-sheetid'].v;
@@ -143,7 +126,7 @@ const convertCellProperties = (rowdef, all, defproperties) => {
 	return property.get('a-c')(rowdef, []).forEach((coldef) => {
 		const colnr = Number(coldef.n) - 2; // TODO: keep in mind that client maps col -2 to 0
 		const celldef = coldef['o-cell'];
-		const props = {};
+		const properties = {};
 		const styles = {
 			// border styles:
 			...convertExprValues(celldef['o-a'], defproperties.formats.styles),
@@ -151,13 +134,14 @@ const convertCellProperties = (rowdef, all, defproperties) => {
 		};
 		const text = convertExprValues(celldef['o-t'], defproperties.formats.text)
 		const attributes = convertExprValues(celldef['o-a'], defproperties.attributes.cell)
-		if (attributes) props.attributes = attributes;
+		if (attributes) properties.attributes = attributes;
 		if (text || styles) {
-			props.formats = {};
-			if (text) props.formats.text = text;
-			if (styles) props.formats.styles = styles;
+			properties.formats = {};
+			if (text) properties.formats.text = text;
+			if (styles) properties.formats.styles = styles;
 		}
-		if (!isEmpty(props)) all[`${columnAsStr(colnr)}${rownr}`] = props;
+		// if (!isEmpty(props)) all[`${columnAsStr(colnr)}${rownr}`] = props;
+		if (!isEmpty(properties)) all.push({ ref: { col: SheetIndex.columnAsStr(colnr), row: rownr }, properties });
 	});
 };
 const convertSheetProperties = (sheetdef, defproperties) => {
@@ -166,25 +150,32 @@ const convertSheetProperties = (sheetdef, defproperties) => {
 		.get('o-processsheet', 'o-rows', 'a-section')(sheetdef, [])
 		.reduce((all, row) => {
 			const converted = convertSectionProperties(row, defproperties);
-			if (!isEmpty(converted)) all[Number(row.index) + 1] = converted;
+			// if (!isEmpty(converted)) all[Number(row.index) + 1] = converted;
+			if (!isEmpty(converted)) all.push({ ref: { row: Number(row.index) + 1 }, properties: converted });
 			return all;
-		}, {});
+		}, []);
 	const cols = property
 		.get('o-processsheet', 'o-columns', 'a-section')(sheetdef, [])
 		.reduce((all, col) => {
 			const converted = convertSectionProperties(col, defproperties);
-			if (!isEmpty(converted)) all[columnAsStr(Number(col.index) - 2)] = converted;
+			// if (!isEmpty(converted)) all[columnAsStr(Number(col.index) - 2)] = converted;
+			if (!isEmpty(converted)) {
+				all.push({ ref: { col: SheetIndex.columnAsStr(Number(col.index) - 2) }, properties: converted });
+			}
 			return all;
-		}, {});
+		}, []);
 	const cells = property
 		.get('o-processsheet', 'o-data', 'a-r')(sheetdef, [])
 		.reduce((all, row) => {
 			convertCellProperties(row, all, defproperties);
 			return all;
-		}, {});
-	if (!isEmpty(rows)) props.rows = rows;
-	if (!isEmpty(cols)) props.cols = cols;
-	if (!isEmpty(cells)) props.cells = cells;
+		}, []);
+	// if (!isEmpty(rows)) props.rows = rows;
+	// if (!isEmpty(cols)) props.cols = cols;
+	// if (!isEmpty(cells)) props.cells = cells;
+	if (rows.length) props.rows = rows;
+	if (cols.length) props.cols = cols;
+	if (cells.length) props.cells = cells;
 	return props;
 };
 

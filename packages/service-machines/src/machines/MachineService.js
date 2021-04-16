@@ -21,7 +21,7 @@ const MachineServerRequestHandlers = require('../handlers/MachineServerRequestHa
 
 const config = require('../../config/config');
 
-const machineRepository = new MongoDBMachineRepository(config.mongodb);
+// const machineRepository = new MongoDBMachineRepository(config.mongodb);
 
 const STREAM_FUNCTIONS_TOPIC = `${Topics.SERVICES_STREAMS_EVENTS}/functions`;
 
@@ -44,7 +44,13 @@ const toMapObject = (arr, key = 'name') =>
 		delete val[key];
 		return map;
 	}, {}) : {};
-
+const byRef = (obj, cell) => {
+	const ref = cell.ref;
+	obj[`${ref.col}${ref.row}`] = cell;
+	delete cell.ref;
+	delete cell.reference;
+	return obj;
+};
 const sheetDescriptor = ({ id, cells, names, namedCells }) => ({
 	id,
 	cells: toMapObject(cells, 'reference'),
@@ -68,17 +74,17 @@ module.exports = class MachineService extends MessagingService {
 	}
 
 	async _preStart() {
-		// include editable-web-component:
-		// RepositoryManager.init({
-		// 	graphRepository: new MongoDBGraphRepository(config.mongodb),
-		// 	machineRepository: new MongoDBMachineRepository(config.mongodb)
-		// });
+		// include serverside-formats:
+		RepositoryManager.init({
+			// graphRepository: new MongoDBGraphRepository(config.mongodb),
+			machineRepository: new MongoDBMachineRepository(config.mongodb)
+		});
 		// ~
 
-		// delete editable-web-component:
-		RepositoryManager.init({
-			machineRepository
-		});
+		// delete serverside-formats:
+		// RepositoryManager.init({
+		// 	machineRepository
+		// });
 		// ~
 
 		await RepositoryManager.connectAll();
@@ -294,19 +300,20 @@ module.exports = class MachineService extends MessagingService {
 				logger.info('PersistenceService: persist changed sheet cells...');
 				await RepositoryManager.machineRepository.updateCells(event.machineId, event.srcId, event.cells);
 				break;
-
-			// include editable-web-component:
-			// case MachineServerMessagingProtocol.EVENTS.SHEET_UPDATE_EVENT: {
-			// 	logger.info('PersistenceService: persist updated sheet...');
-			// 	const { machineId, srcId, sheet } = event;
-			// 	const { graphCells, namedCells, properties } = sheet;
-			// 	await RepositoryManager.machineRepository.updateSheet(
-			// 		machineId,
-			// 		srcId,
-			// 		{ cells: toMapObject(sheet.cells, 'reference'), properties, graphCells, namedCells }
-			// 	);
-			// 	break;
-			// }
+			// include serverside-formats: TODO: decide if we react on events or request/response!!
+			case MachineServerMessagingProtocol.EVENTS.SHEET_UPDATE_EVENT: {
+				logger.info('PersistenceService: persist updated sheet...');
+				const { machineId, srcId, sheet } = event;
+				const { cells, graphCells, namedCells, properties } = sheet;
+				const _cells = cells.length && cells[0].ref ? cells.reduce(byRef, {}) : toMapObject(cells, 'reference');
+				await RepositoryManager.machineRepository.updateSheet(
+					machineId,
+					srcId,
+					// { cells: toMapObject(cells, 'reference'), properties, graphCells, namedCells }
+					{ cells: _cells, properties, graphCells, namedCells }
+				);
+				break;
+			}
 			// ~
 
 			default:
