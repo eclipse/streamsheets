@@ -15,7 +15,7 @@ import {
 	InboxContainer,
 	OutboxContainer,
 	StreamSheet,
-	SetCellsCommand,
+	SheetCommandFactory,
 	Point,
 	BoundingBox, Shape
 } from '@cedalo/jsg-core';
@@ -492,7 +492,12 @@ export default class StreamSheetView extends WorksheetView {
 			}
 		}
 		if (cellData.length) {
-			viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
+			// viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
+			viewer
+				.getInteractionHandler()
+				.execute(
+					SheetCommandFactory.create('command.SetCellsCommand', this.getItem(), cellData, true)
+				);
 		}
 	}
 

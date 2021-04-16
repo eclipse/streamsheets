@@ -13,9 +13,9 @@ import {
 	ImagePool,
 	ItemAttributes,
 	AttributeUtils,
-	SetCellsCommand,
 	SetAttributeAtPathCommand,
-	CellRange
+	CellRange,
+	SheetCommandFactory
 } from '@cedalo/jsg-core';
 import NodeView from './NodeView';
 
@@ -89,7 +89,14 @@ export default class SheetCheckboxView extends NodeView {
 						cell.setValue(newValue);
 						cell.setTargetValue(newValue);
 
-						viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
+						// viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
+						const cmd = SheetCommandFactory.create(
+							'command.SetCellsCommand',
+							range.getSheet(),
+							cellData,
+							false
+						);
+						viewer.getInteractionHandler().execute(cmd);
 					}
 					return false;
 				}

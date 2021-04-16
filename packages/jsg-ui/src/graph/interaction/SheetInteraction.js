@@ -28,7 +28,8 @@ import {
 	ExecuteFunctionCommand,
 	TreeItemsNode,
 	StreamSheet,
-	DeleteCellContentCommand
+	// DeleteCellContentCommand
+	SheetCommandFactory
 } from '@cedalo/jsg-core';
 import { FuncTerm, Term } from '@cedalo/parser';
 import CellFeedbackView from '../feedback/CellFeedbackView';
@@ -970,9 +971,16 @@ export default class SheetInteraction extends Interaction {
 							}
 							delRange.shiftToSheet();
 							const ref = `${delRange.toString()};`;
-							viewer
-								.getInteractionHandler()
-								.execute(new DeleteCellContentCommand(view.getItem(), ref, 'values'));
+							// viewer
+							// 	.getInteractionHandler()
+							// 	.execute(new DeleteCellContentCommand(view.getItem(), ref, 'values'));
+							const cmd = SheetCommandFactory.create(
+								'command.DeleteCellContentCommand',
+								view.getItem(),
+								ref,
+								'values'
+							);
+							viewer.getInteractionHandler().execute(cmd);
 							const selection = view.getOwnSelection();
 							selection.selectRange(target);
 							view.notify();
