@@ -21,8 +21,8 @@ const {
 	SheetCommandFactory,
 	JSONWriter
 } = require('@cedalo/jsg-core');
-
 const Redis = require('ioredis');
+const { SERVER_COMMANDS, ignoreAll } = require('../utils/ignore');
 
 const REDIS_PORT = parseInt(process.env.REDIS_PORT, 10) || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'internal-redis';
@@ -63,6 +63,8 @@ const clearShapes = (cellsnode) => {
 	const shapes = [...cellsnode.getItems()];
 	shapes.forEach((shape) => cellsnode.removeItem(shape));
 };
+
+const ignoreCommand = ignoreAll(SERVER_COMMANDS);
 
 module.exports = class GraphWrapper {
 	constructor(graph, machineId) {
@@ -254,6 +256,10 @@ module.exports = class GraphWrapper {
 	}
 
 	async executeCommands(command, options) {
+		if (ignoreCommand(command.name)) {
+			logger.debug(`Ignore command ${command.name}`);
+			return false;
+		}
 		await this.applyLatestMachineStep();
 		let executed = false;
 		// if (command.commands) {
