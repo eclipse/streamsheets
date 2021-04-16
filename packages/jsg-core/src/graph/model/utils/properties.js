@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const JSG = require('../../../JSG');
 const { toValuesMap } = require('./map');
 const CellRange = require('../CellRange');
 
@@ -70,6 +71,7 @@ const setCellOrSectionProperties = (cellOrSectionProps, provider, sharedprops, c
 	});
 };
 const applyPropertiesDefinitions = (sheet, propsdef, sharedprops, clear) => {
+	if (!JSG.USE_SERVER_COMMANDS) return;
 	const { cells, cols, rows } = propsdef;
 	if (rows && rows.length) setCellOrSectionProperties(rows, rowProvider(sheet), sharedprops, clear);
 	if (cols && cols.length) setCellOrSectionProperties(cols, columnProvider(sheet), sharedprops, clear);
