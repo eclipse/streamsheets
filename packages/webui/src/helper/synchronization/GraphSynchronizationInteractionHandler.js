@@ -279,7 +279,10 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				if (streamsheetId) {
 					commandJSON.streamsheetId = streamsheetId;
 				}
-				Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, true, false);
+				// serverside-formats: do not send request command again => already done by CommandStack!!
+				if (!command.isRequest) {
+					Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, true, false);
+				}
 				if (commandJSON.name !== 'command.PasteCellsFromClipboardCommand') {
 					this.updateGraphItems(true);
 				}
@@ -327,7 +330,10 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				if (streamsheetId) {
 					commandJSON.streamsheetId = streamsheetId;
 				}
-				Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, false, true);
+				// serverside-formats: do not send request command again => already done by CommandStack!!
+				if (!command.isRequest) {
+					Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, false, true);
+				}
 				if (commandJSON.name !== 'command.PasteCellsFromClipboardCommand') {
 					this.updateGraphItems(false);
 				}
