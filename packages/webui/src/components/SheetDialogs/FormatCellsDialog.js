@@ -35,10 +35,11 @@ import {
 	FormatAttributes,
 	TextFormatAttributes,
 	CompoundCommand,
-	FormatCellsCommand,
+	// FormatCellsCommand,
 	CellAttributes,
-	CellAttributesCommand,
-	TextFormatCellsCommand
+	// CellAttributesCommand,
+	// TextFormatCellsCommand,
+	SheetCommandFactory
 } from '@cedalo/jsg-core';
 
 import { graphManager } from '../../GraphManager';
@@ -358,37 +359,40 @@ export class FormatCellsDialog extends React.Component {
 
 		if (this.state.attributesMap.size()) {
 			cmds.add(
-				new CellAttributesCommand(
+				SheetCommandFactory.create(
+					'command.CellAttributesCommand',
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this.state.attributesMap,
-				),
+					this.state.attributesMap
+				)
 			);
 		}
 
 		if (this.state.formatMap.size()) {
 			cmds.add(
-				new FormatCellsCommand(
+				SheetCommandFactory.create(
+					'command.FormatCellsCommand',
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this.state.formatMap,
-				),
+					this.state.formatMap
+				)
 			);
 		}
 
 		if (this.state.textFormatMap.size()) {
 			cmds.add(
-				new TextFormatCellsCommand(
+				SheetCommandFactory.create(
+					'command.TextFormatCellsCommand',
 					sheetView
 						.getItem()
 						.getOwnSelection()
 						.getRanges(),
-					this.state.textFormatMap,
-				),
+					this.state.textFormatMap
+				)
 			);
 		}
 

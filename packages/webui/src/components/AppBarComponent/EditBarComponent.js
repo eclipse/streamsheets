@@ -24,12 +24,11 @@ const {
 	StreamSheetContainerView,
 	WorksheetNode,
 	RemoveSelectionCommand,
-	DeleteCellContentCommand,
-	SetCellDataCommand,
 	SetChartFormulaCommand,
 	CellEditor,
 	Strings,
 	SelectionProvider,
+	SheetCommandFactory
 } = JSG;
 
 /**
@@ -459,9 +458,21 @@ export class EditBarComponent extends Component {
 			}
 			// DL-2281:
 			const activeCell = item.getOwnSelection().getActiveCell();
-			cmd = (activeCell.x === 1 && data.expression.getValue() === '')
-				? new DeleteCellContentCommand(item, item.getOwnSelection().toStringMulti(), "all")
-				: new SetCellDataCommand(item, ref, data.expression, true);
+			cmd =
+				activeCell.x === 1 && data.expression.getValue() === ''
+					? SheetCommandFactory.create(
+							'command.DeleteCellContentCommand',
+							item,
+							item.getOwnSelection().toStringMulti(),
+							'all'
+					  )
+					: SheetCommandFactory.create(
+							'command.SetCellDataCommand',
+							item,
+							ref,
+							data.expression,
+							true
+					  );
 		}
 
 		canvas.focus();
