@@ -460,6 +460,26 @@ module.exports = class CellRange {
 		}
 	}
 
+	getColumnString(columnNumber) {
+		let columnName = '';
+
+		if (columnNumber < 0) {
+			columnName = this._worksheet
+				.getColumns()
+				.getSectionTitle(columnNumber - this._worksheet.getColumns().getInitialSection());
+		} else {
+			let dividend = columnNumber + 1;
+			let modulo;
+
+			while (dividend > 0) {
+				modulo = (dividend - 1) % 26;
+				columnName = String.fromCharCode(65 + modulo).toString() + columnName;
+				dividend = parseInt((dividend - modulo) / 26, 0);
+			}
+		}
+		return columnName;
+	};
+
 	/**
 	 * Saves this Range instance.
 	 *
@@ -472,26 +492,6 @@ module.exports = class CellRange {
 	}
 
 	toString(params) {
-		const getColumnString = (columnNumber) => {
-			let columnName = '';
-
-			if (columnNumber < 0) {
-				columnName = this._worksheet
-					.getColumns()
-					.getSectionTitle(columnNumber - this._worksheet.getColumns().getInitialSection());
-			} else {
-				let dividend = columnNumber + 1;
-				let modulo;
-
-				while (dividend > 0) {
-					modulo = (dividend - 1) % 26;
-					columnName = String.fromCharCode(65 + modulo).toString() + columnName;
-					dividend = parseInt((dividend - modulo) / 26, 0);
-				}
-			}
-			return columnName;
-		};
-
 		let str = '';
 
 		const all = this.isRowRange() && this.isColumnRange();
@@ -501,7 +501,7 @@ module.exports = class CellRange {
 				str += '$';
 			}
 
-			str += getColumnString(this._x1);
+			str += this.getColumnString(this._x1);
 		}
 
 		if (all || !this.isColumnRange()) {
@@ -518,7 +518,7 @@ module.exports = class CellRange {
 					str += '$';
 				}
 
-				str += getColumnString(this._x2);
+				str += this.getColumnString(this._x2);
 			}
 
 			if (all || !this.isColumnRange()) {
@@ -635,8 +635,10 @@ module.exports = class CellRange {
 	}
 
 	static getColumnFromString(reference) {
-		let colVal = 0;
+		if (reference === 'COMMENT') return 0;
+		if (reference === 'IF') return 1;
 
+		let colVal = 0;
 		for (let j = 0; j < reference.length; j += 1) {
 			colVal =
 				26 * colVal +
