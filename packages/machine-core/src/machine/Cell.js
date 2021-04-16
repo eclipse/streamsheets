@@ -154,10 +154,6 @@ class Cell {
 		return this.hasFormula ? this._term.toString() : undefined;
 	}
 
-	get format() {
-		return this._format;
-	}
-
 	get info() {
 		return this._info;
 	}

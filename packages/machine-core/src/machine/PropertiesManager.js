@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright (c) 2020 Cedalo AG
+ * Copyright (c) 2021 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,115 +9,54 @@
  *
  ********************************************************************************/
 const Properties = require('./Properties');
-const ImmutableProperties = require('./ImmutableProperties');
-const CellProperties = require('./CellProperties');
 const SheetIndex = require('./SheetIndex');
-const { isEmptyObject } = require('../utils');
-const DEF_PROPERTIES = require('../../defproperties.json');
 
-const isInRowRange = (settings) => (nr) => nr >= settings.minrow && nr <= settings.maxrow;
-const isInColRange = (settings) => (nr) => nr >= settings.mincol && nr <= settings.maxcol;
-const isInRange = (isInRowRangeFn, isInColRangeFn) => (rownr, colnr) => isInRowRangeFn(rownr) && isInColRangeFn(colnr);
+// eslint-disable-next-line no-unused-vars
+const toArray = (map) => Array.from(map, ([_, value]) => value);
 
-const getProps = (map) => (nr, defval) => map[nr] || defval;
-const getCellProps = (map) => (rownr, colnr, defval) => map[rownr] && map[rownr][colnr] || defval;
+const isInColRange = (settings) => (nr) => nr != null && nr >= settings.mincol && nr <= settings.maxcol;
+const isInRowRange = (settings) => (nr) => nr != null && nr >= settings.minrow && nr <= settings.maxrow;
+const hasProperties = (obj) => (obj ? Object.keys(obj).length > 0 : false);
 
-const ensureProps = (map, defprops) => nr => {
-	map[nr] = map[nr] || Properties.of(defprops);
+const ensureProps = (map) => nr => {
+	map[nr] = map[nr] || new Properties();
 	return map[nr];
 };
-const ensureCellProps = (map, defprops) => (rownr, colnr, baseprops) => {
-	let row = map[rownr];
-	if (!row) {
-		row = {}; // [];
-		map[rownr] = row;
-	}
-	let cellprops = row[colnr];
-	if (!cellprops) {
-		cellprops = CellProperties.of(defprops);
-		if (baseprops) cellprops.base.merge(baseprops);
-		row[colnr] = cellprops;
-	}
-	return cellprops;
-};
-const iterateCellsOfCol = (cells, settings) => (colnr, fn) => {
-	const max = settings.maxrow;
-	for (let r = settings.minrow; r <= max; r += 1) {
-		const cell = cells[r] && cells[r][colnr];
-		fn(cell, r);
-	}
-};
-const iterateCellsOfRow = (cells, settings) => (rownr, fn) => {
-	const row = cells[rownr] || {}; // [];
-	const max = settings.maxcol;
-	for (let c = settings.mincol; c <= max; c += 1) {
-		fn(row[c], c);
-	}
+const ensureCellProps = (map) => (colstr, rownr) => {
+	map[rownr] = map[rownr] || {};
+	return ensureProps(map[rownr])(colstr);
 };
 
-// const iterateProperties = (arr) => (fn) => arr.forEach((props, nr) => props && fn(props, nr));
-const iterateProperties = (map) => (fn) => Object.entries(map).forEach(([nr, props]) => props && fn(props, nr));
-const setBaseTextFormat = (cellprops, key, value, props) =>
-	cellprops.base.setTextFormat(key, value || props.getTextFormat(key));
-const setBaseStyleFormat = (cellprops, key, value, props) =>
-	cellprops.base.setStyleFormat(key, value || props.getStyleFormat(key));
-
-const getAttribute = (props, key) => props ? props.getAttribute(key) : undefined;
-const getTextFormat = (props, key) => props ? props.getTextFormat(key) : undefined;
-const getStyleFormat = (props, key) => props ? props.getStyleFormat(key) : undefined;
-
-const isNotEmpty = (props) => props && !props.isEmpty();
-
-const mapColProps = (props) =>
-	Object.entries(props).reduce((all, [nr, prop]) => {
-		if (isNotEmpty(prop)) all[SheetIndex.columnAsStr(nr)] = prop.toJSON();
+const iterateProps = (props, fn) => Object.entries(props).forEach(([key, properties]) => fn(key, properties));
+const iterateColumnCells = (cells) => (colstr, fn) => {
+	Object.entries(cells).forEach(([rownr, row]) => {
+		const cellprops = row[colstr];
+		if (cellprops) fn(cellprops, Number(rownr));
+	});
+};
+const iterateRowCells = (cells) => (rownr, fn) => {
+	const row = cells[rownr];
+	if (row) Object.entries(row).forEach(([colstr, properties]) => fn(properties, colstr));
+};
+const reduceProps = (refFn) => (props) =>
+	Object.entries(props).reduce((all, [key, properties]) => {
+		if (!properties.isEmpty()) all.push({ ref: refFn(key), properties: properties.toJSON() });
 		return all;
-	}, {});
-const mapRowProps = (props) =>
-	Object.entries(props).reduce((all, [nr, prop]) => {
-		if (isNotEmpty(prop)) all[nr] = prop.toJSON();
-		return all;
-	}, {});
-const mapCellProps = (props) =>
+	}, []);
+const reduceColProps = reduceProps((key) => ({ col: key }));
+const reduceRowProps = reduceProps((key) => ({ row: Number(key) }));
+const reduceCellProps = (props) =>
 	Object.entries(props).reduce((all, [rownr, row]) => {
-		Object.entries(row).forEach(([colnr, prop]) => {
-			if (isNotEmpty(prop)) all[`${SheetIndex.columnAsStr(colnr)}${rownr}`] = prop.toJSON();
+		rownr = Number(rownr);
+		Object.entries(row).forEach(([colstr, properties]) => {
+			if (!properties.isEmpty()) all.push({ ref: { col: colstr, row: rownr }, properties: properties.toJSON() });
 		});
 		return all;
-	}, {});
-
-
-const updateObject = (props, index, count) => {
-	if (props) {
-		const mapper = [];
-		Object.entries(props).forEach(([nr, prop]) => {
-			nr = Number(nr);
-			if (nr >= index) {
-				props[nr] = undefined;
-				mapper[nr + count] = prop;
-			}
-		});
-		mapper.forEach((prop, idx) => {
-			if (prop) props[idx] = prop;
-		});
-	}
-};
-
-const DEF_SHEET_PROPS = ImmutableProperties.of({
-	attributes: DEF_PROPERTIES.attributes.sheet,
-	formats: { styles: DEF_PROPERTIES.formats.styles, text: DEF_PROPERTIES.formats.text }
-});
-const DEF_PROPS = {
-	of(sheetprops) {
-		const cellprops = CellProperties.of({
-			attributes: DEF_PROPERTIES.attributes.cell,
-			formats: { styles: sheetprops.formats.styles, text: sheetprops.formats.text }
-		});
-		this.COL = ImmutableProperties.of(sheetprops);
-		this.ROW = ImmutableProperties.of(sheetprops);
-		this.CELL = ImmutableProperties.of(cellprops);
-		this.CELL.base = ImmutableProperties.of(cellprops.base);
-	}
+	}, []);
+const propertiesReducer = (provider) => (all, { ref }) => {
+	const properties = provider(ref);
+	if (properties) all.push({ ref, properties: properties.toJSON() });
+	return all;
 };
 
 class PropertiesManager {
@@ -127,335 +66,164 @@ class PropertiesManager {
 	}
 	constructor(sheet) {
 		this.sheet = sheet;
-		this.sheetProperties = Properties.of(DEF_SHEET_PROPS);
+		this._sheetProperties = new Properties();
 		this._colProperties = {}; // [];
 		this._rowProperties = {}; // [];
 		this._cellProperties = {}; // [];
-		DEF_PROPS.of(this.sheetProperties);
+		// functions:
 		this.isInColRange = isInColRange(sheet.settings);
 		this.isInRowRange = isInRowRange(sheet.settings);
-		this.isInRange = isInRange(this.isInRowRange, this.isInColRange);
-		this.getRowProps = getProps(this._rowProperties);
-		this.getColProps = getProps(this._colProperties);
-		this.getCellProps = getCellProps(this._cellProperties);
-		this.ensureRowProps = ensureProps(this._rowProperties, DEF_PROPS.ROW);
-		this.ensureColProps = ensureProps(this._colProperties, DEF_PROPS.COL);
-		this.ensureCellProps = ensureCellProps(this._cellProperties, DEF_PROPS.CELL);
-		this.colsForEach = iterateProperties(this._colProperties);
-		this.rowsForEach = iterateProperties(this._rowProperties);
-		this.iterateCellPropsOfCol = iterateCellsOfCol(this._cellProperties, sheet.settings);
-		this.iterateCellPropsOfRow = iterateCellsOfRow(this._cellProperties, sheet.settings);
+		this.ensureColProps = ensureProps(this._colProperties);
+		this.ensureRowProps = ensureProps(this._rowProperties);
+		this.ensureCellProps = ensureCellProps(this._cellProperties);
+		this.iterateRowCellProps = iterateRowCells(this._cellProperties);
+		this.iterateColumnCellProps = iterateColumnCells(this._cellProperties);
 	}
 
 	toJSON() {
 		const properties = {};
-		properties.sheet = !this.sheetProperties.isEmpty() ? this.sheetProperties.toJSON() : {};
-		properties.cols = mapColProps(this._colProperties);
-		properties.rows = mapRowProps(this._rowProperties);
-		properties.cells = mapCellProps(this._cellProperties);
+		if (!this._sheetProperties.isEmpty()) properties.sheet = this._sheetProperties.toJSON();
+		properties.cols = reduceColProps(this._colProperties);
+		properties.rows = reduceRowProps(this._rowProperties);
+		properties.cells = reduceCellProps(this._cellProperties);
 		return properties;
 	}
-
 	load(json) {
-		if (json) {
-			const { sheet, cols, rows, cells } = json;
-			if (sheet) this.sheetProperties.initWithJSON(json.sheet);
-			DEF_PROPS.of(this.sheetProperties);
-			this.ensureRowProps = ensureProps(this._rowProperties, DEF_PROPS.ROW);
-			this.ensureColProps = ensureProps(this._colProperties, DEF_PROPS.COL);
-			this.ensureCellProps = ensureCellProps(this._cellProperties, DEF_PROPS.CELL);
-
-			if (cols) {
-				Object.entries(cols).forEach(([ref, props]) =>
-					this.ensureColProps(SheetIndex.columnAsNr(ref)).initWithJSON(props)
-				);
-			} 				
-			if (rows) Object.entries(rows).forEach(([nr, props]) => this.ensureRowProps(nr).initWithJSON(props));
-			if (cells) {
-				Object.entries(cells).forEach(([ref, props]) => {
-					const index = SheetIndex.create(ref);
-					this.ensureCellProps(index.row, index.col).initWithJSON(props);
-				});
-			}
-		}
+		if (json) this.setProperties(json);
 		return this;
 	}
 
-	clearCellProperties(rownr, colnr) {
-		const doIt = this.isInRange(rownr, colnr);
-		if (doIt && this._cellProperties[rownr]) this._cellProperties[rownr][colnr] = undefined;
-		return doIt;
-	}
-	clearColumnProperties(colnr) {
-		const doIt = this.isInColRange(colnr);
-		if (doIt) this._colProperties[colnr] = undefined;
-		return doIt;
-	}
-	clearRowProperties(rownr) {
-		const doIt = this.isInRowRange(rownr);
-		if (doIt) this._rowProperties[rownr] = undefined;
-		return doIt;
+	getProperties({ cells, cols, rows } = {}) {
+		const newProperties = {};
+		if (rows) newProperties.rows = rows.reduce(propertiesReducer((ref) => this._rowProperties[ref.row]), []);
+		if (cols) newProperties.cols = cols.reduce(propertiesReducer((ref) => this._colProperties[ref.col]), []);
+		if (cells) {
+			newProperties.cells = cells.reduce(
+				propertiesReducer((ref) => this._cellProperties[ref.row] && this._cellProperties[ref.row][ref.col]),
+				[]
+			);
+		}
+		return newProperties;
 	}
 
-	getSheetProperties() {
-		return this.sheetProperties;
-	}
-	getSheetAttribute(key) {
-		return getAttribute(this.sheetProperties, key);
-	}
-	getSheetStyleFormat(key) {
-		return getStyleFormat(this.sheetProperties, key);
-	}
-	getSheetTextFormat(key) {
-		return getTextFormat(this.sheetProperties, key);
-	}
-
-	getCellProperties(rownr, colnr) {
-		let cellprops;
-		if (this.isInRange(rownr, colnr)) {
-			cellprops = this.getCellProps(rownr, colnr);
-			if (!cellprops) {
-				const baseprops = this.getRowProps(rownr) || this.getColProps(colnr);
-				cellprops = baseprops ? this.ensureCellProps(rownr, colnr, baseprops) : DEF_PROPS.CELL;
+	clearCellProperties(colstr, rownr, { cells }) {
+		const colnr = SheetIndex.columnAsNr(colstr);
+		if (this.isInColRange(colnr) && this.isInRowRange(rownr)) {
+			const row = this._cellProperties[rownr];
+			if (row) {
+				const cellprops = row[colstr];
+				const cellChanges = cellprops && cellprops.clear();
+				if (cellChanges) {
+					cells.set(`${colstr}${rownr}`, { ref: { col: colstr, row: rownr }, properties: cellChanges });
+				}
 			}
 		}
-		return cellprops;
 	}
-	getCellAttribute(rownr, colnr, key) {
-		return getAttribute(this.getCellProperties(rownr, colnr), key);
+	clearColumnProperties(colstr, { cells, cols }) {
+		const colnr = SheetIndex.columnAsNr(colstr);
+		if (this.isInColRange(colnr)) {
+			const colprops = this._colProperties[colstr];
+			const colChanges = colprops && colprops.clear();
+			if (colChanges) cols.set(colstr, { ref: { col: colstr }, properties: colChanges });
+			// existing cell properties in column:
+			this.iterateColumnCellProps(colstr, (cellprops, rownr) => {
+				const cellChanges = cellprops.clear();
+				if (cellChanges) {
+					cells.set(`${colstr}${rownr}`, { ref: { col: colstr, row: rownr }, properties: cellChanges });
+				}
+			});
+		}
 	}
-	getCellStyleFormat(rownr, colnr, key) {
-		return getStyleFormat(this.getCellProperties(rownr, colnr), key);
+	clearRowProperties(rownr, { cells, rows }) {
+		if (this.isInRowRange(rownr)) {
+			const rowprops = this._rowProperties[rownr];
+			const rowChanges = rowprops && rowprops.clear();
+			if (rowChanges) rows.set(rownr, { ref: { row: rownr }, properties: rowChanges });
+			// existing cell properties in row:
+			this.iterateRowCellProps(rownr, (cellprops, colstr) => {
+				const cellChanges = cellprops.clear();
+				if (cellChanges) {
+					cells.set(`${colstr}${rownr}`, { ref: { col: colstr, row: rownr }, properties: cellChanges });
+				}
+			});
+		}
 	}
-	getCellTextFormat(rownr, colnr, key) {
-		return getTextFormat(this.getCellProperties(rownr, colnr), key);
+	clearProperties({ cells, cols, rows /* , sheet */ }) {
+		const changes = { cells: new Map(), cols: new Map(), rows: new Map() };
+		if (cols) cols.forEach((col) => this.clearColumnProperties(col.ref.col, changes));
+		if (rows) rows.forEach((row) => this.clearRowProperties(row.ref.row, changes));
+		if (cells) cells.forEach((cell) => this.clearCellProperties(cell.ref.col, cell.ref.row, changes));
+		return { rows: toArray(changes.rows), cols: toArray(changes.cols), cells: toArray(changes.cells) };
 	}
 
-	getColumnProperties(colnr) {
-		return this.isInColRange(colnr) ? this.getColProps(colnr, DEF_PROPS.COL) : undefined;
+	setCellProperties(colstr, rownr, properties, { cells }) {
+		const colnr = SheetIndex.columnAsNr(colstr);
+		if (this.isInColRange(colnr) && this.isInRowRange(rownr)) {
+			const cellprops = this.ensureCellProps(colstr, rownr);
+			const changedProps = cellprops.merge(properties);
+			if (hasProperties(changedProps)) {
+				cells.set(`${colstr}${rownr}`, { ref: { col: colstr, row: rownr }, properties: changedProps });
+			}
+		}
 	}
-	getColumnAttribute(colnr, key) {
-		return getAttribute(this.getColumnProperties(colnr), key);
+	setColumnProperties(colstr, properties, { cells, cols }) {
+		const colnr = SheetIndex.columnAsNr(colstr);
+		if (this.isInColRange(colnr)) {
+			const changedColProps = this.ensureColProps(colstr).merge(properties);
+			if (hasProperties(changedColProps)) cols.set(colstr, { ref: { col: colstr }, properties: changedColProps });
+			// intersection with existing rows:
+			iterateProps(this._rowProperties, (rownr) => this.ensureCellProps(colstr, rownr));
+			// existing cell properties in column:
+			this.iterateColumnCellProps(colstr, (cellprops, rownr) => {
+				const changedProps = cellprops.merge(properties, this._rowProperties[rownr]);
+				if (hasProperties(changedProps)) {
+					cells.set(`${colstr}${rownr}`, { ref: { col: colstr, row: rownr }, properties: changedProps });
+				}
+			});
+		}
 	}
-	getColumnStyleFormat(colnr, key) {
-		return getStyleFormat(this.getColumnProperties(colnr), key);
-	}
-	getColumnTextFormat(colnr, key) {
-		return getTextFormat(this.getColumnProperties(colnr), key);
+	setRowProperties(rownr, properties, { cells, rows }) {
+		if (this.isInRowRange(rownr)) {
+			const changedRowProps = this.ensureRowProps(rownr).merge(properties);
+			if (hasProperties(changedRowProps)) rows.set(rownr, { ref: { row: rownr }, properties: changedRowProps });
+			// intersection with existing columns:
+			iterateProps(this._colProperties, (colstr) => this.ensureCellProps(colstr, rownr));
+			// existing cell properties in row:
+			this.iterateRowCellProps(rownr, (cellprops, colstr) => {
+				const changedProps = cellprops.merge(properties, this._colProperties[colstr]);
+				if (hasProperties(changedProps)) {
+					cells.set(`${colstr}${rownr}`, { ref: { col: colstr, row: rownr }, properties: changedProps });
+				}
+			});
+		}
 	}
 
-	getRowProperties(rownr) {
-		return this.isInRowRange(rownr) ? this.getRowProps(rownr, DEF_PROPS.ROW) : undefined;
-	}
-	getRowAttribute(rownr, key) {
-		return getAttribute(this.getRowProperties(rownr), key);
-	}
-	getRowStyleFormat(rownr, key) {
-		return getStyleFormat(this.getRowProperties(rownr), key);
-	}
-	getRowTextFormat(rownr, key) {
-		return getTextFormat(this.getRowProperties(rownr), key);
-	}
-
-
-	// TODO: support sheet properties...
-	mergeAll({ cells, cols, rows, properties }) {
-		const changes = { cells: [], cols: [], rows: [] };
+	// if multiple properties are provided, it will be applied cols -> rows -> cells
+	setProperties({ cells, cols, rows, properties /* , sheet */ }) {
+		const changes = { cells: new Map(), cols: new Map(), rows: new Map() };
 		if (cols) {
 			cols.forEach((col) => {
-				const reference = SheetIndex.columnAsNr(col.reference);
-				const colProperties = properties || col.properties;
-				if (reference != null) this.mergeColumnProperties(reference, colProperties, changes);
+				const props = col.properties || properties;
+				if (props.cleared) this.clearColumnProperties(col.ref.col, changes);
+				else this.setColumnProperties(col.ref.col, props, changes);
 			});
 		}
 		if (rows) {
 			rows.forEach((row) => {
-				const rowProperties = properties || row.properties;
-				if (row.reference != null)  this.mergeRowProperties(row.reference, rowProperties, changes);
+				const props = row.properties || properties;
+				if (props.cleared) this.clearRowProperties(row.ref.row, changes);
+				else this.setRowProperties(row.ref.row, props, changes);
 			});
 		}
 		if (cells) {
 			cells.forEach((cell) => {
-				const cellProperties = properties || cell.properties;
-				const mergeCellPropertiesAt = (index) => {
-					this.mergeCellProperties(index.row, index.col, cellProperties, changes);
-				};
-				const cellIndex = cell.reference && SheetIndex.create(cell.reference);
-				if (cellIndex) mergeCellPropertiesAt(cellIndex);
+				const { row, col } = cell.ref;
+				const props = cell.properties || properties;
+				if (props.cleared) this.clearCellProperties(col, row, changes);
+				else this.setCellProperties(col, row, props, changes);
 			});
 		}
-		return changes;
-	}
-
-
-	_ensureCellProps(rownr, colnr) {
-		const baseprops = this.getRowProps(rownr) || this.getColProps(colnr);
-		return this.ensureCellProps(rownr, colnr, baseprops);
-	}
-	mergeCellProperties(rownr, colnr, props, collectedChanges = { cells: [], cols: [], rows: [] }) {
-		if (this.isInRange(rownr, colnr)) {
-			const changedProps = this._ensureCellProps(rownr, colnr).merge(props);
-			if (!isEmptyObject(changedProps)) {
-				const cell = { reference: `${SheetIndex.columnAsStr(colnr)}${rownr}`, properties: changedProps };
-				collectedChanges.cells.push(cell);
-			}
-		}
-		return collectedChanges;
-	}
-	setCellProperties(rownr, colnr, props) {
-		if (this.clearCellProperties(rownr, colnr)) this._ensureCellProps(rownr, colnr).merge(props);
-	}
-	setCellAttribute(rownr, colnr, key, value) {
-		if (this.isInRange(rownr, colnr)) this._ensureCellProps(rownr, colnr).setAttribute(key, value);
-	}
-	setCellStyleFormat(rownr, colnr, key, value) {
-		if (this.isInRange(rownr, colnr)) this._ensureCellProps(rownr, colnr).setStyleFormat(key, value);
-	}
-	setCellTextFormat(rownr, colnr, key, value) {
-		if (this.isInRange(rownr, colnr)) this._ensureCellProps(rownr, colnr).setTextFormat(key, value);
-	}
-
-
-	mergeColumnProperties(colnr, props, collectedChanges = { cells: [], cols: [], rows: [] }) {
-		if (this.isInColRange(colnr)) {
-			const cells = {};
-			const changedColProps = { reference: SheetIndex.columnAsStr(colnr) };
-			changedColProps.properties = this.ensureColProps(colnr).merge(props);
-			if (!isEmptyObject(changedColProps)) collectedChanges.cols.push(changedColProps);
-			this.iterateCellPropsOfCol(colnr, (cellprops, rownr) => {
-				if (cellprops) {
-					const changedProps = cellprops.merge(props);
-					if (!isEmptyObject(changedProps)) {
-						const cell = { reference: `${SheetIndex.columnAsStr(colnr)}${rownr}`, properties: changedProps };
-						cells[cell.reference] = cell;
-					}
-				}
-			});
-			this.rowsForEach((rowprops, nr) => {
-				const changedProps = this.ensureCellProps(nr, colnr, rowprops).base.merge(props);
-				if (!isEmptyObject(changedProps)) {
-					const cell = { reference: `${SheetIndex.columnAsStr(colnr)}${nr}`, properties: changedProps };
-					if (!cells[cell.reference]) cells[cell.reference] = cell;
-				}
-			});
-			Object.values(cells).forEach((cell) => collectedChanges.cells.push(cell));
-		}
-		return collectedChanges;
-	}
-	setColumnProperties(colnr, props) {
-		if (this.clearColumnProperties(colnr)) this.ensureColProps(colnr).merge(props);
-	}
-	setColumnAttribute(colnr, key, value) {
-		if (this.isInColRange(colnr)) {
-			this.ensureColProps(colnr).setAttribute(key, value);
-			// TODO review: do row & col have attributes in common with cells?
-			// this.iterateCellPropsOfCol(colnr, (cellprops) => {
-			// 	if (cellprops) cellprops.setAttribute(key, value);
-			// });
-		}
-	}
-	setColumnStyleFormat(colnr, key, value) {
-		if (this.isInColRange(colnr)) {
-			this.ensureColProps(colnr).setStyleFormat(key, value);
-			this.rowsForEach((props, nr) =>
-				setBaseStyleFormat(this.ensureCellProps(nr, colnr, props), key, value, props)
-			);
-			this.iterateCellPropsOfCol(colnr, (cellprops) => {
-				if (cellprops) cellprops.setStyleFormat(key, value);
-			});
-		}
-	}
-	setColumnTextFormat(colnr, key, value) {
-		if (this.isInColRange(colnr)) {
-			this.ensureColProps(colnr).setTextFormat(key, value);
-			this.rowsForEach((props, nr) =>
-				setBaseTextFormat(this.ensureCellProps(nr, colnr, props), key, value, props)
-			);
-			this.iterateCellPropsOfCol(colnr, (cellprops) => {
-				if (cellprops) cellprops.setTextFormat(key, value);
-			});
-		}
-	}
-
-	mergeRowProperties(rownr, props, collectedChanges = { cells: [], cols: [], rows: [] }) {
-		if (this.isInRowRange(rownr)) {
-			const changedRowProps = { reference: rownr };
-			const cells = {};
-			changedRowProps.properties = this.ensureRowProps(rownr).merge(props);
-			if (!isEmptyObject(changedRowProps)) collectedChanges.rows.push(changedRowProps);
-			this.iterateCellPropsOfRow(rownr, (cellprops, colnr) => {
-				if (cellprops) {
-					const changedProps = cellprops.merge(props);
-					if (!isEmptyObject(changedProps)) {
-						const cell = { reference: `${SheetIndex.columnAsStr(colnr)}${rownr}`, properties: changedProps };
-						cells[cell.reference] = cell;
-					}
-				}
-			});
-			this.colsForEach((colprops, nr) => {
-				const changedProps = this.ensureCellProps(rownr, nr, colprops).base.merge(props);
-				if (!isEmptyObject(changedProps)) {
-					const cell = { reference: `${SheetIndex.columnAsStr(nr)}${rownr}`, properties: changedProps };
-					if (!cells[cell.reference]) cells[cell.reference] = cell
-				}
-			});
-			Object.values(cells).forEach((cell) => collectedChanges.cells.push(cell));
-		}
-		return collectedChanges;
-	}
-	setRowProperties(rownr, props) {
-		if (this.clearRowProperties(rownr)) this.ensureRowProps(rownr).merge(props);
-	}
-	setRowAttribute(rownr, key, value) {
-		if (this.isInRowRange(rownr)) {
-			this.ensureRowProps(rownr).setAttribute(key, value);
-			// TODO review: do row & col have attributes in common with cells?
-			// this.iterateCellPropsOfRow(rownr, (cellprops) => {
-			// 	if (cellprops) cellprops.setAttribute(key, value);
-			// });
-		}
-	}
-	setRowStyleFormat(rownr, key, value) {
-		if (this.isInRowRange(rownr)) {
-			this.ensureRowProps(rownr).setStyleFormat(key, value);
-			this.colsForEach((props, nr) =>
-				setBaseStyleFormat(this.ensureCellProps(rownr, nr, props), key, value, props)
-			);
-			this.iterateCellPropsOfRow(rownr, (cellprops) => {
-				if (cellprops) cellprops.setStyleFormat(key, value);
-			});
-		}
-	}
-	setRowTextFormat(rownr, key, value) {
-		if (this.isInRowRange(rownr)) {
-			this.ensureRowProps(rownr).setTextFormat(key, value);
-			this.colsForEach((props, nr) =>
-				setBaseTextFormat(this.ensureCellProps(rownr, nr, props), key, value, props)
-			);
-			this.iterateCellPropsOfRow(rownr, (cellprops) => {
-				if (cellprops) cellprops.setTextFormat(key, value);
-			});
-		}
-	}
-
-	setSheetAttribute(key, value) {
-		this.sheetProperties.setAttribute(key, value);
-	}
-	setSheetStyleFormat(key, value) {
-		this.sheetProperties.setStyleFormat(key, value);
-	}
-	setSheetTextFormat(key, value) {
-		this.sheetProperties.setTextFormat(key, value);
-	}
-
-	onUpdateColumnsAt(colnr, count) {
-		updateObject(this._colProperties, colnr, count);
-		Object.values(this._cellProperties).forEach((props) => updateObject(props, colnr, count));
-	}
-	onUpdateRowsAt(rownr, count) {
-		// move props at rownr to new index:
-		updateObject(this._rowProperties, rownr, count);
-		updateObject(this._cellProperties, rownr, count);
+		return { rows: toArray(changes.rows), cols: toArray(changes.cols), cells: toArray(changes.cells) };
 	}
 }
 
