@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const CellRange = require('../../model/CellRange');
+const Selection = require('../../model/Selection');
 
 const newCellRange = (sheet, range) => new CellRange(
 	sheet,
@@ -31,7 +32,47 @@ const toCellRanges = (ranges, graph) => {
 	return sheet ? ranges.map(range => newCellRange(sheet, range)) : undefined;
 };
 
+const rangeAsString = (range, shiftIt = true) => (shiftIt ? range.shiftToSheet().toString() : range.toString());
+const getRangeIndex = (range, shiftIt) => rangeAsString(range, shiftIt).split(':')[0];
+const getCellReference = (range, shiftIt = true) => {
+	if (shiftIt) range.shiftToSheet();
+	return { col: range.getColumnString(range.getX1()), row: range.getY1() + 1 };
+};
+const toCellsColsRows = (ranges, sheet) => {
+	const tmprange = new CellRange(sheet, 0, 0, 0, 0);
+	const spreaded = { cells: [], cols: [], rows: [] };
+	ranges.forEach((range) => {
+		if (range.isSheetRange()) {
+			// TODO: sheet support...
+		} else if (range.isColumnRange()) {
+			range.enumerateColumns((index) => {
+				const col = getRangeIndex(tmprange.set(index, 1, index, sheet.getRowCount()));
+				spreaded.cols.push({ index, ref: { col } });
+			});
+		} else if (range.isRowRange()) {
+			range.enumerateRows((index) => {
+				const row = getRangeIndex(tmprange.set(1, index, sheet.getColumnCount(), index));
+				spreaded.rows.push({ index, ref: { row } });
+			});
+		} else {
+			range.enumerateCells(false, (pos) => {
+				const ref = getCellReference(tmprange.set(pos.x, pos.y));
+				spreaded.cells.push({ ref });
+			});
+		}
+	});
+	return spreaded;
+};
+
+const getCellRangesFromSelection = (ref, sheet) => {
+	const selection = Selection.fromStringMulti(ref, sheet);
+	return selection ? selection._ranges : [];
+};
+
 module.exports = {
+	getCellReference,
+	getCellRangesFromSelection,
 	toCellRange,
-	toCellRanges
+	toCellRanges,
+	toCellsColsRows
 };
