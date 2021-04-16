@@ -1,1293 +1,1246 @@
 /********************************************************************************
- * Copyright (c) 2020 Cedalo AG
+ * Copyright (c) 2021 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const PropertiesManager = require('../../src/machine/PropertiesManager');
-const { StreamSheet } = require('../..');
-const DEF_PROPS = require('../../defproperties.json');
+ const PropertiesManager = require('../../src/machine/PropertiesManager');
+ const { StreamSheet } = require('../..');
 
-const getOldProperties = (props) =>
-	Object.entries(props).reduce((all, [key, value]) => {
-		all[key] = value.old;
-		return all;
-	}, {});
-const mapToOldProperties = (change) => {
-	const { reference, properties } = change;
-	const props = { reference, properties };
-	if (properties.attributes) props.properties.attributes = getOldProperties(properties.attributes);
-	if (properties.formats) {
-		props.formats = {};
-		if (properties.formats.styles) props.properties.formats.styles = getOldProperties(properties.formats.styles);
-		if (properties.formats.text) props.properties.formats.text = getOldProperties(properties.formats.text);
-	}
-	return props;
-};
-const undoPropsFromChanges = (changes) => {
-	const undoprops = {}
-	if (changes.cols) undoprops.cols = changes.cols.map(mapToOldProperties);
-	if (changes.rows) undoprops.rows = changes.rows.map(mapToOldProperties);
-	if (changes.cells) undoprops.cells = changes.cells.map(mapToOldProperties);
-	return undoprops;
-};
+ const toString = (obj) => JSON.stringify(obj);
 
-
-describe('PropertiesManager', () => {
-	it('should be possible to create a PropertiesManger instance', () => {
-		const t1 = new StreamSheet();
-		expect(PropertiesManager.of(t1.sheet)).toBeDefined();
-	});
-	it('should return default properties for rows & columns if none has been set', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		const rowprops = pm.getRowProperties(3);
-		expect(rowprops).toBeDefined();
-		expect(rowprops.getAttribute('initialsection')).toBe(DEF_PROPS.attributes.sheet.initialsection);
-		expect(rowprops.getStyleFormat('linecolor')).toBe(DEF_PROPS.formats.styles.linecolor);
-		expect(rowprops.getTextFormat('fontsize')).toBe(DEF_PROPS.formats.text.fontsize);
-
-		const colprops = pm.getColumnProperties(0);
-		expect(colprops).toBeDefined();
-		expect(colprops.getAttribute('initialsection')).toBe(DEF_PROPS.attributes.sheet.initialsection);
-		expect(colprops.getStyleFormat('linecolor')).toBe(DEF_PROPS.formats.styles.linecolor);
-		expect(colprops.getTextFormat('fontsize')).toBe(DEF_PROPS.formats.text.fontsize);
-	});
-	it('should return default properties for negative columns if none has been set', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let colprops = pm.getColumnProperties(-1);
-		expect(colprops).toBeDefined();
-		expect(colprops.getAttribute('initialsection')).toBe(DEF_PROPS.attributes.sheet.initialsection);
-		expect(colprops.getStyleFormat('linecolor')).toBe(DEF_PROPS.formats.styles.linecolor);
-		expect(colprops.getTextFormat('fontsize')).toBe(DEF_PROPS.formats.text.fontsize);
-		colprops = pm.getColumnProperties(-2);
-		expect(colprops).toBeDefined();
-		expect(colprops.getAttribute('initialsection')).toBe(DEF_PROPS.attributes.sheet.initialsection);
-		expect(colprops.getStyleFormat('linecolor')).toBe(DEF_PROPS.formats.styles.linecolor);
-		expect(colprops.getTextFormat('fontsize')).toBe(DEF_PROPS.formats.text.fontsize);
-	});
-	it('should return default properties for cells if none has been set', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let cellprops = pm.getCellProperties(1, 0);
-		expect(cellprops).toBeDefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getStyleFormat('linecolor')).toBe(DEF_PROPS.formats.styles.linecolor);
-		expect(cellprops.getTextFormat('fontsize')).toBe(DEF_PROPS.formats.text.fontsize);
-		cellprops = pm.getCellProperties(1, -1);
-		expect(cellprops).toBeDefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getStyleFormat('linecolor')).toBe(DEF_PROPS.formats.styles.linecolor);
-		expect(cellprops.getTextFormat('fontsize')).toBe(DEF_PROPS.formats.text.fontsize);
-		cellprops = pm.getCellProperties(1, -2);
-		expect(cellprops).toBeDefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getStyleFormat('linecolor')).toBe(DEF_PROPS.formats.styles.linecolor);
-		expect(cellprops.getTextFormat('fontsize')).toBe(DEF_PROPS.formats.text.fontsize);
-	});
-	it('should return true for isEmpty on default properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		expect(pm.getSheetProperties().isEmpty()).toBe(true);
-		expect(pm.getColumnProperties(4).isEmpty()).toBe(true);
-		expect(pm.getRowProperties(2).isEmpty()).toBe(true);
-		expect(pm.getCellProperties(1, 0).isEmpty()).toBe(true);
-	});
-	it('should not be possible to change returned default properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		const sheetprops = pm.getSheetProperties();
-		// we have only a single sheet props, so its ok to change this one
-		sheetprops.setStyleFormat('linecolor', 'green');
-		expect(sheetprops.getStyleFormat('linecolor')).toBe('green');
-		expect(pm.getSheetProperties().isEmpty()).toBe(false);
-		let colprops = pm.getColumnProperties(4);
-		expect(() => { colprops.setStyleFormat('fillcolor', 'yellow') }).toThrow(TypeError);
-		expect(colprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(colprops.isEmpty()).toBe(true);
-		// but we can via PropertiesManager:
-		pm.setColumnStyleFormat(4, 'fillcolor', 'yellow');
-		colprops = pm.getColumnProperties(4);
-		expect(colprops.getStyleFormat('fillcolor')).toBe('yellow');
-		expect(colprops.isEmpty()).toBe(false);
-		// analog for rows:
-		let rowprops = pm.getRowProperties(4);
-		expect(() => { rowprops.setStyleFormat('fillcolor', 'magenta') }).toThrow(TypeError);
-		expect(rowprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(rowprops.isEmpty()).toBe(true);
-		pm.setRowStyleFormat(4, 'fillcolor', 'magenta');
-		rowprops = pm.getRowProperties(4);
-		expect(rowprops.getStyleFormat('fillcolor')).toBe('magenta');
-		expect(rowprops.isEmpty()).toBe(false);
-		// ... and cells
-		let cellprops = pm.getCellProperties(8, 8);
-		expect(() => { cellprops.setStyleFormat('fillcolor', 'cyan') }).toThrow(TypeError);
-		expect(cellprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(cellprops.isEmpty()).toBe(true);
-		pm.setCellStyleFormat(8, 8, 'fillcolor', 'cyan');
-		cellprops = pm.getCellProperties(8, 8);
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('cyan');
-		expect(cellprops.isEmpty()).toBe(false);
-	});
-	it('should be possible to change properties in rows and columns', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		// change some row properties:
-		pm.setRowAttribute(1, 'initialsection', 42);
-		pm.setRowTextFormat(1, 'fontcolor', 'red');
-		pm.setRowStyleFormat(1, 'fillcolor', 'blue');
-		let rowprops = pm.getRowProperties(1);
-		expect(rowprops.getAttribute('initialsection')).toBe(42);
-		expect(rowprops.getTextFormat('fontcolor')).toBe('red');
-		expect(rowprops.getStyleFormat('fillcolor')).toBe('blue');
-		// remove them should return default again:
-		pm.setRowAttribute(1, 'initialsection', undefined);
-		pm.setRowTextFormat(1, 'fontcolor', undefined);
-		pm.setRowStyleFormat(1, 'fillcolor', undefined);
-		rowprops = pm.getRowProperties(1);
-		expect(rowprops.getAttribute('initialsection')).toBe(DEF_PROPS.attributes.sheet.initialsection);
-		expect(rowprops.getTextFormat('fontcolor')).toBe(DEF_PROPS.formats.text.fontcolor);
-		expect(rowprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		// same for column
-		pm.setColumnAttribute(1, 'initialsection', 42);
-		pm.setColumnTextFormat(1, 'fontcolor', 'red');
-		pm.setColumnStyleFormat(1, 'fillcolor', 'blue');
-		let colprops = pm.getColumnProperties(1);
-		expect(colprops.getAttribute('initialsection')).toBe(42);
-		expect(colprops.getTextFormat('fontcolor')).toBe('red');
-		expect(colprops.getStyleFormat('fillcolor')).toBe('blue');
-		// remove them should return default again:
-		pm.setColumnAttribute(1, 'initialsection', undefined);
-		pm.setColumnTextFormat(1, 'fontcolor', undefined);
-		pm.setColumnStyleFormat(1, 'fillcolor', undefined);
-		colprops = pm.getColumnProperties(1);
-		expect(colprops.getAttribute('initialsection')).toBe(DEF_PROPS.attributes.sheet.initialsection);
-		expect(colprops.getTextFormat('fontcolor')).toBe(DEF_PROPS.formats.text.fontcolor);
-		expect(colprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		// and for neg. column
-		pm.setColumnAttribute(-1, 'initialsection', 42);
-		pm.setColumnTextFormat(-1, 'fontcolor', 'red');
-		pm.setColumnStyleFormat(-1, 'fillcolor', 'blue');
-		colprops = pm.getColumnProperties(-1);
-		expect(colprops.getAttribute('initialsection')).toBe(42);
-		expect(colprops.getTextFormat('fontcolor')).toBe('red');
-		expect(colprops.getStyleFormat('fillcolor')).toBe('blue');
-		// remove them should return default again:
-		pm.setColumnAttribute(-1, 'initialsection', undefined);
-		pm.setColumnTextFormat(-1, 'fontcolor', undefined);
-		pm.setColumnStyleFormat(-1, 'fillcolor', undefined);
-		colprops = pm.getColumnProperties(-1);
-		expect(colprops.getAttribute('initialsection')).toBe(DEF_PROPS.attributes.sheet.initialsection);
-		expect(colprops.getTextFormat('fontcolor')).toBe(DEF_PROPS.formats.text.fontcolor);
-		expect(colprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	});
-	it('should reflect changes in row or column properties in corresponding cell properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		// change col properties:
-		pm.setColumnAttribute(2, 'initialsection', 42);
-		pm.setColumnTextFormat(2, 'fontcolor', 'red');
-		pm.setColumnStyleFormat(2, 'fillcolor', 'blue');
-		pm.setColumnAttribute(-1, 'initialsection', 23);
-		pm.setColumnTextFormat(-1, 'fontcolor', 'yellow');
-		pm.setColumnStyleFormat(-1, 'fillcolor', 'gray');
-		// check arbitrary cell in this row:
-		let cellprops = pm.getCellProperties(1, 2);
-		expect(cellprops.getAttribute('initialsection')).toBeUndefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getTextFormat('fontcolor')).toBe('red');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('blue');
-		cellprops = pm.getCellProperties(1, -1);
-		expect(cellprops.getAttribute('initialsection')).toBeUndefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getTextFormat('fontcolor')).toBe('yellow');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('gray');
-		// change row properties:
-		pm.setRowAttribute(3, 'initialsection', 42);
-		pm.setRowTextFormat(3, 'fontcolor', 'yellow');
-		pm.setRowStyleFormat(3, 'linecolor', 'black');
-		// check arbitrary cell in this row:
-		cellprops = pm.getCellProperties(1, 2);
-		expect(cellprops.getAttribute('initialsection')).toBeUndefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getTextFormat('fontcolor')).toBe('red');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('blue');
-		cellprops = pm.getCellProperties(3, 1);
-		expect(cellprops.getAttribute('initialsection')).toBeUndefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getTextFormat('fontcolor')).toBe('yellow');
-		expect(cellprops.getStyleFormat('linecolor')).toBe('black');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		cellprops = pm.getCellProperties(3, -1);
-		expect(cellprops.getAttribute('initialsection')).toBeUndefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getTextFormat('fontcolor')).toBe('yellow');
-		expect(cellprops.getStyleFormat('linecolor')).toBe('black');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('gray');
-		// this one must be a mix of row & column
-		cellprops = pm.getCellProperties(3, 2);
-		expect(cellprops.getAttribute('initialsection')).toBeUndefined();
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getTextFormat('fontcolor')).toBe('yellow');
-		expect(cellprops.getStyleFormat('linecolor')).toBe('black');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('blue');
-	});
-	it('should be possible to change cell properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		pm.setCellAttribute(3, 34, 'visible', false);
-		pm.setCellTextFormat(3, 34, 'fontname', 'tahoma');
-		pm.setCellStyleFormat(3, 34, 'fillcolor', 'yellow');
-		const cellprops = pm.getCellProperties(3, 34);
-		expect(cellprops.getAttribute('visible')).toBe(false);
-		expect(cellprops.getTextFormat('fontname')).toBe('tahoma');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('yellow');
-		pm.setCellAttribute(3, 34, 'visible', undefined);
-		pm.setCellTextFormat(3, 34, 'fontname', undefined);
-		pm.setCellStyleFormat(3, 34, 'fillcolor', undefined);
-		expect(cellprops.getAttribute('visible')).toBe(DEF_PROPS.attributes.cell.visible);
-		expect(cellprops.getTextFormat('fontname')).toBe(DEF_PROPS.formats.text.fontname);
-		expect(cellprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	});
-	it('should not overwrite row and/or column properties by changing cell properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		pm.setRowStyleFormat(3, 'linecolor', 'cyan');
-		pm.setCellTextFormat(3, 34, 'fontname', 'arial');
-		pm.setCellStyleFormat(3, 34, 'fillcolor', 'yellow');
-		const cellprops = pm.getCellProperties(3, 34);
-		expect(pm.getRowStyleFormat(3, 'linecolor')).toBe('cyan');
-		expect(cellprops.getTextFormat('fontname')).toBe('arial');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('yellow');
-		expect(cellprops.getStyleFormat('linecolor')).toBe('cyan');
-		pm.setCellStyleFormat(3, 34, 'fillcolor', undefined);
-		expect(cellprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		pm.setRowTextFormat(3, 'fontname', 'tahoma');
-		pm.setColumnTextFormat(34, 'fontname', 'times');
-		expect(cellprops.getTextFormat('fontname')).toBe('times');
-		pm.setCellTextFormat(3, 34, 'fontname', undefined);
-		expect(cellprops.getTextFormat('fontname')).toBe('times');
-		pm.setRowTextFormat(3, 'fontname', undefined);
-		expect(cellprops.getTextFormat('fontname')).toBe('times');
-		pm.setColumnTextFormat(34, 'fontname', undefined);
-		expect(cellprops.getTextFormat('fontname')).toBe(DEF_PROPS.formats.text.fontname);
-	});
-});
-describe('PropertiesManager behaviour', () => {
-	it('should create cell properties at intersections of changed rows and columns properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		// change properties:
-		pm.setRowStyleFormat(3, 'fillcolor', 'yellow');
-		pm.setColumnStyleFormat(3, 'fillcolor', 'green');
-		const cellprops = pm.getCellProperties(3, 3);
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('green');
-		// change row prop again:
-		pm.setRowStyleFormat(3, 'fillcolor', 'yellow');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('yellow');
-		pm.setRowStyleFormat(3, 'fillcolor', undefined);
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('green');
-		pm.setColumnStyleFormat(3, 'fillcolor', undefined);
-		expect(cellprops.getStyleFormat('fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		pm.setRowStyleFormat(3, 'fillcolor', 'yellow');
-		expect(cellprops.getStyleFormat('fillcolor')).toBe('yellow');
-	});
-	it('should change cell property if its corresponding column property is changed', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		// pm.setColumnAttribute(8, 'visible', 'false');
-		pm.setColumnTextFormat(8, 'fontcolor', 'cyan');
-		pm.setColumnStyleFormat(8, 'fillcolor', 'yellow');
-		// create cell property
-		// pm.setCellAttribute(8, 8, 'visible', 'true');
-		pm.setCellTextFormat(8, 8, 'fontcolor', 'blue');
-		pm.setCellStyleFormat(8, 8, 'fillcolor', 'red');
-		// check
-		// expect(pm.getColumnAttribute(8, 'visible')).toBe('false');
-		expect(pm.getColumnTextFormat(8, 'fontcolor')).toBe('cyan');
-		expect(pm.getColumnStyleFormat(8, 'fillcolor')).toBe('yellow');
-		// expect(pm.getCellAttribute(8, 8, 'visible')).toBe('true');
-		expect(pm.getCellTextFormat(8, 8, 'fontcolor')).toBe('blue');
-		expect(pm.getCellStyleFormat(8, 8, 'fillcolor')).toBe('red');
-		// set col property again => should change cell's too
-		// pm.setColumnAttribute(8, 'visible', 'false');
-		pm.setColumnTextFormat(8, 'fontcolor', 'green');
-		pm.setColumnStyleFormat(8, 'fillcolor', 'blue');
-		// expect(pm.getColumnAttribute(8, 'visible')).toBe('false');
-		expect(pm.getColumnTextFormat(8, 'fontcolor')).toBe('green');
-		expect(pm.getColumnStyleFormat(8, 'fillcolor')).toBe('blue');
-		// expect(pm.getCellAttribute(8, 8, 'visible')).toBe('false');
-		expect(pm.getCellTextFormat(8, 8, 'fontcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(8, 8, 'fillcolor')).toBe('blue');
-	});
-	it('should change cell property if its corresponding row property is changed', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		// pm.setRowAttribute(8, 'visible', 'false');
-		pm.setRowTextFormat(8, 'fontcolor', 'cyan');
-		pm.setRowStyleFormat(8, 'fillcolor', 'yellow');
-		// create cell property
-		// pm.setCellAttribute(8, 8, 'visible', 'true');
-		pm.setCellTextFormat(8, 8, 'fontcolor', 'blue');
-		pm.setCellStyleFormat(8, 8, 'fillcolor', 'red');
-		// check
-		// expect(pm.getRowAttribute(8, 'visible')).toBe('false');
-		expect(pm.getRowTextFormat(8, 'fontcolor')).toBe('cyan');
-		expect(pm.getRowStyleFormat(8, 'fillcolor')).toBe('yellow');
-		// expect(pm.getCellAttribute(8, 8, 'visible')).toBe('true');
-		expect(pm.getCellTextFormat(8, 8, 'fontcolor')).toBe('blue');
-		expect(pm.getCellStyleFormat(8, 8, 'fillcolor')).toBe('red');
-		// set col property again => should change cell's too
-		// pm.setRowAttribute(8, 'visible', 'false');
-		pm.setRowTextFormat(8, 'fontcolor', 'green');
-		pm.setRowStyleFormat(8, 'fillcolor', 'blue');
-		// expect(pm.getRowAttribute(8, 'visible')).toBe('false');
-		expect(pm.getRowTextFormat(8, 'fontcolor')).toBe('green');
-		expect(pm.getRowStyleFormat(8, 'fillcolor')).toBe('blue');
-		// expect(pm.getCellAttribute(8, 8, 'visible')).toBe('false');
-		expect(pm.getCellTextFormat(8, 8, 'fontcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(8, 8, 'fillcolor')).toBe('blue');
-	});
-	it('should change cell property at intersection of row & column if corresponding row or column is changed', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		// pm.setRowAttribute(8, 'visible', 'false');
-		pm.setRowTextFormat(8, 'fontcolor', 'cyan');
-		pm.setRowStyleFormat(8, 'fillcolor', 'yellow');
-		// pm.setColumnAttribute(4, 'visible', 'true');
-		pm.setColumnTextFormat(4, 'fontcolor', 'blue');
-		pm.setColumnStyleFormat(4, 'fillcolor', 'red');
-		// check
-		// expect(pm.getRowAttribute(8, 'visible')).toBe('false');
-		expect(pm.getRowTextFormat(8, 'fontcolor')).toBe('cyan');
-		expect(pm.getRowStyleFormat(8, 'fillcolor')).toBe('yellow');
-		// expect(pm.getColumnAttribute(4, 'visible')).toBe('true');
-		expect(pm.getColumnTextFormat(4, 'fontcolor')).toBe('blue');
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('red');
-		// expect(pm.getCellAttribute(8, 4, 'visible')).toBe('true');
-		expect(pm.getCellTextFormat(8, 4, 'fontcolor')).toBe('blue');
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('red');
-		// apply row again:
-		pm.setRowTextFormat(8, 'fontcolor', 'cyan');
-		pm.setRowStyleFormat(8, 'fillcolor', 'yellow');
-		expect(pm.getCellTextFormat(8, 4, 'fontcolor')).toBe('cyan');
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('yellow');
-		// apply column again
-		pm.setColumnTextFormat(4, 'fontcolor', 'blue');
-		pm.setColumnStyleFormat(4, 'fillcolor', 'red');
-		expect(pm.getCellTextFormat(8, 4, 'fontcolor')).toBe('blue');
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('red');
-	});
-});
-describe('PropertiesManager merge', () => {
-	it('should merge column properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		pm.mergeColumnProperties(8, {
-			attributes: { initialsection: 23 },
-			formats: { text: { fontcolor: 'cyan' }, styles: { fillcolor: 'yellow' } }
-		});
-		expect(pm.getColumnAttribute(8, 'initialsection')).toBe(23);
-		expect(pm.getColumnTextFormat(8, 'fontcolor')).toBe('cyan');
-		expect(pm.getColumnStyleFormat(8, 'fillcolor')).toBe('yellow');
-	});
-	it('should merge row properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		pm.mergeRowProperties(8, {
-			attributes: { initialsection: 23 },
-			formats: { text: { fontcolor: 'cyan' }, styles: { fillcolor: 'yellow' } }
-		});
-		expect(pm.getRowAttribute(8, 'initialsection')).toBe(23);
-		expect(pm.getRowTextFormat(8, 'fontcolor')).toBe('cyan');
-		expect(pm.getRowStyleFormat(8, 'fillcolor')).toBe('yellow');
-	});
-	it('should merge cell properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		pm.mergeCellProperties(8, 4, {
-			attributes: { visible: false },
-			formats: { text: { fontcolor: 'cyan' }, styles: { fillcolor: 'yellow' } }
-		});
-		expect(pm.getCellAttribute(8, 4, 'visible')).toBe(false);
-		expect(pm.getCellTextFormat(8, 4, 'fontcolor')).toBe('cyan');
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('yellow');
-	});
-	it('should create cell properties at intersections of merged rows and columns properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		pm.mergeRowProperties(8, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(pm.getRowStyleFormat(8, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('yellow');
-		pm.mergeColumnProperties(4, { formats: { styles: { fillcolor: 'red' } } });
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('red');
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('red');
-		pm.mergeCellProperties(8, 4, { formats: { styles: { fillcolor: 'blue' } } });
-		expect(pm.getRowStyleFormat(8, 'fillcolor')).toBe('yellow');
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('red');
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('blue');
-		pm.mergeCellProperties(8, 4, { formats: { styles: { fillcolor: null } } });
-		expect(pm.getRowStyleFormat(8, 'fillcolor')).toBe('yellow');
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('red');
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('red');
-		// vice versa
-		pm.mergeColumnProperties(6, { formats: { styles: { fillcolor: 'red' } } });
-		expect(pm.getColumnStyleFormat(6, 'fillcolor')).toBe('red');
-		expect(pm.getCellStyleFormat(4, 6, 'fillcolor')).toBe('red');
-		pm.mergeRowProperties(4, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(pm.getRowStyleFormat(4, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(4, 6, 'fillcolor')).toBe('yellow');
-		pm.mergeCellProperties(4, 6, { formats: { styles: { fillcolor: 'blue' } } });
-		expect(pm.getRowStyleFormat(4, 'fillcolor')).toBe('yellow');
-		expect(pm.getColumnStyleFormat(6, 'fillcolor')).toBe('red');
-		expect(pm.getCellStyleFormat(4, 6, 'fillcolor')).toBe('blue');
-		pm.mergeCellProperties(4, 6, { formats: { styles: { fillcolor: null } } });
-		expect(pm.getRowStyleFormat(4, 'fillcolor')).toBe('yellow');
-		expect(pm.getColumnStyleFormat(6, 'fillcolor')).toBe('red');
-		expect(pm.getCellStyleFormat(4, 6, 'fillcolor')).toBe('yellow');
-	});
-	it('cell should reflect last merge of row or column', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		pm.mergeRowProperties(8, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('yellow');
-		pm.mergeColumnProperties(4, { formats: { styles: { fillcolor: 'red' } } });
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('red');
-		pm.mergeRowProperties(8, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('yellow');
-		pm.mergeColumnProperties(4, { formats: { styles: { fillcolor: 'red' } } });
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('red');
-		pm.mergeRowProperties(8, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('yellow');
-		pm.mergeColumnProperties(4, { formats: { styles: { fillcolor: 'red' } } });
-		expect(pm.getCellStyleFormat(8, 4, 'fillcolor')).toBe('red');
-	});
-	it('should return info about changed column properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeColumnProperties(2, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(changes).toBeDefined();
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		expect(changes.cols).toEqual([{
-				// better use a string since its more general?
-			reference: 'C',
-			properties: {
-				formats: {
-					styles: { fillcolor: { new: 'yellow', old: DEF_PROPS.formats.styles.fillcolor } }
-				}
-			}
-		}]);
-		changes = pm.mergeColumnProperties(2, {
-			attributes: { initialsection: 42 },
-			formats: { text: { fontcolor: 'blue' } }
-		});
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		expect(changes.cols).toEqual([{
-				// better use a string since its more general?
-			reference: 'C',
-			properties: {
-				attributes: { initialsection: { new: 42, old: DEF_PROPS.attributes.sheet.initialsection } },
-				formats: {
-					text: { fontcolor: { new: 'blue', old: DEF_PROPS.formats.text.fontcolor } }
-				}
-			}
-		}]);
-	});
-	it('should return info about changed row properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeRowProperties(4, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(changes).toBeDefined();
-		expect(changes.cols).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		expect(changes.rows).toEqual([{
-			reference: 4,
-			properties: {
-				formats: {
-					styles: { fillcolor: { new: 'yellow', old: DEF_PROPS.formats.styles.fillcolor } }
-				}
-			}
-		}]);
-		changes = pm.mergeRowProperties(4, {
-			attributes: { initialsection: 42 },
-			formats: { text: { fontcolor: 'blue' } }
-		});
-		expect(changes.cols).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		expect(changes.rows).toEqual([{
-			reference: 4,
-			properties: {
-				attributes: { initialsection: { new: 42, old: DEF_PROPS.attributes.sheet.initialsection } },
-				formats: {
-					text: { fontcolor: { new: 'blue', old: DEF_PROPS.formats.text.fontcolor } }
-				}
-			}
-		}]);
-	});
-	it('should return info about changed cell properties', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeCellProperties(1, 0, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(changes).toBeDefined();
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'A1',
-			properties: {
-				formats: {
-					styles: { fillcolor: { new: 'yellow', old: DEF_PROPS.formats.styles.fillcolor } }
-				}
-			}
-		}]);
-		changes = pm.mergeCellProperties(1, 0, {
-			attributes: { level: 42 },
-			formats: { text: { fontcolor: 'blue' } }
-		});
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'A1',
-			properties: {
-				attributes: { level: { new: 42, old: DEF_PROPS.attributes.cell.level } },
-				formats: {
-					text: { fontcolor: { new: 'blue', old: DEF_PROPS.formats.text.fontcolor } }
-				}
-			}
-		}]);
-	});
-	it('should return info about changes when changing column, row, cell and then undoing it ', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeColumnProperties(4, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		expect(changes.cols).toEqual([{
-			reference: 'E',
-			properties: {
-				formats: {
-					styles: { fillcolor: { new: 'yellow', old: DEF_PROPS.formats.styles.fillcolor } }
-				}
-			}
-		}]);
-		// now changing row props should result in changed cell too!!
-		changes = pm.mergeRowProperties(2, {
-			attributes: { initialsection: 42 },
-			formats: { styles: { fillcolor: 'red'} , text: { fontcolor: 'blue' } }
-		});
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([{
-			reference: 2,
-			properties: {
-				attributes: { initialsection: { new: 42, old: DEF_PROPS.attributes.sheet.initialsection } },
-				formats: {
-					styles: { fillcolor: { new: 'red', old: DEF_PROPS.formats.styles.fillcolor } },
-					text: { fontcolor: { new: 'blue', old: DEF_PROPS.formats.text.fontcolor } }
-				}
-			}
-		}]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: {
-				formats: {
-					text: { fontcolor: { new: 'blue', old: DEF_PROPS.formats.text.fontcolor } },
-					styles: { fillcolor: { new: 'red', old: 'yellow' } }
-				}
-			}
-		}]);
-		// now change cell fillcolor
-		changes = pm.mergeCellProperties(2, 4, { formats: { styles: { fillcolor: 'gray'} } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: { formats: {styles: { fillcolor: { new: 'gray', old: 'red' } } } }
-		}]);
-		// undo cell fillcolor
-		changes = pm.mergeCellProperties(2, 4, { formats: { styles: { fillcolor: null} } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: { formats: {styles: { fillcolor: { new: 'red', old: 'gray' } } } }
-		}]);
-		// undo row fillcolor:
-		changes = pm.mergeRowProperties(2, { formats: { styles: { fillcolor: null } } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([{
-			reference: 2,
-			properties: {
-				formats: { styles: { fillcolor: { new: DEF_PROPS.formats.styles.fillcolor, old: 'red' } } }
-			}
-		}]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: {
-				formats: { styles: { fillcolor: { new: 'red', old: 'red' } } }
-			}
-		}]);
-	});
-	it('should return info about changes when changing row, column, cell and then undoing it ', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeRowProperties(4, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		expect(changes.rows).toEqual([{
-			reference: 4,
-			properties: {
-				formats: {
-					styles: { fillcolor: { new: 'yellow', old: DEF_PROPS.formats.styles.fillcolor } }
-				}
-			}
-		}]);
-		// COLUMN
-		changes = pm.mergeColumnProperties(2, {
-			attributes: { initialsection: 42 },
-			formats: { styles: { fillcolor: 'red'} , text: { fontcolor: 'blue' } }
-		});
-		expect(changes.rows).toEqual([]);
-		expect(changes.cols).toEqual([{
-			reference: 'C',
-			properties: {
-				attributes: { initialsection: { new: 42, old: DEF_PROPS.attributes.sheet.initialsection } },
-				formats: {
-					styles: { fillcolor: { new: 'red', old: DEF_PROPS.formats.styles.fillcolor } },
-					text: { fontcolor: { new: 'blue', old: DEF_PROPS.formats.text.fontcolor } }
-				}
-			}
-		}]);
-		expect(changes.cells).toEqual([{
-			reference: 'C4',
-			properties: {
-				formats: {
-					text: { fontcolor: { new: 'blue', old: DEF_PROPS.formats.text.fontcolor } },
-					styles: { fillcolor: { new: 'red', old: 'yellow' } }
-				}
-			}
-		}]);
-		// CELL
-		changes = pm.mergeCellProperties(4, 2, { formats: { styles: { fillcolor: 'gray'} } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'C4',
-			properties: { formats: {styles: { fillcolor: { new: 'gray', old: 'red' } } } }
-		}]);
-		// UNDO
-		changes = pm.mergeCellProperties(4, 2, { formats: { styles: { fillcolor: null} } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'C4',
-			properties: { formats: {styles: { fillcolor: { new: 'red', old: 'gray' } } } }
-		}]);
-		changes = pm.mergeColumnProperties(2, { formats: { styles: { fillcolor: null } } });
-		expect(changes.rows).toEqual([]);
-		expect(changes.cols).toEqual([{
-			reference: 'C',
-			properties: {
-				formats: { styles: { fillcolor: { new: DEF_PROPS.formats.styles.fillcolor, old: 'red' } } }
-			}
-		}]);
-		expect(changes.cells).toEqual([{
-			reference: 'C4',
-			properties: {
-				formats: { styles: { fillcolor: { new: 'red', old: 'red' } } }
-			}
-		}]);
-	});
-	it('should return info about changes when changing column, cell on column, cells row and then undoing it ', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeColumnProperties(4, { formats: { styles: { fillcolor: 'blue' } } });
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		expect(changes.cols).toEqual([{
-			reference: 'E',
-			properties: {
-				formats: {
-					styles: { fillcolor: { new: 'blue', old: DEF_PROPS.formats.styles.fillcolor } }
-				}
-			}
-		}]);
-		// CELL
-		changes = pm.mergeCellProperties(2, 4, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: { formats: {styles: { fillcolor: { new: 'yellow', old: 'blue' } } } }
-		}]);
-		// ROW
-		changes = pm.mergeRowProperties(2, { formats: { styles: { fillcolor: 'green' } } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([{
-			reference: 2,
-			properties: { formats: {styles: { fillcolor: { new: 'green', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: { formats: {styles: { fillcolor: { new: 'green', old: 'yellow' } } } }
-		}]);
-		// UNDO ROW
-		changes = pm.mergeRowProperties(2, { formats: { styles: { fillcolor: DEF_PROPS.formats.styles.fillcolor } } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([{
-			reference: 2,
-			properties: { formats: {styles: { fillcolor: { new: DEF_PROPS.formats.styles.fillcolor, old: 'green' } } } }
-		}]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: { formats: {styles: { fillcolor: { new: DEF_PROPS.formats.styles.fillcolor, old: 'green' } } } }
-		}]);
-		changes = pm.mergeCellProperties(2, 4, { formats: { styles: { fillcolor: 'yellow' } } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: { formats: {styles: { fillcolor: { new: 'yellow', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-		// UNDO CELL
-		changes = pm.mergeCellProperties(2, 4, { formats: { styles: { fillcolor: 'blue' } } });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: { formats: {styles: { fillcolor: { new: 'blue', old: 'yellow' } } } }
-		}]);
-		// UNDO COLUMN
-		changes = pm.mergeColumnProperties(4, { formats: { styles: { fillcolor: DEF_PROPS.formats.styles.fillcolor } } });
-		expect(changes.rows).toEqual([]);
-		expect(changes.cols).toEqual([{
-			reference: 'E',
-			properties: { formats: { styles: { fillcolor: { new: DEF_PROPS.formats.styles.fillcolor, old: 'blue' } } } }
-		}]);
-		expect(changes.cells).toEqual([{
-			reference: 'E2',
-			properties: { formats: { styles: { fillcolor: { new: DEF_PROPS.formats.styles.fillcolor, old: 'blue' } } } }
-		}]);
-	});
-});
-describe('PropertiesManager mergeAll', () => {
-	it('should change properties of cells, columns and rows as specified', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		pm.mergeAll({
-			cols: [{
-				reference: 'A',
-				properties: { formats: { styles: { fillcolor: 'blue' } } }
-			}]
-		});
-		expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe('blue');
-		pm.mergeAll({
-			rows: [{
-				reference: 1,
-				properties: { formats: { styles: { fillcolor: 'yellow' } } }
-			}]
-		});
-		expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe('yellow');
-		pm.mergeAll({
-			cells: [{
-				reference: 'B2',
-				properties: { formats: { styles: { fillcolor: 'orange' } } }
-			}]
-		});
-		expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe('orange');
-		pm.mergeAll({
-			cols: [{ reference: 'E' }],
-			rows: [{ reference: 6 }],
-			cells: [{ reference: 'C3'}],
-			properties: { formats: { styles: { fillcolor: 'green' } } }
-		});
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('green');
-		expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(6, 0, 'fillcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(6, 4, 'fillcolor')).toBe('green');
-	});
-	it('should return no changes if no properties are specified', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeAll({	});
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		changes = pm.mergeAll({ cols: [], rows: [], cells: [] });
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([]);
-	});
-	it('should not return empty changes', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		const changes = pm.mergeAll({
-			cols: [{ reference: 'E' }],
-			rows: [{ reference: 6 }],
-			properties: { formats: { styles: { fillcolor: 'orange' } } }
-		});
-		// no cell created at intersection!!
-		expect(changes.cells).toEqual([]);
-		expect(changes.cols).toEqual([{
-			reference: 'E',
-			properties: { formats: { styles: { fillcolor: { new: 'orange', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-		expect(changes.rows).toEqual([{
-			reference: 6,
-			properties: { formats: { styles: { fillcolor: { new: 'orange', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-	});
-	it('should return applied changes', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeAll({
-			cols: [{
-				reference: 'A',
-				properties: { formats: { styles: { fillcolor: 'blue' } } }
-			}]
-		});
-		expect(changes.cols).toEqual([{
-			reference: 'A',
-			properties: { formats: { styles: { fillcolor: { new: 'blue', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([]);
-		changes = pm.mergeAll({
-			rows: [{
-				reference: 1,
-				properties: { formats: { styles: { fillcolor: 'yellow' } } }
-			}]
-		});
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([{
-			reference: 1,
-			properties: { formats: { styles: { fillcolor: { new: 'yellow', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-		expect(changes.cells).toEqual([{
-			reference: 'A1',
-			properties: { formats: { styles: { fillcolor: { new: 'yellow', old: 'blue' } } } }
-		}]);
-		changes = pm.mergeAll({
-			cells: [{
-				reference: 'B2',
-				properties: { formats: { styles: { fillcolor: 'orange' } } }
-			}]
-		});
-		expect(changes.cols).toEqual([]);
-		expect(changes.rows).toEqual([]);
-		expect(changes.cells).toEqual([{
-			reference: 'B2',
-			properties: { formats: { styles: { fillcolor: { new: 'orange', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-		changes = pm.mergeAll({
-			cols: [{ reference: 'E' }],
-			rows: [{ reference: 6 }],
-			cells: [{ reference: 'C3'}],
-			properties: { formats: { styles: { fillcolor: 'green' } } }
-		});
-		expect(changes.cols).toEqual([{
-			reference: 'E',
-			properties: { formats: { styles: { fillcolor: { new: 'green', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-		expect(changes.rows).toEqual([{
-			reference: 6,
-			properties: { formats: { styles: { fillcolor: { new: 'green', old: DEF_PROPS.formats.styles.fillcolor } } } }
-		}]);
-		expect(changes.cells.length).toBe(3);
-		expect(changes.cells).toEqual([
-			{
-				reference: 'E1',
-				properties: {
-					formats: { styles: { fillcolor: { new: 'green', old:'yellow' } } }
-				}
-			},
-			{
-				reference: 'A6',
-				properties: {
-					formats: { styles: { fillcolor: { new: 'green', old: 'blue' } } }
-				}
-			},
-			{
-				reference: 'C3',
-				properties: {
-					formats: { styles: { fillcolor: { new: 'green', old: DEF_PROPS.formats.styles.fillcolor } } }
-				}
-			}
-		]);
-	});
-	it('should be possible to undo changes by using returned changes-object', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let changes = pm.mergeAll({
-			cols: [{
-				reference: 'A',
-				properties: { formats: { styles: { fillcolor: 'blue' } } }
-			}]
-		});
-		pm.mergeAll(undoPropsFromChanges(changes));
-
-		expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		changes = pm.mergeAll({
-			rows: [{
-				reference: 1,
-				properties: { formats: { styles: { fillcolor: 'yellow' } } }
-			}]
-		});
-		pm.mergeAll(undoPropsFromChanges(changes));
-		expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-
-		changes = pm.mergeAll({
-			cells: [{
-				reference: 'B2',
-				properties: { formats: { styles: { fillcolor: 'orange' } } }
-			}]
-		});
-		pm.mergeAll(undoPropsFromChanges(changes));
-		expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-
-		changes = pm.mergeAll({
-			cols: [{ reference: 'E' }],
-			rows: [{ reference: 6 }],
-			cells: [{ reference: 'C3'}],
-			properties: { formats: { styles: { fillcolor: 'green' } } }
-		});
-		pm.mergeAll(undoPropsFromChanges(changes));
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(6, 0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	});
-	it('should be possible to collect undo info and apply them one after another ', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		const undostack =  [];
-		undostack.push(pm.mergeAll({
-			cols: [{
-				reference: 'A',
-				properties: { formats: { styles: { fillcolor: 'blue' } } }
-			}]
-		}));
-		undostack.push(pm.mergeAll({
-			rows: [{
-				reference: 1,
-				properties: { formats: { styles: { fillcolor: 'yellow' } } }
-			}],
-			cells: [{
-				reference: 'B2',
-				properties: { formats: { styles: { fillcolor: 'orange' } } }
-			}]
-		}));
-		undostack.push(pm.mergeAll({
-			cols: [{ reference: 'E' }],
-			rows: [{ reference: 6 }],
-			cells: [{ reference: 'C3'}],
-			properties: { formats: { styles: { fillcolor: 'green' } } }
-		}));
-		// check state before undo:
-		expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe('blue');
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('green');
-		expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe('yellow');
-		expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe('orange');
-		expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(6, 0, 'fillcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(6, 4, 'fillcolor')).toBe('green');
-		// UNDO
-		pm.mergeAll(undoPropsFromChanges(undostack.pop()));
-		expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe('blue');
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe('yellow');
-		expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe('orange');
-		expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(6, 0, 'fillcolor')).toBe('blue');
-		expect(pm.getCellStyleFormat(6, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		// UNDO
-		pm.mergeAll(undoPropsFromChanges(undostack.pop()));
-		expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe('blue');
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe('blue');
-		expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(6, 0, 'fillcolor')).toBe('blue');
-		expect(pm.getCellStyleFormat(6, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		// UNDO
-		pm.mergeAll(undoPropsFromChanges(undostack.pop()));
-		expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(6, 0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(pm.getCellStyleFormat(6, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-		expect(undostack.length).toBe(0);
-	});
-	// it('should support multiple references', () => {
-	// 	const t1 = new StreamSheet();
-	// 	const pm = PropertiesManager.of(t1.sheet);
-	// 	const undostack =  [];
-	// 	undostack.push(
-	// 		pm.mergeAll({
-	// 			cols: [{ ranges: ['A:A', 'C:E'] }],
-	// 			properties: { formats: { styles: { fillcolor: 'blue' } } }
-	// 		})
-	// 	);
-	// 	undostack.push(
-	// 		pm.mergeAll({
-	// 			rows: [{ ranges: ['1:1', '3:5'] }],
-	// 			cells: [{ ranges: ['B2:C4', 'D5:D5'] }],
-	// 			properties: { formats: { styles: { fillcolor: 'yellow' } } }
-	// 		})
-	// 	);
-	// 	undostack.push(pm.mergeAll({
-	// 		cols: [{ ranges: ['G:G'] }],
-	// 		rows: [{ reference: 6 }],
-	// 		cells: [{ ranges: ['H3:H3']}],
-	// 		properties: { formats: { styles: { fillcolor: 'green' } } }
-	// 	}));
-	// 	// check state before undo:
-	// 	expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(2, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(6, 'fillcolor')).toBe('green');
-	// 	expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getRowStyleFormat(3, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getRowStyleFormat(5, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe('green');
-	// 	expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(4, 3, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 7, 'fillcolor')).toBe('green');
-	// 	// intersection cells:
-	// 	expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(1, 2, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(1, 6, 'fillcolor')).toBe('green');
-	// 	expect(pm.getCellStyleFormat(3, 0, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 4, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 6, 'fillcolor')).toBe('green');
-	// 	expect(pm.getCellStyleFormat(5, 0, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(5, 2, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(5, 4, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(5, 6, 'fillcolor')).toBe('green');
-	// 	// UNDO
-	// 	pm.mergeAll(undoPropsFromChanges(undostack.pop()));
-	// 	expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(2, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getRowStyleFormat(3, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getRowStyleFormat(5, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(4, 3, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 7, 'fillcolor')).toBe('yellow');
-	// 	// intersection cells:
-	// 	expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(1, 2, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(1, 6, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 0, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 4, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(3, 6, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(5, 0, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(5, 2, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(5, 4, 'fillcolor')).toBe('yellow');
-	// 	expect(pm.getCellStyleFormat(5, 6, 'fillcolor')).toBe('yellow');
-	// 	// UNDO
-	// 	pm.mergeAll(undoPropsFromChanges(undostack.pop()));
-	// 	expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(2, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getColumnStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(3, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(5, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(4, 3, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(3, 7, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	// intersection cells:
-	// 	expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(1, 2, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(1, 6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(3, 0, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(3, 4, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(3, 6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(5, 0, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(5, 2, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(5, 4, 'fillcolor')).toBe('blue');
-	// 	expect(pm.getCellStyleFormat(5, 6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	// UNDO
-	// 	pm.mergeAll(undoPropsFromChanges(undostack.pop()));
-	// 	expect(pm.getColumnStyleFormat(0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getColumnStyleFormat(2, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getColumnStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(3, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(5, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getRowStyleFormat(6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(2, 1, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(4, 3, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(3, 7, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	// intersection cells:
-	// 	expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(1, 2, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(1, 6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(3, 0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(3, 2, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(3, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(3, 6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(5, 0, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(5, 2, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(5, 4, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// 	expect(pm.getCellStyleFormat(5, 6, 'fillcolor')).toBe(DEF_PROPS.formats.styles.fillcolor);
-	// });
-});
-describe('PropertiesManager IO', () => {
-	it('should be possible to save properties to json', () => {
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet);
-		let jsonprops = pm.toJSON();
-		expect(jsonprops).toBeDefined();
-		// no props set, so:
-		expect(jsonprops.sheet).toEqual({});
-		expect(jsonprops.cols).toEqual({});
-		expect(jsonprops.rows).toEqual({});
-		expect(jsonprops.cells).toEqual({});
-		// now set some props
-		pm.setSheetAttribute('initialsection', 3);
-		pm.setSheetTextFormat('fontcolor', 'red');
-		pm.setSheetStyleFormat('fillcolor', 'white');
-		pm.setColumnAttribute(2, 'initialsection', 2);
-		pm.setColumnTextFormat(3, 'fontcolor', 'magenta');
-		pm.setColumnStyleFormat(4, 'fillcolor', 'green');
-		pm.setRowAttribute(5, 'initialsection', 123);
-		pm.setRowTextFormat(6, 'fontcolor', 'blue');
-		pm.setRowStyleFormat(7, 'fillcolor', 'yellow');
-		pm.setCellAttribute(1, 0, 'visible', false);
-		pm.setCellTextFormat(5, 2, 'fontcolor', 'gray');
-		pm.setCellStyleFormat(8, 6, 'fillcolor', 'yellow');
-		jsonprops = pm.toJSON();
-		expect(jsonprops.sheet).toEqual({
-			attributes: { initialsection: 3 },
-			formats: { styles: { fillcolor: 'white' }, text: { fontcolor: 'red' } }
-		});
-		expect(jsonprops.cols).toEqual({
-			'C': { attributes: { initialsection: 2 } },
-			'D': { formats: { text: { fontcolor: 'magenta' } } },
-			'E': { formats: { styles: { fillcolor: 'green' } } }
-		});
-		expect(jsonprops.rows).toEqual({
-			'5': { attributes: { initialsection: 123 } },
-			'6': { formats: { text: { fontcolor: 'blue' } } },
-			'7': { formats: { styles: { fillcolor: 'yellow' } } }
-		});
-		// note: on intersection points of row & col there must be a properties definition for cell!!
-		// intersections:
-		// 		5,2; 5,3; 5,4
-		// 		6,2; 6,3; 6,4
-		// 		7,2; 7,3; 7,4
-		expect(jsonprops.cells).toEqual({
-			'A1': { attributes: { visible: false } },
-			'C5': { formats: { text: { fontcolor: 'gray' } } },
-			'C6': { base: { formats: { text: { fontcolor: 'blue' } } } },
-			'D6': { base: { formats: { text: { fontcolor: 'blue' } } } },
-			'E6': { base: { formats: { styles: { fillcolor: 'green' }, text: { fontcolor: 'blue' } } } },
-			'C7': { base: { formats: { styles: { fillcolor: 'yellow' } } } },
-			'D7': { base: { formats: { styles: { fillcolor: 'yellow' }, text: { fontcolor: 'magenta' } } } },
-			'E7': { base: { formats: { styles: { fillcolor: 'yellow' } } } },
-			'G8': { formats: { styles: { fillcolor: 'yellow' } } }
-		});
-	});
-	it('should be possible to load properties from json', () => {
-		const propsjson = {
-			sheet: {
-				attributes: { initialsection: 3 },
-				formats: { styles: { fillcolor: 'white' }, text: { fontcolor: 'red' } }
-			},
-			cols: {
-				'C': { attributes: { initialsection: 2 } },
-				'D': { formats: { text: { fontcolor: 'magenta' } } },
-				'E': { formats: { styles: { fillcolor: 'green' } } }
-			},
-			rows: {
-				'5': { attributes: { initialsection: 123 } },
-				'6': { formats: { text: { fontcolor: 'blue' } } },
-				'7': { formats: { styles: { fillcolor: 'yellow' } } }
-			},
-			cells: {
-				'A1': { attributes: { visible: false } },
-				'C5': { formats: { text: { fontcolor: 'gray' } } },
-				'C6': { base: { formats: { text: { fontcolor: 'blue' } } } },
-				'D6': { base: { formats: { text: { fontcolor: 'blue' } } } },
-				'E6': { base: { formats: { styles: { fillcolor: 'green' }, text: { fontcolor: 'blue' } } } },
-				'C7': { base: { formats: { styles: { fillcolor: 'yellow' } } } },
-				'D7': { base: { formats: { styles: { fillcolor: 'yellow' }, text: { fontcolor: 'magenta' } } } },
-				'E7': { base: { formats: { styles: { fillcolor: 'yellow' } } } },
-				'G8': { formats: { styles: { fillcolor: 'yellow' } } }
-			}
-		}
-		const t1 = new StreamSheet();
-		const pm = PropertiesManager.of(t1.sheet).load(propsjson);
-		expect(pm).toBeDefined();
-		expect(pm.getSheetAttribute('initialsection')).toBe(3);
-		expect(pm.getSheetTextFormat('fontcolor')).toBe('red');
-		expect(pm.getSheetStyleFormat('fillcolor')).toBe('white');
-		expect(pm.getRowAttribute(5, 'initialsection')).toBe(123);
-		expect(pm.getRowTextFormat(6, 'fontcolor')).toBe('blue');
-		expect(pm.getRowStyleFormat(7, 'fillcolor')).toBe('yellow');
-		expect(pm.getColumnAttribute(2, 'initialsection')).toBe(2);
-		expect(pm.getColumnTextFormat(3, 'fontcolor')).toBe('magenta');
-		expect(pm.getColumnStyleFormat(4, 'fillcolor')).toBe('green');
-		// check cells:
-		expect(pm.getCellAttribute(1, 0, 'visible')).toBe(false);
-		expect(pm.getCellTextFormat(5, 2, 'fontcolor')).toBe('gray');
-		expect(pm.getCellTextFormat(6, 2, 'fontcolor')).toBe('blue');
-		expect(pm.getCellTextFormat(6, 3, 'fontcolor')).toBe('blue');
-		expect(pm.getCellTextFormat(6, 4, 'fontcolor')).toBe('blue');
-		expect(pm.getCellStyleFormat(6, 4, 'fillcolor')).toBe('green');
-		expect(pm.getCellStyleFormat(7, 2, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(7, 3, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellTextFormat(7, 3, 'fontcolor')).toBe('magenta');
-		expect(pm.getCellStyleFormat(7, 4, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(8, 6, 'fillcolor')).toBe('yellow');
-		// check behavior
-		// new columns & rows should have props from sheet:
-		expect(pm.getRowAttribute(1, 'initialsection')).toBe(3);
-		expect(pm.getRowTextFormat(1, 'fontcolor')).toBe('red');
-		expect(pm.getRowStyleFormat(1, 'fillcolor')).toBe('white');
-		expect(pm.getColumnAttribute(1, 'initialsection')).toBe(3);
-		expect(pm.getColumnTextFormat(1, 'fontcolor')).toBe('red');
-		expect(pm.getColumnStyleFormat(1, 'fillcolor')).toBe('white');
-		// cells
-		expect(pm.getCellTextFormat(1, 0, 'fontcolor')).toBe('red');
-		expect(pm.getCellStyleFormat(1, 0, 'fillcolor')).toBe('white');
-		expect(pm.getCellStyleFormat(7, 0, 'fillcolor')).toBe('yellow');
-		expect(pm.getCellStyleFormat(1, 4, 'fillcolor')).toBe('green');
-	});
-});
+ let pm;
+ beforeEach(() => {
+	 const streamsheet = new StreamSheet({ name: 'S1' });
+	 pm = PropertiesManager.of(streamsheet.sheet);
+ });
+ describe('PropertiesManager', () => {
+	 describe('creation', () => {
+		 it('should have no properties after creation', () => {
+			 const { cells, cols, rows } = pm.toJSON();
+			 expect(cols).toEqual([]);
+			 expect(rows).toEqual([]);
+			 expect(cells).toEqual([]);
+		 });
+	 });
+	 describe('IO', () => {
+		 it('should be possible to save properties to JSON', () => {
+			 const rowProps = { formats: { fillcolor: 'yellow' }, textFormats: { fontcolor: 'blue' } };
+			 const colProps = {
+				 attributes: { initialsection: 42 },
+				 formats: { fillcolor: 'red', fillstyle: 1 }
+			 };
+			 const cellProps = { formats: { fillcolor: 'orange' }, textFormats: { fontcolor: 'green' } };
+			 pm.setProperties({
+				 cols: [{ ref: { col: 'B' }, properties: colProps }],
+				 rows: [{ ref: { row: 42 }, properties: rowProps }],
+				 cells: [{ ref: { col: 'F', row: 5 }, properties: cellProps }]
+			 });
+			 const json = pm.toJSON();
+			 expect(json).toBeDefined();
+			 expect(json).toEqual({
+				 cols: [{
+					 ref: { col: 'B' },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 }
+					 }
+				 }],
+				 rows: [{
+					 ref: { row: 42 },
+					 properties: {
+						 formats: { fillcolor: 'yellow' },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }],
+				 cells: [{
+					 ref: { col: 'F', row: 5 },
+					 properties: {
+						 formats: { fillcolor: 'orange' },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 },
+				 {
+					 ref: { col: 'B', row: 42 },
+					 properties: {
+						 // attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'yellow' /* , fillstyle: 1 */ },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }]
+			 })
+		 });
+		 it('should contain cleared columns, rows and cells too', () => {
+			 const rowProps = { formats: { fillcolor: 'yellow' }, textFormats: { fontcolor: 'blue' } };
+			 const colProps = {
+				 attributes: { initialsection: 42 },
+				 formats: { fillcolor: 'red', fillstyle: 1 }
+			 };
+			 const cellProps = { formats: { fillcolor: 'orange' }, textFormats: { fontcolor: 'green' } };
+			 pm.setProperties({
+				 cols: [{ ref: { col: 'B' }, properties: colProps }],
+				 rows: [{ ref: { row: 42 }, properties: rowProps }],
+				 cells: [{ ref: { col: 'F', row: 5 }, properties: cellProps }]
+			 });
+			 pm.clearProperties({ cells: [{ ref: { col: 'B', row: 42 } }] });
+			 const json = pm.toJSON();
+			 expect(json).toBeDefined();
+			 expect(json).toEqual({
+				 cols: [{
+					 ref: { col: 'B' },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 }
+					 }
+				 }],
+				 rows: [{
+					 ref: { row: 42 },
+					 properties: {
+						 formats: { fillcolor: 'yellow' },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }],
+				 cells: [{
+					 ref: { col: 'F', row: 5 },
+					 properties: {
+						 formats: { fillcolor: 'orange' },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 },
+				 {
+					 ref: { col: 'B', row: 42 },
+					 properties: { cleared: true }
+				 }]
+			 });
+		 });
+		 it('should be possible to load properties from JSON', () => {
+			 const json = {
+				 cols: [{
+					 ref: { col: 'B' },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 }
+					 }
+				 }],
+				 rows: [{
+					 ref: { row: 42 },
+					 properties: {
+						 formats: { fillcolor: 'yellow' },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }],
+				 cells: [{
+					 ref: { col: 'F', row: 5 },
+					 properties: {
+						 formats: { fillcolor: 'orange' },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 },
+				 {
+					 ref: { col: 'B', row: 42 },
+					 properties: {
+						 formats: { fillcolor: 'yellow'},
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }]
+			 };
+			 pm.load(json);
+			 const loadedJSON = pm.toJSON();
+			 expect(loadedJSON).toEqual(json);
+		 });
+		 it('should load JSON with cleared columns, rows and cells too', () => {
+			 const json = {
+				 cols: [{
+					 ref: { col: 'B' },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 }
+					 }
+				 }],
+				 rows: [{
+					 ref: { row: 42 },
+					 properties: {
+						 formats: { fillcolor: 'yellow' },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }],
+				 cells: [{
+					 ref: { col: 'F', row: 5 },
+					 properties: {
+						 formats: { fillcolor: 'orange' },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 },
+				 {
+					 ref: { col: 'B', row: 42 },
+					 properties: { cleared: true }
+				 }]
+			 };
+			 pm.load(json);
+			 const loadedJSON = pm.toJSON();
+			 expect(loadedJSON).toEqual(json);
+		 });
+	 });
+	 describe('setProperties', () => {
+		 it('should set column properties', () => {
+			 const column = [{ ref: { col:'A'} }];
+			 const properties1 = { formats: { fillcolor: 'yellow' } };
+			 pm.setProperties({ properties: properties1, cols: column });
+			 let { cols } = pm.toJSON();
+			 expect(cols.length).toBe(1);
+			 expect(cols[0].ref.col).toBe('A');
+			 expect(toString(cols[0].properties)).toBe(toString(properties1));
+			 // multiple columns
+			 const properties2 = { formats: { fillcolor: 'green' } };
+			 const columns = [{ ref: { col:'D'} }, { ref: { col:'E'} }, { ref: { col:'K'} }];
+			 pm.setProperties({ properties: properties2, cols: columns });
+			 cols = pm.toJSON().cols;
+			 expect(cols.length).toBe(4);
+			 expect(cols[0].ref.col).toBe('A');
+			 expect(toString(cols[0].properties)).toBe(toString(properties1));
+			 expect(cols[1].ref.col).toBe('D');
+			 expect(toString(cols[1].properties)).toBe(toString(properties2));
+			 expect(cols[2].ref.col).toBe('E');
+			 expect(toString(cols[2].properties)).toBe(toString(properties2));
+			 expect(cols[3].ref.col).toBe('K');
+			 expect(toString(cols[3].properties)).toBe(toString(properties2));
+		 });
+		 it('should overwrite global set column properties with specific one', () => {
+			 const globalProps = { formats: { fillcolor: 'yellow' } };
+			 const specificProps = { formats: { fillcolor: 'green' } };
+			 const columns = [
+				 { ref: { col: 'B' } },
+				 { ref: { col: 'Z' } },
+				 { ref: { col: 'Y' }, properties: specificProps },
+				 { ref: { col: 'G' }, properties: specificProps }
+			 ];
+			 pm.setProperties({ properties: globalProps, cols: columns });
+			 const { cols } = pm.toJSON();
+			 expect(cols.length).toBe(4);
+			 expect(cols[0].ref.col).toBe('B');
+			 expect(toString(cols[0].properties)).toBe(toString(globalProps));
+			 expect(cols[1].ref.col).toBe('Z');
+			 expect(toString(cols[1].properties)).toBe(toString(globalProps));
+			 expect(cols[2].ref.col).toBe('Y');
+			 expect(toString(cols[2].properties)).toBe(toString(specificProps));
+			 expect(cols[3].ref.col).toBe('G');
+			 expect(toString(cols[3].properties)).toBe(toString(specificProps));
+		 });
+		 it('should set row properties', () => {
+			 const row = [{ ref: { row: 1} }];
+			 const properties1 = { formats: { fillcolor: 'yellow' } };
+			 pm.setProperties({ properties: properties1, rows: row });
+			 let { rows } = pm.toJSON();
+			 expect(rows.length).toBe(1);
+			 expect(rows[0].ref.row).toBe(1);
+			 expect(toString(rows[0].properties)).toBe(toString(properties1));
+			 // multiple rows
+			 const properties2 = { formats: { fillcolor: 'green' } };
+			 const multipleRows = [{ ref: { row: 4 } }, { ref: { row: 20 } }, { ref: { row: 50 } }];
+			 pm.setProperties({ properties: properties2, rows: multipleRows });
+			 rows = pm.toJSON().rows;
+			 expect(rows.length).toBe(4);
+			 expect(rows[0].ref.row).toBe(1);
+			 expect(toString(rows[0].properties)).toBe(toString(properties1));
+			 expect(rows[1].ref.row).toBe(4);
+			 expect(toString(rows[1].properties)).toBe(toString(properties2));
+			 expect(rows[2].ref.row).toBe(20);
+			 expect(toString(rows[2].properties)).toBe(toString(properties2));
+			 expect(rows[3].ref.row).toBe(50);
+			 expect(toString(rows[3].properties)).toBe(toString(properties2));
+		 });
+		 it('should overwrite global set row properties with specific one', () => {
+			 const globalProps = { formats: { fillcolor: 'yellow' } };
+			 const specificProps = { formats: { fillcolor: 'green' } };
+			 const rows = [
+				 { ref: { row: 2 } },
+				 { ref: { row: 50 } },
+				 { ref: { row: 45 }, properties: specificProps },
+				 { ref: { row: 21 }, properties: specificProps }
+			 ];
+			 pm.setProperties({ properties: globalProps, rows });
+			 const newrows = pm.toJSON().rows;
+			 expect(newrows.length).toBe(4);
+			 expect(newrows[0].ref.row).toBe(2);
+			 expect(toString(newrows[0].properties)).toBe(toString(globalProps));
+			 expect(newrows[1].ref.row).toBe(21);
+			 expect(toString(newrows[1].properties)).toBe(toString(specificProps));
+			 expect(newrows[2].ref.row).toBe(45);
+			 expect(toString(newrows[2].properties)).toBe(toString(specificProps));
+			 expect(newrows[3].ref.row).toBe(50);
+			 expect(toString(newrows[3].properties)).toBe(toString(globalProps));
+		 });
+		 it('should set cell properties', () => {
+			 const cell = [{ ref: { col: 'A', row: 1 } }];
+			 const properties1 = { formats: { fillcolor: 'yellow' } };
+			 pm.setProperties({ properties: properties1, cells: cell });
+			 let { cells } = pm.toJSON();
+			 expect(cells.length).toBe(1);
+			 expect(cells[0].ref.col).toBe('A');
+			 expect(cells[0].ref.row).toBe(1);
+			 expect(toString(cells[0].properties)).toBe(toString(properties1));
+			 // multiple cells
+			 const properties2 = { formats: { fillcolor: 'green' } };
+			 const multipleCells = [
+				 { ref: { col: 'D', row: 1 } },
+				 { ref: { col: 'E', row: 23 } },
+				 { ref: { col: 'K', row: 4 } }
+			 ];
+			 pm.setProperties({ properties: properties2, cells: multipleCells });
+			 cells = pm.toJSON().cells;
+			 expect(cells.length).toBe(4);
+			 expect(cells[0].ref.col).toBe('A');
+			 expect(cells[0].ref.row).toBe(1);
+			 expect(toString(cells[0].properties)).toBe(toString(properties1));
+			 expect(cells[1].ref.col).toBe('D');
+			 expect(cells[1].ref.row).toBe(1);
+			 expect(toString(cells[1].properties)).toBe(toString(properties2));
+			 expect(cells[2].ref.col).toBe('K');
+			 expect(cells[2].ref.row).toBe(4);
+			 expect(toString(cells[2].properties)).toBe(toString(properties2));
+			 expect(cells[3].ref.col).toBe('E');
+			 expect(cells[3].ref.row).toBe(23);
+			 expect(toString(cells[3].properties)).toBe(toString(properties2));
+		 });
+		 it('should overwrite globally set cells properties with specific one', () => {
+			 const globalProps = { formats: { fillcolor: 'yellow' } };
+			 const specificProps = { formats: { fillcolor: 'green' } };
+			 const cells = [
+				 { ref: { col: 'B', row: 50 } },
+				 { ref: { col: 'Z', row: 1 } },
+				 { ref: { col: 'Y', row: 2 }, properties: specificProps },
+				 { ref: { col: 'G', row: 10 }, properties: specificProps }
+			 ];
+			 pm.setProperties({ properties: globalProps, cells });
+			 const newcells = pm.toJSON().cells;
+			 expect(newcells.length).toBe(4);
+			 expect(newcells[0].ref.col).toBe('Z');
+			 expect(newcells[0].ref.row).toBe(1);
+			 expect(toString(newcells[0].properties)).toBe(toString(globalProps));
+			 expect(newcells[1].ref.col).toBe('Y');
+			 expect(newcells[1].ref.row).toBe(2);
+			 expect(toString(newcells[1].properties)).toBe(toString(specificProps));
+			 expect(newcells[2].ref.col).toBe('G');
+			 expect(newcells[2].ref.row).toBe(10);
+			 expect(toString(newcells[2].properties)).toBe(toString(specificProps));
+			 expect(newcells[3].ref.col).toBe('B');
+			 expect(newcells[3].ref.row).toBe(50);
+			 expect(toString(newcells[3].properties)).toBe(toString(globalProps));
+		 });
+		 it('should create cell properties at intersection of column and row', () => {
+			 const rowProps = { formats: { fillcolor: 'yellow' }, textFormats: { fontcolor: 'blue' } };
+			 const colProps = {
+				 attributes: { initialsection: 42 },
+				 formats: { fillcolor: 'red', fillstyle: 1 }
+			 };
+			 pm.setProperties({ cols: [{ ref: { col: 'B' } }], properties: colProps });
+			 pm.setProperties({ rows: [{ ref: { row: 42 } }], properties: rowProps });
+			 const props = pm.toJSON();
+			 expect(props).toEqual({
+				 cols: [{
+					 ref: { col: 'B' },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 }
+					 }
+				 }],
+				 rows: [{
+					 ref: { row: 42 },
+					 properties: { formats: { fillcolor: 'yellow' }, textFormats: { fontcolor: 'blue' } }
+				 }],
+				 cells: [{
+					 ref: { col: 'B', row: 42 },
+					 properties: {
+						 // attributes: { initialsection: 42 }, <-- only set if row overwrites column!
+						 formats: { fillcolor: 'yellow' /* , fillstyle: 1 */},
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }]
+			 })
+		 });
+		 it('should set column properties first if column, row and cells properties are given', () => {
+			 pm.setProperties({
+				 cells: [ { ref: { col: 'B', row: 2 }, properties: { formats: { fillcolor: 'green' } } } ],
+				 cols: [ { ref: { col: 'B' }, properties: { formats: { fillcolor: 'red' } } } ],
+				 rows: [ { ref: { row: 2 }, properties: { formats: { fillcolor: 'yellow' } } } ]
+			 });
+			 const { cells, cols, rows } = pm.toJSON();
+			 expect(cells.length).toBe(1);
+			 expect(cols.length).toBe(1);
+			 expect(rows.length).toBe(1);
+			 expect(cols[0].ref.col).toBe('B');
+			 expect(cols[0].properties.formats).toEqual({ fillcolor: 'red' });
+			 expect(rows[0].ref.row).toBe(2);
+			 expect(rows[0].properties.formats).toEqual({ fillcolor: 'yellow' });
+			 expect(cells[0].ref.col).toBe('B');
+			 expect(cells[0].ref.row).toBe(2);
+			 expect(cells[0].properties.formats).toEqual({ fillcolor: 'green' });
+		 });
+		 it('should return no changes if no properties are specified', () => {
+			 let changes = pm.setProperties({});
+			 expect(changes.cols).toEqual([]);
+			 expect(changes.rows).toEqual([]);
+			 expect(changes.cells).toEqual([]);
+			 changes = pm.setProperties({ cols: [], rows: [], cells: [] });
+			 expect(changes.cols).toEqual([]);
+			 expect(changes.rows).toEqual([]);
+			 expect(changes.cells).toEqual([]);
+		 });
+	 });
+	 describe('revert setProperties', () => {
+		 it('should be possible to revert column properties with returned changes object', () => {
+			 const globalProps = { formats: { fillcolor: 'yellow' } };
+			 const specificProps = { formats: { fillcolor: 'green' } };
+			 const columns = [
+				 { ref: { col: 'B' } },
+				 { ref: { col: 'Z' } },
+				 { ref: { col: 'Y' }, properties: specificProps },
+				 { ref: { col: 'G' }, properties: specificProps }
+			 ];
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+			 const changes = pm.setProperties({ properties: globalProps, cols: columns });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols.length).toBe(4);
+			 expect(props.rows).toEqual([]);
+			 pm.setProperties(changes);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 it('should be possible to revert row properties with returned changes object', () => {
+			 const globalProps = { formats: { fillcolor: 'yellow' } };
+			 const specificProps = { formats: { fillcolor: 'green' } };
+			 const rows = [
+				 { ref: { row: 2 } },
+				 { ref: { row: 50 } },
+				 { ref: { row: 45 }, properties: specificProps },
+				 { ref: { row: 21 }, properties: specificProps }
+			 ];
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+			 const changes =	pm.setProperties({ properties: globalProps, rows });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows.length).toBe(4);
+			 pm.setProperties(changes);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 it('should be possible to revert cells properties with returned changes object', () => {
+			 const globalProps = { formats: { fillcolor: 'yellow' } };
+			 const specificProps = { formats: { fillcolor: 'green' } };
+			 const cells = [
+				 { ref: { col: 'B', row: 50 } },
+				 { ref: { col: 'Z', row: 1 } },
+				 { ref: { col: 'Y', row: 2 }, properties: specificProps },
+				 { ref: { col: 'G', row: 10 }, properties: specificProps }
+			 ];
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+			 const changes =	pm.setProperties({ properties: globalProps, cells });
+			 props = pm.toJSON();
+			 expect(props.cells.length).toBe(4);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+			 pm.setProperties(changes);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+	 });
+	 describe('clearProperties', () => {
+		 it('should be possible to clear columns properties', () => {
+			 const properties = { formats: { fillcolor: 'yellow', fillstyle: 1 }, textFormats: { fontcolor: 'green' } };
+			 const cols = [{ ref: { col: 'A' } }];
+			 pm.setProperties({ cols, properties });
+			 let props = pm.toJSON();
+			 expect(props.cols).toEqual([
+				 {
+					 ref: { col: 'A' },
+					 properties: {
+						 formats: { fillcolor: 'yellow', fillstyle: 1 },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 }
+			 ]);
+			 const changes = pm.clearProperties({ cols });
+			 props = pm.toJSON();
+			 expect(props.cols).toEqual([{ ref: { col: 'A' }, properties: { cleared: true } }]);
+			 // undo
+			 pm.setProperties(changes);
+			 props = pm.toJSON();
+			 expect(props.cols).toEqual([
+				 {
+					 ref: { col: 'A' },
+					 properties: {
+						 formats: { fillcolor: 'yellow', fillstyle: 1 },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 }
+			 ]);
+		 });
+		 it('should be possible to clear rows properties', () => {
+			 const properties = { formats: { fillcolor: 'yellow', fillstyle: 1 }, textFormats: { fontcolor: 'green' } };
+			 const rows = [{ ref: { row: 1 } }];
+			 pm.setProperties({ rows, properties });
+			 let props = pm.toJSON();
+			 expect(props.rows).toEqual([
+				 {
+					 ref: { row: 1 },
+					 properties: {
+						 formats: { fillcolor: 'yellow', fillstyle: 1 },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 }
+			 ]);
+			 const changes = pm.clearProperties({ rows });
+			 props = pm.toJSON();
+			 expect(props.rows).toEqual([{ ref: { row: 1 }, properties: { cleared: true } }]);
+			 // undo
+			 pm.setProperties(changes);
+			 props = pm.toJSON();
+			 expect(props.rows).toEqual([
+				 {
+					 ref: { row: 1 },
+					 properties: {
+						 formats: { fillcolor: 'yellow', fillstyle: 1 },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 }
+			 ]);
+		 });
+		 it('should be possible to clear cells properties', () => {
+			 const properties = { formats: { fillcolor: 'yellow', fillstyle: 1 }, textFormats: { fontcolor: 'green' } };
+			 const cells = [{ ref: { col: 'A', row: 1 } }];
+			 pm.setProperties({ cells, properties });
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'A', row: 1 },
+					 properties: {
+						 formats: { fillcolor: 'yellow', fillstyle: 1 },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 }
+			 ]);
+			 const changes = pm.clearProperties({ cells });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 // undo
+			 pm.setProperties(changes);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'A', row: 1 },
+					 properties: {
+						 formats: { fillcolor: 'yellow', fillstyle: 1 },
+						 textFormats: { fontcolor: 'green' }
+					 }
+				 }
+			 ]);
+		 });
+	 });
+	 describe('use cases', () => {
+		 test('setting row and column properties should change properties of intersection cell', () => {
+			 const allChanges = [];
+			 const properties = { formats: { fillcolor: 'yellow', fillstyle: 1 } };
+			 const rows = [{ ref: { row: 4 } }];
+			 allChanges.push(pm.setProperties({ rows, properties }));
+			 properties.attributes = { initialsection: 42 };
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'red';
+			 properties.textFormats = { fontcolor: 'blue' };
+			 const cols = [{ ref: { col: 'C' } }];
+			 allChanges.push(pm.setProperties({ cols, properties }));
+			 // check intersection cell
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'C', row: 4 },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }
+			 ]);
+			 properties.formats.fillcolor = 'green';
+			 properties.textFormats = { fontcolor: 'gray' };
+			 allChanges.push(pm.setProperties({ cols, properties }));
+			 properties.formats.fillcolor = 'orange';
+			 properties.textFormats = { fontcolor: 'black' };
+			 allChanges.push(pm.setProperties({ rows, properties }));
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'C', row: 4 },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'orange', fillstyle: 1 },
+						 textFormats: { fontcolor: 'black' }
+					 }
+				 }
+			 ]);
+			 // undo one after another
+			 pm.setProperties(allChanges.pop());
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'C', row: 4 },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'green', fillstyle: 1 },
+						 textFormats: { fontcolor: 'gray' }
+					 }
+				 }
+			 ]);
+			 pm.setProperties(allChanges.pop());
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'C', row: 4 },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }
+			 ]);
+			 pm.setProperties(allChanges.pop());
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+		 });
+		 test('set column fillcolor, set row fillcolor, set intersection fillcolor, undo all', () => {
+			 const properties = { formats: { fillcolor: 'red' } };
+			 const cols = [{ ref: { col: 'B' } }];
+			 const colChanges = pm.setProperties({ cols, properties });
+			 properties.formats.fillcolor = 'yellow';
+			 const rows = [{ ref: { row: 4 } }];
+			 const rowChanges = pm.setProperties({ rows, properties });
+			 properties.formats.fillcolor = 'green';
+			 const cells = [{ ref: { col: 'B', row: 4 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([{
+				 ref: { col: 'B', row: 4 },
+				 properties: { formats: { fillcolor: 'green' } }
+			 }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'B' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 // undo cell
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{
+				 ref: { col: 'B', row: 4 },
+				 properties: { formats: { fillcolor: 'yellow' } }
+			 }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'B' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 // undo row
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'B' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([]);
+			 // undo col
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 test('set row, column and cell properties and undo all', () => {
+			 const properties = { formats: { fillcolor: 'yellow', fillstyle: 1 } };
+			 const rows = [{ ref: { row: 4 } }];
+			 const rowChanges = pm.setProperties({ rows, properties });
+			 const cols = [{ ref: { col: 'C' } }];
+			 properties.attributes = { initialsection: 42 };
+			 properties.textFormats = { fontcolor: 'blue' };
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'red';
+			 const colChanges = pm.setProperties({ cols, properties });
+			 properties.attributes = undefined;
+			 properties.text = undefined;
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'green';
+			 const cells = [{ ref: { col: 'C', row: 4 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 // check current settings
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'C', row: 4 },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'green', fillstyle: 1 },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([
+				 {
+					 ref: { col: 'C' },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'yellow', fillstyle: 1 } } }
+			 ]);
+			 // undo cell
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'C', row: 4 },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([
+				 {
+					 ref: { col: 'C' },
+					 properties: {
+						 attributes: { initialsection: 42 },
+						 formats: { fillcolor: 'red', fillstyle: 1 },
+						 textFormats: { fontcolor: 'blue' }
+					 }
+				 }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'yellow', fillstyle: 1 } } }
+			 ]);
+			 // undo col
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'yellow', fillstyle: 1 } } }
+			 ]);
+			 // undo row
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 test('set column, cell, row properties and undo all', () => {
+			 const properties = { formats: { fillcolor: 'blue', fillstyle: 1 } };
+			 const cols = [{ ref: { col: 'E' } }];
+			 const colChanges = pm.setProperties({ cols, properties });
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'yellow';
+			 const cells = [{ ref: { col: 'E', row: 4 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'green';
+			 const rows = [{ ref: { row: 4 } }];
+			 const rowChanges = pm.setProperties({ rows, properties });
+			 // check current settings
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'E', row: 4 },
+					 properties: { formats: { fillcolor: 'green', fillstyle: 1 } }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'E' }, properties: { formats: { fillcolor: 'blue', fillstyle: 1 } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'green', fillstyle: 1 } } }
+			 ]);
+			 // undo row:
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'E', row: 4 },
+					 properties: { formats: { fillcolor: 'yellow', fillstyle: 1 } }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'E' }, properties: { formats: { fillcolor: 'blue', fillstyle: 1 } } }
+			 ]);
+			 expect(props.rows).toEqual([]);
+			 // undo cell:
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'E' }, properties: { formats: { fillcolor: 'blue', fillstyle: 1 } } }
+			 ]);
+			 expect(props.rows).toEqual([]);
+			 // undo col:
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 test('set row, cell, column properties and undo all', () => {
+			 const properties = { formats: { fillcolor: 'blue', fillstyle: 1 } };
+			 const rows = [{ ref: { row: 4 } }];
+			 const rowChanges = pm.setProperties({ rows, properties });
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'yellow';
+			 const cells = [{ ref: { col: 'E', row: 4 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'green';
+			 const cols = [{ ref: { col: 'E' } }];
+			 const colChanges = pm.setProperties({ cols, properties });
+			 // check current settings
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'E', row: 4 },
+					 properties: { formats: { fillcolor: 'green', fillstyle: 1 } }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'E' }, properties: { formats: { fillcolor: 'green', fillstyle: 1 } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'blue', fillstyle: 1 } } }
+			 ]);
+			 // undo col:
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'E', row: 4 },
+					 properties: { formats: { fillcolor: 'yellow', fillstyle: 1 } }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'blue', fillstyle: 1 } } }
+			 ]);
+			 // undo cell:
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 4 }, properties: { formats: { fillcolor: 'blue', fillstyle: 1 } } }
+			 ]);
+			 // undo row:
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 test('cell properties are restored after undoing column properties', () => {
+			 const properties = { formats: { fillcolor: 'blue', fillstyle: 1 } };
+			 const cells = [{ ref: { col: 'A', row: 1 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'red';
+			 const cols = [{ ref: { col: 'A' } }];
+			 const colChanges = pm.setProperties({ cols, properties });
+			 // check current settings
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'A', row: 1 },
+					 properties: { formats: { fillcolor: 'red', fillstyle: 1 } }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red', fillstyle: 1 } } }
+			 ]);
+			 expect(props.rows).toEqual([]);
+			 // undo col:
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'A', row: 1 },
+					 properties: { formats: { fillcolor: 'blue', fillstyle: 1 } }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+			 // undo cell
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 test('cell properties are restored after undoing row properties', () => {
+			 const properties = { formats: { fillcolor: 'blue', fillstyle: 1 } };
+			 const cells = [{ ref: { col: 'A', row: 1 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 properties.formats.fillstyle = 1;
+			 properties.formats.fillcolor = 'red';
+			 const rows = [{ ref: { row: 1 } }];
+			 const rowChanges = pm.setProperties({ rows, properties });
+			 // check current settings
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'A', row: 1 },
+					 properties: { formats: { fillcolor: 'red', fillstyle: 1 } }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'red', fillstyle: 1 } } }
+			 ]);
+			 // undo row:
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 {
+					 ref: { col: 'A', row: 1 },
+					 properties: { formats: { fillcolor: 'blue', fillstyle: 1 } }
+				 }
+			 ]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+			 // undo cell
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 // some clear related use cases
+		 test('set column, row and cell properties, then clear column', () => {
+			 const properties = { formats: { fillcolor: 'red' } };
+			 const cols = [{ ref: { col: 'A' } }];
+			 const colChanges = pm.setProperties({ cols, properties });
+			 properties.formats.fillcolor = 'yellow';
+			 const rows = [{ ref: { row: 1 } }];
+			 const rowChanges = pm.setProperties({ rows, properties });
+			 properties.formats.fillcolor = 'green';
+			 const cells = [{ ref: { col: 'A', row: 1 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([{
+				 ref: { col: 'A', row: 1 },
+				 properties: { formats: { fillcolor: 'green' } }
+			 }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 const clearChanges = pm.clearProperties({ cols: [{ ref: { col: 'A' } }] });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 expect(props.cols).toEqual([{ ref: { col: 'A' }, properties: { cleared: true } }]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 // undo all
+			 pm.setProperties(clearChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'green' } } }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([]);
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 test('set column, row and cell properties, then clear row', () => {
+			 const properties = { formats: { fillcolor: 'red' } };
+			 const cols = [{ ref: { col: 'A' } }];
+			 const colChanges = pm.setProperties({ cols, properties });
+			 properties.formats.fillcolor = 'yellow';
+			 const rows = [{ ref: { row: 1 } }];
+			 const rowChanges = pm.setProperties({ rows, properties });
+			 properties.formats.fillcolor = 'green';
+			 const cells = [{ ref: { col: 'A', row: 1 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([{
+				 ref: { col: 'A', row: 1 },
+				 properties: { formats: { fillcolor: 'green' } }
+			 }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 const clearChanges = pm.clearProperties({ rows: [{ ref: { row: 1 } }] });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([{ ref: { row: 1 }, properties: { cleared: true } }]);
+			 // undo all
+			 pm.setProperties(clearChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'green' } } }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([]);
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 test('set column, row and cell properties, then clear cell', () => {
+			 const properties = { formats: { fillcolor: 'red' } };
+			 const cols = [{ ref: { col: 'A' } }];
+			 const colChanges = pm.setProperties({ cols, properties });
+			 properties.formats.fillcolor = 'yellow';
+			 const rows = [{ ref: { row: 1 } }];
+			 const rowChanges = pm.setProperties({ rows, properties });
+			 properties.formats.fillcolor = 'green';
+			 const cells = [{ ref: { col: 'A', row: 1 } }];
+			 const cellChanges = pm.setProperties({ cells, properties });
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([{
+				 ref: { col: 'A', row: 1 },
+				 properties: { formats: { fillcolor: 'green' } }
+			 }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 const clearChanges = pm.clearProperties({ cells: [{ ref: { col: 'A', row: 1 } }] });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 // undo all
+			 pm.setProperties(clearChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'green' } } }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(cellChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([]);
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+		 test('set cell, row, cell, column and cell properties again, then clear row, column and cell', () => {
+			 const properties = { formats: { fillcolor: 'green' } };
+			 const cellChanges1 = pm.setProperties({ cells: [{ ref: { col: 'A', row: 1 } }], properties });
+			 properties.formats.fillcolor = 'yellow';
+			 const rowChanges = pm.setProperties({ rows: [{ ref: { row: 1 } }], properties });
+			 properties.formats.fillcolor = 'orange';
+			 const cellChanges2 = pm.setProperties({ cells: [{ ref: { col: 'A', row: 1 } }], properties });
+			 properties.formats.fillcolor = 'red';
+			 const colChanges = pm.setProperties({ cols: [{ ref: { col: 'A' } }], properties });
+			 properties.formats.fillcolor = 'blue';
+			 const cellChanges3 = pm.setProperties({ cells: [{ ref: { col: 'A', row: 1 } }], properties });
+			 let props = pm.toJSON();
+			 expect(props.cells).toEqual([{
+				 ref: { col: 'A', row: 1 },
+				 properties: { formats: { fillcolor: 'blue' } }
+			 }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 const clearRow = pm.clearProperties({ rows: [{ ref: { row: 1 } }] });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([{ ref: { row: 1 }, properties: { cleared: true } }]);
+			 const clearColumn = pm.clearProperties({ cols: [{ ref: { col: 'A' } }] });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 expect(props.cols).toEqual([{ ref: { col: 'A' }, properties: { cleared: true } }]);
+			 expect(props.rows).toEqual([{ ref: { row: 1 }, properties: { cleared: true } }]);
+			 const clearCell = pm.clearProperties({ cells: [{ ref: { col: 'A', row: 1 } }] });
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 expect(props.cols).toEqual([{ ref: { col: 'A' }, properties: { cleared: true } }]);
+			 expect(props.rows).toEqual([{ ref: { row: 1 }, properties: { cleared: true } }]);
+			 // undo all
+			 pm.setProperties(clearCell);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 expect(props.cols).toEqual([{ ref: { col: 'A' }, properties: { cleared: true } }]);
+			 expect(props.rows).toEqual([{ ref: { row: 1 }, properties: { cleared: true } }]);
+			 pm.setProperties(clearColumn);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([{ ref: { col: 'A', row: 1 }, properties: { cleared: true } }]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([{ ref: { row: 1 }, properties: { cleared: true } }]);
+			 pm.setProperties(clearRow);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'blue' } } }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(cellChanges3);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.cols).toEqual([
+				 { ref: { col: 'A' }, properties: { formats: { fillcolor: 'red' } } }
+			 ]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(colChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'orange' } } }
+			 ]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(cellChanges2);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([
+				 { ref: { row: 1 }, properties: { formats: { fillcolor: 'yellow' } } }
+			 ]);
+			 pm.setProperties(rowChanges);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([
+				 { ref: { col: 'A', row: 1 }, properties: { formats: { fillcolor: 'green' } } }
+			 ]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+			 pm.setProperties(cellChanges1);
+			 props = pm.toJSON();
+			 expect(props.cells).toEqual([]);
+			 expect(props.cols).toEqual([]);
+			 expect(props.rows).toEqual([]);
+		 });
+	 });
+ });

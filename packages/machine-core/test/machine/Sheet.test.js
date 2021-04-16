@@ -91,7 +91,7 @@ describe('Sheet', () => {
 		});
 	});
 
-	describe('row handling', () => {
+	describe.skip('row handling', () => {
 		it('should be possible to add a row', () => {
 			const sheet = new Sheet();
 			// insert at 0 is below default min row:
@@ -120,7 +120,7 @@ describe('Sheet', () => {
 		});
 	});
 
-	describe('column handling', () => {
+	describe.skip('column handling', () => {
 		it('should be possible to add column(s)', () => {
 			const sheet = new Sheet();
 			sheet.setCellAt('A1', new Cell(42));
