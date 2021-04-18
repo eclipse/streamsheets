@@ -2500,7 +2500,7 @@
 									"level": 0
 								},
 								"B29": {
-									"formula": "MQTT.PUBLISH(|MQTT_Producer,\"A21:B24\",\"powerplant/plants/windmill/alert\")",
+									"formula": "MQTT.PUBLISH(|MQTT_Producer,A21:B24,\"powerplant/plants/windmill/alert\")",
 									"value": true,
 									"type": "undefined",
 									"level": 0,
