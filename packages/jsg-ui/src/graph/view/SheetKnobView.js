@@ -410,7 +410,6 @@ export default class SheetKnobView extends NodeView {
 						reference: range.toString(),
 						value: sliderValue
 					});
-					// viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
 					viewer
 						.getInteractionHandler()
 						.execute(

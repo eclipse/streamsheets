@@ -492,7 +492,6 @@ export default class StreamSheetView extends WorksheetView {
 			}
 		}
 		if (cellData.length) {
-			// viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
 			viewer
 				.getInteractionHandler()
 				.execute(

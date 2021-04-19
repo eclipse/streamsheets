@@ -17,7 +17,6 @@ import {
 	FormatAttributes,
 	CellRange,
 	PasteCellsFromClipboardCommand,
-	DeleteCellsCommand,
 	InsertCellsCommand,
 	WorksheetNode,
 	CellAttributes,
@@ -1190,7 +1189,7 @@ export default class WorksheetView extends ContentNodeView {
 			}
 		}
 
-		viewer.getInteractionHandler().execute(new DeleteCellsCommand(range, type));
+		viewer.getInteractionHandler().execute(SheetCommandFactory.create('command.DeleteCellsCommand',range, type));
 		this.notify();
 	}
 
@@ -1257,7 +1256,6 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	changeLevel(viewer, down) {
-		// const cmd = new SetCellLevelsCommand(this.getItem(), this.getOwnSelection().getRanges(), down);
 		const cmd = SheetCommandFactory.create(
 			'command.SetCellLevelsCommand',
 			this.getItem(),
@@ -1441,7 +1439,6 @@ export default class WorksheetView extends ContentNodeView {
 						.getDataProvider()
 						.getCellValueSeries(item.getOwnSelection().getAt(0), target);
 					if (seriesData && seriesData.length) {
-						// cmd.addSeries(new SetCellsCommand(item, seriesData, true));
 						cmd.addSeries(SheetCommandFactory.create('command.SetCellsCommand', item, seriesData, true));
 					}
 				}
@@ -1540,7 +1537,6 @@ export default class WorksheetView extends ContentNodeView {
 					currentRow += 1;
 				});
 
-				// viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
 				const cmd = SheetCommandFactory.create('command.SetCellsCommand', this.getItem(), cellData, true);
 				viewer.getInteractionHandler().execute(cmd);
 
@@ -1631,9 +1627,6 @@ export default class WorksheetView extends ContentNodeView {
 				attributesMap.remove(CellAttributes.LEVEL);
 				attributesMap.put(CellAttributes.KEY, true);
 
-				// viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
-				// const cmd = new CellAttributesCommand([selectRange], attributesMap);
-				// viewer.getInteractionHandler().execute(cmd);
 				viewer
 					.getInteractionHandler()
 					.execute(
@@ -1802,7 +1795,6 @@ export default class WorksheetView extends ContentNodeView {
 
 		const range = new CellRange(this.getItem(), pos.x, pos.y);
 
-		// return new JSG.TextFormatCellsCommand([range], attributesMap);
 		return SheetCommandFactory.create('command.TextFormatCellsCommand', [range], attributesMap);
 	}
 

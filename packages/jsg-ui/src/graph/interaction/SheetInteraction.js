@@ -362,7 +362,8 @@ export default class SheetInteraction extends Interaction {
 									termFunc.params[1] = Term.fromString(String(ev.target.value));
 									expr.correctFormula(sheet);
 								}
-								const cmd = new JSG.SetCellDataCommand(
+								const cmd = SheetCommandFactory.create(
+									'command.SetCellDataCommand',
 									targetSheet,
 									targetRange.toString(),
 									expr,

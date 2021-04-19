@@ -367,7 +367,6 @@ export default class SheetSliderView extends NodeView {
 						reference: range.toString(),
 						value: sliderValue
 					});
-					// viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
 					const cmd = SheetCommandFactory.create(
 						'command.SetCellsCommand',
 						range.getSheet(),

@@ -925,7 +925,6 @@ export default class EditCellInteraction extends EditTextInteraction {
 		}
 
 		const ref = view.getOwnSelection().activeCellToString();
-		// let cmd = new JSG.SetCellDataCommand(this._item, ref, data.expression, true);
 		let cmd = JSG.SheetCommandFactory.create('command.SetCellDataCommand', this._item, ref, data.expression, true);
 		const interactionHandler = this.getInteractionHandler();
 
