@@ -1334,8 +1334,16 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		let zoomcmd;
 		if (sheet) {
-			if (selection) zoomcmd = new JSG.DeleteCellContentCommand(sheet, selection.toStringMulti(), 'all');
-			else if (cellData.length) zoomcmd = new JSG.SetCellsCommand(sheet, cellData, false);
+			if (selection) {
+				zoomcmd = JSG.SheetCommandFactory.create(
+					'command.DeleteCellContentCommand',
+					sheet,
+					selection.toStringMulti(),
+					'all'
+				);
+			} else if (cellData.length) {
+				zoomcmd = JSG.SheetCommandFactory.create('command.SetCellsCommand', sheet, cellData, false);
+			}
 		}
 		// eslint-disable-next-line consistent-return
 		return zoomcmd;

@@ -10,10 +10,10 @@
  ********************************************************************************/
 import JSG from '@cedalo/jsg-ui';
 
-const { Dictionary } = JSG;
+const { Dictionary, SheetCommandFactory } = JSG;
 
 const applyMap = (sheet, ranges, map) => {
-	const cmd = new JSG.FormatCellsCommandWC(ranges, map);
+	const cmd = SheetCommandFactory.create('command.FormatCellsCommand', ranges, map);
 	sheet._graphEditor.getInteractionHandler().execute(cmd);
 };
 const applyFormats = (sheet, ranges, formats) => {
@@ -61,7 +61,13 @@ export class CellRange {
 		const expr = this.sheet.textToExpression(value);
 		if (expr) {
 			this.range.shiftToSheet();
-			const cmd = new JSG.SetCellDataCommand(this.sheet, this.range.toString(), expr.expression, true);
+			const cmd = SheetCommandFactory.create(
+				'command.SetCellDataCommand',
+				this.sheet,
+				this.range.toString(),
+				expr.expression,
+				true
+			);
 			this.range.shiftFromSheet();
 			this.sheet._graphEditor.getInteractionHandler().execute(cmd);
 		}
