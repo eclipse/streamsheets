@@ -1430,8 +1430,11 @@ export default class WorksheetView extends ContentNodeView {
 						ref,
 						'all'
 					);
-					if (JSG.USE_SERVER_COMMANDS) viewer.getInteractionHandler().execute(delCmd);
-					else cmd.addCut(delCmd);
+					// IF SERVER_COMMANDS:
+					// viewer.getInteractionHandler().execute(delCmd);
+					// ELSE: cmd.addCut(delCmd);
+					// ~
+					cmd.addCut(delCmd);
 				}
 
 				if (fill) {

@@ -71,7 +71,6 @@ export default class GraphManager {
 		JSG.init(path);
 		JSG.createThreshhold = 150;
 		JSG.setDrawingDisabled(true);
-		JSG.USE_SERVER_COMMANDS = false;
 		JSG.imagePool.add('resources/maximize.png', 'maximize');
 		JSG.imagePool.add('resources/minimize.png', 'minimize');
 		JSG.imagePool.add('resources/settings.png', 'settings');

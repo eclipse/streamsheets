@@ -71,11 +71,12 @@ const setCellOrSectionProperties = (cellOrSectionProps, provider, sharedprops, c
 	});
 };
 const applyPropertiesDefinitions = (sheet, propsdef, sharedprops, clear) => {
-	if (!JSG.USE_SERVER_COMMANDS) return;
-	const { cells, cols, rows } = propsdef;
-	if (rows && rows.length) setCellOrSectionProperties(rows, rowProvider(sheet), sharedprops, clear);
-	if (cols && cols.length) setCellOrSectionProperties(cols, columnProvider(sheet), sharedprops, clear);
-	if (cells && cells.length) setCellOrSectionProperties(cells, cellProvider(sheet.getDataProvider()), sharedprops, clear);
+	// SERVER_COMMANDS:
+	// const { cells, cols, rows } = propsdef;
+	// if (rows && rows.length) setCellOrSectionProperties(rows, rowProvider(sheet), sharedprops, clear);
+	// if (cols && cols.length) setCellOrSectionProperties(cols, columnProvider(sheet), sharedprops, clear);
+	// if (cells && cells.length) setCellOrSectionProperties(cells, cellProvider(sheet.getDataProvider()), sharedprops, clear);
+	// ~
 };
 module.exports = {
 	// applyProperties,
