@@ -1,20 +1,4 @@
 // const fixCellRange = (str) => (str && str.indexOf(':') < 0 ? `${str}:${str}` : str);
-// class AbstractCellsPropertiesCommandHandler {
-// 	getInfo({ info }) {
-// 		if (info) {
-// 			// adjust cell references/ranges...
-// 			info.cells.forEach((cell) => {
-// 				if (cell.range) cell.range = fixCellRange(cell.range);
-// 			});
-// 		}
-// 		return info;
-// 	}
-// 	async handleCommand(command, runner, streamsheetId, userId) {
-// 		const info = this.getInfo(command);
-// 		return info ? runner.request('setCellsProperties', { streamsheetId, userId, info }) : {};
-// 	}
-// }
-
 // // TODO: remove undo handling or check it with persistence
 // class DeleteCellsCommandRequestHandler {
 // 	async handleCommand(command, runner, streamsheetId, userId, undo) {

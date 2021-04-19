@@ -300,22 +300,6 @@ module.exports = class MachineService extends MessagingService {
 				logger.info('PersistenceService: persist changed sheet cells...');
 				await RepositoryManager.machineRepository.updateCells(event.machineId, event.srcId, event.cells);
 				break;
-			// include serverside-formats: TODO: decide if we react on events or request/response!!
-			case MachineServerMessagingProtocol.EVENTS.SHEET_UPDATE_EVENT: {
-				logger.info('PersistenceService: persist updated sheet...');
-				const { machineId, srcId, sheet } = event;
-				const { cells, graphCells, namedCells, properties } = sheet;
-				const _cells = cells.length && cells[0].ref ? cells.reduce(byRef, {}) : toMapObject(cells, 'reference');
-				await RepositoryManager.machineRepository.updateSheet(
-					machineId,
-					srcId,
-					// { cells: toMapObject(cells, 'reference'), properties, graphCells, namedCells }
-					{ cells: _cells, properties, graphCells, namedCells }
-				);
-				break;
-			}
-			// ~
-
 			default:
 				break;
 		}
@@ -415,6 +399,24 @@ module.exports = class MachineService extends MessagingService {
 				logger.debug('PersistenceService: update named cells');
 				await updateNamedCells(RepositoryManager.machineRepository, response);
 				break;
+			// SERVER_COMMANDS:
+			case 'command.server.DeleteCellsCommand':
+			case 'command.server.PasteCellsCommand':
+			case 'command.server.SetCellsCommand':
+			case 'command.server.SetCellLevelsCommand':
+			case 'command.server.SetCellsPropertiesCommand': {
+				logger.info(`PersistenceService: persist on server command ${response.command}`);
+				// const { machineId, srcId, sheet } = event;
+				// const { cells, graphCells, namedCells, properties } = sheet;
+				// const _cells = cells.length && cells[0].ref ? cells.reduce(byRef, {}) : toMapObject(cells, 'reference');
+				// await RepositoryManager.machineRepository.updateSheet(
+				// 	machineId,
+				// 	srcId,
+				// 	// { cells: toMapObject(cells, 'reference'), properties, graphCells, namedCells }
+				// 	{ cells: _cells, properties, graphCells, namedCells }
+				// );
+				break;
+			}
 			default:
 				break;
 		}
