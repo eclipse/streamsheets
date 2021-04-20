@@ -876,6 +876,8 @@ class GraphItemView extends View {
 			type = 'label';
 		} else if (item instanceof JSG.SheetButtonNode) {
 			type = 'button';
+		} else if (item instanceof JSG.LayoutNode) {
+			type = 'layout';
 		} else if (item instanceof JSG.SheetCheckboxNode) {
 			type = 'checkbox';
 		} else if (item instanceof JSG.SheetSliderNode) {
