@@ -19,6 +19,7 @@ import {
 	Selection,
 	Point,
 	MathUtils,
+	GraphUtils,
 	Numbers,
 	TextFormatAttributes,
 	SheetPlotNode,
@@ -1128,17 +1129,20 @@ export default class CellsView extends NodeView {
 		}
 
 		let y = 0;
-
+		const name = textproperties && textproperties.fontname ? textproperties.fontname : 'Verdana';
+		const size = textproperties && textproperties.fontsize ? textproperties.fontsize : 9;
+		const height = graphics.getCoordinateSystem().deviceToLogYNoZoom(GraphUtils.getFontMetricsEx(name, size).baselinePx, true);
 		const valign =
 			textproperties === undefined || textproperties.valign === undefined ? 2 : Number(textproperties.valign);
+
 		switch (valign) {
 			case 0:
 				y = rowInfo.y + 50;
 				graphics.setTextBaseline('top');
 				break;
 			case 1:
-				y = rowInfo.y + rowInfo.height / 2;
-				graphics.setTextBaseline('middle');
+				y = rowInfo.y + rowInfo.height / 2 + height / 2;
+				graphics.setTextBaseline('alphabetic');
 				break;
 			case 2:
 			default:
