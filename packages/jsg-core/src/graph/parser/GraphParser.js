@@ -22,11 +22,13 @@ const tokenAt = (infos, pos) => infos.reduce((token, info) => {
 }, {});
 const infoForToken = (token, pos, info = {}) => {
 	if (token) {
-		const { end, isInvalid, paramIndex, parent, start } = token;
-		info.paramIndex =
-			info.paramIndex != null ? info.paramIndex : !isFunction(token) || pos === start || pos >= end ? paramIndex : undefined;
-		info.function = pos > start && pos < end || isInvalid ? getFunctionName(token) : undefined;
+		const { brackets, end, isInvalid, paramIndex, parent, start } = token;
+		if (info.paramIndex == null) {
+			info.paramIndex = !isFunction(token) || pos === start || pos >= end ? paramIndex : undefined;
+		}
+		info.function = (pos > start && pos < end) || isInvalid ? getFunctionName(token) : undefined;
 		if (info.function == null) infoForToken(parent, pos, info);
+		else info.brackets = brackets;
 	}
 	return info;
 };
