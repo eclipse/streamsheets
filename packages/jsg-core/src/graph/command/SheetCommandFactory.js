@@ -45,7 +45,6 @@ const SetGraphCellCommand = require('./SetGraphCellCommand');
 const DeleteGraphCellCommand = require('./DeleteGraphCellCommand');
 const CellAttributesCommand = require('./CellAttributesCommand');
 const FormatCellsCommand = require('./FormatCellsCommand');
-const FormatCellsCommandWC = require('./FormatCellsCommandWC');
 const SetCellLevelsCommand = require('./SetCellLevelsCommand');
 const TextFormatCellsCommand = require('./TextFormatCellsCommand');
 const MarkCellValuesCommand = require('./MarkCellValuesCommand');
@@ -94,23 +93,25 @@ const Registry = {
 	'command.DeleteGraphCellCommand': DeleteGraphCellCommand,
 	'command.CellAttributesCommand': CellAttributesCommand,
 	'command.FormatCellsCommand': FormatCellsCommand,
-	'command.FormatCellsCommandWC': FormatCellsCommandWC,
 	'command.SetCellLevelsCommand': SetCellLevelsCommand,
 	'command.TextFormatCellsCommand': TextFormatCellsCommand,
 	'command.MarkCellValuesCommand': MarkCellValuesCommand,
 	'command.ZoomChartCommand': ZoomChartCommand
 };
-module.exports = class SheetCommandFactory {
+class SheetCommandFactory {
 	// extends CommandFactory {
 	// viewer optional
 	static createCommand(graph, data, viewer) {
 		const cmd = data ? Registry[data.name] : undefined;
 		return cmd
 			? cmd.createFromObject(data, { graph, viewer, factory: this })
-			: CommandFactory.createCommand.bind(SheetCommandFactory)(
-					graph,
-					data,
-					viewer
-			  );
+			: CommandFactory.createCommand.bind(SheetCommandFactory)(graph, data, viewer);
+	}
+	static create(cmdname, ...args) {
+		const Cmd = Registry[cmdname];
+		return Cmd ? new Cmd(...args) : CommandFactory.create(cmdname, ...args);
 	}
 };
+// ENABLE SERVER_COMMANDS:
+// module.exports = require('./server/ServerCommandFactory')(SheetCommandFactory);
+module.exports = SheetCommandFactory;

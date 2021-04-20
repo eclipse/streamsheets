@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 import JSG from '@cedalo/jsg-ui';
+import { applyPropertiesDefinitions } from '@cedalo/jsg-core/src/graph/model/utils';
 import { NumberFormatter } from '@cedalo/number-format';
 import { Locale } from '@cedalo/parser';
 import SheetParserContext from './SheetParserContext';
@@ -367,6 +368,7 @@ export default class GraphManager {
 		stats,
 		inbox,
 		currentMessage,
+		properties
 	) {
 		this.updateStreamSheetId(streamsheetId);
 		const updatePathCommand = this.updatePath(streamsheetId, jsonpath);
@@ -395,8 +397,8 @@ export default class GraphManager {
 		if (currentMessage) {
 			this.selectInboxMessage(streamsheetId, currentMessage.id, currentMessage.isProcessed);
 		}
-
 		this.updateStats(streamsheetId, stats);
+		this.updateSheetProperties(streamsheetId, properties);
 		this.updateDataView();
 	}
 
@@ -457,6 +459,22 @@ export default class GraphManager {
 			return command;
 		}
 		return null;
+	}
+
+	updateSheetProperties(streamsheetId, properties) {
+		if (properties) {
+			const sheet = this.getStreamSheet(streamsheetId);
+			const { properties: sharedprops } = properties;
+			const cleared = sharedprops && sharedprops.cleared;
+			if (sheet) applyPropertiesDefinitions(sheet, properties, sharedprops, cleared);
+				// const data = sheet.getDataProvider();
+				// // TODO: update sheet, cols and rows properties...
+				// Object.entries(properties.cells).forEach(([reference, props]) => {
+				// 	const cell = getOrCreateCell(reference, data);
+				// 	if (cell) applyCellProperties(cell, props);
+				// });
+			// }
+		}
 	}
 
 	rescaleCanvas(canvas) {

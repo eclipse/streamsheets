@@ -18,7 +18,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Typography from '@material-ui/core/Typography';
 import { Field } from '@cedalo/sdk-streams';
 import JSG from '@cedalo/jsg-ui';
-import { CellRange, Expression, SetCellDataCommand, SheetReference } from '@cedalo/jsg-core';
+import { CellRange, Expression, SheetCommandFactory, SheetReference } from '@cedalo/jsg-core';
 import { FuncTerm, Locale } from '@cedalo/parser';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -407,7 +407,7 @@ class FunctionWizard extends Component {
 		expr.evaluate(item);
 		expr.correctFormula(item);
 		JSG.FormulaParser.context.separators = Locale.EN.separators;
-		const cmd = new SetCellDataCommand(item, ref, expr, false);
+		const cmd = SheetCommandFactory.create('command.SetCellDataCommand', item, ref, expr, false);
 
 		graphManager.synchronizedExecute(cmd);
 		sheetView.notify();

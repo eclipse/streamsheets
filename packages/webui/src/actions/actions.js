@@ -276,8 +276,9 @@ function handleUserLeftEvent(event) {
 function handleSheetUpdateEvent(event) {
 	const streamsheetId = event.srcId;
 	const { sheet } = event;
-	const { cells, shapes, namedCells } = sheet;
+	const { cells, properties, shapes, namedCells } = sheet;
 	graphManager.updateCellValues(streamsheetId, cells, shapes, namedCells);
+	graphManager.updateSheetProperties(streamsheetId, properties);
 	graphManager.redraw();
 }
 
@@ -656,6 +657,7 @@ export function connect() {
 									shapes,
 									inbox,
 									loop,
+									properties,
 									stats
 								} = streamsheet;
 								graphManager.handleStreamSheetStep(
@@ -669,6 +671,7 @@ export function connect() {
 									stats,
 									inbox,
 									inbox.currentMessage,
+									properties
 								);
 							} catch (error) {
 								// this can happen if the machine step event comes

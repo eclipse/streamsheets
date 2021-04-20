@@ -33,7 +33,7 @@ import { functionStrings } from '../../languages/FunctionStrings';
 
 const { Expression } = require('@cedalo/jsg-core');
 
-const { SetCellDataCommand } = require('@cedalo/jsg-core');
+const { SheetCommandFactory } = require('@cedalo/jsg-core');
 
 let tableData = [];
 let categories = [];
@@ -174,7 +174,7 @@ export default class PasteFunctionDialog extends React.Component {
 			expr.evaluate(item);
 			expr.correctFormula(item);
 			const ref = item.getOwnSelection().activeCellToString();
-			const cmd = new SetCellDataCommand(item, ref, expr, false);
+			const cmd = SheetCommandFactory.create('command.SetCellDataCommand', item, ref, expr, false);
 			graphManager.synchronizedExecute(cmd);
 			sheetView.notify();
 		}

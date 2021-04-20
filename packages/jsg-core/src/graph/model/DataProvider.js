@@ -889,7 +889,9 @@ module.exports = class DataProvider {
 	clearFormats() {
 		this.enumerate((column, row, cell) => {
 			cell.setFormat(undefined);
-			cell.setTextFormat(undefined);
+			cell.setTextFormat(undefined)
+			// serverside-formats:
+			cell.properties = undefined;
 		});
 	}
 

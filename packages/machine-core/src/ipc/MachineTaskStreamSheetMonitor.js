@@ -192,8 +192,8 @@ class MachineTaskStreamSheetMonitor {
 			cell: cell && index ? cellDescriptor(cell, index) : undefined,
 			sheet: {
 				cells: getSheetCellsAsList(sheet),
-				// include editable-web-component:
-				// properties: sheet.properties.toJSON(),
+				// serverside-formats:
+				properties: sheet.properties.toJSON(),
 				namedCells: sheet.namedCells.getDescriptors(),
 				shapes: sheet.getShapes().toJSON(),
 			}

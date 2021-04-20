@@ -8,9 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const Command = require('./Command');
 const Dictionary = require('../../commons/Dictionary');
-const { createRetainMap, toValuesMap, toCellRanges } = require('./utils');
+const { createRetainMap, toValuesMap } = require('../model/utils');
+const Command = require('./Command');
+const { toCellRanges } = require('./utils');
 
 const applyMap = (map, toFormat) =>
 	map && toFormat ? toFormat.applyMap(map) : undefined;

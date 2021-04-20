@@ -9,22 +9,18 @@
  *
  ********************************************************************************/
 const json = require('./json');
+const cells = require('./cells');
 const cellrange = require('./cellrange');
 const copycells = require('./copycells');
 const expression = require('./expression');
-const map = require('./map');
+const sheet = require('./sheet');
 
-const getSheetFromItem = (item) => {
-	let sheet;
-	if (item != null) sheet = item.isStreamSheet ? item : getSheetFromItem(item.getParent());
-	return sheet;
-};
 
 module.exports = {
+	...cells,
 	...cellrange,
 	...copycells,
 	...expression,
-	getSheetFromItem,
-	...map,
-	...json
+	...json,
+	...sheet
 };

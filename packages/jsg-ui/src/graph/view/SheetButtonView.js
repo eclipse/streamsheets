@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, CellRange, SetAttributeAtPathCommand, SetCellsCommand } from '@cedalo/jsg-core';
+import { default as JSG, CellRange, SetAttributeAtPathCommand, SheetCommandFactory } from '@cedalo/jsg-core';
 import NodeView from './NodeView';
 
 export default class SheetButtonView extends NodeView {
@@ -113,7 +113,12 @@ export default class SheetButtonView extends NodeView {
 						expr.setTermValue(value);
 						cell.setValue(newValue);
 						cell.setTargetValue(newValue);
-						const cmd = new SetCellsCommand(range.getSheet(), cellData, false);
+						const cmd = SheetCommandFactory.create(
+							'command.SetCellsCommand',
+							range.getSheet(),
+							cellData,
+							false
+						);
 						cmd._keepFeedback = true;
 						viewer.getInteractionHandler().execute(cmd);
 					}

@@ -17,14 +17,9 @@ import {
 	FormatAttributes,
 	CellRange,
 	PasteCellsFromClipboardCommand,
-	DeleteCellsCommand,
 	InsertCellsCommand,
-	SetCellsCommand,
-	CellAttributesCommand,
 	WorksheetNode,
 	CellAttributes,
-	DeleteCellContentCommand,
-	SetCellLevelsCommand,
 	SetHeaderSectionLevelCommand,
 	CreateHeaderLevelsFromRangeCommand,
 	SetAttributeAtPathCommand,
@@ -42,6 +37,7 @@ import {
 	RowHeaderNode,
 	ColumnHeaderNode,
 	TextFormatAttributes,
+	SheetCommandFactory,
 	PasteItemsCommand
 } from '@cedalo/jsg-core';
 import { FuncTerm, Locale } from '@cedalo/parser';
@@ -1157,7 +1153,12 @@ export default class WorksheetView extends ContentNodeView {
 			attributesMap.put(CellAttributes.LEVEL, 0);
 		}
 
-		const cmd = new CellAttributesCommand(this.getOwnSelection().getRanges(), attributesMap);
+		// const cmd = new CellAttributesCommand(this.getOwnSelection().getRanges(), attributesMap);
+		const cmd = SheetCommandFactory.create(
+			'command.CellAttributesCommand',
+			this.getOwnSelection().getRanges(),
+			attributesMap
+		);
 
 		viewer.getInteractionHandler().execute(cmd);
 	}
@@ -1188,7 +1189,7 @@ export default class WorksheetView extends ContentNodeView {
 			}
 		}
 
-		viewer.getInteractionHandler().execute(new DeleteCellsCommand(range, type));
+		viewer.getInteractionHandler().execute(SheetCommandFactory.create('command.DeleteCellsCommand',range, type));
 		this.notify();
 	}
 
@@ -1255,7 +1256,12 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	changeLevel(viewer, down) {
-		const cmd = new SetCellLevelsCommand(this.getItem(), this.getOwnSelection().getRanges(), down);
+		const cmd = SheetCommandFactory.create(
+			'command.SetCellLevelsCommand',
+			this.getItem(),
+			this.getOwnSelection().getRanges(),
+			down
+		);
 
 		viewer.getInteractionHandler().execute(cmd);
 	}
@@ -1267,7 +1273,9 @@ export default class WorksheetView extends ContentNodeView {
 
 		const ref = this.getOwnSelection().toStringMulti();
 
-		viewer.getInteractionHandler().execute(new DeleteCellContentCommand(this.getItem(), ref, type));
+		// viewer.getInteractionHandler().execute(new DeleteCellContentCommand(this.getItem(), ref, type));
+		const cmd = SheetCommandFactory.create('command.DeleteCellContentCommand', this.getItem(), ref, type);
+		if (cmd) viewer.getInteractionHandler().execute(cmd);
 		this.notify();
 	}
 
@@ -1415,7 +1423,18 @@ export default class WorksheetView extends ContentNodeView {
 					range.set(data.range.getX1(), data.range.getY1());
 					range.shiftToSheet();
 					const ref = `${data.rangeString};${range.toString()}`;
-					cmd.addCut(new DeleteCellContentCommand(sourceSheet, ref, 'all'));
+					// cmd.addCut(new DeleteCellContentCommand(sourceSheet, ref, 'all'));
+					const delCmd = SheetCommandFactory.create(
+						'command.DeleteCellContentCommand',
+						sourceSheet,
+						ref,
+						'all'
+					);
+					// IF SERVER_COMMANDS:
+					// viewer.getInteractionHandler().execute(delCmd);
+					// ELSE: cmd.addCut(delCmd);
+					// ~
+					cmd.addCut(delCmd);
 				}
 
 				if (fill) {
@@ -1423,7 +1442,7 @@ export default class WorksheetView extends ContentNodeView {
 						.getDataProvider()
 						.getCellValueSeries(item.getOwnSelection().getAt(0), target);
 					if (seriesData && seriesData.length) {
-						cmd.addSeries(new SetCellsCommand(item, seriesData, true));
+						cmd.addSeries(SheetCommandFactory.create('command.SetCellsCommand', item, seriesData, true));
 					}
 				}
 
@@ -1521,7 +1540,9 @@ export default class WorksheetView extends ContentNodeView {
 					currentRow += 1;
 				});
 
-				viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
+				const cmd = SheetCommandFactory.create('command.SetCellsCommand', this.getItem(), cellData, true);
+				viewer.getInteractionHandler().execute(cmd);
+
 			} catch (e) {
 				return false;
 			}
@@ -1609,11 +1630,26 @@ export default class WorksheetView extends ContentNodeView {
 				attributesMap.remove(CellAttributes.LEVEL);
 				attributesMap.put(CellAttributes.KEY, true);
 
-				viewer.getInteractionHandler().execute(new SetCellsCommand(this.getItem(), cellData, true));
+				viewer
+					.getInteractionHandler()
+					.execute(
+						SheetCommandFactory.create(
+							'command.SetCellsCommand',
+							this.getItem(),
+							cellData,
+							true
+						)
+					);
+				viewer
+					.getInteractionHandler()
+					.execute(
+						SheetCommandFactory.create(
+							'command.CellAttributesCommand',
+							[selectRange],
+							attributesMap
+						)
+					);
 
-				const cmd = new CellAttributesCommand([selectRange], attributesMap);
-
-				viewer.getInteractionHandler().execute(cmd);
 				this.notifySelectionChange(viewer);
 				return true;
 				// eslint-disable-next-line no-empty
@@ -1762,7 +1798,7 @@ export default class WorksheetView extends ContentNodeView {
 
 		const range = new CellRange(this.getItem(), pos.x, pos.y);
 
-		return new JSG.TextFormatCellsCommand([range], attributesMap);
+		return SheetCommandFactory.create('command.TextFormatCellsCommand', [range], attributesMap);
 	}
 
 	getEditString(pos) {
