@@ -532,10 +532,10 @@ export default class CellEditor {
 		text = Strings.encodeXML(text);
 
 		for (let i = text.length; i >= 0; i -= 1) {
-			if (text[i] === '(') {
+			if (text[i] === '(' || text[i] === ')') {
 				const first = text.slice(0, i);
 				const second = text.slice(i + 1);
-				text = `${first}<span id=pos${i} style="font-weight: bold">(</span>${second}`
+				text = `${first}<span id=pos${i} style="font-weight: bold">${text[i]}</span>${second}`
 			}
 		}
 
