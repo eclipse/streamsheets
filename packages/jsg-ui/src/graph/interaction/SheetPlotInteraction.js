@@ -224,11 +224,13 @@ export default class SheetPlotInteraction extends Interaction {
 				const zoomcmds = [];
 				layer.forEach((lview) => {
 					const vitem = lview.chartView.getItem();
-					const cmd = vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
+					const cmds = vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
 						{ index: 4, value: valueStart.x },
 						{ index: 5, value: valueEnd.x }
 					], item);
-					if (cmd) zoomcmds.push(cmd);
+					if (cmds.length) {
+						cmds.forEach(cmd => zoomcmds.push(cmd));
+					}
 				});
 
 				item.spreadZoomInfo(viewer, zoomcmds);
