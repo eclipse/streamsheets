@@ -315,5 +315,9 @@ describe('GraphParser', () => {
 			info = Parser.parseFormulaInfo('sum(cos(sin(B1)))', 17);
 			expect(info).toEqual({});
 		});
+		it('should return brackets info', () => {
+			const info = Parser.parseFormulaInfo('sum(A1:B2)+(B1+A2)', 14);
+			expect(info.brackets).toEqual({ open: 11, close: 17 });
+		});
 	});
 });
