@@ -529,6 +529,15 @@ export default class CellEditor {
 		});
 
 		text = text.replace(/(\r\n|\n|\r)/gm, '');
+		text = Strings.encodeXML(text);
+
+		for (let i = text.length; i >= 0; i -= 1) {
+			if (text[i] === '(') {
+				const first = text.slice(0, i);
+				const second = text.slice(i + 1);
+				text = `${first}<span id=pos${i} style="font-weight: bold">(</span>${second}`
+			}
+		}
 
 		let formulaUpper = text.toUpperCase();
 		let index = 0;
@@ -536,8 +545,8 @@ export default class CellEditor {
 		let pos;
 		let err = false;
 
-		formulaUpper = Strings.encodeXML(formulaUpper);
-		let formula = Strings.encodeXML(text);
+		// formulaUpper = Strings.encodeXML(formulaUpper);
+		let formula = text;
 
 		// now for each range in ranges rangetostring -> find in textContent -> replace by span -> set
 		ranges.getRanges().forEach((range) => {
@@ -567,6 +576,9 @@ export default class CellEditor {
 			// better change nothing than wrong
 			return text;
 		}
+
+		// result = result.replace(/\(/g, '<span style="font-weight: bold">(</span>');
+		// result = result.replace(/\)/g, '<span style="font-weight: bold">)</span>');
 
 		return result;
 	}
