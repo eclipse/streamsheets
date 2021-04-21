@@ -219,6 +219,20 @@ export default class CellEditor {
 
 		const funcInfos = this.getFunctionInfos();
 		const info = this.parseFormulaInfo(text, cursorPosition);
+
+		for (let child = this.div.firstChild; child !== null; child = child.nextSibling) {
+			if (child.nodeName.toUpperCase() === 'SPAN' && child.id.startsWith('pos')) {
+				const id = Number(child.id.slice(3));
+				if (info && info.brackets && id - 1 === info.brackets.open) {
+					child.style.fontWeight = 'bold';
+				} else if (info && info.brackets && id - 1 === info.brackets.close) {
+					child.style.fontWeight = 'bold';
+				} else {
+					child.style.fontWeight = 'normal';
+				}
+			}
+		}
+
 		if (!info || !funcInfos) {
 			return undefined;
 		}
@@ -237,6 +251,7 @@ export default class CellEditor {
 			this.funcInfo = { paramIndex: info.paramIndex };
 			return funcInfos.filter((entry) => entry[0] === info.function);
 		}
+
 		return undefined;
 	}
 
@@ -529,13 +544,25 @@ export default class CellEditor {
 		});
 
 		text = text.replace(/(\r\n|\n|\r)/gm, '');
+
+		const bracketPos = [];
+
+		for (let i = text.length - 1; i >= 0; i -= 1) {
+			if (text[i] === '(' || text[i] === ')') {
+				bracketPos.push(i);
+			}
+		}
+
 		text = Strings.encodeXML(text);
 
-		for (let i = text.length; i >= 0; i -= 1) {
+		let currentPos = 0;
+
+		for (let i = text.length - 1; i >= 0; i -= 1) {
 			if (text[i] === '(' || text[i] === ')') {
 				const first = text.slice(0, i);
 				const second = text.slice(i + 1);
-				text = `${first}<span id=pos${i} style="font-weight: bold">${text[i]}</span>${second}`
+				text = `${first}<span id=pos${bracketPos[currentPos]} style="font-weight: normal">${text[i]}</span>${second}`;
+				currentPos += 1;
 			}
 		}
 

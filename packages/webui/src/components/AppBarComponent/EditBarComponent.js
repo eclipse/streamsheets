@@ -309,7 +309,7 @@ export class EditBarComponent extends Component {
 
 	handleFormulaSelect = () => {
 		const selection = window.getSelection();
-		if (selection.isCollapsed) {
+		if (this._cellEditor && selection.isCollapsed) {
 			this._cellEditor.focusOffset = selection.focusOffset;
 			this._cellEditor.focusNode = selection.focusNode;
 		}
