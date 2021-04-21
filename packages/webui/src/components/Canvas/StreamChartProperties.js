@@ -1390,7 +1390,8 @@ export class StreamChartProperties extends Component {
 				str = str.replace(/^"(.+(?="$))"$/, '$1');
 				return str;
 			} else {
-				return `=${param.toString()}`;
+				const sheetView = this.getSheetView();
+				return `=${param.toString({item: sheetView.getItem(), useName: true})}`;
 			}
 		}
 		return '';
