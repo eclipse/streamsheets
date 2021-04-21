@@ -16,8 +16,14 @@ const getSheetFromItem = (item) => {
 	return sheet;
 };
 
+const getStreamSheetId = (sheet) => {
+	const sheetContainer = sheet && sheet.getStreamSheetContainer();
+	return (sheetContainer) ?
+		sheetContainer.getStreamSheetContainerAttributes().getSheetId().getValue() : undefined;
+}
 
 module.exports = {
 	// getStreamSheetById,
-	getSheetFromItem
+	getSheetFromItem,
+	getStreamSheetId
 };

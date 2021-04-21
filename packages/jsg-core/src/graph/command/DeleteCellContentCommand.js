@@ -14,6 +14,8 @@ const JSONWriter = require('../../commons/JSONWriter');
 const DataProvider = require('../model/DataProvider');
 const Selection = require('../model/Selection');
 const CellRange = require('../model/CellRange');
+const { getStreamSheetId } = require('./utils');
+
 /**
  * Command to delete the cell content within an array of ranges
  *
@@ -102,6 +104,8 @@ module.exports = class DeleteCellContentCommand extends AbstractItemCommand {
 			cellDescriptors.push(cellDescriptor);
 		});
 		data.undo.cellDescriptors = cellDescriptors;
+
+		if (this.sheet) data.streamsheetId = getStreamSheetId(this.sheet);
 
 		return data;
 	}
