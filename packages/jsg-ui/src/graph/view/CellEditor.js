@@ -219,6 +219,20 @@ export default class CellEditor {
 
 		const funcInfos = this.getFunctionInfos();
 		const info = this.parseFormulaInfo(text, cursorPosition);
+
+		for (let child = this.div.firstChild; child !== null; child = child.nextSibling) {
+			if (child.nodeName.toUpperCase() === 'SPAN' && child.id.startsWith('pos')) {
+				const id = Number(child.id.slice(3));
+				if (info && info.brackets && id - 1 === info.brackets.open) {
+					child.style.fontWeight = 'bold';
+				} else if (info && info.brackets && id - 1 === info.brackets.close) {
+					child.style.fontWeight = 'bold';
+				} else {
+					child.style.fontWeight = 'normal';
+				}
+			}
+		}
+
 		if (!info || !funcInfos) {
 			return undefined;
 		}
@@ -237,6 +251,7 @@ export default class CellEditor {
 			this.funcInfo = { paramIndex: info.paramIndex };
 			return funcInfos.filter((entry) => entry[0] === info.function);
 		}
+
 		return undefined;
 	}
 
@@ -530,14 +545,35 @@ export default class CellEditor {
 
 		text = text.replace(/(\r\n|\n|\r)/gm, '');
 
+		const bracketPos = [];
+
+		for (let i = text.length - 1; i >= 0; i -= 1) {
+			if (text[i] === '(' || text[i] === ')') {
+				bracketPos.push(i);
+			}
+		}
+
+		text = Strings.encodeXML(text);
+
+		let currentPos = 0;
+
+		for (let i = text.length - 1; i >= 0; i -= 1) {
+			if (text[i] === '(' || text[i] === ')') {
+				const first = text.slice(0, i);
+				const second = text.slice(i + 1);
+				text = `${first}<span id=pos${bracketPos[currentPos]} style="font-weight: normal">${text[i]}</span>${second}`;
+				currentPos += 1;
+			}
+		}
+
 		let formulaUpper = text.toUpperCase();
 		let index = 0;
 		let result = '';
 		let pos;
 		let err = false;
 
-		formulaUpper = Strings.encodeXML(formulaUpper);
-		let formula = Strings.encodeXML(text);
+		// formulaUpper = Strings.encodeXML(formulaUpper);
+		let formula = text;
 
 		// now for each range in ranges rangetostring -> find in textContent -> replace by span -> set
 		ranges.getRanges().forEach((range) => {
@@ -567,6 +603,9 @@ export default class CellEditor {
 			// better change nothing than wrong
 			return text;
 		}
+
+		// result = result.replace(/\(/g, '<span style="font-weight: bold">(</span>');
+		// result = result.replace(/\)/g, '<span style="font-weight: bold">)</span>');
 
 		return result;
 	}

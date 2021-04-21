@@ -25,6 +25,10 @@
 		"tag:latest": "node ./scripts/tag-latest.js --from-image-tag 1.5",
 		"i18n:check": "node ./scripts/i18n.js --en ./packages/webui/src/languages/en.json --de ./packages/webui/src/languages/de.json",
 		"start-gateway:watch": "nodemon --delay 2.5 --watch packages/gateway/out",
+		"functions": "yarn workspace @cedalo/functions",
+		"jsg-core": "yarn workspace @cedalo/jsg-core",
+		"machine-core": "yarn workspace @cedalo/machine-core",
+		"parser": "yarn workspace @cedalo/parser",
 		"webui": "yarn workspace @cedalo/webui"
 	},
 	"devDependencies": {
