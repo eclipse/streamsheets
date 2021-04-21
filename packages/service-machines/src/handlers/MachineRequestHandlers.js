@@ -861,9 +861,10 @@ class ZoomChartCommandRequestHandler {
 		return 0;
 	}
 
-	async runCommand(cmd, runner, streamsheetId, userId) {
+	async runCommand(cmd, runner, userId, defStreamsheetId) {
 		try {
-			const handler = this.handlers.get(cmd.name);
+			const { name, streamsheetId = defStreamsheetId } = cmd;
+			const handler = this.handlers.get(name);
 			if (handler) return await handler.handleCommand(cmd, runner, streamsheetId, userId);
 			throw new Error(`No handler for command: ${cmd.name}`);
 		} catch (err) {
@@ -873,7 +874,7 @@ class ZoomChartCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
 		command.commands.sort(this.sortCommands);
 		const results = await Promise.all(
-			command.commands.map((cmd) => this.runCommand(cmd, runner, streamsheetId, userId))
+			command.commands.map((cmd) => this.runCommand(cmd, runner, userId, streamsheetId))
 		);
 		return results;
 	}
