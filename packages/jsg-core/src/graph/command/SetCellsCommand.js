@@ -12,7 +12,7 @@ const AbstractItemCommand = require('./AbstractItemCommand');
 const Point = require('../../geometry/Point');
 const Expression = require('../expr/Expression');
 const CellRange = require('../model/CellRange');
-const { areEqual, cellDescriptor, getSheetFromItem } = require('./utils');
+const { areEqual, cellDescriptor, getSheetFromItem, getStreamSheetId } = require('./utils');
 
 const cellsFromResponse = ({ machineserver }) =>
 	machineserver ? machineserver.cells : {};
@@ -64,6 +64,7 @@ module.exports = class SetCellsCommand extends AbstractItemCommand {
 		data.cells = this._cellDescriptors;
 		data.execute = this._execute;
 		data.undo.cellDescriptors = this._oldCellDescriptors;
+		if (this.sheet) data.streamsheetId = getStreamSheetId(this.sheet);
 		return data;
 	}
 
