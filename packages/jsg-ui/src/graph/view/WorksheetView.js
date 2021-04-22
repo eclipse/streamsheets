@@ -123,6 +123,7 @@ export default class WorksheetView extends ContentNodeView {
 		cmd._noDraw = true;
 		viewer.activeView = this;
 		viewer.getInteractionHandler().execute(cmd);
+		viewer.activeView = this;
 
 		this.activateLayerSelection();
 	}

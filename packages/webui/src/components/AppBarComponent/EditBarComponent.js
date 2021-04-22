@@ -263,7 +263,7 @@ export class EditBarComponent extends Component {
 	};
 
 	handleFormulaKeyUp = (event) => {
-		if (event.keyCode === 18 || event.altKey) {
+		if (!this._cellEditor || event.keyCode === 18 || event.altKey) {
 			event.preventDefault();
 			return false;
 		}
