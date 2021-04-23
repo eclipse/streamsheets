@@ -144,7 +144,7 @@
 					"level": 0
 				  },
 				  "C8": {
-					"value": "kW/h",
+					"value": "kW",
 					"type": "string",
 					"level": 0
 				  },
@@ -164,7 +164,7 @@
 					"level": 0
 				  },
 				  "A9": {
-					"value": "Power per 100 ms",
+					"value": "Energy per 100 ms",
 					"type": "string",
 					"level": 0
 				  },
@@ -172,6 +172,11 @@
 					"formula": "B8/60/60/10",
 					"value": 0.02826666666666667,
 					"type": "undefined",
+					"level": 0
+				  },
+				  "C9": {
+					"value": "kWh",
+					"type": "string",
 					"level": 0
 				  },
 				  "I9": {
@@ -201,7 +206,7 @@
 					"level": 0
 				  },
 				  "C10": {
-					"value": "kW",
+					"value": "kWh",
 					"type": "string",
 					"level": 0
 				  },
@@ -4093,7 +4098,7 @@
 					"level": 0
 				  },
 				  "C14": {
-					"value": "kW/h",
+					"value": "kW",
 					"type": "string",
 					"level": 0
 				  },
