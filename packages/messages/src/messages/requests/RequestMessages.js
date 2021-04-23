@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -44,12 +44,13 @@ class CreateGraphMessage extends BaseMessage {
 
 class CreateStreamSheetMessage extends BaseMessage {
 
-	constructor({ serverConnection, machineId, streamsheetId, activeItemId, position }) {
+	constructor({ serverConnection, machineId, streamsheetId, activeItemId, position, sheetType }) {
 		super({ serverConnection, type: CREATE_STREAMSHEET_MESSAGE_TYPE });
 		this._machineId = machineId;
 		this._streamsheetId = streamsheetId;
 		this._activeItemId = activeItemId;
 		this._position = position;
+		this._sheetType = sheetType;
 	}
 
 	_getConfig() {
@@ -57,7 +58,8 @@ class CreateStreamSheetMessage extends BaseMessage {
 			machineId: this._machineId,
 			streamsheetId: this._streamsheetId,
 			activeItemId: this._activeItemId,
-			position: this._position
+			position: this._position,
+			sheetType: this._sheetType
 		};
 	}
 

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -47,6 +47,7 @@ const REQUEST_MAPPINGS = new Map([
 			parameters.streamsheetName = context.message.machineserver.streamsheet.name;
 			parameters.activeItemId = context.message.machineserver.activeItemId;
 			parameters.position = context.message.machineserver.position;
+			parameters.sheetType = context.message.machineserver.sheetType;
 			return parameters;
 		},
 		target: TARGET_GRAPH_SERVER

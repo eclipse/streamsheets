@@ -65,8 +65,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		attr.setPortMode(ItemAttributes.PortMode.NONE);
 		attr.setContainer(false);
 
-		// this.getCells().getItemAttributes().setContainer(false);
-
 		this.getWorksheetAttributes().setCalcOnDemand(true);
 		if (typeof sessionStorage !== 'undefined') {
 			const sessionId = sessionStorage.getItem('sessionId');
@@ -133,10 +131,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this._columns.saveCondensed(writer, 'columns');
 
 		if (!undo) {
-			// writer.writeStartElement('drawings');
-			// this._cells._saveSubItems(writer);
-			// writer.writeEndElement();
-
 			// save default cell
 			writer.writeStartElement('defaultcell');
 			this._defaultCell.save(writer);
@@ -242,10 +236,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			newName = `S${newId}`;
 			item = graph.getItemByName(newName);
 		}
-		// if(newName !== oldName) {
 		this.setName(newName);
 		setSheetCaption(newName, this.getStreamSheetContainer());
-		// }
 	}
 
 	setName(newName) {
@@ -322,24 +314,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 			return undefined;
 		}
 		return parent;
-	}
-
-	getDigits(parent) {
-		switch (
-			parent
-				.getItemAttributes()
-				.getScaleType()
-				.getValue()
-		) {
-			case 'scale':
-				return 0;
-			case 'bottom':
-				return 0;
-			default:
-				break;
-		}
-
-		return 0;
 	}
 
 	setShapes(json) {

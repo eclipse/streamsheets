@@ -13,4 +13,34 @@
 import NodeView from './NodeView';
 
 export default class LayoutView extends NodeView {
+
+	drawFill(graphics, format, rect) {
+		super.drawFill(graphics, format, rect);
+
+		const item = this.getItem();
+		const rowData = item.rowData;
+		const columnData = item.columnData;
+		let y = 0;
+		let x = 0;
+
+		graphics.setLineColor('#FF00DD');
+		graphics.beginPath();
+
+		rowData.forEach(row => {
+			graphics.moveTo(0, y);
+			graphics.lineTo(rect.width, y);
+
+			y += row.layoutSize;
+		});
+
+		columnData.forEach(column => {
+			graphics.moveTo(x, 0);
+			graphics.lineTo(x, rect.height);
+
+			x += column.layoutSize;
+		});
+
+		graphics.stroke();
+
+	}
 }

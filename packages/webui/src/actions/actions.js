@@ -761,11 +761,11 @@ export function reloadDashboard() {
 	updateMachines();
 }
 
-export function createStreamSheet(machineId, activeItemId, position) {
+export function createStreamSheet(machineId, activeItemId, position, sheetType) {
 	return (dispatch) => {
 		dispatch(sendCreateStreamSheet());
 		return gatewayClient
-			.createStreamSheet(machineId, activeItemId, position)
+			.createStreamSheet(machineId, activeItemId, position, sheetType)
 			.then((response) => dispatch(receiveCreateStreamSheet(response)))
 			.catch((error) => dispatch(requestFailed(messageTypes.STREAMSHEET_CREATE, error)));
 	};

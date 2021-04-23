@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -76,7 +76,7 @@ class EditTextActivator extends InteractionActivator {
 		if (this.isDisposed === false && !event.isConsumed) {
 			// on double click we renewal selection, so find controller again...
 			let controller = dispatcher.getControllerAt(event.location, undefined, this._dblclickCondition);
-			controller = this._getTextNodeController(dispatcher, controller, dispatcher.currentLocation);
+			controller = this._getTextNodeController(dispatcher, controller, dispatcher.currentLocation, false);
 			if (controller !== undefined) {
 				viewer.clearSelection(false);
 				viewer.onSelectionChanged();
@@ -124,7 +124,7 @@ class EditTextActivator extends InteractionActivator {
 			// F2
 			const selection = viewer.getSelection();
 			if (selection !== undefined && selection.length === 1) {
-				const controller = this._getTextNodeController(dispatcher, selection[0]);
+				const controller = this._getTextNodeController(dispatcher, selection[0], undefined, true);
 				if (controller !== undefined) {
 					this._startEditTextInteraction(event, viewer, dispatcher, controller);
 					event.doRepaint = true;
@@ -148,14 +148,14 @@ class EditTextActivator extends InteractionActivator {
 	 *     <code>undefined</code>.
 	 * @private
 	 */
-	_getTextNodeController(dispatcher, controller, evloc) {
+	_getTextNodeController(dispatcher, controller, evloc, create) {
 		if (controller !== undefined) {
 			const item = controller.getModel();
 			if (!(item instanceof TextNode)) {
 				let loc = evloc ? JSG.ptCache.get().setTo(evloc) : undefined;
 				loc = loc ? GraphUtils.translatePointDown(loc, item.getGraph(), item) : undefined;
 				let editItem = item.getEditableTextSubItem(loc);
-				if (editItem === undefined && item.isAddLabelAllowed()) {
+				if (editItem === undefined && item.isAddLabelAllowed() && create) {
 					this._addLabel(dispatcher, item);
 					editItem = item.getEditableTextSubItem();
 				}

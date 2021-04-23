@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -20,6 +20,7 @@ const SheetCheckboxNode = require('./SheetCheckboxNode');
 const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
 const CaptionNode = require('./CaptionNode');
+const LayoutNode = require('./LayoutNode');
 const CellsNode = require('./CellsNode');
 const HeaderNode = require('./HeaderNode');
 const LineNode = require('./LineNode');
@@ -2533,8 +2534,6 @@ class GraphItemFactory {
 				return new SheetSliderNode();
 			case 'sheetknobnode':
 				return new SheetKnobNode();
-			case 'sheetchartstatenode':
-				return new Node();
 			case 'chartnode':
 			case 'sheetplotnode':
 			case 'streamchart':
@@ -2543,6 +2542,8 @@ class GraphItemFactory {
 				return new InboxContainer();
 			case 'outboxcontainer':
 				return new OutboxContainer();
+			case 'layoutnode':
+				return new LayoutNode();
 			default:
 				return createItem(typeStr);
 		}

@@ -329,6 +329,7 @@ class CreateStreamSheetRequestHandler extends RequestHandler {
 			const result = await runner.request('createStreamSheet', userId);
 			// REVIEW: for what?
 			result.position = request.position;
+			result.sheetType = request.sheetType;
 			result.activeItemId = request.activeItemId;
 			return this.confirm(request, result);
 		}

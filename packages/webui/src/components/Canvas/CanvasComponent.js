@@ -186,7 +186,7 @@ export class CanvasComponent extends Component {
 		this.setState({ graph: sheet.getGraph() });
 	};
 
-	onAdd = () => {
+	onAdd = (event) => {
 		const graph = graphManager.getGraph();
 		let cnt = graph.getStreamSheetContainerCount();
 
@@ -210,7 +210,7 @@ export class CanvasComponent extends Component {
 
 		graph.setViewMode(undefined, 0);
 
-		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt });
+		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, event.shiftKey ? 'dashboard' : 'sheet');
 	};
 
 	initGraphEditor() {
@@ -335,7 +335,7 @@ export class CanvasComponent extends Component {
 								right: '30px',
 								bottom: '26px',
 							}}
-							onClick={this.onAdd}
+							onClick={(event) => this.onAdd(event)}
 						>
 							<AddIcon
 								style={{

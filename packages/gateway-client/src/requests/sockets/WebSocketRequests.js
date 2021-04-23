@@ -374,18 +374,20 @@ class UnsubscribeGraphWebSocketRequest extends WebSocketRequest {
  */
 
 class CreateStreamSheetWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, activeItemId, position) {
+	constructor(ws, machineId, activeItemId, position, sheetType) {
 		super(ws, CREATE_STREAMSHEET_MESSAGE_TYPE);
 		this._machineId = machineId;
 		this._activeItemId = activeItemId;
 		this._position = position;
+		this._sheetType = sheetType;
 	}
 
 	_getConfig() {
 		return {
 			machineId: this._machineId,
 			activeItemId: this._activeItemId,
-			position: this._position
+			position: this._position,
+			sheetType: this._sheetType
 		};
 	}
 }
