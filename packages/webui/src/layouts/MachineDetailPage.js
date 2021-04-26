@@ -122,7 +122,7 @@ export function MachineDetailPage(props) {
 			graphManager.updateCanvas(viewMode);
 			graphManager.redraw();
 		}
-	}, [machineLoaded, viewMode]);
+	}, [machineLoaded, viewMode, canEditMachine]);
 
 	const loadUser = async () => {
 		try {
