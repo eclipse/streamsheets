@@ -3,6 +3,9 @@
 import ItemMenuProvider from './ItemMenuProvider';
 import StreamChartSeries from './entries/StreamChartSeries';
 import StreamChartData from './entries/StreamChartData';
+import AddDashBoardItem from './entries/AddDashBoardItem';
+import AddLayoutColumn from './entries/AddLayoutColumn';
+import AddLayoutRow from './entries/AddLayoutRow';
 
 const MENU_STYLE = 'jsg-item-menu';
 const MENU_ROW_STYLE = 'jsg-item-menu-row';
@@ -36,6 +39,9 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 		// this.addEntry(new MenuDelete());
 		this.addEntry(new StreamChartSeries());
 		this.addEntry(new StreamChartData());
+		this.addEntry(new AddDashBoardItem());
+		this.addEntry(new AddLayoutColumn());
+		this.addEntry(new AddLayoutRow());
 	}
 
 	// adds a MenuEntry to this provider
@@ -67,23 +73,23 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 	// called by framework to create an html-element which represents a menu for given item. return
 	// <code>undefined</code> if item is not handled... creates a div-element with default style
 	// ItemMenuProvider.STYLE_SELECTOR
-	createMenu(item, editor) {
+	createMenu(item, editor, position) {
 		let menu;
-		const entries = this._filterEntries(item);
+		const entries = this._filterEntries(item, position);
 
 		if (entries.length) {
 			menu = document.createElement('div');
 			menu.className = DefaultMenuProvider.MENU_STYLE;
 			this.addMouseListener(menu, item, editor);
-			this.updateMenu(menu, item, editor, entries);
+			this.updateMenu(menu, item, editor, entries, position);
 		}
 		return menu;
 	}
 
-	_filterEntries(item) {
+	_filterEntries(item, position) {
 		const filtered = [];
 		for (let i = 0; i < this.entries.length; i += 1) {
-			const row = this._filteredRow(this.entries[i], item);
+			const row = this._filteredRow(this.entries[i], item, position);
 			if (row.length) {
 				filtered.push(row);
 			}
@@ -91,25 +97,25 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 		return filtered;
 	}
 
-	_filteredRow(row, item) {
+	_filteredRow(row, item, position) {
 		const filtered = [];
 		for (let i = 0; i < row.length; i += 1) {
-			if (row[i].isVisible(item)) {
+			if (row[i].isVisible(item) && row[i].position === position) {
 				filtered.push(row[i]);
 			}
 		}
 		return filtered;
 	}
 
-	updateMenu(menu, item, editor, entries) {
+	updateMenu(menu, item, editor, entries, position) {
 		entries = entries || this._filterEntries(item);
 		this.clearMenu(menu);
 		for (let i = 0; i < entries.length; i += 1) {
-			this._addMenuRow(entries[i], menu, item);
+			this._addMenuRow(entries[i], menu, item, position);
 		}
 	}
 
-	_addMenuRow(group, menu, item) {
+	_addMenuRow(group, menu, item, position) {
 		if (group.length) {
 			// add entries
 			const menurow = document.createElement('div');

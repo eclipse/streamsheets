@@ -1561,6 +1561,9 @@ export default class CellsView extends NodeView {
 	drawSelections(graphics) {
 		const wsView = this._wsView;
 		const ws = this._wsItem;
+		if (!ws) {
+			return;
+		}
 		const focus =
 			this.getGraphView().getFocus() &&
 			this.getGraphView()

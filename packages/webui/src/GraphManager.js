@@ -568,13 +568,16 @@ export default class GraphManager {
 	executeCommands(command, options) {
 		if (command && command.type === 'message_add') {
 			return this.addInboxMessage(command.container, command.message);
-		// } else if (command.commands) {
-		// 	command.commands.forEach((subcommand) => {
-		// 		this.executeCommands(subcommand, options);
-				// });
 		}
 		const cmd = SheetCommandFactory.createCommand(this.getGraph(), command, this.getGraphEditor().getGraphViewer());
 		if (cmd) {
+			let container;
+			if ((cmd instanceof JSG.AddItemCommand) && (cmd._graphItem instanceof JSG.StreamSheetContainer)) {
+				container = cmd._graphItem;
+				if (container.getStreamSheetContainerAttributes().getSheetType().getValue() === 'dashboard') {
+					container.addDashboardSettings();
+				}
+			}
 			// commands received from graph-service are volatile:
 			cmd.isVolatile = true;
 			if (options && options.undo) {
@@ -583,6 +586,9 @@ export default class GraphManager {
 				this.getGraphEditor().getInteractionHandler().baseRedo(cmd);
 			} else {
 				this.getGraphEditor().getInteractionHandler().baseExecute(cmd, this.graphWrapper);
+				if (container) {
+					this.getGraphEditor().getInteractionHandler().updateGraphItems();
+				}
 			}
 		}
 		return !!cmd;

@@ -19,6 +19,7 @@ const Notification = require('../notifications/Notification');
 const StreamSheet = require('./StreamSheet');
 const InboxContainer = require('./InboxContainer');
 const CaptionNode = require('./CaptionNode');
+const LayoutNode = require('./LayoutNode');
 const ButtonNode = require('./ButtonNode');
 const SplitterNode = require('./SplitterNode');
 const StreamSheetContainerAttributes = require('../attr/StreamSheetContainerAttributes');
@@ -75,6 +76,18 @@ module.exports = class StreamSheetContainer extends Node {
 		this.getItemAttributes().setClipChildren(true);
 
 		// this._drawEnabled = false;
+	}
+
+	addDashboardSettings() {
+		this._layoutNode = new LayoutNode();
+		this._processSheet.getCells().addItem(this._layoutNode);
+		this._layoutNode.setSize(20000, 10000);
+		this._layoutNode.getPin().setLocalPoint(0, 0);
+		this._layoutNode.setOrigin(0, 0);
+		this._layoutNode.getItemAttributes().setMoveable(false);
+		this._layoutNode.getItemAttributes().setDeleteable(false);
+		this._processSheet.getWorksheetAttributes().setShowHeader(false);
+		this._processSheet.getWorksheetAttributes().setShowGrid(false);
 	}
 
 	createButtons() {
@@ -327,7 +340,6 @@ module.exports = class StreamSheetContainer extends Node {
 
 		// inbox save content
 		this._inboxContainer.saveCondensed(writer, 'inbox');
-
 		this._processSheet.saveCondensed(writer);
 
 		writer.writeEndElement('graphitem');

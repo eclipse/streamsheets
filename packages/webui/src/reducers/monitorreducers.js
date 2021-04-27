@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -210,6 +210,7 @@ export default function doRequest(state = defState, reqaction) {
 			break;
 		case ActionTypes.RECEIVE_CREATE_STREAMSHEET:
 			newstate.machine.streamsheets.push({ ...reqaction.data.machineserver.streamsheet });
+			graphManager.addDashboard();
 			break;
 		case ActionTypes.SAVE_PROCESS_SETTINGS:
 			newstate.machine.streamsheets.map((streamsheet) => {

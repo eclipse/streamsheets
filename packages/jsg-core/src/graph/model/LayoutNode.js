@@ -10,6 +10,7 @@
  *
  ********************************************************************************/
 const Node = require('./Node');
+const LayoutSection = require('./LayoutSection');
 const FormatAttributes = require('../attr/FormatAttributes');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Strings = require('../../commons/Strings');
@@ -17,32 +18,16 @@ const Numbers = require('../../commons/Numbers');
 const CompoundCommand = require('../command/CompoundCommand');
 const AddItemCommand = require('../command/AddItemCommand');
 
-class LayoutSection {
-	constructor(size) {
-		// auto, content, 1/100mm, percent
-		this._size = size === undefined ? 'auto' : size;
-		// auto, px
-		this._minSize = 'auto';
-		this._paddingBefore = 300;
-		this._paddingAfter = 300;
-		this._marginBefore = 300;
-		this._marginAfter = 300;
-	}
-
-	get size() {
-		return this._size === undefined ? 3000 : this._size;
-	}
-}
 
 module.exports = class LayoutNode extends Node {
 	constructor() {
 		super();
 
-		this._rows = 3;
+		this._rows = 2;
 		this._columns = 2;
 
 		// LayoutSections
-		this._rowData = [new LayoutSection(1000)];
+		this._rowData = [new LayoutSection(2000)];
 		this._columnData = [];
 
 		// LayoutCells
@@ -84,6 +69,13 @@ module.exports = class LayoutNode extends Node {
 		return this._columns;
 	}
 
+	addRow(section) {
+		this.rowData.push(section);
+		this._rows += 1;
+		this.updateData();
+		this.getGraph().markDirty();
+	}
+
 	updateData() {
 		// allocate missing sections
 		for (let i = 0; i < this._rows; i+= 1) {
@@ -108,15 +100,68 @@ module.exports = class LayoutNode extends Node {
 				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
 				if (!node) {
 					node = new Node();
+					node.getFormat().setLineColor('#BBBBBB');
 					node.getItemAttributes().setRotatable(false);
 					node.getItemAttributes().setMoveable(false);
 					node.getItemAttributes().setSizeable(false);
+					node.getItemAttributes().setDeleteable(false);
 					this.addItem(node, rowIndex * this._columnData.length + columnIndex);
 					// cmd.add(new AddItemCommand(cell._node, this));
 				}
 			});
 		});
+	}
 
+	fromJSON(json) {
+		super.fromJSON(json);
+
+		const layout = json.layout;
+
+		if (!layout) {
+			return;
+		}
+
+		this._rows = layout.rows;
+		this._columns = layout.columns;
+
+		if (layout.rowData) {
+			this._rowData = [];
+			layout.rowData.forEach(data => {
+				const section = new LayoutSection();
+				section.fromJSON(data);
+				this._rowData.push(section);
+			});
+		}
+
+		if (layout.columnData) {
+			this._columnData = [];
+			layout.columnData.forEach(data => {
+				const section = new LayoutSection();
+				section.fromJSON(data);
+				this._columnData.push(section);
+			});
+		}
+	}
+
+	toJSON() {
+		const json = super.toJSON();
+		const layout = {};
+
+		layout.rows = this._rows;
+		layout.columns = this._columns;
+		layout.rowData = [];
+		layout.columnData = [];
+
+		this._columnData.forEach((section) => {
+			layout.columnData.push(section.toJSON());
+		});
+		this._rowData.forEach((section) => {
+			layout.rowData.push(section.toJSON());
+		});
+
+		json.layout = layout;
+
+		return json;
 	}
 
 	layout() {
@@ -175,7 +220,7 @@ module.exports = class LayoutNode extends Node {
 			if (Numbers.isNumber(sizeSection)) {
 				row.layoutSize = sizeSection;
 			} else {
-				row.layoutSize = 4000;
+				row.layoutSize = 6000;
 			}
 			size.y += row.layoutSize;
 		});
@@ -193,8 +238,8 @@ module.exports = class LayoutNode extends Node {
 					node.setOrigin(x, y);
 					node.setSize(column.layoutSize, row.layoutSize);
 					node.getItems().forEach(subItem => {
-						subItem.setOrigin(margin, margin);
 						subItem.setSize(column.layoutSize - margin * 2, row.layoutSize - margin * 2);
+						subItem.setOrigin(margin, margin);
 
 					});
 				}
@@ -212,3 +257,4 @@ module.exports = class LayoutNode extends Node {
 		return false;
 	}
 };
+

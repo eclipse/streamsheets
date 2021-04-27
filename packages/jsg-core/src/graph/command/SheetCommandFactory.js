@@ -40,6 +40,7 @@ const SheetName = require('../model/SheetName');
 const AddSheetNameCommand = require('./AddSheetNameCommand');
 const SetSheetNameCommand = require('./SetSheetNameCommand');
 const DeleteSheetNameCommand = require('./DeleteSheetNameCommand');
+const AddLayoutSectionCommand = require('./AddLayoutSectionCommand');
 const AddGraphCellCommand = require('./AddGraphCellCommand');
 const SetGraphCellCommand = require('./SetGraphCellCommand');
 const DeleteGraphCellCommand = require('./DeleteGraphCellCommand');
@@ -88,6 +89,7 @@ const Registry = {
 	'command.AddSheetNameCommand': AddSheetNameCommand,
 	'command.SetSheetNameCommand': SetSheetNameCommand,
 	'command.DeleteSheetNameCommand': DeleteSheetNameCommand,
+	'command.AddLayoutSectionCommand': AddLayoutSectionCommand,
 	'command.AddGraphCellCommand': AddGraphCellCommand,
 	'command.SetGraphCellCommand': SetGraphCellCommand,
 	'command.DeleteGraphCellCommand': DeleteGraphCellCommand,

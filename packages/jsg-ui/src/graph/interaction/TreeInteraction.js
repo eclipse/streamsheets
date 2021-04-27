@@ -24,6 +24,8 @@ import TreeFeedbackView from '../feedback/TreeFeedbackView';
 import Interaction from './Interaction';
 import ContentNodeView from '../view/ContentNodeView';
 import Cursor from '../../ui/Cursor';
+import Highlighter from './Highlighter';
+import LayerId from '../view/LayerId';
 
 /**
  * Interaction that handles TreeView item selection and edit.
@@ -301,7 +303,11 @@ export default class TreeInteraction extends Interaction {
 
 		const targetView = controller.getView();
 		if (!targetView.getDragTarget) {
-			this._createFeedback(selectedItem, event, viewer);
+
+			viewer.clearLayer(LayerId.TARGETCONTAINER);
+			Highlighter.getDefault().highlightController(controller, viewer);
+
+			// this._createFeedback(selectedItem, event, viewer);
 			return;
 		}
 
