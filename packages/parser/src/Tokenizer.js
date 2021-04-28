@@ -42,6 +42,7 @@ const UNARY_OPS = {
 // think we do not need precedence values for units...
 const UNIT_OPS = [ '%' ];
 const BINARY_OPS = {
+	// '.': 12,
 	'^': 11,
 	'*': 10,
 	'/': 10,
@@ -71,6 +72,8 @@ let length;		// expression length
 let ch;			// current character code
 let expr;		// expression to parse
 let ctxt;		// parsing context, provides defined functions...
+// for dot-reference and function with dots
+// const operators = [];
 
 function keyCode(char) {
 	return char != null ? char.charCodeAt(0) : undefined;
@@ -433,12 +436,49 @@ function parseList() {
 	return token;
 }
 
+// function markAsDissolved(start) {
+// 	for (let i = start; i < operators.length; i += 1) {
+// 		operators[i].operator.dissolve = true;
+// 		// operators[i].node.dissolve = true;
+// 	}
+// }
+// function nameFromNode(node) {
+// 	if (node.operator === '.') {
+
+// 	}
+// }
+// function checkDotFunction(fnName) {
+// 	if (operators.length) {
+// 		// have test each dot name beginning with all
+// 		let name;
+// 		const names = [];
+// 		const start = operators.length - 1;
+// 		for (let i = start; i >= 0; i -= 1) {
+// 			name = name ? `${operators[i].value}.${name}` : operators[i].value;
+// 			names.push(name);
+// 		}
+// 		// starting with complete name
+// 		for (let i = names.length - 1; i >= 0; i -= 1) {
+// 			name = `${names[i]}.${fnName}`;
+// 			if (ctxt.hasFunction(name)) {
+// 				// mark operators as to be 
+// 				// markAsDissolved(i);
+// 				operators[start].operator.dissolve = true;
+// 				// operators[start].node.left = dissolve(operators[start - 1].node, start - i);
+// 				return name;
+// 			}
+// 		}
+// 	}
+// 	return ctxt.hasFunction(fnName) ? fnName : undefined;
+// }
 function parseFunctionOrIdentifier() {
 	let op = parseIdentifier();
 	skipWhiteSpace();
 	if (ch === KEY_CODES.OPAREN) {
 		// we expecting a function:
 		const fname = ctxt.hasFunction(op.value) ? op.value : undefined;
+		// const fname = checkDotFunction(op.value);
+		// operators.length = 0;
 		if (fname) {
 			const oparen = index - 1;
 			ch = expr.charCodeAt(index);
@@ -461,7 +501,10 @@ function parseFunctionOrIdentifier() {
 			// no exception thrown, we simply ignore. op should be an identifier at least...
 			op.isInvalid = true; // mark it as invalid...
 		}
-	}
+	} 
+	// else if (op.dotref) {
+	// 	parseDotReferences(op);
+	// }
 	return op;
 }
 
@@ -540,7 +583,12 @@ function parseOperator() {
 }
 
 function createBinaryNode(left, operator, right) {
-	return {
+	// right muss ein identifier/string sein
+	// while(left.dissolve) left = left.left;
+	if (operator.dissolve) {
+		return right;
+	}
+	const node = {
 		type: 'binaryop',
 		operator: operator.symbol,
 		end: right.end,
@@ -548,6 +596,23 @@ function createBinaryNode(left, operator, right) {
 		left,
 		right
 	};
+	// if (operator.symbol === '.' && right.type === 'identifier') {
+	// 	const value = left.type === 'identifier' ? `${left.value}.${right.value}`: right.value;
+	// 	operators.push({ value, node });
+	// }
+	//  && (left.type === 'identifier' || right.type === 'identifier')) {
+	// 	operators.push({ value: left.value, node });
+	// }
+	return node;
+	// return {
+	// 	type: 'binaryop',
+	// 	operator: operator.symbol,
+	// 	dissolve: operator.dissolve,
+	// 	end: right.end,
+	// 	start: left.start,
+	// 	left,
+	// 	right
+	// };
 }
 
 function parseRight(left, operator) {
@@ -555,6 +620,10 @@ function parseRight(left, operator) {
 	if (!right && !throwException(`Missing expression after ${operator.symbol}`, index, ErrorCode.EXPECTED_EXPRESSION)) {
 		right = { type: 'undef', isInvalid: true, start: index - 1, end: index };
 	}
+
+	// if (operator.symbol === '.' && right.type === 'identifier') operators.push({ value: right.value, operator });
+	// else operators.length = 0;
+
 	// stack required for moving & rearranging nodes according to operators precedence
 	const treestack = [left, operator, right];
 	let node;
@@ -576,6 +645,9 @@ function parseRight(left, operator) {
 		}
 		// next operand
 		right = parseOperand();
+		// if (nextop.symbol === '.' && right.type === 'identifier') operators.push({ value: right.value, operator: nextop });
+		// else operators.length = 0;
+
 		if (!right
 			&& !throwException(`Missing expression after ${operator.symbol}`, index, ErrorCode.EXPECTED_EXPRESSION)) {
 			right = { type: 'undef', isInvalid: true, start: index - 1, end: index };
@@ -595,6 +667,8 @@ function parseExpression(isGroupOrParam) {
 	const left = parseOperand();
 	const operator = parseOperator();
 	if (left && operator) {
+		// if (operator.symbol === '.' && left.type === 'identifier') operators.push({value: left.value, operator });
+		// else operators.length = 0;
 		return parseRight(left, operator);
 	}
 	// no operator, run 'til next character
@@ -638,7 +712,9 @@ const initWith = (formula = '', context) => {
 class Tokenizer {
 	static createAST(formula, context) {
 		initWith(formula, context);
-		return parseExpression();
+		const ast = parseExpression();
+		// operators.length = 0;
+		return ast;
 	}
 
 	static createValueNode(str, context) {
