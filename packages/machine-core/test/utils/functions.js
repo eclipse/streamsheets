@@ -41,16 +41,7 @@ const sum = (sheet, ...terms) =>
 
 const dummy = (/* sheet, ...terms */) => true;
 const json = () => ({ key: 'key', value: 42 });
-const jsonFromText = (sheet, jsonstr) => {
-	try {
-		const json = JSON.parse(jsonstr.value);
-		return json;
-	} catch(err) {
-		console.log(err);
-		throw err;
-	}
-	return undefined;
-}
+const jsonFromText = (sheet, jsonstr) => JSON.parse(jsonstr.value);
 
 module.exports = {
 	COLUMN: column,

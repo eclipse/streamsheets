@@ -311,7 +311,7 @@ describe('Tokenizer', () => {
 			// let ast = Tokenizer.createAST('a.to.b()', context);
 			// validateNode(ast, { type: 'function', value: 'a.to.b' });
 
-			let ast = Tokenizer.createAST('a1.a.to.b()', context);
+			const ast = Tokenizer.createAST('a1.a.to.b()', context);
 			expect(ast.operator).toBe('.');
 			validateNode(ast.left, { type: 'identifier', value: 'a1' });
 			validateNode(ast.right, { type: 'function', value: 'a.to.b' });
