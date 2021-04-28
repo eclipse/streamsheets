@@ -162,13 +162,18 @@ class Cell {
 		this._info = Object.assign({}, obj);
 	}
 
+	get references() {
+		return this._references;
+	}
+
+	get sheet() {
+		return this._sheet;
+	}
+
 	get term() {
 		return this._term;
 	}
 
-	get references() {
-		return this._references;
-	}
 
 	set term(term) {
 		setTerm(term, this);
