@@ -10,6 +10,7 @@
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { BinaryOperator, BoolOperator, UnaryOperator } = require('@cedalo/parser');
+const DotReferenceOperator = require('./DotReferenceOperator');
 
 const ERROR = FunctionErrors.code;
 
@@ -70,3 +71,5 @@ module.exports.AndOperator = class AndOperator extends BoolOperator {
 		super('&&', (left, right) => isError(left, right) || (left && right));
 	}
 };
+
+module.exports.DotReference = DotReferenceOperator;
