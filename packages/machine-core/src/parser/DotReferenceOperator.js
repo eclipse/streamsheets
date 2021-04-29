@@ -14,6 +14,8 @@ const { BinaryOperator } = require('@cedalo/parser');
 
 const ERROR = FunctionErrors.code;
 
+const getSheetFrom = (term) => term && (term.sheet || (term.cell && term.cell.sheet));
+
 const getJSONFromMessageBox = (sheet, boxstr) => {
 	let msg;
 	if (sheet && boxstr) {
@@ -31,7 +33,7 @@ const getJSONFromMessageBox = (sheet, boxstr) => {
 const getJSON = (term) => {
 	const value = term && term.value;
 	const type = typeof value;
-	if (type === 'string') return getJSONFromMessageBox(term.cell && term.cell.sheet, value);
+	if (type === 'string') return getJSONFromMessageBox(getSheetFrom(term), value);
 	return value && (Array.isArray(value) || typeof value === 'object') ? value : undefined;
 };
 
