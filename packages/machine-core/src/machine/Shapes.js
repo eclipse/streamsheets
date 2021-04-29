@@ -17,6 +17,10 @@ const checkTermValue = (term) => {
 	// eslint-disable-next-line no-nested-ternary
 	return value != null ? value : term.hasOperandOfType('CellReference') ? 0 : value;
 };
+const registerSheet = (term, sheet) => {
+	const setSheet = (t) => { t.sheet = sheet; return true; };
+	term.traverse(setSheet, null, false);
+};
 
 // temp. borrowed from JSG...
 const decode = (str) => {
@@ -87,6 +91,7 @@ class Shapes {
 				if (value.msc) {
 					if  (!value.term) {
 						value.term = SheetParser.parse(decode(value.f), this.sheet);
+						registerSheet(value.term, this.sheet);
 					}
 					updateValue(value);
 				}
