@@ -8,9 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { FuncTerm } = require('./Term');
+const ErrorCode = require('./ErrorCodes');
 const DefFunctions = require('./Functions').Functions;
 const Locale = require('./Locale');
+const { Operand, StringOperand } = require('./Operand');
+const ParserError = require('./ParserError');
+const { Term, FuncTerm } = require('./Term');
 
 /* eslint-disable */
 if (typeof Object.assign !== 'function') {
@@ -47,14 +50,33 @@ class ParserContext {
 		this.strict = false; // support different levels?
 	}
 
+	createIdentifierTerm(node, parent) {
+		const identifier = Operand.fromString(node.value);
+		const isInvalid = identifier && identifier.isTypeOf(Operand.TYPE.STRING);
+		// return isInvalid && this.strict ? undefined : identifier;
+		if (isInvalid && this.strict) {
+			node.isInvalid = true;
+			if (!this.ignoreErrors) {
+				throw ParserError.create({
+					name: 'Parser Error',
+					code: ErrorCode.UNKNOWN_IDENTIFIER,
+					operand: node.value,
+					message: 'Unknown identifier or parameter!'
+				});
+			}
+		}
+		const term = new Term();
+		term.operand = identifier || (node.value === '' ? new StringOperand(node.value) : Operand.UNDEF);
+		return term;
+	}
+
 	/**
 	 * @param node 	An AST node provided by parser
 	 * @param [parent] An AST node provided by parser which is the parent node. Optional!
 	 * @return Term or <code>undefined</code>
 	 */
 	// eslint-disable-next-line
-	createReferenceTerm(node, parent) {
-	}
+	createReferenceTerm(node, parent) {}
 
 	/**
 	 * @param node 	An AST node provided by parser

@@ -9,10 +9,11 @@
  *
  ********************************************************************************/
 const logger = require('../logger').create({ name: 'SheetParserContext' });
-const { referenceFromNode } = require('./References');
-const FunctionRegistry = require('../FunctionRegistry');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { ParserContext, Term } = require('@cedalo/parser');
+const { IdentifierOperand, ParserContext, Term } = require('@cedalo/parser');
+const DotReferenceOperator = require('./DotReferenceOperator');
+const FunctionRegistry = require('../FunctionRegistry');
+const { referenceFromNode } = require('./References');
 
 // DL-1431
 const EXCLUDE_FUNCTIONS = ['ACOS', 'ASIN', 'ATAN', 'ATAN2'];
@@ -59,7 +60,14 @@ class SheetParserContext extends ParserContext {
 	constructor() {
 		super();
 		this.strict = true;
-		this.functions = Object.assign({NOOP: noop}, filter(this.functions));
+		this.functions = Object.assign({ NOOP: noop }, filter(this.functions));
+	}
+
+	createIdentifierTerm(node, parent) {
+		// parent has a dot reference:
+		return parent && parent.operator === DotReferenceOperator.SYMBOL
+			? new Term(new IdentifierOperand(node.value))
+			: super.createIdentifierTerm(node, parent);
 	}
 
 	// node: is a parser AST node

@@ -41,6 +41,7 @@ const sum = (sheet, ...terms) =>
 
 const dummy = (/* sheet, ...terms */) => true;
 const json = () => ({ key: 'key', value: 42 });
+const jsonFromText = (sheet, jsonstr) => JSON.parse(jsonstr.value);
 
 module.exports = {
 	COLUMN: column,
@@ -48,6 +49,7 @@ module.exports = {
 	COPYVALUES: dummy,
 	INBOXDATA: dummy,
 	JSON: json,
+	'JSON.FROM.TEXT': jsonFromText,
 	OUTBOXDATA: dummy,
 	READ: dummy,
 	ROW: row,

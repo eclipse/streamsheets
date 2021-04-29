@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { FunctionErrors } = require('@cedalo/error-codes');
+const { ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
 const Cell = require('../machine/Cell');
 const { ErrorTerm } = require('./Error');
 const SheetParserContext = require('./SheetParserContext');
-const { AndOperator, ConcatOperator, Operations } = require('./Operations');
-const { FunctionErrors } = require('@cedalo/error-codes');
-const { ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
+const { AndOperator, ConcatOperator, DotReference, Operations } = require('./Operations');
 
 class ObjectTerm extends Term {
 	constructor(value) {
@@ -90,6 +90,7 @@ const convertParserError = (error) => {
 
 Operation.register(new AndOperator(), 2);
 Operation.register(new ConcatOperator(), 7);
+Operation.register(new DotReference(), 12);
 
 // replace basic parser operations with own, more excel like, once
 Operations.forEach((op) => Operation.set(op));
