@@ -10,7 +10,7 @@
  ********************************************************************************/
 const ErrorCodes = require('./src/ErrorCodes');
 const { Functions } = require('./src/Functions');
-const { Operand, Reference, StringOperand } = require('./src/Operand');
+const { IdentifierOperand, Operand, Reference, StringOperand } = require('./src/Operand');
 const {
 	Operation, Operator, BoolOperator, BinaryOperator, ConditionOperator, UnaryOperator
 } = require('./src/Operation');
@@ -27,6 +27,7 @@ module.exports = {
 	Functions,
 	Locale,
 	Operand,
+	IdentifierOperand,
 	StringOperand,
 	Operation,
 	Operator,
