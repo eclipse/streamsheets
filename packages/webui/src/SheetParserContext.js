@@ -9,13 +9,14 @@
  *
  ********************************************************************************/
 import JSG from '@cedalo/jsg-ui';
-import { BoolOperator, Operation } from '@cedalo/parser';
+import { BinaryOperator, BoolOperator, Operation, IdentifierOperand, Term } from '@cedalo/parser';
 
 
 const { GraphParserContext } = JSG;
 
 // eslint-disable-next-line eqeqeq
 Operation.register(new BoolOperator('<>', (left, right) => left != right), 4); // we need a sheet-parser module!!
+Operation.register(new BinaryOperator('#', (/* left, right */) => '#CALC'), 12);
 
 const isFunctionParam = (node, parent) =>
 	parent && parent.type === 'function' && (node.type === 'string');
@@ -31,6 +32,14 @@ export default class SheetParserContext extends GraphParserContext {
 		// DL-1587: keep some parser defined functions => NOTE: simply keeping all parser functions didn't work! why???
 		const parserFunctions = keepParserFunctions(['MIN', 'MAX'], this.functions);
 		this.functions = Object.assign({}, this.functions, sheetFunctions, parserFunctions);
+	}
+
+	// we may need a sheet-parser module!!
+	createIdentifierTerm(node, parent) {
+		// parent has a dot reference:
+		return parent && parent.operator === '#'
+			? new Term(new IdentifierOperand(node.value))
+			: super.createIdentifierTerm(node, parent);
 	}
 
 	createReferenceTerm(node, parent) {
