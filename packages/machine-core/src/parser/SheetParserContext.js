@@ -10,7 +10,7 @@
  ********************************************************************************/
 const logger = require('../logger').create({ name: 'SheetParserContext' });
 const { FunctionErrors } = require('@cedalo/error-codes');
-const { ParserContext, StringOperand, Term } = require('@cedalo/parser');
+const { IdentifierOperand, ParserContext, Term } = require('@cedalo/parser');
 const DotReferenceOperator = require('./DotReferenceOperator');
 const FunctionRegistry = require('../FunctionRegistry');
 const { referenceFromNode } = require('./References');
@@ -66,7 +66,7 @@ class SheetParserContext extends ParserContext {
 	createIdentifierTerm(node, parent) {
 		// parent has a dot reference:
 		return parent && parent.operator === DotReferenceOperator.SYMBOL
-			? new Term(new StringOperand(node.value))
+			? new Term(new IdentifierOperand(node.value))
 			: super.createIdentifierTerm(node, parent);
 	}
 
