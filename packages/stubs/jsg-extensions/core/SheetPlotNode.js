@@ -46,7 +46,7 @@ const {
 
 const epsilon = 0.000000001;
 const isValuesCell = (cell) => cell && cell._info && cell.values != null;
-const getTimeCell = (item, formula) => {
+const getTimeCell = (item, ser) => {
 	const cell = item.getDataSourceInfo(formula);
 	return cell && cell.time;
 };

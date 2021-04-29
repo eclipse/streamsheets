@@ -671,6 +671,9 @@ class Expression {
 		if (json.ref) {
 			this._cellref = json.ref;
 		}
+		if (json.info) {
+			this._info = json.info;
+		}
 	}
 
 	toJSON(serverCalc) {
@@ -812,6 +815,7 @@ class Expression {
 		const locked = reader.getAttribute(node, 'locked');
 		const termValue = reader.getAttribute(node, 'sv');
 
+		this._info = reader.getAttribute(node, 'info');
 		this.setTermValue(termValue);
 
 		this._isLocked = false;

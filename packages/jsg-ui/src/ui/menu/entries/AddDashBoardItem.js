@@ -90,13 +90,12 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			}
 			default:
 				node = new JSG.SheetPlotNode();
-				node.setChartType(type);
+				type = node.setChartType(type);
 				node.series.forEach((serie) => {
 					serie.type = type;
 				});
 
 				node.setChartTypeForSeries(type);
-
 				break;
 			}
 			if (node) {
@@ -112,10 +111,11 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			const div = document.createElement('div');
 			div.id = id;
 			// div.style.margin = '4px 4px 4px 0px';
-			div.style.height = '40px';
-			div.style.width = '40px';
+			div.style.height = '50px';
+			div.style.width = '50px';
 			div.style.backgroundImage = `url(${icon})`;
 			div.style.backgroundPosition = 'center center';
+			div.style.backgroundRepeat = 'no-repeat';
 			pdiv.appendChild(div);
 			const label = document.createElement('label');
 			label.innerHTML = subtitle;
@@ -128,6 +128,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 
 		addTitle('Charts');
 		addElement('line', 'Line', 'images/charts/line.png');
+		addElement('scatterline', 'Timeline', 'images/charts/line.png');
 		addElement('column', 'Column', 'images/charts/column.png');
 		addElement('bar', 'Bar', 'images/charts/bar.png');
 		addElement('gauge', 'Gauge', 'images/charts/gauge.png');

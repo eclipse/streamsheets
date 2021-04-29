@@ -102,6 +102,10 @@ module.exports = class ChartSeries {
 			writer.writeAttributeString('tooltip', this.tooltip);
 		}
 
+		if (this.formulaValues) {
+			this.formulaValues.save('formulavalues', writer);
+		}
+
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
@@ -139,6 +143,10 @@ module.exports = class ChartSeries {
 				case 'formula':
 					this.formula = new Expression(0);
 					this.formula.read(reader, child);
+					break;
+				case 'formulavalues':
+					this.formulaValues = new Expression(0);
+					this.formulaValues.read(reader, child);
 					break;
 				case 'format':
 					this.format = new ChartFormat();

@@ -50,6 +50,9 @@ const updateValue = (obj) => {
 	if (obj.term && obj.term.hasOperandOfType('CellReference')) {
 		obj.ref = obj.term.operand.toString();
 	}
+	if (obj.term && obj.term.info) {
+		obj.info = obj.term.info;
+	}
 };
 
 class Shapes {
@@ -91,7 +94,9 @@ class Shapes {
 				if (value.msc) {
 					if  (!value.term) {
 						value.term = SheetParser.parse(decode(value.f), this.sheet);
-						registerSheet(value.term, this.sheet);
+						if (value.term) {
+							registerSheet(value.term, this.sheet);
+						}
 					}
 					updateValue(value);
 				}

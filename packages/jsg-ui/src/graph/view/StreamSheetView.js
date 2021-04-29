@@ -15,6 +15,10 @@ import {
 	InboxContainer,
 	OutboxContainer,
 	StreamSheet,
+	TextNode,
+	StringExpression,
+	SheetPlotNode,
+	Expression,
 	SheetCommandFactory,
 	Point,
 	BoundingBox, Shape
@@ -257,6 +261,60 @@ export default class StreamSheetView extends WorksheetView {
 		}
 
 		return undefined;
+	}
+
+	onDropShape(controller, title, sourceView, event, viewer) {
+		const item = controller.getModel();
+		const selection = sourceView.getSelectedItem();
+		const treeItems = sourceView.getItem().getSubTreeForItem(selection);
+		treeItems.unshift(selection);
+		const itemPath = sourceView.getItem().getItemPathDot(treeItems[0]);
+		let cmd;
+		// const path = TreeItemsNode.splitPath(itemPath);
+
+		if (item instanceof TextNode) {
+			const expr = new Expression(0, `INBOXDATA#${itemPath}`);
+			cmd = SheetCommandFactory.create('command.SetTextCommand', item, item.getText(), expr);
+		} else if (item instanceof SheetPlotNode) {
+			switch (item.chart.type) {
+			case 'scatterline': {
+				const expr = new Expression(0, `TIMEAGGREGATE(INBOXDATA#${itemPath})`);
+				cmd = new JSG.CompoundCommand();
+				const cmdTitle = item.prepareCommand('title');
+				const cmdSeries = item.prepareCommand('series');
+				const cmdAxes = item.prepareCommand('axes');
+				item.series[0].formulaValues = expr;
+				item.title.formula = new StringExpression(itemPath);
+				item.xAxes[0].type = 'time';
+				item.xAxes[0].format.localCulture = `time;en`;
+				item.xAxes[0].format.numberFormat = 'h:mm:ss';
+				item.xAxes[0].format.linkNumberFormat = false;
+				item.finishCommand(cmdTitle, 'title');
+				item.finishCommand(cmdSeries, 'series');
+				item.finishCommand(cmdAxes, 'axes');
+				cmd.add(cmdTitle);
+				cmd.add(cmdSeries);
+				cmd.add(cmdAxes);
+				break;
+			}
+			default: {
+				const expr = new Expression(0, `INBOXDATA#${itemPath}`);
+				cmd = new JSG.CompoundCommand();
+				const cmdTitle = item.prepareCommand('title');
+				const cmdSeries = item.prepareCommand('series');
+				item.series[0].formulaValues = expr;
+				item.title.formula = new StringExpression(itemPath);
+				item.finishCommand(cmdTitle, 'title');
+				item.finishCommand(cmdSeries, 'series');
+				cmd.add(cmdTitle);
+				cmd.add(cmdSeries);
+			}
+			}
+		}
+
+		if (cmd) {
+			viewer.getInteractionHandler().execute(cmd);
+		}
 	}
 
 	/**
