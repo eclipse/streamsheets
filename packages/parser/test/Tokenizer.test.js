@@ -58,18 +58,12 @@ describe('Tokenizer', () => {
 			validateResult('-3+-2', -5);
 
 			validateResult('"http://linktome.de"', 'http://linktome.de');
-			validateResult(
-				'"http://localhost/jsg/JSG/js-src/jsgDemo/index.html"',
-				'http://localhost/jsg/JSG/js-src/jsgDemo/index.html'
-			);
-			validateResult(
-				'"http://msdn.microsoft.com/en-us/library/ie/gg699341.aspx"',
-				'http://msdn.microsoft.com/en-us/library/ie/gg699341.aspx'
-			);
-			validateResult(
-				'"http://blabla.de/?utm_source=feedburner&utm_campaign=Feed%3A+blub%2FdqXM+%28&utm_content"',
-				'http://blabla.de/?utm_source=feedburner&utm_campaign=Feed%3A+blub%2FdqXM+%28&utm_content'
-			);
+			validateResult('"http://localhost/jsg/JSG/js-src/jsgDemo/index.html"',
+				'http://localhost/jsg/JSG/js-src/jsgDemo/index.html');
+			validateResult('"http://msdn.microsoft.com/en-us/library/ie/gg699341.aspx"',
+				'http://msdn.microsoft.com/en-us/library/ie/gg699341.aspx');
+			validateResult('"http://blabla.de/?utm_source=feedburner&utm_campaign=Feed%3A+blub%2FdqXM+%28&utm_content"',
+				'http://blabla.de/?utm_source=feedburner&utm_campaign=Feed%3A+blub%2FdqXM+%28&utm_content');
 
 			testexpr = '(x-1)*-2';
 			ast = Tokenizer.createAST(testexpr, DEF_CONTEXT);
@@ -219,13 +213,9 @@ describe('Tokenizer', () => {
 		// DL-1111:
 		it('should not allow 2 double or 2 single quotes in row at start or end', () => {
 			// =EXECUTE("P1",1,SUBTREE(INBOXDATA(,,"”Program”")))
-			expect(() => {
-				Tokenizer.createAST('SUM(""Programmm"")', DEF_CONTEXT);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('SUM(""Programmm"")', DEF_CONTEXT); }).toThrow();
 			// NOTE left & right double quotes used!!!
-			expect(() => {
-				Tokenizer.createAST('"”Programmm”")', DEF_CONTEXT);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('"”Programmm”")', DEF_CONTEXT); }).toThrow();
 		});
 		// DL-1370
 		it('should support identifiers of type "nr:nr", e.g. 1:1', () => {
@@ -237,118 +227,6 @@ describe('Tokenizer', () => {
 			expect(ast.left).toBeUndefined();
 			expect(ast.right).toBeUndefined();
 		});
-	});
-	describe.skip('parsing dot reference', () => {
-		it.skip('should parse dot references', () => {
-			let ast = Tokenizer.createAST('inbox.temp', DEF_CONTEXT);
-			expect(ast.operator).toBe('.');
-			validateNode(ast.left, { type: 'identifier', value: 'inbox' });
-			validateNode(ast.right, { type: 'identifier', value: 'temp' });
-			// multiple
-			ast = Tokenizer.createAST('a1.b1.c1.d1.e1', DEF_CONTEXT);
-			expect(ast.operator).toBe('.');
-			validateNode(ast.right, { type: 'identifier', value: 'e1' });
-			validateNode(ast.left, { type: 'binaryop', opterator: '.' });
-			let left = ast.left.left;
-			let right = ast.left.right;
-			validateNode(right, { type: 'identifier', value: 'd1' });
-			validateNode(left, { type: 'binaryop', opterator: '.' });
-			right = left.right;
-			left = left.left;
-			validateNode(right, { type: 'identifier', value: 'c1' });
-			validateNode(left, { type: 'binaryop', opterator: '.' });
-			right = left.right;
-			left = left.left;
-			validateNode(right, { type: 'identifier', value: 'b1' });
-			validateNode(left, { type: 'identifier', value: 'a1' });
-		});
-		it.skip('should parse dot references and normal operators', () => {
-			let ast = Tokenizer.createAST('a1.b1+c1.d1', DEF_CONTEXT);
-			expect(ast.operator).toBe('+');
-			validateNode(ast.left, { type: 'binaryop', operator: '.' });
-			validateNode(ast.right, { type: 'binaryop', operator: '.' });
-			validateNode(ast.left.left, { type: 'identifier', value: 'a1' });
-			validateNode(ast.left.right, { type: 'identifier', value: 'b1' });
-			validateNode(ast.right.left, { type: 'identifier', value: 'c1' });
-			validateNode(ast.right.right, { type: 'identifier', value: 'd1' });
-			ast = Tokenizer.createAST('a1.b1+c1.d1*e1.f1', DEF_CONTEXT);
-			expect(ast.operator).toBe('+');
-			validateNode(ast.left, { type: 'binaryop', operator: '.' });
-			validateNode(ast.left.left, { type: 'identifier', value: 'a1' });
-			validateNode(ast.left.right, { type: 'identifier', value: 'b1' });
-			// check multiple branch:
-			expect(ast.right.operator).toBe('*');
-			validateNode(ast.right.left, { type: 'binaryop', operator: '.' });
-			validateNode(ast.right.right, { type: 'binaryop', operator: '.' });
-			validateNode(ast.right.left.left, { type: 'identifier', value: 'c1' });
-			validateNode(ast.right.left.right, { type: 'identifier', value: 'd1' });
-			validateNode(ast.right.right.left, { type: 'identifier', value: 'e1' });
-			validateNode(ast.right.right.right, { type: 'identifier', value: 'f1' });
-		});
-		it('should parse functions and dot references', () => {
-			const context = new ParserContext();
-			context.setFunction('a.b', () => {});
-			context.setFunction('a.to.b', () => {});
-			// let ast = Tokenizer.createAST('sum(42).a1.b1', context);
-			// expect(ast.operator).toBe('.');
-			// validateNode(ast.right, { type: 'identifier', value: 'b1' });
-			// validateNode(ast.left, { type: 'binaryop', operator: '.' });
-			// validateNode(ast.left.right, { type: 'identifier', value: 'a1' });
-			// validateNode(ast.left.left, { type: 'function', value: 'sum' });
-			// validateNode(ast.left.left.params[0], { type: 'number', value: '42' });
-			
-			// ast = Tokenizer.createAST('a1.sum(42).b1', context);
-			// expect(ast.operator).toBe('.');
-			// validateNode(ast.right, { type: 'identifier', value: 'b1' });
-			// validateNode(ast.left, { type: 'binaryop', operator: '.' });
-			// validateNode(ast.left.right, { type: 'function', value: 'sum' });
-			// validateNode(ast.left.right.params[0], { type: 'number', value: '42' });
-			// validateNode(ast.left.left, { type: 'identifier', value: 'a1' });
-			
-			// let ast = Tokenizer.createAST('a.b()', context);
-			// validateNode(ast, { type: 'function', value: 'a.b' });
-			
-			// let ast = Tokenizer.createAST('a.to.b()', context);
-			// validateNode(ast, { type: 'function', value: 'a.to.b' });
-
-			const ast = Tokenizer.createAST('a1.a.to.b()', context);
-			expect(ast.operator).toBe('.');
-			validateNode(ast.left, { type: 'identifier', value: 'a1' });
-			validateNode(ast.right, { type: 'function', value: 'a.to.b' });
-
-
-
-			// expect(ast.operator).toBe('.');
-			// validateNode(ast.right, { type: 'identifier', value: 'a1' });
-			
-			// let ast = Tokenizer.createAST('a.to.b().a1', context);
-			// ast = Tokenizer.createAST('a1.a.to.b()', context);
-			// ast = Tokenizer.createAST('a1.a.to.b().b1', context);
-			// ast = Tokenizer.createAST('a1.a.to.b().b1+c1.a.to.b()', context);
-
-			// expect(false).toBe(true);
-		});
-		it.skip('should parse dot references as parameters', () => {
-			// if(true, a1.b1, a1.a.to.b()).Temp
-			// sum(a1.b1 + c1.d1 + a1.a.to.b().c1+d1.e1)
-			// sum(a1.b1).c1
-			
-		})
-		// // const _context = new ParserContext();
-		// // _context.setFunction('test', () => {});
-		// // let ast = Tokenizer.createAST('a1.b1.c1', DEF_CONTEXT);
-
-		// // let ast = Tokenizer.createAST('json.sum().c1', DEF_CONTEXT);
-		// // let ast = Tokenizer.createAST('sum().temp', DEF_CONTEXT);
-		// let ast = Tokenizer.createAST('a1.b1.ai.to.be().c1', context);
-		// expect(ast.params).toBeDefined();
-		// expect(ast.params.length).toBe(3);
-		// expect(ast.params[0].type).toBe('undef');
-		// expect(ast.params[0].value).toBeUndefined();
-		// expect(ast.params[1].type).toBe('undef');
-		// expect(ast.params[1].value).toBeUndefined();
-		// expect(ast.params[2].type).toBe('undef');
-		// expect(ast.params[2].value).toBeUndefined();
 	});
 	describe('parsing functions', () => {
 		const context = new ParserContext();
@@ -381,9 +259,7 @@ describe('Tokenizer', () => {
 			validateResult('maX(2, sum(1,2,3,4), 23, 9, 8)', 23, context);
 		});
 		it('should thrown an error on unknown functions', () => {
-			expect(() => {
-				Tokenizer.createAST('NEENEE(1,2,3,4,5)', DEF_CONTEXT);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('NEENEE(1,2,3,4,5)', DEF_CONTEXT); }).toThrow();
 		});
 		it('should support parameters for functions', () => {
 			const _context = new ParserContext();
@@ -491,64 +367,40 @@ describe('Tokenizer', () => {
 	});
 	describe('error handling', () => {
 		it('should throw an error on unknown function', () => {
-			expect(() => {
-				Tokenizer.createAST('UnknownFunc(1,2,3,4,5)', DEF_CONTEXT);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('UnknownFunc(1,2,3,4,5)', DEF_CONTEXT); }).toThrow();
 		});
 		it('should throw an error on wrong parameter separator', () => {
-			expect(() => {
-				Tokenizer.createAST('SUM(1;2)', DEF_CONTEXT);
-			}).toThrow();
-			expect(() => {
-				Tokenizer.createAST('SUM(1,2;)', DEF_CONTEXT);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('SUM(1;2)', DEF_CONTEXT); }).toThrow();
+			expect(() => { Tokenizer.createAST('SUM(1,2;)', DEF_CONTEXT); }).toThrow();
 			// change parameter separators
 			const contextDE = new ParserContext();
 			contextDE.separators = Locale.DE.separators;
 			// expect(() => { Tokenizer.createAST('SUM(1,2)', contextDE); }).toThrow();
-			expect(() => {
-				Tokenizer.createAST('SUM(1;2.)', contextDE);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('SUM(1;2.)', contextDE); }).toThrow();
 			// DL-1120
-			expect(() => {
-				Tokenizer.createAST('SUM(B3;4,5,0)', DEF_CONTEXT);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('SUM(B3;4,5,0)', DEF_CONTEXT); }).toThrow();
 		});
 		// DL-1306
 		it('should throw an error on none closing quotes or bracket', () => {
 			const context = new ParserContext();
 			context.setFunction('EXECUTE', (scope, ...params) => params.join(', '));
-			expect(() => {
-				Tokenizer.createAST('EXECUTE("P2,1)', context);
-			}).toThrow();
-			expect(() => {
-				Tokenizer.createAST('EXECUTE("P2",1', context);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('EXECUTE("P2,1)', context); }).toThrow();
+			expect(() => { Tokenizer.createAST('EXECUTE("P2",1', context); }).toThrow();
 		});
 		it('should throw an error on wrong decimal separator', () => {
 			const ctxt = new ParserContext();
-			expect(() => {
-				Tokenizer.createAST('2,3+2.4', ctxt);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('2,3+2.4', ctxt); }).toThrow();
 		});
 		// DL-2549
 		it('should throw an error if decimal separator is used multiple times', () => {
 			const ctxt = new ParserContext();
-			expect(() => {
-				Tokenizer.createAST('2.3.4', ctxt);
-			}).toThrow();
-			expect(() => {
-				Tokenizer.createAST('2.3.', ctxt);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('2.3.4', ctxt); }).toThrow();
+			expect(() => { Tokenizer.createAST('2.3.', ctxt); }).toThrow();
 			// change parameter separators
 			const contextDE = new ParserContext();
 			contextDE.separators = Locale.DE.separators;
-			expect(() => {
-				Tokenizer.createAST('2,2,', contextDE);
-			}).toThrow();
-			expect(() => {
-				Tokenizer.createAST('2,2,2', contextDE);
-			}).toThrow();
+			expect(() => { Tokenizer.createAST('2,2,', contextDE); }).toThrow();
+			expect(() => { Tokenizer.createAST('2,2,2', contextDE); }).toThrow();
 		});
 	});
 });

@@ -50,7 +50,7 @@ class ParserContext {
 		this.strict = false; // support different levels?
 	}
 
-	createIdentifierTerm(node, parent) {
+	createIdentifierTerm(node /*, parent */) {
 		const identifier = Operand.fromString(node.value);
 		const isInvalid = identifier && identifier.isTypeOf(Operand.TYPE.STRING);
 		// return isInvalid && this.strict ? undefined : identifier;
@@ -97,6 +97,10 @@ class ParserContext {
 
 	hasFunction(id) {
 		return !!this.functions[id.toUpperCase()];
+	}
+
+	isFunctionPrefix(/* prefix, expr, index */) {
+		return false;
 	}
 
 	// should return function to call or undefined
