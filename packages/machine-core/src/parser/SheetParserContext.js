@@ -55,14 +55,22 @@ const referenceTerm = (node, context) => {
 
 // for internally use only => to ease parsing 
 const noop = (/* sheet, ...terms */) => null;
+const checkPrefix = (prefix, expr, index) => (name) =>
+	name.startsWith(prefix) && expr.charAt(index + name.length) === '(';
+const isDotFunction = (name2) => name2.indexOf(DotReferenceOperator.SYMBOL) > 0;
 
 class SheetParserContext extends ParserContext {
 	constructor() {
 		super();
 		this.strict = true;
 		this.functions = Object.assign({ NOOP: noop }, filter(this.functions));
+		this.functionNames = Object.keys(this.functions).filter(isDotFunction);
 	}
 
+	updateFunctions(newFunctions) {
+		this.functions = Object.assign(this.functions, newFunctions);
+		this.functionNames = Object.keys(this.functions).filter(isDotFunction);
+	}
 	createIdentifierTerm(node, parent) {
 		// parent has a dot reference:
 		return parent && parent.operator === DotReferenceOperator.SYMBOL
@@ -74,6 +82,12 @@ class SheetParserContext extends ParserContext {
 	// return a reference term or undefined...
 	createReferenceTerm(node) {
 		return referenceTerm(node, this);
+	}
+
+	isFunctionPrefix(prefix = '', expr, index) {
+		prefix = prefix.toUpperCase();
+		const hasPrefix = checkPrefix(prefix, expr, index);
+		return FunctionRegistry.getDotFunctions().some(hasPrefix) || this.functionNames.some(hasPrefix);
 	}
 
 	getFunction(id) {
