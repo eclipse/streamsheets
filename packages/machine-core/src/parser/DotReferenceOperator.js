@@ -39,7 +39,7 @@ const getJSON = (term) => {
 
 // TODO: review symbol. maybe ° because it is a bit similar to . 
 // NOTE: 2 characters are possible too, e.g. :: or -> or ...
-const SYMBOL = '#';
+const SYMBOL = '.';
 
 class DotReferenceOperator extends BinaryOperator {
 	static get SYMBOL() {
