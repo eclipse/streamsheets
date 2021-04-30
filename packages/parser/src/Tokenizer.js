@@ -147,11 +147,12 @@ function precedenceOfBinary(op) {
 	return prec;
 }
 
+function validateBinaryOperator(str) {
+	return isBinaryOperatorStr(str) ? str : undefined;
+}
 function getBinaryOperator(c1, c2) {
 	const op = String.fromCharCode(c1);
-	if (isBinaryOperatorStr(op)) return op;
-	if (c2) c2 = op + String.fromCharCode(c2);
-	return isBinaryOperatorStr(c2) ? c2 : undefined;
+	return validateBinaryOperator(op) || (c2 && validateBinaryOperator(op + String.fromCharCode(c2)));
 	// return isBinaryOperatorStr(op) || (c2 ? isBinaryOperatorStr(op + String.fromCharCode(c2)) : false);
 }
 
