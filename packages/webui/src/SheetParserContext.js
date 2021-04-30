@@ -14,13 +14,19 @@ import { BinaryOperator, BoolOperator, Operation, IdentifierOperand, Term } from
 
 const { GraphParserContext } = JSG;
 
+const DOT_REF_SYMBOL = '.';
+
 // eslint-disable-next-line eqeqeq
 Operation.register(new BoolOperator('<>', (left, right) => left != right), 4); // we need a sheet-parser module!!
-Operation.register(new BinaryOperator('#', (/* left, right */) => '#CALC'), 12);
+Operation.register(new BinaryOperator(DOT_REF_SYMBOL, (/* left, right */) => '#CALC'), 12);
 
 const isFunctionParam = (node, parent) =>
 	parent && parent.type === 'function' && (node.type === 'string');
 
+const hasPrefix = (prefix = '') => {
+	prefix = prefix.toUpperCase();
+	return (name) => name.startsWith(prefix);
+};
 
 const keepParserFunctions = (keep, functions) => keep.reduce((acc, name) => ({ ...acc, [name]: functions[name] }), {});
 
@@ -32,17 +38,23 @@ export default class SheetParserContext extends GraphParserContext {
 		// DL-1587: keep some parser defined functions => NOTE: simply keeping all parser functions didn't work! why???
 		const parserFunctions = keepParserFunctions(['MIN', 'MAX'], this.functions);
 		this.functions = Object.assign({}, this.functions, sheetFunctions, parserFunctions);
+		this.functionNames = Object.keys(this.functions);
 	}
 
 	// we may need a sheet-parser module!!
 	createIdentifierTerm(node, parent) {
 		// parent has a dot reference:
-		return parent && parent.operator === '#'
+		return parent && parent.operator === DOT_REF_SYMBOL
 			? new Term(new IdentifierOperand(node.value))
 			: super.createIdentifierTerm(node, parent);
 	}
 
 	createReferenceTerm(node, parent) {
 		return (isFunctionParam(node, parent)) ? undefined : super.createReferenceTerm(node);
+	}
+
+	isFunctionPrefix(prefix) {
+		prefix = prefix.toUpperCase();
+		return this.functionNames.some(hasPrefix(prefix)) || super.isFunctionPrefix(prefix);
 	}
 }
