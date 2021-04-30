@@ -9,7 +9,6 @@
  *
  ********************************************************************************/
 const { Machine, StreamSheet, Sheet } = require('../..');
-const { functions } = require('../utils');
 const { SheetParser } = require('../../src/parser/SheetParser');
 const { FuncTerm, Operand } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
@@ -17,7 +16,6 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 
 let machine;
 beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
 	SheetParser.context.scope = new Sheet();
 	machine = new Machine();
 	machine.addStreamSheet(new StreamSheet({ name: 'T1' }));

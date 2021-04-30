@@ -8,15 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { createTerm, functions, validate } = require('../utils');
-const { Machine, StreamSheet, Sheet, SheetIndex, SheetParser } = require('../..');
+const { createTerm, validate } = require('../utils');
+const { Machine, StreamSheet, Sheet, SheetIndex } = require('../..');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
-
-beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
-});
 
 const createMachine = () => {
 	const machine = new Machine();

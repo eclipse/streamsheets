@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const { SheetParser } = require('../');
+const functions = require('./utils/functions');
 const mockedFunctions = require('./_functions');
 
 // WHY? if we mock here instead of mocking in corresponding test it works with above SheetParser require!!
@@ -18,4 +19,4 @@ jest.mock('../src/streams/StreamMessagingClient');
 process.env.OUTBOX_PERSISTENT = false;
 
 // setup parser and its context...
-Object.assign(SheetParser.context.functions, mockedFunctions);
+SheetParser.context.updateFunctions(Object.assign({}, functions, mockedFunctions));

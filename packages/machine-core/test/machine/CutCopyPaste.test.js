@@ -8,13 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { functions } = require('../utils');
-const { Machine, SheetIndex, SheetParser, SheetRange, StreamSheet } = require('../..');
+const { Machine, SheetIndex, SheetRange, StreamSheet } = require('../..');
 const DEF_PROPS = require('../../defproperties.json');
 
-beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
-});
 
 const setup = () => {
 	const machine = new Machine();
