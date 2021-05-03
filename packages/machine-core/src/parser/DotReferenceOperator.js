@@ -37,8 +37,6 @@ const getJSON = (term) => {
 	return value && (Array.isArray(value) || typeof value === 'object') ? value : undefined;
 };
 
-// TODO: review symbol. maybe ° because it is a bit similar to . 
-// NOTE: 2 characters are possible too, e.g. :: or -> or ...
 const SYMBOL = '.';
 
 class DotReferenceOperator extends BinaryOperator {

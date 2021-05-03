@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -17,27 +17,29 @@ const { referenceFromNode } = require('./References');
 
 // DL-1431
 const EXCLUDE_FUNCTIONS = ['ACOS', 'ASIN', 'ATAN', 'ATAN2'];
-const filter = (functions) => Object.entries(functions).reduce((acc, [name, func]) => {
+const filter = (functions) =>
+	Object.entries(functions).reduce((acc, [name, func]) => {
 		if (!EXCLUDE_FUNCTIONS.includes(name)) acc[name] = func;
 		return acc;
 	}, {});
 
-const executor = (func) => function wrappedFunction(sheet, ...terms) {
-	let result;
-	const term = wrappedFunction.term;
-	func.term = term; // deprecated
-	func.context = term.context;
-	wrappedFunction.displayName = func.displayName;
-	try {
-		result = func(sheet, ...terms);
-	} catch (err) {
-		logger.error('Error', err);
-		return FunctionErrors.code.FUNC_EXEC;
-	}
-	func.term = undefined;
-	func.context = undefined;
-	return result;
-};
+const executor = (func) =>
+	function wrappedFunction(sheet, ...terms) {
+		let result;
+		const term = wrappedFunction.term;
+		func.term = term; // deprecated
+		func.context = term.context;
+		wrappedFunction.displayName = func.displayName;
+		try {
+			result = func(sheet, ...terms);
+		} catch (err) {
+			logger.error('Error', err);
+			return FunctionErrors.code.FUNC_EXEC;
+		}
+		func.term = undefined;
+		func.context = undefined;
+		return result;
+	};
 
 // DL-1253: an identifier can contain an error code. we ignore this and simply use a string term for it
 const createErrorTermFromNode = (node) =>
@@ -53,11 +55,12 @@ const referenceTerm = (node, context) => {
 	return undefined;
 };
 
-// for internally use only => to ease parsing 
+// for internally use only => to ease parsing
 const noop = (/* sheet, ...terms */) => null;
 const checkPrefix = (prefix, expr, index) => (name) =>
 	name.startsWith(prefix) && expr.charAt(index + name.length) === '(';
 const isDotFunction = (name2) => name2.indexOf(DotReferenceOperator.SYMBOL) > 0;
+const isFirst = (node, parent) => node.start === parent.left.start && parent.left.operator == null;
 
 class SheetParserContext extends ParserContext {
 	constructor() {
@@ -72,10 +75,13 @@ class SheetParserContext extends ParserContext {
 		this.functionNames = Object.keys(this.functions).filter(isDotFunction);
 	}
 	createIdentifierTerm(node, parent) {
-		// parent has a dot reference:
-		return parent && parent.operator === DotReferenceOperator.SYMBOL
-			? new Term(new IdentifierOperand(node.value))
-			: super.createIdentifierTerm(node, parent);
+		if (parent && parent.operator === DotReferenceOperator.SYMBOL) {
+			// capitalize first part if its a function, mainly used for inbox, inboxdata...
+			const str = node.value;
+			const identifier = isFirst(node, parent) && this.hasFunction(str) ? str.toUpperCase() : str;
+			return new Term(new IdentifierOperand(identifier));
+		}
+		return super.createIdentifierTerm(node, parent);
 	}
 
 	// node: is a parser AST node

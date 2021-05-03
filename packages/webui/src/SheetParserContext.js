@@ -23,10 +23,10 @@ Operation.register(new BinaryOperator(DOT_REF_SYMBOL, (/* left, right */) => '#C
 const isFunctionParam = (node, parent) =>
 	parent && parent.type === 'function' && (node.type === 'string');
 
-const hasPrefix = (prefix = '') => {
-	prefix = prefix.toUpperCase();
-	return (name) => name.startsWith(prefix);
-};
+const checkPrefix = (prefix, expr, index) => (name) =>
+	name.startsWith(prefix) && expr.charAt(index + name.length) === '(';
+
+const isFirst = (node, parent) => node.start === parent.left.start && parent.left.operator == null;
 
 const keepParserFunctions = (keep, functions) => keep.reduce((acc, name) => ({ ...acc, [name]: functions[name] }), {});
 
@@ -43,18 +43,22 @@ export default class SheetParserContext extends GraphParserContext {
 
 	// we may need a sheet-parser module!!
 	createIdentifierTerm(node, parent) {
-		// parent has a dot reference:
-		return parent && parent.operator === DOT_REF_SYMBOL
-			? new Term(new IdentifierOperand(node.value))
-			: super.createIdentifierTerm(node, parent);
+		if (parent && parent.operator === DOT_REF_SYMBOL) {
+			// capitalize first part if its a function, mainly used for inbox, inboxdata...
+			const str = node.value;
+			const identifier = isFirst(node, parent) && this.hasFunction(str) ? str.toUpperCase() : str;
+			return new Term(new IdentifierOperand(identifier));
+		}
+		return super.createIdentifierTerm(node, parent);
 	}
 
 	createReferenceTerm(node, parent) {
 		return (isFunctionParam(node, parent)) ? undefined : super.createReferenceTerm(node);
 	}
 
-	isFunctionPrefix(prefix) {
+	isFunctionPrefix(prefix = '', expr, index) {
 		prefix = prefix.toUpperCase();
-		return this.functionNames.some(hasPrefix(prefix)) || super.isFunctionPrefix(prefix);
+		const hasPrefix = checkPrefix(prefix, expr, index);
+		return this.functionNames.some(hasPrefix) || this.functionNames.some(hasPrefix);
 	}
 }
