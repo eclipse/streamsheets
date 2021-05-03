@@ -892,7 +892,7 @@ class FormatAttributes extends AttributeList {
 	 * {{#crossLink "AttributeChangeEvent"}}{{/crossLink}} is raised.
 	 *
 	 * @method setLineCorner
-	 * @param {BooleanExpression | String} corner Corner radius to assign.
+	 * @param {NumberExpression | Number} corner Corner radius to assign.
 	 */
 	setLineCorner(corner) {
 		this.setAttribute(FormatAttributes.LINECORNER, corner);

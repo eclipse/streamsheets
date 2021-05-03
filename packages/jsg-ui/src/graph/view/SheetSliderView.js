@@ -112,7 +112,7 @@ export default class SheetSliderView extends NodeView {
 
 		let pos = ((value - min) / range) * tmpRect.width;
 
-		graphics.setFillColor('#FFFFFF');
+		graphics.setFillColor(JSG.theme.fill);
 		graphics.fillRect(tmpRect);
 
 		if (ranges.length && ranges[0].color) {

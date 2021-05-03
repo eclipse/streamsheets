@@ -20,6 +20,7 @@ import {
 	default as JSG,
 	InboxContainer,
 	StreamSheetContainer,
+	StreamSheetContainerWrapper,
 	RowHeaderNode,
 	ScrollbarNode,
 	SheetButtonNode,
@@ -54,6 +55,7 @@ import { createView } from '@cedalo/jsg-extensions/ui';
 import NodeView from '../view/NodeView';
 import TextView from '../view/TextView';
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
+import StreamSheetContainerWrapperView from '../view/StreamSheetContainerWrapperView';
 
 /**
  * A controller to determine the behavior of {{#crossLink "Node"}}{{/crossLink}}s. A Node
@@ -204,6 +206,9 @@ class NodeController extends GraphItemController {
 		}
 		if (model instanceof StreamSheetContainer) {
 			return new StreamSheetContainerView(model);
+		}
+		if (model instanceof StreamSheetContainerWrapper) {
+			return new StreamSheetContainerWrapperView(model);
 		}
 		if (model instanceof StreamSheetContainer) {
 			return new StreamSheetContainerView(model);

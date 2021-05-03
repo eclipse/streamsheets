@@ -85,7 +85,31 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				f.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
 				f.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
 				f.setRichText(false);
+				f.setFontSize(18);
 				node.associate(false);
+				node.setHeight(1000);
+				break;
+			}
+			case 'check':
+				node = new JSG.SheetCheckboxNode();
+				node.setHeight(800);
+				break;
+			case 'slider':
+				node = new JSG.SheetSliderNode();
+				node.setHeight(1500);
+				break;
+			case 'knob':
+				node = new JSG.SheetKnobNode();
+				node.setHeight(3000);
+				break;
+			case 'sheet': {
+				node = new JSG.StreamSheetContainerWrapper();
+				const graphcontroller = editor.getGraphViewer().getGraphController();
+				const controller = graphcontroller.getControllerByModelId(2000);
+				if (!controller) {
+					return false;
+				}
+				node._tmpCont = controller;
 				break;
 			}
 			default:
@@ -111,8 +135,8 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			const div = document.createElement('div');
 			div.id = id;
 			// div.style.margin = '4px 4px 4px 0px';
-			div.style.height = '50px';
-			div.style.width = '50px';
+			div.style.height = '48px';
+			div.style.width = '48px';
 			div.style.backgroundImage = `url(${icon})`;
 			div.style.backgroundPosition = 'center center';
 			div.style.backgroundRepeat = 'no-repeat';
@@ -126,18 +150,22 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			toolBox.appendChild(pdiv);
 		};
 
+		addTitle('Timeline');
+		addElement('scatterline', 'Timeline', 'images/charts/line.png');
 		addTitle('Charts');
 		addElement('line', 'Line', 'images/charts/line.png');
-		addElement('scatterline', 'Timeline', 'images/charts/line.png');
 		addElement('column', 'Column', 'images/charts/column.png');
 		addElement('bar', 'Bar', 'images/charts/bar.png');
-		addElement('gauge', 'Gauge', 'images/charts/gauge.png');
-		toolBox.appendChild(document.createElement('br'));
 		addElement('map', 'Map', 'images/charts/map.png');
-		toolBox.appendChild(document.createElement('br'));
+		addTitle('Status');
+		addElement('gauge', 'Gauge', 'images/charts/gauge.png');
+		addElement('check', 'Checkbox', 'lib/res/svg/checkbox.svg');
+		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
+		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
 		addTitle('Other');
-		addElement('text', 'Label', 'lib/res/svg/table.svg');
-		addElement('layout', 'Layout', 'lib/res/svg/table.svg');
+		addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
+		addElement('text', 'Title', 'lib/res/svg/label.svg');
+		addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
 
 
 		canvas.parentNode.appendChild(toolBox);

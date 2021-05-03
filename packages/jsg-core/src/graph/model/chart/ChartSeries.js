@@ -105,6 +105,9 @@ module.exports = class ChartSeries {
 		if (this.formulaValues) {
 			this.formulaValues.save('formulavalues', writer);
 		}
+		if (this.formulaLabelY) {
+			this.formulaLabelY.save('formulalabely', writer);
+		}
 
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
@@ -147,6 +150,10 @@ module.exports = class ChartSeries {
 				case 'formulavalues':
 					this.formulaValues = new Expression(0);
 					this.formulaValues.read(reader, child);
+					break;
+				case 'formulalabely':
+					this.formulaLabelY = new Expression(0);
+					this.formulaLabelY.read(reader, child);
 					break;
 				case 'format':
 					this.format = new ChartFormat();

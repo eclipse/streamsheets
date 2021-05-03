@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -77,6 +77,10 @@ class TextView extends NodeView {
 
 		let xoffset = 0;
 		let yoffset = 0;
+
+		if (this._item.getExtraLabel()) {
+			yoffset = 150;
+		}
 
 		if (rect.width !== item._sizeText.x) {
 			switch (halign) {

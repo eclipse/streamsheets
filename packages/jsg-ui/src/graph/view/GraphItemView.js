@@ -510,19 +510,40 @@ class GraphItemView extends View {
 	 * @param {Rectangle} rect A rectangle which specifies the GraphItem bounds
 	 */
 	drawBorder(graphics, format, rect) {
-		// if (format.hasBorder()) {
-		if (format.applyLineToGraphics(graphics)) {
-			if (
-				format.getLineArrowStart().getValue() !== FormatAttributes.ArrowStyle.NONE ||
-				format.getLineArrowEnd().getValue() !== FormatAttributes.ArrowStyle.NONE
-			) {
-				format.applyFillToGraphics(graphics, rect);
-				// use line transparency here
-				graphics.setTransparency(format.getLineTransparency().getValue());
-			}
-			this._shapeRenderer.drawShapeBorder(this._item._shape, this._item.isClosed(), graphics);
-			format.removeLineFromGraphics(graphics);
-		}
+				// if (format.hasBorder()) {
+				if (format.applyLineToGraphics(graphics)) {
+					if (
+						format.getLineArrowStart().getValue() !== FormatAttributes.ArrowStyle.NONE ||
+						format.getLineArrowEnd().getValue() !== FormatAttributes.ArrowStyle.NONE
+					) {
+						format.applyFillToGraphics(graphics, rect);
+						// use line transparency here
+						graphics.setTransparency(format.getLineTransparency().getValue());
+					}
+
+					const label = this.getItem().getExtraLabel();
+					if (label) {
+						graphics.setTextBaseline('top');
+						graphics.setFontSize(7);
+						graphics.setFontName(this.getItem().getTextFormat().getFontName().getValue());
+						graphics.setFont();
+						graphics.fillText(label, rect.x + 275, rect.y);
+
+						const width = graphics.getCoordinateSystem().deviceToLogX(graphics.measureText(label).width, true);
+
+						const pts = [];
+						pts.push(new Point(rect.x + width + 350, rect.y + 150));
+						pts.push(new Point(rect.x + rect.width, rect.y + 150));
+						pts.push(new Point(rect.x + rect.width, rect.y + rect.height));
+						pts.push(new Point(rect.x, rect.getBottom()));
+						pts.push(new Point(rect.x, rect.y + 150));
+						pts.push(new Point(rect.x + 200, rect.y + 150));
+						graphics.drawPolyline(pts, false);
+					} else {
+						this._shapeRenderer.drawShapeBorder(this._item._shape, this._item.isClosed(), graphics);
+					}
+					format.removeLineFromGraphics(graphics);
+				}
 	}
 
 	/**

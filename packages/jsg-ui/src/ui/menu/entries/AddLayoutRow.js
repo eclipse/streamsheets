@@ -1,9 +1,9 @@
 /* global document */
 
-import {default as JSG, LayoutNode, AddLayoutSectionCommand} from '@cedalo/jsg-core';
+import {LayoutNode, AddLayoutSectionCommand} from '@cedalo/jsg-core';
 import ItemMenuEntry from '../ItemMenuEntry';
 
-export default class AddDashBoardItem extends ItemMenuEntry {
+export default class AddLayoutRow extends ItemMenuEntry {
 	constructor() {
 		super();
 		this.id = 'addlayoutrow';
@@ -21,7 +21,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 	onEvent(event, item, editor) {
 		const handled = event.type === 'click';
 		if (handled) {
-			const cmd = new AddLayoutSectionCommand(item, 6000);
+			const cmd = new AddLayoutSectionCommand(item, 6000, true);
 			editor.getInteractionHandler().execute(cmd);
 		}
 		return handled;

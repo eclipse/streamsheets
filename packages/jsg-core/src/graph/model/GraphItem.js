@@ -1636,6 +1636,17 @@ class GraphItem extends Model {
 		return label;
 	}
 
+	getExtraLabel() {
+		const labelAttr = this.getItemAttributes().getAttribute('label');
+		if (labelAttr) {
+			const label = labelAttr.getValue();
+			if (label) {
+				return label;
+			}
+		}
+		return undefined
+	}
+
 	getNewLabelPosition() {
 		const positions = [];
 		let i;

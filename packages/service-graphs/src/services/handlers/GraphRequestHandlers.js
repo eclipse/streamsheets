@@ -168,7 +168,7 @@ class CreateStreamSheetRequestHandler extends RequestHandler {
 		item.getStreamSheetContainerAttributes().setStep(0);
 		item.getStreamSheetContainerAttributes().setSheetType(sheetType);
 		item.getStreamSheet().setName(streamsheetName);
-		item.getSheetCaption().setName(`Process Sheet - ${streamsheetName}`);
+		item.getSheetCaption().setName(`${streamsheetName}`);
 		const command = new AddItemCommand(item, processContainer);
 		const commandString = command.toObject();
 		const executed = await graphManager.executeCommands(

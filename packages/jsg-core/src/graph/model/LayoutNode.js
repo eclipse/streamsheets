@@ -10,11 +10,13 @@
  *
  ********************************************************************************/
 const Node = require('./Node');
+const JSG = require('../../JSG');
 const LayoutSection = require('./LayoutSection');
 const FormatAttributes = require('../attr/FormatAttributes');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Strings = require('../../commons/Strings');
 const Numbers = require('../../commons/Numbers');
+const Arrays = require('../../commons/Arrays');
 const CompoundCommand = require('../command/CompoundCommand');
 const AddItemCommand = require('../command/AddItemCommand');
 
@@ -29,6 +31,7 @@ module.exports = class LayoutNode extends Node {
 		// LayoutSections
 		this._rowData = [new LayoutSection(2000)];
 		this._columnData = [];
+		this._data = [];
 
 		// LayoutCells
 		this.updateData();
@@ -37,6 +40,7 @@ module.exports = class LayoutNode extends Node {
 		this.getFormat().setFillStyle(FormatAttributes.FillStyle.NONE);
 		this.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
+		this.getItemAttributes().setRotatable(false);
 	}
 
 	newInstance() {
@@ -70,10 +74,68 @@ module.exports = class LayoutNode extends Node {
 	}
 
 	addRow(section) {
-		this.rowData.push(section);
+		if (section) {
+			this.rowData.push(section);
+		}
 		this._rows += 1;
 		this.updateData();
 		this.getGraph().markDirty();
+	}
+
+	deleteRow(index) {
+		this._rows -= 1;
+		Arrays.removeAt(this._rowData, index);
+
+		for (let i = this._columnData.length - 1; i  >= 0; i -= 1) {
+			this.removeCell(index, i);
+		}
+
+		this.updateData();
+		this.getGraph().markDirty();
+	}
+
+	addColumn(section) {
+		if (section) {
+			this.columnData.push(section);
+		}
+		this._columns += 1;
+
+		for (let i = this._rowData.length - 1; i  >= 0; i -= 1) {
+			this.addCell(i, this._columnData.length);
+		}
+		this.updateData();
+		this.getGraph().markDirty();
+	}
+
+	deleteColumn(index) {
+		this._columns -= 1;
+
+		for (let i = this._rowData.length - 1; i  >= 0; i -= 1) {
+			this.removeCell(i, index);
+		}
+
+		Arrays.removeAt(this._columnData, index);
+
+		this.updateData();
+		this.getGraph().markDirty();
+	}
+
+	addCell(rowIndex, columnIndex) {
+		const node = new Node();
+
+		node.getFormat().setLineColor('#BBBBBB');
+		node.getItemAttributes().setRotatable(false);
+		node.getItemAttributes().setMoveable(false);
+		node.getItemAttributes().setSizeable(false);
+		node.getItemAttributes().setDeleteable(false);
+		this.addItem(node, rowIndex * this._columnData.length + columnIndex);
+
+		return node;
+	}
+
+	removeCell(rowIndex, columnIndex) {
+		const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+		this.removeItem(node);
 	}
 
 	updateData() {
@@ -99,14 +161,7 @@ module.exports = class LayoutNode extends Node {
 			this._columnData.forEach((column, columnIndex) => {
 				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
 				if (!node) {
-					node = new Node();
-					node.getFormat().setLineColor('#BBBBBB');
-					node.getItemAttributes().setRotatable(false);
-					node.getItemAttributes().setMoveable(false);
-					node.getItemAttributes().setSizeable(false);
-					node.getItemAttributes().setDeleteable(false);
-					this.addItem(node, rowIndex * this._columnData.length + columnIndex);
-					// cmd.add(new AddItemCommand(cell._node, this));
+					node = this.addCell(rowIndex, columnIndex);
 				}
 			});
 		});
@@ -162,6 +217,10 @@ module.exports = class LayoutNode extends Node {
 		json.layout = layout;
 
 		return json;
+	}
+
+	isAutoResizeNode(node) {
+		return ((node instanceof JSG.SheetPlotNode) || (node instanceof JSG.StreamSheetContainerWrapper));
 	}
 
 	layout() {
@@ -230,6 +289,16 @@ module.exports = class LayoutNode extends Node {
 		let y = 0;
 		let node;
 		const margin = 200;
+		const getAutoSizeCount = () => {
+			let cnt = 0;
+			node.getItems().forEach(subItem => {
+				if (this.isAutoResizeNode(subItem)) {
+					cnt += 1;
+				}
+			});
+
+			return cnt;
+		}
 
 		this._rowData.forEach((row, rowIndex) => {
 			this._columnData.forEach((column, columnIndex) => {
@@ -237,10 +306,19 @@ module.exports = class LayoutNode extends Node {
 				if (node) {
 					node.setOrigin(x, y);
 					node.setSize(column.layoutSize, row.layoutSize);
+					const items = getAutoSizeCount();
+					let yInner = 0;
+					const autoHeight =  items ? (row.layoutSize - margin * 2) / items : 1000;
+					let height = 0;
 					node.getItems().forEach(subItem => {
-						subItem.setSize(column.layoutSize - margin * 2, row.layoutSize - margin * 2);
-						subItem.setOrigin(margin, margin);
-
+						if (this.isAutoResizeNode(subItem)) {
+							height = autoHeight;
+						} else {
+							height = subItem.getHeight().getValue();
+						}
+						subItem.setSize(column.layoutSize - margin * 2, height);
+						subItem.setOrigin(margin, yInner + margin);
+						yInner += height + margin;
 					});
 				}
 				x += column.layoutSize;

@@ -536,6 +536,11 @@ class TextNode extends Node {
 
 		this._sizeText.x = cs.deviceToLogXNoZoom(div.getBoundingClientRect().width, false);
 		this._sizeText.y = cs.deviceToLogYNoZoom(div.getBoundingClientRect().height, false);
+
+		const label = this.getExtraLabel();
+		if (label) {
+			this._sizeText.y += 200;
+		}
 		// this._sizeText.x = cs.deviceToLogXNoZoom(div.clientWidth);
 		// this._sizeText.y = cs.deviceToLogYNoZoom(div.clientHeight);
 		this._heightLimit = this.getHeightLimit();

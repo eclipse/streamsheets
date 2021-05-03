@@ -220,11 +220,16 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		if (command instanceof JSG.ZoomChartCommand) {
 			return false;
 		}
-		if (command instanceof JSG.PasteItemsCommand) {
+		if ((command instanceof JSG.PasteItemsCommand) ||
+			(command instanceof JSG.SetTextCommand) ||
+			(command instanceof JSG.SetPlotDataCommand)) {
 			return true;
 		}
 		if (command instanceof JSG.AddItemCommand) {
 			return isShape(command._parent);
+		}
+		if (command instanceof JSG.CompoundCommand) {
+			return this.isShapeCommand(command.commands[0]);
 		}
 
 		const selection = this.viewer.getSelection();

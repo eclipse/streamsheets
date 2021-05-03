@@ -142,8 +142,13 @@ export default class ItemMenuHandler {
 				pos.x = cs.logToDeviceX(pos.x, false) + canvas.offsetLeft;
 				pos.y = cs.logToDeviceY(pos.y, false) + canvas.offsetTop;
 
-				el.style.top = `${pos.y}px`;
-				el.style.left = `${pos.x + 5}px`;
+				if (menuHandle.position === 'tr') {
+					el.style.top = `${pos.y}px`;
+					el.style.left = `${pos.x + 5}px`;
+				} else {
+					el.style.top = `${pos.y + 5}px`;
+					el.style.left = `${pos.x}px`;
+				}
 
 				JSG.boxCache.release(itembox);
 			}

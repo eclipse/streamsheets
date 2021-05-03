@@ -9,35 +9,29 @@
  *
  ********************************************************************************/
 const AbstractItemCommand = require('./AbstractItemCommand');
-const LayoutSection = require('../model/LayoutSection');
 
-class AddLayoutSectionCommand extends AbstractItemCommand {
+class DeleteLayoutSectionCommand extends AbstractItemCommand {
 	static createFromObject(data = {}, { graph }) {
 		let cmd;
 		const item = graph.getItemById(data.itemId);
 		if (item) {
-			cmd = new AddLayoutSectionCommand(item, data.size, data.row, data.index).initWithObject(data);
+			cmd = new DeleteLayoutSectionCommand(item, data.index, data.row).initWithObject(data);
 		}
 		return cmd;
 	}
 
-	constructor(item, size, row, index) {
+	constructor(item, index, row) {
 		super(item);
 
-		this._size = size;
 		this._index = index;
 		this._row = row;
 	}
 
 	execute() {
-		let section;
-		if (this._size !== undefined) {
-			section = new LayoutSection(this._size);
-		}
 		if (this._row) {
-			this.getItem().addRow(section);
+			this.getItem().deleteRow(this._index);
 		} else {
-			this.getItem().addColumn(section);
+			this.getItem().deleteColumn(this._index);
 		}
 	}
 
@@ -50,12 +44,10 @@ class AddLayoutSectionCommand extends AbstractItemCommand {
 	toObject() {
 		const data = super.toObject();
 
-		data.size = this._size;
 		data.index = this._index;
-		data.row = this._row;
 
 		return data;
 	}
 }
 
-module.exports = AddLayoutSectionCommand;
+module.exports = DeleteLayoutSectionCommand;

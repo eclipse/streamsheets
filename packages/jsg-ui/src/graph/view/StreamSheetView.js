@@ -18,10 +18,15 @@ import {
 	TextNode,
 	StringExpression,
 	SheetPlotNode,
+	SheetCheckboxNode,
+	SheetSliderNode,
+	SheetKnobNode,
 	Expression,
+	NumberExpression,
 	SheetCommandFactory,
 	Point,
-	BoundingBox, Shape
+	BoundingBox,
+	Shape, SetAttributeAtPathCommand
 } from '@cedalo/jsg-core';
 import CellFeedbackView from '../feedback/CellFeedbackView';
 import WorksheetView from './WorksheetView';
@@ -270,21 +275,40 @@ export default class StreamSheetView extends WorksheetView {
 		treeItems.unshift(selection);
 		const itemPath = sourceView.getItem().getItemPathDot(treeItems[0]);
 		let cmd;
+		const label = treeItems[0].key || '';
 		// const path = TreeItemsNode.splitPath(itemPath);
 
 		if (item instanceof TextNode) {
-			const expr = new Expression(0, `INBOXDATA#${itemPath}`);
+			const expr = new Expression(0, `INBOXDATA.${itemPath}`);
 			cmd = SheetCommandFactory.create('command.SetTextCommand', item, item.getText(), expr);
+		} else if (item instanceof SheetCheckboxNode) {
+			cmd = new JSG.CompoundCommand();
+			const expr = new Expression(0, `INBOXDATA.${itemPath}`);
+			cmd.add(new SetAttributeAtPathCommand(item, 'value', expr));
+			cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
+		} else if ((item instanceof SheetSliderNode) ||
+			(item instanceof SheetKnobNode)) {
+			cmd = new JSG.CompoundCommand();
+			const expr = new NumberExpression(0, `INBOXDATA.${itemPath}`);
+			cmd.add(new SetAttributeAtPathCommand(item, 'value', expr));
+			cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
 		} else if (item instanceof SheetPlotNode) {
 			switch (item.chart.type) {
 			case 'scatterline': {
-				const expr = new Expression(0, `TIMEAGGREGATE(INBOXDATA#${itemPath})`);
+				const expr = new Expression(0, `TIMEAGGREGATE(INBOXDATA.${itemPath})`);
 				cmd = new JSG.CompoundCommand();
 				const cmdTitle = item.prepareCommand('title');
 				const cmdSeries = item.prepareCommand('series');
 				const cmdAxes = item.prepareCommand('axes');
-				item.series[0].formulaValues = expr;
-				item.title.formula = new StringExpression(itemPath);
+				let serie;
+				if (item.series[0].formulaValues) {
+					serie = item.series[item.series.length - 1].copy();
+					item.series.push(serie);
+				} else {
+					serie = item.series[0];
+				}
+				serie.formulaValues = expr;
+				serie.formulaLabelY = new StringExpression(label);
 				item.xAxes[0].type = 'time';
 				item.xAxes[0].format.localCulture = `time;en`;
 				item.xAxes[0].format.numberFormat = 'h:mm:ss';
@@ -298,18 +322,34 @@ export default class StreamSheetView extends WorksheetView {
 				break;
 			}
 			default: {
-				const expr = new Expression(0, `INBOXDATA#${itemPath}`);
+				const expr = new Expression(0, `INBOXDATA.${itemPath}`);
 				cmd = new JSG.CompoundCommand();
 				const cmdTitle = item.prepareCommand('title');
 				const cmdSeries = item.prepareCommand('series');
 				item.series[0].formulaValues = expr;
-				item.title.formula = new StringExpression(itemPath);
+				item.series[0].formulaLabelY = new StringExpression(label);
 				item.finishCommand(cmdTitle, 'title');
 				item.finishCommand(cmdSeries, 'series');
 				cmd.add(cmdTitle);
 				cmd.add(cmdSeries);
 			}
 			}
+		} else if (item.getParent() instanceof JSG.LayoutNode) {
+			const node = new JSG.TextNode('Title');
+			const tf = node.getTextFormat();
+			tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+			tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+			tf.setRichText(false);
+			tf.setFontSize(10);
+			const f = node.getFormat();
+			f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+			f.setLineCorner(75);
+			node.setText(new Expression(0, `INBOXDATA.${itemPath}`));
+			node.associate(false);
+			node.setHeight(1000);
+			node.getItemAttributes().addAttribute(new JSG.StringAttribute('label', label));
+			cmd = new JSG.AddItemCommand(node, item);
+
 		}
 
 		if (cmd) {

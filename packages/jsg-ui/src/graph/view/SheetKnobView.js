@@ -173,7 +173,7 @@ export default class SheetKnobView extends NodeView {
 
 		const markerSize = size / 10;
 
-		graphics.setLineColor('#444444');
+		graphics.setLineColor(JSG.theme.border);
 		graphics.setFillColor('#EEEEEE');
 
 		switch (marker) {
@@ -223,7 +223,7 @@ export default class SheetKnobView extends NodeView {
 		graphics.beginPath();
 
 		graphics.setFillColor(textFormat.getFontColor().getValue());
-		graphics.setLineColor('#333333');
+		graphics.setLineColor(JSG.theme.border);
 
 		if (ranges.length && ranges[0].label) {
 			ranges.forEach((rang) => {
