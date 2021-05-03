@@ -106,9 +106,6 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node = new JSG.StreamSheetContainerWrapper();
 				const graphcontroller = editor.getGraphViewer().getGraphController();
 				const controller = graphcontroller.getControllerByModelId(2000);
-				if (!controller) {
-					return false;
-				}
 				node._tmpCont = controller;
 				break;
 			}
