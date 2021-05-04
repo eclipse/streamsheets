@@ -935,53 +935,18 @@ class Subscribe extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle(/* msg */) {
-		return Promise.resolve({
-			machine: {
-				// TODO remove it!! convert json to legacy info...
-				id: this.machine.id,
-				name: this.machine.name,
-				state: this.machine.state,
-				stats: this.machine.stats,
-				cycletime: this.machine.cycletime,
-				subscribed: false,
-				outbox: {
-					messages: this.machine.outbox.getFirstMessages(),
-					totalSize: this.machine.outbox.size
-				},
-				// tmp. add inbox messages...
-				streamsheets: this.machine.streamsheets.map((streamsheet) => {
-					const currmsg = streamsheet.getCurrentMessage();
-					const streamsheetCopy = streamsheet.toJSON();
-					streamsheetCopy.inbox.currentMessage = {
-						id: currmsg ? currmsg.id : null,
-						isProcessed: streamsheet.isMessageProcessed()
-					};
-					streamsheetCopy.inbox.messages = streamsheet.inbox.messages.slice(0);
-					streamsheetCopy.loop.currentPath = streamsheet.getCurrentLoopPath();
-					streamsheetCopy.stats = streamsheet.stats;
-					return streamsheetCopy;
-				}),
-				machineDescriptor: createMachineDescriptor(this.machine)
-			}
-		});
+	handle({ clientId }) {
+		this.machine.subscribe(clientId);
+		return Promise.resolve();
 	}
 }
 class Unsubscribe extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle(/* msg */) {
-		return Promise.resolve({
-			// REVIEW: is this really wanted??
-			TODO: 'Unsubscribe from machine.',
-			machine: {
-				id: this.machine.id,
-				state: this.machine.state,
-				name: this.machine.name,
-				subscribed: true
-			}
-		});
+	handle({ clientId }) {
+		this.machine.unsubscribe(clientId);
+		return Promise.resolve();
 	}
 }
 class Update extends ARequestHandler {
