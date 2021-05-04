@@ -238,7 +238,7 @@ class Machine {
 			// DL-1582: cancel old cycle and use new time...
 			if (this.cyclemonitor.id) {
 				clearTimeout(this.cyclemonitor.id);
-				this.cyclemonitor.id = setTimeout(this.cycle, newtime, this.streamsheets);
+				this.cyclemonitor.id = setTimeout(this.cycle, newtime);
 			}
 		}
 	}
@@ -538,12 +538,13 @@ class Machine {
 			this.cyclemonitor.counterSecond = 0;
 		}
 		const nextcycle = Math.max(1, cycletime - (t1 - t0) - speedUp);
+		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
 		this.cyclemonitor.id = setTimeout(this.cycle, nextcycle);
 	}
 	_clearCycle() {
 		if (this.cyclemonitor.id) {
 			clearTimeout(this.cyclemonitor.id);
-			this.cyclemonitor.id = null;
+			this.cyclemonitor.id = undefined;
 		}
 	}
 
