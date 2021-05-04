@@ -561,7 +561,7 @@ class Machine {
 	}
 
 	subscribe(clientId) {
-		this._subscriptions.add(clientId);
+		if (clientId) this._subscriptions.add(clientId);
 	}
 	unsubscribe(clientId) {
 		this._subscriptions.delete(clientId);
