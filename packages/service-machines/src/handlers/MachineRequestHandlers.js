@@ -416,8 +416,14 @@ class LoadSubscribeMachineRequestHandler extends RequestHandler {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE);
 	}
 
+	async subscribe(request, machineserver) {
+		const clientId = request.sender ? request.sender.id : undefined;
+		return handleRequest(this, machineserver, request, 'subscribe', { clientId });
+	}
 	async handle(request, machineserver, repositoryManager) {
-		return new LoadMachineRequestHandler().handle(request, machineserver, repositoryManager);
+		const result = await new LoadMachineRequestHandler().handle(request, machineserver, repositoryManager);
+		await this.subscribe(request, machineserver);
+		return result;
 	}
 }
 
