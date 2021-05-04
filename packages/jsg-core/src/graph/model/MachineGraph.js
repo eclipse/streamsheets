@@ -169,6 +169,32 @@ module.exports = class MachineGraph extends Graph {
 		return result;
 	}
 
+	getVisibleStreamSheetContainerCount() {
+		const container = this.getStreamSheetsContainer();
+		let result = 0;
+
+		container.enumerateStreamSheetContainers((sheet) => {
+			if (sheet.isVisible()) {
+				result += 1;
+			}
+		});
+
+		return result;
+	}
+
+	getDashboardContainer() {
+		const container = this.getStreamSheetsContainer();
+		let result;
+
+		container.enumerateStreamSheetContainers((sheet) => {
+			if (sheet.getSheetType() === 'dashboard') {
+				result = sheet;
+			}
+		});
+
+		return result;
+	}
+
 	getTopStreamSheetContainerId() {
 		const container = this.getStreamSheetsContainer();
 		let result;
@@ -463,7 +489,9 @@ module.exports = class MachineGraph extends Graph {
 					if (sheetMode === 2) {
 						sheet.getItemAttributes().setViewMode(0);
 					}
-					sheet.getItemAttributes().setVisible(sheetMode !== 1);
+					if (sheet.getSheetType() !== 'cellsheet') {
+						sheet.getItemAttributes().setVisible(sheetMode !== 1);
+					}
 				});
 				break;
 			}

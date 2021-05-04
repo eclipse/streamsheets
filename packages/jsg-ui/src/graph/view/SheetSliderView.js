@@ -348,39 +348,37 @@ export default class SheetSliderView extends NodeView {
 
 		const attr = item.getAttributeAtPath('value');
 		const expr = attr.getExpression();
-		if (sheet && expr._cellref) {
-			const range = CellRange.parse(expr._cellref, sheet);
-			if (range) {
-				range.shiftFromSheet();
-				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
-				if (cell) {
-					value = cell.getValue();
-					if (value === sliderValue) {
+		if (sheet && expr && expr.hasFormula()) {
+			if (expr._cellref) {
+				const range = CellRange.parse(expr._cellref, sheet);
+				if (range) {
+					range.shiftFromSheet();
+					const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
+					if (cell) {
+						value = cell.getValue();
+						if (value === sliderValue) {
+							return false;
+						}
+						expr.setTermValue(sliderValue);
+						cell.setValue(sliderValue);
+						cell.setTargetValue(sliderValue);
+						range.shiftToSheet();
+						const cellData = [];
+						cellData.push({
+							reference: range.toString(), value: sliderValue
+						});
+						const cmd = SheetCommandFactory.create('command.SetCellsCommand', range.getSheet(), cellData,
+							false);
+						viewer.getInteractionHandler().execute(cmd);
+						this.onValueChange(viewer);
 						return false;
 					}
-					expr.setTermValue(sliderValue);
-					cell.setValue(sliderValue);
-					cell.setTargetValue(sliderValue);
-					range.shiftToSheet();
-					const cellData = [];
-					cellData.push({
-						reference: range.toString(),
-						value: sliderValue
-					});
-					const cmd = SheetCommandFactory.create(
-						'command.SetCellsCommand',
-						range.getSheet(),
-						cellData,
-						false
-					);
-					viewer.getInteractionHandler().execute(cmd);
-					this.onValueChange(viewer);
-					return false;
 				}
 			}
+		} else {
+			setValue(sliderValue);
 		}
 
-		setValue(sliderValue);
 		this.onValueChange(viewer);
 
 		return true;

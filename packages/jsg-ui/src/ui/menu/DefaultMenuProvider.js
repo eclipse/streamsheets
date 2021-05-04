@@ -8,6 +8,7 @@ import AddLayoutColumn from './entries/AddLayoutColumn';
 import AddLayoutRow from './entries/AddLayoutRow';
 import RemoveLayoutColumn from './entries/RemoveLayoutColumn';
 import RemoveLayoutRow from './entries/RemoveLayoutRow';
+import EditNode from './entries/EditNode';
 
 const MENU_STYLE = 'jsg-item-menu';
 const MENU_ROW_STYLE = 'jsg-item-menu-row';
@@ -44,6 +45,7 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 		this.addEntry(new AddDashBoardItem());
 		this.addEntry(new AddLayoutColumn());
 		this.addEntry(new AddLayoutRow());
+		this.addEntry(new EditNode());
 		this.addEntry(new RemoveLayoutColumn());
 		this.addEntry(new RemoveLayoutRow());
 	}

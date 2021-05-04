@@ -77,6 +77,7 @@ export class CanvasComponent extends Component {
 	componentDidMount() {
 		const graphEditor = this.initGraphEditor();
 		JSG.NotificationCenter.getInstance().register(this, JSG.NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
+		JSG.NotificationCenter.getInstance().register(this, JSG.NotificationCenter.ADD_SHEET_NOTIFICATION, 'onAddDashboardSheet');
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX,
@@ -95,6 +96,7 @@ export class CanvasComponent extends Component {
 	componentWillUnmount() {
 		const { canvas } = this;
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ZOOM_NOTIFICATION);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ADD_SHEET_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 		canvas._jsgEditor.destroy();
@@ -185,6 +187,13 @@ export class CanvasComponent extends Component {
 
 		this.setState({ graph: sheet.getGraph() });
 	};
+
+	onAddDashboardSheet() {
+		const graph = graphManager.getGraph();
+		const cnt = graph.getStreamSheetContainerCount() % 8;
+
+		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, 'cellsheet');
+	}
 
 	onAdd = (event) => {
 		const graph = graphManager.getGraph();

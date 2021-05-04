@@ -14,8 +14,8 @@ import NodeView from './NodeView';
 
 export default class LayoutView extends NodeView {
 
-	drawFill(graphics, format, rect) {
-		super.drawFill(graphics, format, rect);
+	drawBorder(graphics, format, rect) {
+		super.drawBorder(graphics, format, rect);
 
 		const item = this.getItem();
 		const rowData = item.rowData;
@@ -23,7 +23,7 @@ export default class LayoutView extends NodeView {
 		let y = 0;
 		let x = 0;
 
-		graphics.setLineColor('#FF00DD');
+		// graphics.setLineColor('#FF00DD');
 		graphics.beginPath();
 
 		rowData.forEach(row => {

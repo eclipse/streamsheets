@@ -211,6 +211,11 @@ module.exports = class StreamSheetContainer extends Node {
 		return this.getModelAttributes().getAttribute(StreamSheetContainerAttributes.NAME);
 	}
 
+	getSheetType() {
+		const type = this.getStreamSheetContainerAttributes().getSheetType();
+		return type ? type.getValue() : 'sheet';
+	}
+
 	setStream(source) {
 		JSG.propertyEventsDisabled = true;
 		this._inboxCaption.setName(`${JSG.getLocalizedString('Inbox')} - ${JSG.getLocalizedString(source)}`);
@@ -332,6 +337,7 @@ module.exports = class StreamSheetContainer extends Node {
 		writer.writeStartElement('graphitem');
 
 		writer.writeAttributeNumber('id', this.getId(), 0);
+		writer.writeAttributeNumber('visible', this.getItemAttributes().getVisible().getValue() ? 1 : 0, 0);
 
 		// save StreamSheetContainer Attributes, Pin, Size
 		this.getStreamSheetContainerAttributes().saveCondensed(writer, 'attributes');
@@ -371,6 +377,10 @@ module.exports = class StreamSheetContainer extends Node {
 					id = Number(id);
 				}
 				this.setId(id);
+				const visible = reader.getAttribute(object, 'visible');
+				if (visible !== undefined) {
+					this.getItemAttributes().setVisible(!!Number(visible));
+				}
 			} else {
 				this.setId(1);
 			}

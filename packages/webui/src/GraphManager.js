@@ -285,8 +285,8 @@ export default class GraphManager {
 	updateViewMode(graph, econtainer) {
 		if (econtainer) {
 			graph.setViewMode(econtainer, 2);
-		} else if (graph.getStreamSheetContainerCount() === 1) {
-			const container = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
+		} else if (graph.getVisibleStreamSheetContainerCount() === 1) {
+			const container = this.getGraph().getStreamSheetsContainer().getFirstVisibleStreamSheetContainer();
 			graph.setViewMode(container, 2);
 		} else {
 			const container = graph.getMachineContainer();
@@ -569,25 +569,45 @@ export default class GraphManager {
 		if (command && command.type === 'message_add') {
 			return this.addInboxMessage(command.container, command.message);
 		}
-		const cmd = SheetCommandFactory.createCommand(this.getGraph(), command, this.getGraphEditor().getGraphViewer());
+
+		const editor = this.getGraphEditor();
+
+		const cmd = SheetCommandFactory.createCommand(this.getGraph(), command, editor.getGraphViewer());
 		if (cmd) {
 			let container;
 			if ((cmd instanceof JSG.AddItemCommand) && (cmd._graphItem instanceof JSG.StreamSheetContainer)) {
 				container = cmd._graphItem;
-				if (container.getStreamSheetContainerAttributes().getSheetType().getValue() === 'dashboard') {
+				const type = container.getSheetType();
+				switch (type) {
+				case 'dashboard':
 					container.addDashboardSettings();
+					break;
+				default:
+					break;
 				}
 			}
 			// commands received from graph-service are volatile:
 			cmd.isVolatile = true;
 			if (options && options.undo) {
-				this.getGraphEditor().getInteractionHandler().baseUndo(cmd);
+				editor.getInteractionHandler().baseUndo(cmd);
 			} else if (options && options.redo) {
-				this.getGraphEditor().getInteractionHandler().baseRedo(cmd);
+				editor.getInteractionHandler().baseRedo(cmd);
 			} else {
-				this.getGraphEditor().getInteractionHandler().baseExecute(cmd, this.graphWrapper);
+				editor.getInteractionHandler().baseExecute(cmd, this.graphWrapper);
 				if (container) {
-					this.getGraphEditor().getInteractionHandler().updateGraphItems();
+					const type = container.getSheetType();
+					switch (type) {
+					case 'dashboard':
+						editor.getInteractionHandler().updateGraphItems();
+						break;
+					case 'cellsheet': {
+						this.getGraph()._sheetWrapper.addAttribute(new JSG.NumberAttribute('streamsheet', container.getId()));
+						this.getGraph()._sheetWrapper = undefined;
+						break;
+					}
+					default:
+						break;
+					}
 				}
 			}
 		}

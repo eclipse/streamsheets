@@ -371,24 +371,6 @@ class GraphItemView extends View {
 
 			graphics.addBoundingRectInfo('node-rect', tmprect);
 
-			if (
-				this.getItemAttributes()
-					.getScaleShow()
-					.getValue()
-			) {
-				const scaleRect = tmprect.copy();
-				scaleRect.y -= 500;
-				scaleRect.height = 500;
-
-				this.drawHorEndless(graphics, scaleRect);
-
-				scaleRect.setTo(tmprect);
-				scaleRect.x -= 500;
-				scaleRect.width = 500;
-
-				this.drawVerEndless(graphics, scaleRect);
-			}
-
 			this._shapeRenderer.init(this._item._shape, graphics);
 
 			this.drawFill(graphics, format, tmprect);

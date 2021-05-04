@@ -15,6 +15,7 @@ module.exports = class StreamSheetContainerWrapper extends Node {
 	// constructor() {
 	// 	super();
 	//
+	// 	this.getItemAttributes().setClipChildren(true);
 	// }
 
 	newInstance() {
@@ -24,6 +25,35 @@ module.exports = class StreamSheetContainerWrapper extends Node {
 	getItemType() {
 		return 'streamsheetcontainerwrapper';
 	}
+
+	dispose() {
+		super.dispose();
+
+		const sheet = this.streamsheet;
+		if (sheet) {
+			sheet.getStreamSheetContainerAttributes().setSheetType('sheet');
+
+		}
+	}
+
+	show(flag) {
+		const sheet = this.streamsheet;
+		if (sheet) {
+			sheet.getItemAttributes().setVisible(true);
+		}
+	}
+
+	get streamsheet() {
+		const attr = this.getAttributeAtPath('streamsheet');
+		if (attr) {
+			const id = attr.getValue();
+			const graph = this.getGraph();
+			return graph.getItemById(id);
+		}
+
+		return undefined;
+	}
+
 
 	layout() {
 		const box = JSG.boxCache.get();

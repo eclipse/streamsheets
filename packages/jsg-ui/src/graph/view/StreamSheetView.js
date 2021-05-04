@@ -294,7 +294,9 @@ export default class StreamSheetView extends WorksheetView {
 			cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
 		} else if (item instanceof SheetPlotNode) {
 			switch (item.chart.type) {
-			case 'scatterline': {
+			case 'scatterline':
+			case 'column':
+			case 'line': {
 				const expr = new Expression(0, `TIMEAGGREGATE(INBOXDATA.${itemPath})`);
 				cmd = new JSG.CompoundCommand();
 				const cmdTitle = item.prepareCommand('title');

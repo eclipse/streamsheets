@@ -103,10 +103,10 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node.setHeight(3000);
 				break;
 			case 'sheet': {
+				NotificationCenter.getInstance().send(
+					new Notification(NotificationCenter.ADD_SHEET_NOTIFICATION, this));
 				node = new JSG.StreamSheetContainerWrapper();
-				const graphcontroller = editor.getGraphViewer().getGraphController();
-				const controller = graphcontroller.getControllerByModelId(2000);
-				node._tmpCont = controller;
+				editor.getGraph()._sheetWrapper = node;
 				break;
 			}
 			default:
@@ -147,21 +147,21 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			toolBox.appendChild(pdiv);
 		};
 
-		addTitle('Timeline');
-		addElement('scatterline', 'Timeline', 'images/charts/line.png');
 		addTitle('Charts');
-		addElement('line', 'Line', 'images/charts/line.png');
+		addElement('scatterline', 'Line (XY)', 'images/charts/line.png');
+		addElement('line', 'Line (Cat)', 'images/charts/line.png');
 		addElement('column', 'Column', 'images/charts/column.png');
 		addElement('bar', 'Bar', 'images/charts/bar.png');
-		addElement('map', 'Map', 'images/charts/map.png');
-		addTitle('Status');
+		addTitle('State');
 		addElement('gauge', 'Gauge', 'images/charts/gauge.png');
+		addElement('pie', 'Pie', 'images/charts/Pie.png');
+		addElement('map', 'Map', 'images/charts/map.png');
 		addElement('check', 'Checkbox', 'lib/res/svg/checkbox.svg');
 		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
 		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
-		addTitle('Other');
-		addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
 		addElement('text', 'Title', 'lib/res/svg/label.svg');
+		addTitle('Grid');
+		addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
 		addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
 
 

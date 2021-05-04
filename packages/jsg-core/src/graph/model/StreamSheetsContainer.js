@@ -105,6 +105,17 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 		return result;
 	}
 
+	getFirstVisibleStreamSheetContainer() {
+		const pane = this.getContentPane();
+		const result = pane.getItems().find((sheet) => {
+			if ((sheet instanceof StreamSheetContainer) && sheet.isVisible()) {
+				return sheet;
+			}
+			return undefined;
+		});
+		return result;
+	}
+
 	getOutboxContainer() {
 		return this.getParent().getOutboxContainer();
 	}

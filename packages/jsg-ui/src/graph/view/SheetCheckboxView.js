@@ -66,38 +66,35 @@ export default class SheetCheckboxView extends NodeView {
 
 		const attr = item.getAttributeAtPath('value');
 		const expr = attr.getExpression();
-		if (sheet && expr._cellref) {
-			const range = CellRange.parse(expr._cellref, sheet);
-			if (range) {
-				range.shiftFromSheet();
-				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
-				if (cell) {
-					const value = cell.getValue();
-					let newValue;
-					if (value === 0 || value === '0' || value === false || value === undefined) {
-						newValue = true;
-					} else if (value === 1 || value === '1' || value === true) {
-						newValue = false;
-					}
-					if (newValue !== undefined) {
-						range.shiftToSheet();
-						const cellData = [{
-							reference: range.toString(),
-							value: newValue
-						}];
-						expr.setTermValue(newValue);
-						cell.setValue(newValue);
-						cell.setTargetValue(newValue);
+		if (sheet && expr && expr.hasFormula()) {
+			if (expr._cellref) {
+				const range = CellRange.parse(expr._cellref, sheet);
+				if (range) {
+					range.shiftFromSheet();
+					const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
+					if (cell) {
+						const value = cell.getValue();
+						let newValue;
+						if (value === 0 || value === '0' || value === false || value === undefined) {
+							newValue = true;
+						} else if (value === 1 || value === '1' || value === true) {
+							newValue = false;
+						}
+						if (newValue !== undefined) {
+							range.shiftToSheet();
+							const cellData = [{
+								reference: range.toString(), value: newValue
+							}];
+							expr.setTermValue(newValue);
+							cell.setValue(newValue);
+							cell.setTargetValue(newValue);
 
-						const cmd = SheetCommandFactory.create(
-							'command.SetCellsCommand',
-							range.getSheet(),
-							cellData,
-							false
-						);
-						viewer.getInteractionHandler().execute(cmd);
+							const cmd = SheetCommandFactory.create('command.SetCellsCommand', range.getSheet(),
+								cellData, false);
+							viewer.getInteractionHandler().execute(cmd);
+						}
+						return false;
 					}
-					return false;
 				}
 			}
 		} else {
