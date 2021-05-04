@@ -73,14 +73,21 @@ const getstep = (sheet, ...terms) =>
 		.run((streamsheet) => streamsheet.stats.steps);
 
 const getmachinestepspersecond = (sheet, ...terms) =>
-runFunction(sheet, terms)
-	.withArgCount(0)
-	.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
-	.run((machine) => machine.stats.cyclesPerSecond);
+	runFunction(sheet, terms)
+		.withArgCount(0)
+		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
+		.run((machine) => machine.stats.cyclesPerSecond);
+
+const getclientcount = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withArgCount(0)
+		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
+		.run((machine) => machine.getClientCount());
 
 
 module.exports = {
 	COUNTER: counter,
+	GETCLIENTCOUNT: getclientcount,
 	GETCYCLE: getcycle,
 	GETCYCLETIME: getcycletime,
 	GETEXECUTESTEP: repeatindex,
