@@ -79,6 +79,7 @@ class Machine {
 		// a Map keeps its insertion order
 		this._streamsheets = new Map();
 		this._pendingStreamSheets = new Map();
+		this._subscriptions = new Set();
 		// tmp. until event/message handling is improved
 		this._isManualStep = false;
 		this.metadata = { ...DEF_CONF.metadata };
@@ -557,6 +558,16 @@ class Machine {
 	_emitStep() {
 		this._emitter.emit('update', 'step');
 		this._lastEmitStep = Date.now();
+	}
+
+	subscribe(clientId) {
+		this._subscriptions.add(clientId);
+	}
+	unsubscribe(clientId) {
+		this._subscriptions.delete(clientId);
+	}
+	getClientCount() {
+		return this._subscriptions.size;
 	}
 }
 
