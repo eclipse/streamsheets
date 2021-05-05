@@ -1,7 +1,7 @@
 const sdk = require('@cedalo/sdk-streams');
 const AMPQProviderConfiguration = require('./AMPQProviderConfiguration');
 
-module.exports = class MqttConsumerConfiguration extends sdk.ConsumerConfiguration {
+module.exports = class AMPQConsumerConfiguration extends sdk.ConsumerConfiguration {
 	constructor(config) {
 		const providerConfiguration = new AMPQProviderConfiguration();
 		const connectorConfiguration = new sdk.ConnectorConfiguration(
