@@ -273,89 +273,129 @@ export default class StreamSheetView extends WorksheetView {
 		const selection = sourceView.getSelectedItem();
 		const treeItems = sourceView.getItem().getSubTreeForItem(selection);
 		treeItems.unshift(selection);
-		const itemPath = sourceView.getItem().getItemPathDot(treeItems[0]);
-		let cmd;
-		const label = treeItems[0].key || '';
-		// const path = TreeItemsNode.splitPath(itemPath);
+		const cmd = new JSG.CompoundCommand();
+		let guessSerie;
 
-		if (item instanceof TextNode) {
-			const expr = new Expression(0, `INBOXDATA.${itemPath}`);
-			cmd = SheetCommandFactory.create('command.SetTextCommand', item, item.getText(), expr);
-		} else if (item instanceof SheetCheckboxNode) {
-			cmd = new JSG.CompoundCommand();
-			const expr = new Expression(0, `INBOXDATA.${itemPath}`);
-			cmd.add(new SetAttributeAtPathCommand(item, 'value', expr));
-			cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
-		} else if ((item instanceof SheetSliderNode) ||
-			(item instanceof SheetKnobNode)) {
-			cmd = new JSG.CompoundCommand();
-			const expr = new NumberExpression(0, `INBOXDATA.${itemPath}`);
-			cmd.add(new SetAttributeAtPathCommand(item, 'value', expr));
-			cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
-		} else if (item instanceof SheetPlotNode) {
-			switch (item.chart.type) {
-			case 'scatterline':
-			case 'column':
-			case 'line': {
-				const expr = new Expression(0, `TIMEAGGREGATE(INBOXDATA.${itemPath})`);
-				cmd = new JSG.CompoundCommand();
-				const cmdTitle = item.prepareCommand('title');
-				const cmdSeries = item.prepareCommand('series');
-				const cmdAxes = item.prepareCommand('axes');
-				let serie;
-				if (item.series[0].formulaValues) {
-					serie = item.series[item.series.length - 1].copy();
-					item.series.push(serie);
-				} else {
-					serie = item.series[0];
-				}
-				serie.formulaValues = expr;
-				serie.formulaLabelY = new StringExpression(label);
-				item.xAxes[0].type = 'time';
-				item.xAxes[0].format.localCulture = `time;en`;
-				item.xAxes[0].format.numberFormat = 'h:mm:ss';
-				item.xAxes[0].format.linkNumberFormat = false;
-				item.finishCommand(cmdTitle, 'title');
-				item.finishCommand(cmdSeries, 'series');
-				item.finishCommand(cmdAxes, 'axes');
-				cmd.add(cmdTitle);
-				cmd.add(cmdSeries);
-				cmd.add(cmdAxes);
-				break;
+		for (let i = treeItems.length - 1; i >= 0; i -= 1) {
+			const treeItem = treeItems[i];
+			if (treeItem.type < 3 || treeItem.type > 5) {
+				JSG.Arrays.remove(treeItems, treeItem);
 			}
-			default: {
-				const expr = new Expression(0, `INBOXDATA.${itemPath}`);
-				cmd = new JSG.CompoundCommand();
-				const cmdTitle = item.prepareCommand('title');
-				const cmdSeries = item.prepareCommand('series');
-				item.series[0].formulaValues = expr;
-				item.series[0].formulaLabelY = new StringExpression(label);
-				item.finishCommand(cmdTitle, 'title');
-				item.finishCommand(cmdSeries, 'series');
-				cmd.add(cmdTitle);
-				cmd.add(cmdSeries);
-			}
-			}
-		} else if (item.getParent() instanceof JSG.LayoutNode) {
-			const node = new JSG.TextNode('Title');
-			const tf = node.getTextFormat();
-			tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
-			tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
-			tf.setRichText(false);
-			tf.setFontSize(10);
-			const f = node.getFormat();
-			f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
-			f.setLineCorner(75);
-			node.setText(new Expression(0, `INBOXDATA.${itemPath}`));
-			node.associate(false);
-			node.setHeight(1000);
-			node.getItemAttributes().addAttribute(new JSG.StringAttribute('label', label));
-			cmd = new JSG.AddItemCommand(node, item);
-
 		}
+
+		treeItems.forEach((treeItem, index) => {
+			if (treeItem && treeItem.type >= 3 && treeItem.type <= 5) {
+				const label = treeItem.key || '';
+				const itemPath = sourceView.getItem().getItemPathDot(treeItem);
+				if (item instanceof TextNode) {
+					const expr = new Expression(0, `INBOXDATA.${itemPath}`);
+					cmd.add(SheetCommandFactory.create('command.SetTextCommand', item, item.getText(), expr));
+				} else if (item instanceof SheetCheckboxNode) {
+					const expr = new Expression(0, `INBOXDATA.${itemPath}`);
+					cmd.add(new SetAttributeAtPathCommand(item, 'value', expr));
+					cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
+				} else if ((item instanceof SheetSliderNode) || (item instanceof SheetKnobNode)) {
+					const expr = new NumberExpression(0, `INBOXDATA.${itemPath}`);
+					cmd.add(new SetAttributeAtPathCommand(item, 'value', expr));
+					cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
+				} else if (item instanceof SheetPlotNode) {
+					switch (item.chart.type) {
+					case 'scatterline':
+					case 'column':
+					case 'area':
+					case 'stateperiod':
+					case 'line': {
+						const expr = new Expression(0, `TIMEAGGREGATE(INBOXDATA.${itemPath},,,,,,,30)`);
+						const cmdTitle = item.prepareCommand('title');
+						const cmdSeries = item.prepareCommand('series');
+						const cmdAxes = item.prepareCommand('axes');
+						let serie;
+						if (treeItems.length > 1) {
+							if (index === 0) {
+								serie = item.series[0];
+								item.series.length = 1;
+							} else {
+								serie = item.series[item.series.length - 1].copy();
+								item.series.push(serie);
+							}
+						} else if (event.event.ctrlKey) {
+							serie = item.series[item.series.length - 1].copy();
+							item.series.push(serie);
+						} else {
+							serie = item.series[0];
+						}
+						serie.formulaValues = [];
+						serie.formulaValues.push(expr);
+						serie.formulaLabelY = new StringExpression(label);
+						item.xAxes[0].type = 'time';
+						item.xAxes[0].format.localCulture = `time;en`;
+						item.xAxes[0].format.numberFormat = 'h:mm:ss';
+						item.xAxes[0].format.linkNumberFormat = false;
+						item.finishCommand(cmdTitle, 'title');
+						item.finishCommand(cmdSeries, 'series');
+						item.finishCommand(cmdAxes, 'axes');
+						cmd.add(cmdTitle);
+						cmd.add(cmdSeries);
+						cmd.add(cmdAxes);
+						break;
+					}
+					default: {
+						const expr = new Expression(0, `INBOXDATA.${itemPath}`);
+						const cmdTitle = item.prepareCommand('title');
+						const cmdSeries = item.prepareCommand('series');
+						const serie = item.series[0];
+						if (event.event.ctrlKey || (treeItems.length > 1 && index === 0)) {
+							serie.formulaValues = [];
+							serie.formulaCategories = [];
+						}
+						if (serie.formulaValues === undefined) {
+							serie.formulaValues = [];
+						}
+						serie.formulaValues.push(expr);
+						if (serie.formulaCategories === undefined) {
+							serie.formulaCategories = [];
+						}
+						serie.formulaCategories.push(new StringExpression(label));
+						serie.formulaLabelY = new StringExpression(label);
+
+						item.finishCommand(cmdTitle, 'title');
+						item.finishCommand(cmdSeries, 'series');
+						cmd.add(cmdTitle);
+						cmd.add(cmdSeries);
+						if (serie.type === 'map') {
+							guessSerie = serie;
+						}
+					}
+					}
+				} else if (item.getParent() instanceof JSG.LayoutNode) {
+					const node = new JSG.TextNode('Title');
+					const tf = node.getTextFormat();
+					tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+					tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+					tf.setRichText(false);
+					tf.setFontSize(10);
+					const f = node.getFormat();
+					f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+					f.setLineCorner(75);
+					node.setText(new Expression(0, `INBOXDATA.${itemPath}`));
+					node.associate(false);
+					node.setHeight(1000);
+					node.getItemAttributes().addAttribute(new JSG.StringAttribute('label', label));
+					cmd.add(new JSG.AddItemCommand(node, item));
+				}
+			}
+		});
 
 		if (cmd) {
 			viewer.getInteractionHandler().execute(cmd);
+			if (guessSerie) {
+				const cmdSeries = item.prepareCommand('series');
+				item.guessMap(guessSerie);
+				guessSerie.map.mapData = undefined;
+				guessSerie.map.requesting = undefined;
+				item.finishCommand(cmdSeries, 'series');
+				viewer.getInteractionHandler().execute(cmdSeries);
+			}
 		}
 	}
 

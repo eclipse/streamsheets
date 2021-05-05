@@ -147,22 +147,25 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			toolBox.appendChild(pdiv);
 		};
 
-		addTitle('Charts');
+		addTitle('Timeline');
 		addElement('scatterline', 'Line (XY)', 'images/charts/line.png');
 		addElement('line', 'Line (Cat)', 'images/charts/line.png');
 		addElement('column', 'Column', 'images/charts/column.png');
-		addElement('bar', 'Bar', 'images/charts/bar.png');
-		addTitle('State');
+		addElement('area', 'Area', 'images/charts/area.png');
+		addElement('stateperiod', 'State', 'images/charts/stateperiod.png');
+		addTitle('Chart');
+		addElement('column', 'Column', 'images/charts/column.png');
 		addElement('gauge', 'Gauge', 'images/charts/gauge.png');
 		addElement('pie', 'Pie', 'images/charts/Pie.png');
 		addElement('map', 'Map', 'images/charts/map.png');
+		addTitle('Control');
 		addElement('check', 'Checkbox', 'lib/res/svg/checkbox.svg');
 		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
 		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
 		addElement('text', 'Title', 'lib/res/svg/label.svg');
-		addTitle('Grid');
+		addTitle('Table');
 		addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
-		addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
+		// addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
 
 
 		canvas.parentNode.appendChild(toolBox);
