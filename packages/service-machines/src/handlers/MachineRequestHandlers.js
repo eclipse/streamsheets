@@ -222,7 +222,6 @@ class StepMachineRequestHandler extends RequestHandler {
 	}
 }
 
-/** @deprecated REVIEW: still makes sense? don't think so... */
 class SubscribeMachineRequestHandler extends RequestHandler {
 	constructor() {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.SUBSCRIBE_MACHINE_MESSAGE_TYPE);
@@ -302,17 +301,21 @@ class MachineUpdateSettingsRequestHandler extends RequestHandler {
 	}
 }
 
-/** @deprecated REVIEW: still makes sense? don't think so... */
 class UnsubscribeMachineRequestHandler extends RequestHandler {
 	constructor() {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.UNSUBSCRIBE_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
-		const clientId = request.sender ? request.sender.id : undefined;
-		return handleRequest(this, machineserver, request, 'unsubscribe', {
-			clientId
-		});
+		const { machineId, sender } = request;
+		const clientId = sender ? sender.id : undefined;
+		try {
+			// await or otherwise possible error is not caught, making try/catch senseless here
+			return await handleRequest(this, machineserver, request, 'unsubscribe', { clientId });
+		} catch (err) {
+			logger.info(`Ignore unsubscribe! No open machine found for id ${machineId}.`);
+			return this.confirm(request, { warning: `No open machine found for id ${machineId}.` });
+		}
 	}
 }
 
@@ -792,7 +795,9 @@ class CommandRequestHandler extends RequestHandler {
 			result.streamsheetId = streamsheetId;
 			return this.confirm(request, result);
 		}
-		throw this.reject(request, `No machine found with id '${request.machineId}'.`);
+		// throw this.reject(request, `No machine found with id '${request.machineId}'.`);
+		logger.info(`Ignore command "${command.name}"! No machine found for id ${machineId}.`);
+		return this.confirm(request, { warning: `No machine found for id ${machineId}.` });
 	}
 
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
