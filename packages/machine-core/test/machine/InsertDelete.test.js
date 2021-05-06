@@ -9,13 +9,8 @@
  *
  ********************************************************************************/
 const DEF_PROPS = require('../../defproperties.json');
-const { functions } = require('../utils');
-const { Cell, Machine, Sheet, SheetParser,SheetRange, StreamSheet } = require('../..');
+const { Cell, Machine, Sheet, SheetRange, StreamSheet } = require('../..');
 const { Term } = require('@cedalo/parser');
-
-beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
-});
 
 const setup = () => {
 	const machine = new Machine();

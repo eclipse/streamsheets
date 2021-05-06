@@ -8,15 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { createTerm, functions } = require('../utils');
-const { Sheet, SheetIndex, SheetParser } = require('../..');
+const { createTerm } = require('../utils');
+const { Sheet, SheetIndex } = require('../..');
 const SheetRange = require('../../src/machine/SheetRange');
 const { FunctionErrors } = require('@cedalo/error-codes');
-
-beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
-});
-
 
 describe('SheetRange', () => {
 	describe('creation', () => {

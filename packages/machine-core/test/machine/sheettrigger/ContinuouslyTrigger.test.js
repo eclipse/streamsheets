@@ -64,14 +64,14 @@ describe('behaviour on machine run', () => {
 			const { machine, s1 } = setup();
 			const machineMonitor = monitorMachine(machine);
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			await machineMonitor.hasFinishedStep(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			createCellAt('A2', undefined, s1.sheet);
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 			await machineMonitor.hasFinishedStep(4);
 			await machine.stop();
 			// will directly pause again, so
@@ -149,7 +149,7 @@ describe('behaviour on machine run', () => {
 			const { machine, s1 } = setup();
 			const machineMonitor = monitorMachine(machine);
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
@@ -170,7 +170,7 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(undefined);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 			await machineMonitor.hasFinishedStep(7);
 			expect(machine.stats.steps).toBeGreaterThanOrEqual(4);
 			// only have 3 and 2 because on next tick it will pause again...
@@ -184,7 +184,7 @@ describe('behaviour on machine run', () => {
 			const machineMonitor = monitorMachine(machine);
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
@@ -206,7 +206,7 @@ describe('behaviour on machine run', () => {
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			// pause again and run a few steps
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 			await machineMonitor.hasFinishedStep(6);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
@@ -215,7 +215,7 @@ describe('behaviour on machine run', () => {
 		it('should resume on machine stop and start if process was paused by function', async () => {
 			const { machine, s1 } = setup();
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			await wait(70);
@@ -230,7 +230,7 @@ describe('behaviour on machine run', () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			await machine.start();
 			await wait(70);
@@ -272,7 +272,7 @@ describe('behaviour on machine run', () => {
 			machine.cycletime = 5000;
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause(0.1)' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(0.1)' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -288,7 +288,7 @@ describe('behaviour on machine run', () => {
 			const monitorS1 = monitorStreamSheet(s1);
 			machine.cycletime = 10;
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause(0.02)' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(0.02)' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
@@ -311,7 +311,7 @@ describe('behaviour on machine run', () => {
 			const monitorS1 = monitorStreamSheet(s1);
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause(0.02)' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(0.02)' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -335,7 +335,7 @@ describe('behaviour on machine run', () => {
 			const { machine, s1 } = setup();
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-			createCellAt('A2', { formula: 'pause(0.1)' }, s1.sheet);
+			createCellAt('A2', { formula: 'sleep(0.1)' }, s1.sheet);
 			createCellAt('A3', { formula: 'A3+1' }, s1.sheet);
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -587,7 +587,7 @@ describe('behaviour on manual stepping', () => {
 	it('should not process sheet on manual steps if paused by function', async () => {
 		const { machine, s1 } = setup();
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-		createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+		createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
 		await machine.step();
 		expect(s1.stats.steps).toBe(1);
@@ -606,7 +606,7 @@ describe('behaviour on manual stepping', () => {
 		await machine.step();
 		expect(s1.stats.steps).toBe(3);
 		expect(s1.sheet.cellAt('A1').value).toBe(4);
-		createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+		createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 		await machine.step();	// step to pause sheet at A2
 		expect(s1.stats.steps).toBe(4);
 		expect(s1.sheet.cellAt('A1').value).toBe(5);
@@ -1070,7 +1070,7 @@ describe('updating trigger', () => {
 		const newTrigger = new ContinuousTrigger({ repeat: 'endless' });
 		s1.trigger.update({ repeat: 'endless' });
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-		createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+		createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 		expect(s1.sheet.cellAt('A1').value).toBe(1);
 		await machine.start();
 		await machineMonitor.hasFinishedStep(2);
@@ -1160,7 +1160,7 @@ describe('counter stats', () => {
 		const { machine, s1 } = setup();
 		s1.trigger.update({ repeat: 'endless' });
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-		createCellAt('A2', { formula: 'pause()' }, s1.sheet);
+		createCellAt('A2', { formula: 'sleep(60)' }, s1.sheet);
 		expect(s1.stats.steps).toBe(0);
 		expect(s1.stats.repeatsteps).toBe(0);
 		await machine.start();
@@ -1179,7 +1179,7 @@ describe('counter stats', () => {
 		const { machine, s1 } = setup();
 		s1.trigger.update({ repeat: 'endless' });
 		createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
-		createCellAt('A2', { formula: 'pause(0.1)' }, s1.sheet);
+		createCellAt('A2', { formula: 'sleep(0.1)' }, s1.sheet);
 		await machine.start();
 		await wait(500);
 		expectValue(s1.stats.repeatsteps).toBeInRange(3, 6);

@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { functions } = require('@cedalo/functions');
 const { SheetParser } = require('../');
-const mockedFunctions = require('./_functions');
 
 // WHY? if we mock here instead of mocking in corresponding test it works with above SheetParser require!!
 jest.mock('../src/streams/StreamMessagingClient');
@@ -17,5 +17,43 @@ jest.mock('../src/streams/StreamMessagingClient');
 // FOR TESTs we do not use persistent outbox
 process.env.OUTBOX_PERSISTENT = false;
 
-// setup parser and its context...
-Object.assign(SheetParser.context.functions, mockedFunctions);
+// define & add some simple helper functions to ease testing
+const loopIndices = (sheet /* , ...terms */) => {
+	const context = loopIndices.context;
+	if (sheet.isProcessing) {
+		if (!context.initialized) {
+			context.initialized = true;
+			context.result = [];
+		}
+		const loopIndex = sheet.streamsheet.getLoopIndex();
+		context.result.push(loopIndex);
+	}
+	return context.result ? context.result.join(',') : '';
+};
+const messageids = (sheet /* , ...terms */) => {
+	const context = messageids.context;
+	if (sheet.isProcessing) {
+		if (!context.initialized) {
+			context.initialized = true;
+			context.result = [];
+		}
+		const message = sheet.streamsheet.inbox.peek();
+		if (message) {
+			context.result.push(message.id);
+		}
+	}
+	return context.result ? context.result.join(',') : '';
+};
+const helperFunctions = {
+	ARRAY: (sheet, ...terms) => {
+		return terms.map((term) => term.value);
+	},
+	LOOPINDICES: loopIndices,
+	MESSAGEIDS: messageids,
+	MOD: (sheet, ...terms) => {
+		const val = terms[0] ? terms[0].value : 0;
+		const dividend = terms[1] ? terms[1].value : 1;
+		return val % dividend;
+	}
+};
+Object.assign(SheetParser.context.functions, functions, helperFunctions);
