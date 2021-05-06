@@ -765,7 +765,7 @@ export default class CellEditor {
 		// clean first
 		const refs = this.div.getElementsByTagName('span');
 		for (let i = refs.length - 1; i >= 0; i -= 1) {
-			if (refs[i].id === 'range' && refs[i].textContent === '') {
+			if ((refs[i].id === 'range' && refs[i].textContent === '') || refs[i].id.startsWith('pos')) {
 				this.div.removeChild(refs[i]);
 			}
 		}
@@ -801,7 +801,7 @@ export default class CellEditor {
 		// clean first
 		let refs = this.div.getElementsByTagName('span');
 		for (let i = refs.length - 1; i >= 0; i -= 1) {
-			if (refs[i].id === 'range' && refs[i].textContent === '') {
+			if ((refs[i].id === 'range' && refs[i].textContent === '') || refs[i].id.startsWith('pos')) {
 				this.div.removeChild(refs[i]);
 			}
 		}
