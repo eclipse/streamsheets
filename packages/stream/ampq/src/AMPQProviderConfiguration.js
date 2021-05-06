@@ -105,7 +105,8 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			label: {
 				en: 'Routing Key',
 			},
-			defaultValue: '*',
+			defaultValue: '',
+			helperText: 'For Direct queue leave exchange empty and set queue as routing key',
 		});
 		this.addConnectorDefinition({
 			id: 'properties',
