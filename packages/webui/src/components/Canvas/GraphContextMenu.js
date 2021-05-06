@@ -22,6 +22,7 @@ import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import TimelineIcon from '@material-ui/icons/Timeline';
+import ShortTextIcon from '@material-ui/icons/ShortText';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
@@ -121,6 +122,38 @@ class GraphContextComponent extends Component {
 		viewer.getInteractionHandler().editSelection();
 	};
 
+	onAddText = () => {
+		const viewer = graphManager.getGraphViewer();
+		if (viewer === undefined) {
+			return;
+		}
+
+		const selection = viewer.getSelection();
+		if (selection.length !== 1) {
+			return;
+		}
+
+		const item = selection[0].getModel();
+		if (item.isAddLabelAllowed()) {
+			const node = new JSG.TextNode('Text');
+			graphManager.synchronizedExecute(new JSG.AddItemCommand(node, item));
+		}
+	}
+
+	canAddText() {
+		const viewer = graphManager.getGraphViewer();
+		if (viewer === undefined) {
+			return false;
+		}
+
+		const selection = viewer.getSelection();
+		if (selection.length !== 1) {
+			return false;
+		}
+
+		return selection[0].getModel().isAddLabelAllowed();
+	}
+
 	canEditPoints() {
 		const viewer = graphManager.getGraphViewer();
 		if (viewer === undefined) {
@@ -170,6 +203,7 @@ class GraphContextComponent extends Component {
 		const selection = graphManager.getGraphViewer().getSelection();
 		const item = selection.length ? selection[0].getModel() : undefined;
 		const showEdit = this.canEditPoints();
+		const showAddText = this.canAddText();
 
 		return (
 			<Paper
@@ -268,6 +302,15 @@ class GraphContextComponent extends Component {
 								<TimelineIcon style={styles.menuItem} />
 							</ListItemIcon>
 							<ListItemText primary={<FormattedMessage id="EditPoints" defaultMessage="Edit Points" />} />
+						</MenuItem>
+					) : null}
+					{showAddText ? <Divider /> : null}
+					{showAddText ? (
+						<MenuItem onClick={() => this.onAddText()} dense>
+							<ListItemIcon>
+								<ShortTextIcon style={styles.menuItem} />
+							</ListItemIcon>
+							<ListItemText primary={<FormattedMessage id="Add Text" defaultMessage="Add Text" />} />
 						</MenuItem>
 					) : null}
 				</MenuList>
