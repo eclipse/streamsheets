@@ -10,7 +10,7 @@ module.exports = class AMPQProducer extends sdk.ProducerMixin(AMPQConnector) {
 		const {
 			message
 		} = config;
-		const conf = Object.assign({}, config, this.config);
+		const conf = Object.assign({}, this.config, config) ;
 		const {
 			exchangeName = '',
 			exchangeType = 'topic',
