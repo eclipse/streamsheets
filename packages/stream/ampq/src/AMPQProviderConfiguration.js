@@ -24,7 +24,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 		this.addConnectorDefinition({
 			id: 'uri',
 			label: 'AMPQ URI',
-			defaultValue: 'amqp://wadcher:ezgkAj2Ukkb5vcZBC6CH@gw:5672/wadcher', //'amqp://username:password@localhost/myvhost',
+			defaultValue: 'amqp://streamuser:streampass@localhost:5672/streamshost', //'amqp://username:password@localhost/myvhost',
 			helperText: 'starting with protocol amqp:// or amqps://. For auth use amqp://guest:guest@localhost:5672/vhost?query https://www.rabbitmq.com/uri-spec.html'
 		});
 		// consumer
