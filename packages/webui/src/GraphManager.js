@@ -517,6 +517,14 @@ export default class GraphManager {
 				view.layout();
 			}
 			this.updateViewMode(graph, settings.active && sheet ? sheet.getParent() : undefined);
+
+			if (settings.active && sheet) {
+				this.getGraphViewer().clearSelection();
+				const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
+				// cmd._noDraw = true;
+				this.synchronizedExecute(cmd);
+			}
+
 			graph.setRefreshNeeded(true);
 			graph.markDirty();
 
