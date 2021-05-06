@@ -1,0 +1,737 @@
+{
+  "version": 2,
+  "machines": [
+    {
+      "machine": {
+        "id": "ryZn31reDO",
+        "name": "ampq-test",
+        "state": "stopped",
+        "metadata": {
+          "owner": "anon",
+          "lastModified": 1620291085824,
+          "lastModifiedBy": "unknown",
+          "fileVersion": "2.0.0"
+        },
+        "streamsheets": [
+          {
+            "id": "HyahkBlDO",
+            "name": "S1",
+            "loop": {
+              "path": "",
+              "enabled": false,
+              "recursively": false
+            },
+            "inbox": {
+              "max": 20,
+              "type": "MessageBox",
+              "id": "H1x6nJBgDu",
+              "stream": {
+                "name": "AMPQ_Consumer_Stream",
+                "id": "ryxIprm-_d",
+                "stream": {
+                  "id": "ryxIprm-_d",
+                  "name": "AMPQ_Consumer_Stream",
+                  "scope": {
+                    "id": "root"
+                  },
+                  "owner": null,
+                  "disabled": null,
+                  "className": "ConsumerConfiguration",
+                  "lastModified": "2021-05-06T08:28:59.447Z",
+                  "lastAccessed": "2021-05-06T08:15:57.807Z",
+                  "connector": {
+                    "_id": "H1x7wr7Wuu",
+                    "id": "H1x7wr7Wuu",
+                    "className": "ConnectorConfiguration",
+                    "owner": null,
+                    "disabled": false,
+                    "lastModified": "2021-05-06T08:15:48.954Z",
+                    "lastAccessed": "2021-05-06T08:14:18.694Z",
+                    "isRef": true
+                  },
+                  "description": "",
+                  "filter": null,
+                  "labelAttribute": null,
+                  "idAttribute": null,
+                  "samplePayloads": null,
+                  "providerId": "@cedalo/stream-ampq",
+                  "mimeType": "auto",
+                  "queue": "myqueue",
+                  "assertQueue": true,
+                  "noAck": false,
+                  "exclusive": false,
+                  "state": "connected",
+                  "provider": {
+                    "id": "@cedalo/stream-ampq",
+                    "name": "AMPQ Provider",
+                    "className": "ProviderConfiguration",
+                    "canProduce": true,
+                    "canConsume": true,
+                    "definition": {
+                      "connector": [
+                        {
+                          "id": "protocolVersion",
+                          "type": "SELECT_NUM",
+                          "label": "AMPQ Protocol Version",
+                          "defaultValue": "0.9.1",
+                          "options": [
+                            {
+                              "label": "0-9-1",
+                              "value": "0.9.1"
+                            }
+                          ],
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": "0.9.1",
+                          "advanced": true,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "uri",
+                          "type": null,
+                          "label": "AMPQ URI",
+                          "defaultValue": "amqp://wadcher:ezgkAj2Ukkb5vcZBC6CH@gw:5672/wadcher",
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": "amqp://wadcher:ezgkAj2Ukkb5vcZBC6CH@gw:5672/wadcher",
+                          "advanced": false,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "connectionID",
+                          "type": null,
+                          "label": "Connection ID. ",
+                          "defaultValue": "",
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": "",
+                          "advanced": true,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "channelID",
+                          "type": null,
+                          "label": "Channel ID. ",
+                          "defaultValue": "",
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": "",
+                          "advanced": true,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "properties",
+                          "type": "MULTITEXTFIELDPAIRS",
+                          "label": {
+                            "en": "Properties"
+                          },
+                          "defaultValue": [],
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": [],
+                          "advanced": true,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "headers",
+                          "type": "MULTITEXTFIELDPAIRS",
+                          "label": {
+                            "en": "Headers"
+                          },
+                          "defaultValue": [],
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": [],
+                          "advanced": true,
+                          "disabled": false,
+                          "help": null
+                        }
+                      ],
+                      "consumer": [
+                        {
+                          "id": "queue",
+                          "type": null,
+                          "label": "Queue",
+                          "defaultValue": "queueName",
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": "queueName",
+                          "advanced": false,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "assertQueue",
+                          "type": "CHECKBOX",
+                          "label": "Assert queue before consuming",
+                          "defaultValue": false,
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": false,
+                          "advanced": false,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "noAck",
+                          "type": "CHECKBOX",
+                          "label": "Do not send message acknowledgement",
+                          "defaultValue": false,
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": false,
+                          "advanced": false,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "exclusive",
+                          "type": "CHECKBOX",
+                          "label": "Make queue exclusive while asserting - if does not exist already",
+                          "defaultValue": false,
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": false,
+                          "advanced": false,
+                          "disabled": false,
+                          "help": null
+                        }
+                      ],
+                      "producer": [
+                        {
+                          "id": "exchangeName",
+                          "type": null,
+                          "label": {
+                            "en": "Exchange Name"
+                          },
+                          "defaultValue": "",
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": "",
+                          "advanced": false,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "exchangeType",
+                          "type": "SELECT_NUM",
+                          "label": {
+                            "en": "Exchange Type"
+                          },
+                          "defaultValue": "topic",
+                          "options": [
+                            {
+                              "label": "fanout",
+                              "value": "fanout"
+                            },
+                            {
+                              "label": "headers",
+                              "value": "headers"
+                            },
+                            {
+                              "label": "direct",
+                              "value": "direct"
+                            },
+                            {
+                              "label": "topic",
+                              "value": "topic"
+                            }
+                          ],
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": "topic",
+                          "advanced": false,
+                          "disabled": false,
+                          "help": null
+                        },
+                        {
+                          "id": "routingKey",
+                          "type": null,
+                          "label": {
+                            "en": "Routing Key"
+                          },
+                          "defaultValue": "*",
+                          "options": null,
+                          "dependsOnPath": null,
+                          "dependsOnValue": null,
+                          "required": null,
+                          "onUpdate": null,
+                          "value": "*",
+                          "advanced": false,
+                          "disabled": false,
+                          "help": null
+                        }
+                      ],
+                      "functions": [
+                        {
+                          "name": "AMPQ.PUBLISH",
+                          "displayName": true,
+                          "baseFunction": "produce",
+                          "parameters": [
+                            {
+                              "id": "message",
+                              "label": {
+                                "en": "Message",
+                                "de": "Nachricht"
+                              },
+                              "description": "",
+                              "type": {
+                                "name": "union",
+                                "types": [
+                                  {
+                                    "name": "json"
+                                  },
+                                  {
+                                    "name": "number"
+                                  },
+                                  {
+                                    "name": "string"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "id": "exchangeName",
+                              "label": {
+                                "en": "Exchange Name"
+                              },
+                              "description": "",
+                              "type": {
+                                "name": "union",
+                                "types": [
+                                  {
+                                    "name": "string"
+                                  }
+                                ]
+                              },
+                              "optional": true
+                            },
+                            {
+                              "id": "routingKey",
+                              "label": {
+                                "en": "Routing Key"
+                              },
+                              "description": "",
+                              "type": {
+                                "name": "union",
+                                "types": [
+                                  {
+                                    "name": "string"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "id": "properties",
+                              "label": {
+                                "en": "Properties",
+                                "de": "User Properties"
+                              },
+                              "description": "",
+                              "type": {
+                                "name": "union",
+                                "types": [
+                                  {
+                                    "name": "json"
+                                  }
+                                ]
+                              },
+                              "optional": true
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "lastModified": "2021-05-06T08:26:58.666Z",
+                    "state": "disconnected"
+                  }
+                }
+              }
+            },
+            "sheet": {
+              "cells": {
+                "E4": {
+                  "value": "test",
+                  "type": "string",
+                  "level": 0,
+                  "ref": {
+                    "col": "E",
+                    "row": 4
+                  }
+                },
+                "F4": {
+                  "formula": "RANDBETWEEN(1,1000)",
+                  "value": 155,
+                  "type": "undefined",
+                  "level": 0,
+                  "ref": {
+                    "col": "F",
+                    "row": 4
+                  }
+                },
+                "E8": {
+                  "formula": "AMPQ.PUBLISH(|AMPQ_Producer_Stream,JSON(E4:F4),,\"myqueue\")",
+                  "value": true,
+                  "type": "undefined",
+                  "level": 0,
+                  "references": [
+                    "|AMPQ_Producer_Stream"
+                  ],
+                  "ref": {
+                    "col": "E",
+                    "row": 8
+                  }
+                }
+              },
+              "namedCells": {},
+              "shapes": {
+                "shapes": [],
+                "changed": 802119652150,
+                "version": 1
+              },
+              "properties": {
+                "cols": [],
+                "rows": [],
+                "cells": []
+              },
+              "settings": {
+                "maxchars": -1,
+                "minrow": 1,
+                "maxrow": 100,
+                "mincol": -2,
+                "maxcol": 50,
+                "protected": false
+              }
+            },
+            "trigger": {
+              "repeat": "once",
+              "type": "continuously"
+            }
+          }
+        ],
+        "settings": {
+          "view": {
+            "maximize": "HyahkBlDO",
+            "showInbox": false,
+            "showGrid": false,
+            "showHeader": false,
+            "showOutbox": false,
+            "allowZoom": true,
+            "allowScroll": true
+          },
+          "locale": "en",
+          "isOPCUA": false,
+          "cycletime": 1000
+        },
+        "className": "Machine",
+        "scope": {
+          "id": "root"
+        },
+        "namedCells": {
+          "|AMPQ_Consumer": {
+            "value": {
+              "id": "SyekRN_WDu",
+              "name": "AMPQ_Consumer",
+              "type": "stream",
+              "state": "disconnected",
+              "timestamp": 1620289453830,
+              "scope": {
+                "id": "root"
+              }
+            },
+            "type": "object",
+            "info": {
+              "rawtype": "object"
+            },
+            "level": 0
+          },
+          "|AMPQ_Consumer_Stream": {
+            "value": {
+              "id": "ryxIprm-_d",
+              "name": "AMPQ_Consumer_Stream",
+              "type": "stream",
+              "state": "connected",
+              "timestamp": 1620290789558,
+              "scope": {
+                "id": "root"
+              }
+            },
+            "type": "object",
+            "info": {
+              "rawtype": "object"
+            },
+            "level": 0
+          },
+          "|AMPQ_Producer_Stream": {
+            "value": {
+              "id": "S1efSo7buu",
+              "name": "AMPQ_Producer_Stream",
+              "type": "producer",
+              "state": "connected",
+              "timestamp": 1620290789561,
+              "scope": {
+                "id": "root"
+              }
+            },
+            "type": "object",
+            "info": {
+              "rawtype": "object"
+            },
+            "level": 0
+          }
+        }
+      },
+      "graph": {
+        "id": "Bkla2JHeDd",
+        "graphdef": {
+          "version": "3",
+          "uniqueid": "1",
+          "o-attributes": {
+            "o-outboxvisible": {
+              "v": "false",
+              "t": "b"
+            }
+          },
+          "o-outbox": {
+            "split": "5000",
+            "width": "5000"
+          },
+          "a-graphitem": [
+            {
+              "id": "1000",
+              "o-attributes": {
+                "o-sheetid": {
+                  "v": "HyahkBlDO",
+                  "t": "s"
+                }
+              },
+              "o-pin": {
+                "o-p": {
+                  "o-x": {
+                    "v": "32597"
+                  },
+                  "o-y": {
+                    "v": "14711"
+                  }
+                },
+                "o-lp": {
+                  "o-x": {
+                    "f": "WIDTH%20*%200.5",
+                    "v": "32097"
+                  },
+                  "o-y": {
+                    "f": "HEIGHT%20*%200.5",
+                    "v": "14211"
+                  }
+                }
+              },
+              "o-size": {
+                "o-w": {
+                  "v": "64193"
+                },
+                "o-h": {
+                  "v": "28422"
+                }
+              },
+              "o-inbox": {
+                "split": "5000",
+                "width": "13043"
+              },
+              "o-processsheet": {
+                "o-attributes": {
+                  "o-calcondemand": {
+                    "v": "true",
+                    "t": "b"
+                  }
+                },
+                "o-name": {
+                  "v": "S1",
+                  "t": "s"
+                },
+                "o-rows": {
+                  "outline": "above"
+                },
+                "o-columns": {
+                  "outline": "above",
+                  "a-section": [
+                    {
+                      "index": "0",
+                      "size": "0",
+                      "visible": "0"
+                    },
+                    {
+                      "index": "1",
+                      "size": "700",
+                      "visible": "1"
+                    }
+                  ]
+                },
+                "o-defaultcell": {
+                  "o-cell": {}
+                },
+                "o-data": {
+                  "a-r": [
+                    {
+                      "n": "3",
+                      "a-c": [
+                        {
+                          "n": "6",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "n": "7",
+                          "o-cell": {
+                            "o-a": {
+                              "o-key": {
+                                "v": "true",
+                                "t": "b"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "o-images": {}
+        },
+        "machineId": "ryZn31reDO"
+      }
+    }
+  ],
+  "streams": [
+    {
+      "id": "H1x7wr7Wuu",
+      "name": "AMPQ_Connector_Stream",
+      "disabled": false,
+      "className": "ConnectorConfiguration",
+      "lastModified": "2021-05-06T08:15:48.954Z",
+      "lastAccessed": "2021-05-06T08:14:18.694Z",
+      "provider": {
+        "_id": "@cedalo/stream-ampq",
+        "id": "@cedalo/stream-ampq",
+        "className": "ProviderConfiguration",
+        "isRef": true
+      },
+      "protocolVersion": "0.9.1",
+      "uri": "amqp://streamuser:streampass@localhost:5672/streamshost",
+      "connectionID": "",
+      "channelID": "",
+      "properties": [],
+      "headers": [],
+      "scope": {
+        "id": "root"
+      },
+      "state": "disconnected"
+    },
+    {
+      "id": "ryxIprm-_d",
+      "name": "AMPQ_Consumer_Stream",
+      "scope": {
+        "id": "root"
+      },
+      "owner": null,
+      "disabled": null,
+      "className": "ConsumerConfiguration",
+      "lastModified": "2021-05-06T08:28:59.447Z",
+      "lastAccessed": "2021-05-06T08:15:57.807Z",
+      "connector": {
+        "_id": "H1x7wr7Wuu",
+        "id": "H1x7wr7Wuu",
+        "className": "ConnectorConfiguration",
+        "owner": null,
+        "disabled": false,
+        "lastModified": "2021-05-06T08:15:48.954Z",
+        "lastAccessed": "2021-05-06T08:14:18.694Z",
+        "isRef": true
+      },
+      "description": "",
+      "filter": null,
+      "labelAttribute": null,
+      "idAttribute": null,
+      "samplePayloads": null,
+      "providerId": "@cedalo/stream-ampq",
+      "mimeType": "auto",
+      "queue": "myqueue",
+      "assertQueue": true,
+      "noAck": false,
+      "exclusive": false,
+      "state": "connected"
+    },
+    {
+      "id": "S1efSo7buu",
+      "name": "AMPQ_Producer_Stream",
+      "disabled": false,
+      "className": "ProducerConfiguration",
+      "lastModified": "2021-05-06T08:39:37.486Z",
+      "lastAccessed": "2021-05-06T08:39:21.800Z",
+      "connector": {
+        "_id": "H1x7wr7Wuu",
+        "id": "H1x7wr7Wuu",
+        "className": "ConnectorConfiguration",
+        "disabled": false,
+        "lastModified": "2021-05-06T08:15:48.954Z",
+        "lastAccessed": "2021-05-06T08:14:18.694Z",
+        "isRef": true
+      },
+      "providerId": "@cedalo/stream-ampq",
+      "mimeType": "auto",
+      "exchangeName": "",
+      "exchangeType": "topic",
+      "routingKey": "*",
+      "scope": {
+        "id": "root"
+      },
+      "state": "connected"
+    }
+  ]
+}
