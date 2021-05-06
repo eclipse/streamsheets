@@ -33,7 +33,7 @@ const sumOf = (sheet, terms) => {
 		if (!error) {
 			const range = getCellRangeFromTerm(term, sheet);
 			const nr = !range ? convert.toNumber(term.value, ERROR.VALUE) : undefined;
-			error = FunctionErrors.isError(range) || FunctionErrors.isError(nr) || FunctionErrors.isError(term.value);
+			error = FunctionErrors.isError(term.value) || FunctionErrors.isError(range) || FunctionErrors.isError(nr);
 			if (!error) total += range ? rangeSum(range) : nr;
 		}
 		return error || total;
