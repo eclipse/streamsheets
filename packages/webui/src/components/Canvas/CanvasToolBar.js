@@ -805,33 +805,30 @@ export class CanvasToolBar extends Component {
 	};
 
 	onFormatPercent = () => {
-		const sheetView = graphManager.getActiveSheetView();
-		if (sheetView) {
-			const attributesMap = new Dictionary();
+		const attributesMap = new Dictionary();
 
-			attributesMap.put(TextFormatAttributes.NUMBERFORMAT, '0%');
-			attributesMap.put(TextFormatAttributes.LOCALCULTURE, 'percent;0');
+		attributesMap.put(TextFormatAttributes.NUMBERFORMAT, '0%');
+		attributesMap.put(TextFormatAttributes.LOCALCULTURE, 'percent;0');
 
-			if (
-				graphManager
-					.getGraphEditor()
-					.getSelectionProvider()
-					.hasSelection()
-			) {
-				// graphManager.getGraphEditor().getInteractionHandler().applyTextFormatMap(attributesMap);
-			} else {
-				const cmd = SheetCommandFactory.create(
-					'command.TextFormatCellsCommand',
-					sheetView.getOwnSelection().getRanges(),
-					attributesMap
-				);
+		if (
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			graphManager.getGraphEditor().getInteractionHandler().applyTextFormatMap(attributesMap);
+		} else {
+			const sheetView = graphManager.getActiveSheetView();
+			if (sheetView) {
+				const cmd = SheetCommandFactory.create('command.TextFormatCellsCommand',
+					sheetView.getOwnSelection().getRanges(), attributesMap);
 				graphManager
 					.getGraphViewer()
 					.getInteractionHandler()
 					.execute(cmd);
 			}
-			this.updateState();
 		}
+		this.updateState();
 		graphManager.getCanvas().focus();
 	};
 
@@ -852,6 +849,8 @@ export class CanvasToolBar extends Component {
 					return sel.element === 'serieslabel' ||
 						sel.element === 'xAxis' ||
 						sel.element === 'yAxis';
+				} else if (cont.getModel() instanceof JSG.TextNode) {
+					return true;
 				}
 			}
 			return false;
@@ -898,119 +897,117 @@ export class CanvasToolBar extends Component {
 	};
 
 	onFormatDecimals = (more, thousandsFlag) => {
+		const attributesMap = new Dictionary();
 		const sheetView = graphManager.getActiveSheetView();
-		if (sheetView) {
-			const attributesMap = new Dictionary();
-			const tf = this.state.cellTextFormat;
+		const tf = this.state.cellTextFormat;
+		if (!tf) {
+			return;
+		}
 
-			if (!tf) {
-				return;
-			}
+		let decimals = 0;
+		let category = 'number';
+		let currency = '€';
+		let thousands = false;
 
-			let decimals = 0;
-			let category = 'number';
-			let currency = '€';
-			let thousands = false;
-
-			let sections = tf.getLocalCulture() ? tf.getLocalCulture().getValue() : '';
-			sections = sections.split(';');
-			if (sections.length) {
-				switch (sections[0]) {
-					case 'general':
-						category = 'number';
-						break;
-					case 'currency':
-						[, , , currency] = sections;
-						currency = currency === 'undefined' ? '€' : currency;
-						decimals = Number(sections[1]);
-						[category] = sections;
-						thousands = sections[2] === 'true';
-						break;
-					case 'number':
-						decimals = Number(sections[1]);
-						[category] = sections;
-						thousands = sections[2] === 'true';
-						break;
-					case 'percent':
-					case 'science':
-						decimals = Number(sections[1]);
-						[category] = sections;
-						break;
-					default:
-						category = 'number';
-						break;
-				}
-			}
-
-			if (decimals !== undefined) {
-				decimals = Math.max(0, more ? decimals + 1 : decimals - 1);
-			}
-			if (thousandsFlag !== undefined) {
-				thousands = true;
-			}
-
-			let template;
-			let culture;
-
-			switch (category) {
-				default:
-				case 'number':
-					template = numberFormatTemplates.getNegativeNumberTemplates(
-						thousands,
-						Number(decimals),
-						'red',
-						0,
-						0,
-						undefined,
-						0
-					);
-					culture = `number;${decimals};${thousands}`;
+		let sections = tf.getLocalCulture() ? tf.getLocalCulture().getValue() : '';
+		sections = sections.split(';');
+		if (sections.length) {
+			switch (sections[0]) {
+				case 'general':
+					category = 'number';
 					break;
 				case 'currency':
-					template = numberFormatTemplates.getNegativeNumberTemplates(
-						thousands,
-						Number(decimals),
-						'red',
-						0,
-						0,
-						currency,
-						0
-					);
-					culture = `currency;${decimals};${thousands};${currency}`;
+					[, , , currency] = sections;
+					currency = currency === 'undefined' ? '€' : currency;
+					decimals = Number(sections[1]);
+					[category] = sections;
+					thousands = sections[2] === 'true';
+					break;
+				case 'number':
+					decimals = Number(sections[1]);
+					[category] = sections;
+					thousands = sections[2] === 'true';
 					break;
 				case 'percent':
-					template = numberFormatTemplates.getNumberTemplate(Number(decimals), 0, 5, 0);
-					culture = `percent;${decimals}`;
-					break;
 				case 'science':
-					template = numberFormatTemplates.getNumberTemplate(Number(decimals), 0, 7, 0);
-					culture = `science;${decimals}`;
+					decimals = Number(sections[1]);
+					[category] = sections;
+					break;
+				default:
+					category = 'number';
 					break;
 			}
-
-			attributesMap.put(TextFormatAttributes.NUMBERFORMAT, template.format);
-			attributesMap.put(TextFormatAttributes.LOCALCULTURE, culture);
-
-			if (
-				graphManager
-					.getGraphEditor()
-					.getSelectionProvider()
-					.hasSelection()
-			) {
-				// graphManager.getGraphEditor().getInteractionHandler().applyTextFormatMap(attributesMap);
-			} else {
-				const cmd = SheetCommandFactory.create(
-					'command.TextFormatCellsCommand',
-					sheetView.getOwnSelection().getRanges(),
-					attributesMap
-				);
-				graphManager
-					.getGraphViewer()
-					.getInteractionHandler()
-					.execute(cmd);
-			}
-			this.updateState();
 		}
+
+		if (decimals !== undefined) {
+			decimals = Math.max(0, more ? decimals + 1 : decimals - 1);
+		}
+		if (thousandsFlag !== undefined) {
+			thousands = true;
+		}
+
+		let template;
+		let culture;
+
+		switch (category) {
+			default:
+			case 'number':
+				template = numberFormatTemplates.getNegativeNumberTemplates(
+					thousands,
+					Number(decimals),
+					'red',
+					0,
+					0,
+					undefined,
+					0
+				);
+				culture = `number;${decimals};${thousands}`;
+				break;
+			case 'currency':
+				template = numberFormatTemplates.getNegativeNumberTemplates(
+					thousands,
+					Number(decimals),
+					'red',
+					0,
+					0,
+					currency,
+					0
+				);
+				culture = `currency;${decimals};${thousands};${currency}`;
+				break;
+			case 'percent':
+				template = numberFormatTemplates.getNumberTemplate(Number(decimals), 0, 5, 0);
+				culture = `percent;${decimals}`;
+				break;
+			case 'science':
+				template = numberFormatTemplates.getNumberTemplate(Number(decimals), 0, 7, 0);
+				culture = `science;${decimals}`;
+				break;
+		}
+
+		attributesMap.put(TextFormatAttributes.NUMBERFORMAT, template.format);
+		attributesMap.put(TextFormatAttributes.LOCALCULTURE, culture);
+
+		if (
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			graphManager.getGraphEditor().getInteractionHandler().applyTextFormatMap(attributesMap);
+		} else {
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		}
+		this.updateState();
+
 		graphManager.getCanvas().focus();
 	};
 
@@ -2417,7 +2414,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={() => this.onFormatDecimals(undefined, true)}
-							disabled={!this.props.cellSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -2435,7 +2432,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={this.onFormatPercent}
-							disabled={!this.props.cellSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -2453,7 +2450,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={() => this.onFormatDecimals(false)}
-							disabled={!this.props.cellSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -2472,7 +2469,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={() => this.onFormatDecimals(true)}
-							disabled={!this.props.cellSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={buttonStyle}
 						>
 							<SvgIcon>
