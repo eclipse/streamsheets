@@ -41,6 +41,7 @@ module.exports = class LayoutNode extends Node {
 		this.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setRotatable(false);
+		this.getItemAttributes().setClipChildren(true);
 	}
 
 	newInstance() {
@@ -123,7 +124,7 @@ module.exports = class LayoutNode extends Node {
 	addCell(rowIndex, columnIndex) {
 		const node = new Node();
 
-		node.getFormat().setLineColor('#BBBBBB');
+		node.getFormat().setLineStyle(0);
 		node.getItemAttributes().setRotatable(false);
 		node.getItemAttributes().setMoveable(false);
 		node.getItemAttributes().setSizeable(false);
@@ -306,6 +307,7 @@ module.exports = class LayoutNode extends Node {
 				if (node) {
 					node.setOrigin(x, y);
 					node.setSize(column.layoutSize, row.layoutSize);
+					node.getFormat().setLineStyle(0);
 					const items = getAutoSizeCount();
 					let yInner = 0;
 					const autoHeight =  items ? (row.layoutSize - margin * 2) / items : 1000;

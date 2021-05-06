@@ -13,17 +13,24 @@
 import NodeView from './NodeView';
 
 export default class LayoutView extends NodeView {
-
 	drawBorder(graphics, format, rect) {
 		super.drawBorder(graphics, format, rect);
 
 		const item = this.getItem();
+		const viewSettings = item.getGraph().viewSettings;
+
+		if (viewSettings.active) {
+			return;
+		}
+
 		const rowData = item.rowData;
 		const columnData = item.columnData;
 		let y = 0;
 		let x = 0;
 
-		// graphics.setLineColor('#FF00DD');
+		graphics.setLineStyle(3);
+		graphics.setLineColor('#BBBBBB');
+		graphics.applyLineDash();
 		graphics.beginPath();
 
 		rowData.forEach(row => {
@@ -41,6 +48,7 @@ export default class LayoutView extends NodeView {
 		});
 
 		graphics.stroke();
+		graphics.clearLineDash();
 
 	}
 }

@@ -196,7 +196,7 @@ module.exports = class TreeItemsNode extends Node {
 		}
 
 		for (let i = parts.length - 1; i >= 0; i -= 1) {
-			result += `${parts[i]}`;
+			result += `"${parts[i]}"`;
 			if (i > 0) {
 				result += '.';
 			}

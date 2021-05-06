@@ -275,6 +275,11 @@ export default class StreamSheetView extends WorksheetView {
 		treeItems.unshift(selection);
 		const cmd = new JSG.CompoundCommand();
 		let guessSerie;
+		let chartTitle;
+
+		if (treeItems.length > 1 && treeItems[1].level > treeItems[0].level) {
+			chartTitle = treeItems[0].key;
+		}
 
 		for (let i = treeItems.length - 1; i >= 0; i -= 1) {
 			const treeItem = treeItems[i];
@@ -323,6 +328,7 @@ export default class StreamSheetView extends WorksheetView {
 							item.series.push(serie);
 						} else {
 							serie = item.series[0];
+							item.series.length = 1;
 						}
 						serie.formulaValues = [];
 						serie.formulaValues.push(expr);
@@ -331,6 +337,9 @@ export default class StreamSheetView extends WorksheetView {
 						item.xAxes[0].format.localCulture = `time;en`;
 						item.xAxes[0].format.numberFormat = 'h:mm:ss';
 						item.xAxes[0].format.linkNumberFormat = false;
+						if (chartTitle && index === 0) {
+							item.title.formula = new StringExpression(chartTitle);
+						}
 						item.finishCommand(cmdTitle, 'title');
 						item.finishCommand(cmdSeries, 'series');
 						item.finishCommand(cmdAxes, 'axes');
@@ -344,19 +353,28 @@ export default class StreamSheetView extends WorksheetView {
 						const cmdTitle = item.prepareCommand('title');
 						const cmdSeries = item.prepareCommand('series');
 						const serie = item.series[0];
-						if (event.event.ctrlKey || (treeItems.length > 1 && index === 0)) {
-							serie.formulaValues = [];
-							serie.formulaCategories = [];
+						if (treeItems.length > 1) {
+							if (index === 0) {
+								serie.formulaValues = [];
+								serie.formulaCategories = [];
+							}
+							serie.formulaValues.push(expr);
+							serie.formulaCategories.push(new StringExpression(label));
+						} else if (event.event.ctrlKey) {
+							serie.formulaValues.push(expr);
+							serie.formulaCategories.push(new StringExpression(label));
+						} else {
+							serie.formulaValues = [expr];
+							serie.formulaCategories = [new StringExpression(label)];
 						}
-						if (serie.formulaValues === undefined) {
-							serie.formulaValues = [];
+						if (chartTitle && index === 0) {
+							// const f = item.getFormat();
+							// f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+							// f.setLineCorner(75);
+							// const path = JSG.AttributeUtils.createPath(JSG.ItemAttributes.NAME, 'label');
+							// cmd.add(new JSG.AddAttributeCommand(item, path, 'label', new StringExpression(label)));
+							item.title.formula = new StringExpression(chartTitle);
 						}
-						serie.formulaValues.push(expr);
-						if (serie.formulaCategories === undefined) {
-							serie.formulaCategories = [];
-						}
-						serie.formulaCategories.push(new StringExpression(label));
-						serie.formulaLabelY = new StringExpression(label);
 
 						item.finishCommand(cmdTitle, 'title');
 						item.finishCommand(cmdSeries, 'series');

@@ -48,7 +48,9 @@ module.exports = class StreamSheetContainerWrapper extends Node {
 		if (attr) {
 			const id = attr.getValue();
 			const graph = this.getGraph();
-			return graph.getItemById(id);
+			if (graph) {
+				return graph.getItemById(id);
+			}
 		}
 
 		return undefined;

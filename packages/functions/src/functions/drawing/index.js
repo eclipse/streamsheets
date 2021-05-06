@@ -49,6 +49,7 @@ module.exports = {
 		'DRAW.CHECKBOX': Functions['DRAW.CHECKBOX'],
 		'DRAW.ELLIPSE': Functions['DRAW.ELLIPSE'],
 		'DRAW.LABEL': Functions['DRAW.LABEL'],
+		'DRAW.LAYOUT': Functions['DRAW.LAYOUT'],
 		'DRAW.LINE': Functions['DRAW.LINE'],
 		'DRAW.KNOB': Functions['DRAW.KNOB'],
 		'DRAW.PLOT': Functions['DRAW.PLOT'],
