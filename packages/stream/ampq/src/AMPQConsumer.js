@@ -28,18 +28,22 @@ module.exports = class AMPQConsumer extends sdk.ConsumerMixin(AMPQConnector) {
 					this.handleErrorOnce(new Error('Queue not ready'));
 				}
 			}
-			this.channel.consume(queue, (msg) => {
-				const {
-					content,
-					fields = {},
-					properties = {}
-				} = msg;
-				this.logger.info(`ampq msg ${Buffer.from(content)}`);
-				this.onMessage(queue, content, {
-					...properties,
-					fields
-				});
-			}, options);
+			try {
+				await this.channel.consume(queue, (msg) => {
+					const {
+						content,
+						fields = {},
+						properties = {}
+					} = msg;
+					this.logger.info(`ampq msg ${Buffer.from(content)}`);
+					this.onMessage(queue, content, {
+						...properties,
+						fields
+					});
+				}, options);
+			} catch (e) {
+				this.handleErrorOnce(new Error(`Error trying to consume queue: ${e.message}`));
+			}
 		}
 	}
 };
