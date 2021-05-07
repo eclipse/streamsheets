@@ -35,6 +35,7 @@ module.exports = class ChartAxis {
 		this.zoomGroup = '';
 		this.autoZero = true;
 		this.betweenTicks = false;
+		this.wordBreak = true;
 		this.labelDistance = 200;
 		this.valueRanges = [];
 	}
@@ -72,6 +73,9 @@ module.exports = class ChartAxis {
 		}
 		if (this.betweenTicks === true) {
 			writer.writeAttributeNumber('betweenticks', this.betweenTicks ? 1 : 0);
+		}
+		if (this.wordBreak === false) {
+			writer.writeAttributeNumber('wordbreak', this.wordBreak ? 1 : 0);
 		}
 		if (this.zoomGroup.length) {
 			writer.writeAttributeString('zoomgroup', this.zoomGroup);
@@ -115,6 +119,7 @@ module.exports = class ChartAxis {
 		this.allowZoom = reader.getAttributeBoolean(object, 'allowzoom', false);
 		this.updateZoom = reader.getAttributeBoolean(object, 'updatezoom', false);
 		this.betweenTicks = reader.getAttributeBoolean(object, 'betweenticks', false);
+		this.wordBreak = reader.getAttributeBoolean(object, 'wordbreak', true);
 		this.invert = reader.getAttributeBoolean(object, 'invert', false);
 		this.labelDistance = reader.getAttributeNumber(object, 'labeldistance', 200);
 		this.valueRanges = [];
