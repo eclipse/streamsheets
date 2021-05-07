@@ -123,7 +123,7 @@ describe('Cell', () => {
 			const sheet1 = new StreamSheet().sheet.load({
 				cells: { 
 					A1: 'key', B1: 42,
-					A2: {formula: 'json(A1,B1)'},
+					A2: {formula: 'json(A1:B1)'},
 					A3: {formula: 'A2'}
 				}
 			});
