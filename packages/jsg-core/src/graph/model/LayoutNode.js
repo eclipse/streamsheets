@@ -13,6 +13,7 @@ const Node = require('./Node');
 const JSG = require('../../JSG');
 const LayoutSection = require('./LayoutSection');
 const FormatAttributes = require('../attr/FormatAttributes');
+const StringAttribute = require('../attr/StringAttribute');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Strings = require('../../commons/Strings');
 const Numbers = require('../../commons/Numbers');
@@ -42,6 +43,8 @@ module.exports = class LayoutNode extends Node {
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setRotatable(false);
 		this.getItemAttributes().setClipChildren(true);
+
+		this.addAttribute(new StringAttribute('layoutmode', 'resize'));
 	}
 
 	newInstance() {
@@ -310,7 +313,14 @@ module.exports = class LayoutNode extends Node {
 					node.getFormat().setLineStyle(0);
 					const items = getAutoSizeCount();
 					let yInner = 0;
-					const autoHeight =  items ? (row.layoutSize - margin * 2) / items : 1000;
+					let usedHeight = margin;
+					node.getItems().forEach(subItem => {
+						if (!this.isAutoResizeNode(subItem)) {
+							usedHeight += subItem.getHeight().getValue();
+						}
+						usedHeight += margin;
+					});
+					const autoHeight =  items ? (row.layoutSize - usedHeight) / items : 1000;
 					let height = 0;
 					node.getItems().forEach(subItem => {
 						if (this.isAutoResizeNode(subItem)) {

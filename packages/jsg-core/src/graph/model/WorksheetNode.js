@@ -26,6 +26,7 @@ const Rectangle = require('../../geometry/Rectangle');
 const RowHeaderNode = require('./RowHeaderNode');
 const CellsNode = require('./CellsNode');
 const ContentNode = require('./ContentNode');
+const LayoutNode = require('./LayoutNode');
 const Cell = require('./Cell');
 const DataProvider = require('./DataProvider');
 const HeaderSection = require('./HeaderSection');
@@ -146,6 +147,20 @@ module.exports = class WorksheetNode extends ContentNode {
 		}
 	}
 
+	getLayoutNode() {
+		let ret;
+
+		this._cells.getItems().some(subItem => {
+			if (subItem instanceof LayoutNode) {
+				ret = subItem;
+				return true;
+			}
+			return false;
+		});
+
+		return ret;
+	}
+
 	removeSelection(id) {
 		super.removeSelection(id);
 		const mySelectionId = String(this.getSelectionId());
@@ -220,6 +235,30 @@ module.exports = class WorksheetNode extends ContentNode {
 		JSG.boxCache.release(box);
 
 		super.layout();
+
+		const layoutNode = this.getParent()._layoutNode;
+		if (layoutNode) {
+			const layoutMode = layoutNode.getAttributeValueAtPath('layoutmode');
+			switch (layoutMode) {
+			case 'center': {
+				const size = layoutNode.getSizeAsPoint();
+				const sizeSheet = this.getSizeAsPoint();
+				layoutNode.setOrigin(Math.max(0, (sizeSheet.x - size.x) / 2), 0);
+			}
+				break;
+			case 'resize': {
+				const sizeSheet = this.getSizeAsPoint();
+				layoutNode.setOrigin(0, 0);
+				layoutNode.setWidth(sizeSheet.x);
+				break;
+			}
+			case 'left':
+				layoutNode.setOrigin(0, 0);
+				break;
+			}
+		}
+
+
 	}
 
 	_copy(copiednodes, deep, ids) {

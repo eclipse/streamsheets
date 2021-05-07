@@ -431,6 +431,10 @@ module.exports = class StreamSheetContainer extends Node {
 		let hideButtons = false;
 		let captions = true;
 
+		if (!this._layoutNode) {
+			this._layoutNode = this._processSheet.getLayoutNode();
+		}
+
 		const settings = this.viewSettings;
 		if (settings.active === true) {
 			hideButtons = true;

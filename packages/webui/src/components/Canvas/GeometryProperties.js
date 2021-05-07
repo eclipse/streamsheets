@@ -415,6 +415,19 @@ export class GeometryProperties extends Component {
 		return ret;
 	}
 
+	getLayoutMode(item, name) {
+		return item.getAttributeAtPath(name).getValue();
+	}
+
+	handleLayoutMode = (event, item, name, expr) => {
+		const cmd = new JSG.SetAttributeAtPathCommand(item, name, expr);
+
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	};
+
 	render() {
 		const sheetView = this.getSheetView();
 		if (!sheetView) {
@@ -494,6 +507,29 @@ export class GeometryProperties extends Component {
 				{(item instanceof JSG.SheetKnobNode) ? [
 					this.getAttributeHandler("GraphItemProperties.StartAngle", item, 'start', 2),
 					this.getAttributeHandler("GraphItemProperties.EndAngle", item, 'end', 2),
+				] : null}
+				{(item instanceof JSG.LayoutNode) ? [
+					<TextField
+						variant="outlined"
+						size="small"
+						margin="normal"
+						select
+						value={this.getLayoutMode(item, 'layoutmode')}
+						onChange={event => this.handleLayoutMode(event, item, 'layoutmode', new JSG.StringExpression(event.target.value))}
+						label={
+							<FormattedMessage id="GraphItemProperties.LayoutMode" defaultMessage="Layout Mode" />
+						}
+					>
+						<MenuItem value="left">
+							<FormattedMessage id="GraphItemProperties.LayoutLeft" defaultMessage="Left"/>
+						</MenuItem>
+						<MenuItem value="center">
+							<FormattedMessage id="GraphItemProperties.LayoutCenter" defaultMessage="Center"/>
+						</MenuItem>
+						<MenuItem value="resize">
+							<FormattedMessage id="GraphItemProperties.LayoutResize" defaultMessage="Resize"/>
+						</MenuItem>
+					</TextField>
 				] : null}
 			</FormGroup>
 		);
