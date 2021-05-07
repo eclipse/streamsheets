@@ -71,7 +71,9 @@ export default class ProxyConnection {
 		this.messagingClient = new MessagingClient();
 		this.messagingClient.connect(process.env.MESSAGE_BROKER_URL || 'mqtt://localhost:1883');
 		this.graphserver = new ServerConnection('graphserver', 'graphs');
-		this.machineserver = new ServerConnection('machineserver', 'machines');
+		this.machineserver = new ServerConnection('machineserver', 'machines', {
+			machineRouter: socketserver.gatewayService.machineRouter
+		});
 
 		this.graphserver.eventHandler = (ev) => this.onServerEvent(ev);
 		this.machineserver.eventHandler = (ev) => this.onServerEvent(ev);

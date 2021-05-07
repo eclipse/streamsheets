@@ -2527,7 +2527,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 			const fact = 1 - serie.barGap;
 			barWidth = (barWidth * fact) / (this.chart.stacked ? 1 : seriesCnt);
-			return Math.abs(barWidth);
+			return Math.min(Math.abs(barWidth), 50);
 		}
 
 		return 100;

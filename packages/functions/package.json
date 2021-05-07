@@ -34,7 +34,7 @@
     "@cedalo/parsers": "2.3.0"
   },
   "jest": {
-    "collectCoverage": false,
+    "collectCoverage": true,
     "coverageDirectory": "coverage",
     "moduleDirectories": [
       "node_modules"

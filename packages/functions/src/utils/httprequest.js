@@ -87,7 +87,7 @@ const createRequestCallback = (sheet, target, extractErrorData, extractResultDat
 	return (context, response, error) => {
 		const term = context.term;
 		const reqId = context._reqId;
-		const resobj = error ? createErrorResult(reqId, error) : createResponseResult(reqId, response);
+		const resobj = error ? createErrorResult(reqId, error) : createResponseResult(reqId, response.data);
 		resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
 		if (target) addResultToTarget(sheet, target, resobj);
 		if (term && !term.isDisposed) {

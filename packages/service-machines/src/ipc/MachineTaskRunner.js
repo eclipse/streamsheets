@@ -97,12 +97,12 @@ class MachineTaskRunner {
 		return this.requestHandler.request({ request: 'stop' });
 	}
 
-	async subscribe(/* clientId */) {
-		return this.requestHandler.request({ request: 'subscribe' });
+	async subscribe(clientId) {
+		return this.requestHandler.request({ request: 'subscribe', clientId });
 	}
 
-	async unsubscribe(/* clientId */) {
-		return this.requestHandler.request({ request: 'unsubscribe' });
+	async unsubscribe(clientId) {
+		return this.requestHandler.request({ request: 'unsubscribe', clientId });
 	}
 
 	async load(machineDefinition, functionDefinitions) {

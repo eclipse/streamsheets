@@ -73,24 +73,24 @@ class EditTextActivator extends InteractionActivator {
 	 *     activator is registered.
 	 */
 	onMouseDoubleClick(event, viewer, dispatcher) {
-		if (this.isDisposed === false && !event.isConsumed) {
-			// on double click we renewal selection, so find controller again...
-			let controller = dispatcher.getControllerAt(event.location, undefined, this._dblclickCondition);
-			controller = this._getTextNodeController(dispatcher, controller, dispatcher.currentLocation, false);
-			if (controller !== undefined) {
-				viewer.clearSelection(false);
-				viewer.onSelectionChanged();
-				if (
-					controller
-						.getParent()
-						.getModel()
-						.isSelectParentFirst()
-				) {
-					viewer.select(controller.getParent());
-				}
-				this._startEditTextInteraction(event, viewer, dispatcher, controller);
-			}
-		}
+		// if (this.isDisposed === false && !event.isConsumed) {
+		// 	// on double click we renewal selection, so find controller again...
+		// 	let controller = dispatcher.getControllerAt(event.location, undefined, this._dblclickCondition);
+		// 	controller = this._getTextNodeController(dispatcher, controller, dispatcher.currentLocation);
+		// 	if (controller !== undefined) {
+		// 		viewer.clearSelection(false);
+		// 		viewer.onSelectionChanged();
+		// 		if (
+		// 			controller
+		// 				.getParent()
+		// 				.getModel()
+		// 				.isSelectParentFirst()
+		// 		) {
+		// 			viewer.select(controller.getParent());
+		// 		}
+		// 		this._startEditTextInteraction(event, viewer, dispatcher, controller);
+		// 	}
+		// }
 	}
 
 	/**

@@ -150,6 +150,10 @@ module.exports = {
 				description: 'Schreibt einen Bereich als CSV in eine Datei'
 			}
 		},
+		GETCLIENTCOUNT: {
+			en: { argumentList: '', description: 'Returns the number of current connected clients' },
+			de: { argumentList: '', description: 'Ermittelt die Anzahl der aktuell verbundenen Clients' }
+		},
 		GETCYCLE: {
 			en: { argumentList: '', description: 'Returns the current cycle' },
 			de: { argumentList: '', description: 'Ermittelt den aktuellen Zyklus' }

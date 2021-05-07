@@ -10,7 +10,7 @@
  ********************************************************************************/
 /* global document NodeFilter window */
 
-
+const { NumberFormatter } = require('@cedalo/number-format');
 const { NullTerm, FuncTerm } = require('@cedalo/parser');
 
 const JSG = require('../../JSG');
@@ -29,6 +29,7 @@ const StringExpression = require('../expr/StringExpression');
 const NumberExpression = require('../expr/NumberExpression');
 const Point = require('../../geometry/Point');
 const XML = require('../../commons/XML');
+const Numbers = require('../../commons/Numbers');
 
 /**
  * The TextNode class extends a Node with Text capabilities. It contains the text itself and some
@@ -304,10 +305,27 @@ class TextNode extends Node {
 			text = `${d.toLocaleDateString(undefined, {year: '2-digit', month: '2-digit', day: '2-digit'})} ${d.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})}`;
 		}
 
+		const nf = tf.getNumberFormat().getValue();
+		let lastText;
+		if (nf !== 'General' && Numbers.canBeNumber(text)) {
+			const set = tf.getLocalCulture().getValue().toString();
+			const type = set.split(';');
+			try {
+				const ret = NumberFormatter.formatNumber(nf, Number(text), type[0]);
+				lastText = text;
+				text = ret.formattedValue;
+				// eslint-disable-next-line no-empty
+			} catch (e) {
+			}
+		}
+
 		this._paras = this._splitParas(text);
 
 		if (local) {
 			this._lastUpdateInfo.text = '#[LocalDate]';
+		}
+		if (lastText) {
+			this._lastUpdateInfo.text = lastText;
 		}
 
 		let width = this._sizeText.x;

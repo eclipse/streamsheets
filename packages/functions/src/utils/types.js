@@ -24,6 +24,7 @@ const TYPE = {
 	ENUM: 'enum',
 	BOOLEAN: 'boolean',
 	JSON: 'json',
+	ANY: 'any',
 	// STREAM: 'stream',
 	LIST: 'list',
 	UNION: 'union',
@@ -185,6 +186,7 @@ const asUnion = (value, config) => {
 };
 
 const TYPE_FUNCS = {
+	[TYPE.ANY]: (value) => value,
 	[TYPE.NUMBER]: asNumber2,
 	[TYPE.BOOLEAN]: asBoolean,
 	[TYPE.INTEGER]: asInteger,
@@ -212,6 +214,7 @@ const fromTerm = (f) => (term, ...args) => {
 	return undefined;
 };
 
+const termAsAny = fromTerm((value) => value)
 const termAsNumber = fromTerm(asNumber2);
 const termAsBoolean = fromTerm(asBoolean);
 const termAsInteger = fromTerm(asInteger);
@@ -271,6 +274,7 @@ const termAsUnion = (term, config, sheet) => {
 
 // args: term, config, sheet
 const TERM_TYPE_FUNCS = {
+	[TYPE.ANY]: termAsAny,
 	[TYPE.NUMBER]: termAsNumber,
 	[TYPE.BOOLEAN]: termAsBoolean,
 	[TYPE.INTEGER]: termAsInteger,
