@@ -512,6 +512,27 @@ module.exports = class StreamSheetContainer extends Node {
 
 		this._processSheet.setBoundingBoxTo(box);
 
+		const layoutNode = this._layoutNode;
+		if (layoutNode) {
+			const layoutMode = layoutNode.getAttributeValueAtPath('layoutmode');
+			const sheetSize = size.x - left;
+			switch (layoutMode) {
+			case 'center': {
+				const layoutSize = layoutNode.getSizeAsPoint();
+				layoutNode.setOrigin(Math.max(0, (sheetSize - layoutSize.x) / 2), 0);
+			}
+				break;
+			case 'resize': {
+				layoutNode.setOrigin(0, 0);
+				layoutNode.setWidth(sheetSize);
+				break;
+			}
+			case 'left':
+				layoutNode.setOrigin(0, 0);
+				break;
+			}
+		}
+
 		if (captions) {
 			box.setTop(0);
 			box.setHeight(heightCaption);
