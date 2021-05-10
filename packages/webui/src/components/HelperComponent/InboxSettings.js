@@ -412,6 +412,11 @@ export class InboxSettings extends React.Component {
 			settings.inbox.stream = {
 				name: ''
 			};
+		} else {
+			settings.inbox.stream = {
+				id: settings.inbox.stream.id,
+				name: settings.inbox.stream.name,
+			};
 		}
 		const limitText = settings.preferences.limitText;
 		settings.preferences.maxchars = limitText.enabled ? limitText.maxchars : -1;
