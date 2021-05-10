@@ -381,6 +381,11 @@ export class InboxSettings extends React.Component {
 			settings.inbox.stream = {
 				name: ''
 			};
+		} else {
+			settings.inbox.stream = {
+				id: settings.inbox.stream.id,
+				name: settings.inbox.stream.name,
+			};
 		}
 		delete settings.streams;
 		delete settings.loopPathError;
