@@ -16,7 +16,8 @@ import {
 	LoadMachineRequest,
 	PauseMachineRequest,
 	StartMachineRequest,
-	UnloadMachineRequest
+	UnloadMachineRequest,
+	DeleteMachineRequest
 } from '../streamsheets';
 
 const { SERVICES_MACHINES_INPUT, SERVICES_MACHINES_OUTPUT } = Topics;
@@ -50,6 +51,16 @@ export class MachineServiceProxy {
 		};
 		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_MACHINES_INPUT });
 		return { unloaded: result.machine.unloaded };
+	}
+
+	async delete(id: ID) {
+		const message: DeleteMachineRequest = {
+			type: 'machine_delete',
+			requestId: Math.random(),
+			machineId: id
+		};
+		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_MACHINES_INPUT });
+		return { deleted: result.machine.deleted };
 	}
 
 	async start(id: ID) {

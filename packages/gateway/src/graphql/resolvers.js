@@ -264,6 +264,17 @@ const resolvers = {
 			} catch (error) {
 				return Payload.createFailure(error);
 			}
+		},
+		deleteMachine: async ({ scope }, { machineId }, { api }) => {
+			try {
+				await api.machine.delete(scope, machineId);
+				return Payload.createSuccess({
+					code: 'DELETE_SUCCESS',
+					message: 'Machine deleted successfully'
+				});
+			} catch (error) {
+				return Payload.createFailure(error);
+			}
 		}
 	},
 	Inbox: {
