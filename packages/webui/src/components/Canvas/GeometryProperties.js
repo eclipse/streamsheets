@@ -529,7 +529,17 @@ export class GeometryProperties extends Component {
 						<MenuItem value="resize">
 							<FormattedMessage id="GraphItemProperties.LayoutResize" defaultMessage="Resize"/>
 						</MenuItem>
-					</TextField>
+					</TextField>,
+					<TextField
+						variant="outlined"
+						size="small"
+						margin="normal"
+						value={this.getLayoutMode(item, 'minwidth')}
+						onChange={event => this.handleLayoutMode(event, item, 'minwidth', new JSG.NumberExpression(event.target.value))}
+						label={
+							<FormattedMessage id="GraphItemProperties.MinimumWidth" defaultMessage="Minimum Width" />
+						}
+					/>
 				] : null}
 			</FormGroup>
 		);

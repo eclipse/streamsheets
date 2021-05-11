@@ -12,11 +12,11 @@ const JSG = require('../../JSG');
 const Node = require('./Node');
 
 module.exports = class StreamSheetContainerWrapper extends Node {
-	// constructor() {
-	// 	super();
-	//
-	// 	this.getItemAttributes().setClipChildren(true);
-	// }
+	constructor() {
+		super();
+
+		this.getItemAttributes().setContainer(false);
+	}
 
 	newInstance() {
 		return new StreamSheetContainerWrapper();

@@ -107,6 +107,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 					new Notification(NotificationCenter.ADD_SHEET_NOTIFICATION, this));
 				node = new JSG.StreamSheetContainerWrapper();
 				editor.getGraph()._sheetWrapper = node;
+				node.setHeight(5000);
 				break;
 			}
 			default:
@@ -117,6 +118,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				});
 
 				node.setChartTypeForSeries(type);
+				node.setHeight(5000);
 				break;
 			}
 			if (node) {

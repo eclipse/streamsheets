@@ -515,16 +515,21 @@ module.exports = class StreamSheetContainer extends Node {
 		const layoutNode = this._layoutNode;
 		if (layoutNode) {
 			const layoutMode = layoutNode.getAttributeValueAtPath('layoutmode');
-			const sheetSize = size.x - left;
+			const minWidth = layoutNode.getAttributeValueAtPath('minwidth');
+			let sheetSize = size.x - left;
+			const layoutSize = layoutNode.getSizeAsPoint();
 			switch (layoutMode) {
 			case 'center': {
-				const layoutSize = layoutNode.getSizeAsPoint();
 				layoutNode.setOrigin(Math.max(0, (sheetSize - layoutSize.x) / 2), 0);
 			}
 				break;
 			case 'resize': {
 				layoutNode.setOrigin(0, 0);
-				layoutNode.setWidth(sheetSize);
+				sheetSize = Math.max(sheetSize, minWidth)
+				if (sheetSize !== layoutSize.x) {
+					layoutNode.setWidth(sheetSize);
+					layoutNode.layout();
+				}
 				break;
 			}
 			case 'left':

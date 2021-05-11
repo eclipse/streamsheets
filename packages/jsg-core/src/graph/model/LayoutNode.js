@@ -14,6 +14,7 @@ const JSG = require('../../JSG');
 const LayoutSection = require('./LayoutSection');
 const FormatAttributes = require('../attr/FormatAttributes');
 const StringAttribute = require('../attr/StringAttribute');
+const NumberAttribute = require('../attr/NumberAttribute');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Strings = require('../../commons/Strings');
 const Numbers = require('../../commons/Numbers');
@@ -45,6 +46,7 @@ module.exports = class LayoutNode extends Node {
 		this.getItemAttributes().setClipChildren(true);
 
 		this.addAttribute(new StringAttribute('layoutmode', 'resize'));
+		this.addAttribute(new NumberAttribute('minwidth', 10000));
 	}
 
 	newInstance() {
@@ -228,7 +230,10 @@ module.exports = class LayoutNode extends Node {
 	}
 
 	layout() {
+		super.layout();
+
 		const size = this.getSize().toPoint();
+		const layoutMode = this.getAttributeValueAtPath('layoutmode');
 
 		// get min cell sizes from content
 
@@ -276,24 +281,7 @@ module.exports = class LayoutNode extends Node {
 		});
 
 		// do row layout
-
-		size.y = 0;
-		this._rowData.forEach(row => {
-			sizeSection = row.size;
-			if (Numbers.isNumber(sizeSection)) {
-				row.layoutSize = sizeSection;
-			} else {
-				row.layoutSize = 6000;
-			}
-			size.y += row.layoutSize;
-		});
-
-		// update layoutcells
-		let x = 0;
-		let y = 0;
-		let node;
-		const margin = 200;
-		const getAutoSizeCount = () => {
+		const getAutoSizeCount = (node) => {
 			let cnt = 0;
 			node.getItems().forEach(subItem => {
 				if (this.isAutoResizeNode(subItem)) {
@@ -303,6 +291,36 @@ module.exports = class LayoutNode extends Node {
 
 			return cnt;
 		}
+		const margin = 200;
+
+		size.y = 0;
+		this._rowData.forEach((row, rowIndex) => {
+			sizeSection = row.size;
+			if (Numbers.isNumber(sizeSection)) {
+				row.layoutSize = sizeSection;
+			} else { // auto size
+				let height = Math.max(row._minSize === 'auto' ? 1000 : row._minSize);
+				this._columnData.forEach((column, columnIndex) => {
+					let usedHeight = margin;
+					const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+					if (node) {
+						// const items = getAutoSizeCount(node);
+						node.getItems().forEach(subItem => {
+							usedHeight += subItem.getHeight().getValue();
+							usedHeight += margin;
+						});
+					}
+					height = Math.max(height, usedHeight);
+				});
+				row.layoutSize = height;
+			}
+			size.y += row.layoutSize;
+		});
+
+		// update layoutcells
+		let x = 0;
+		let y = 0;
+		let node;
 
 		this._rowData.forEach((row, rowIndex) => {
 			this._columnData.forEach((column, columnIndex) => {
@@ -311,23 +329,9 @@ module.exports = class LayoutNode extends Node {
 					node.setOrigin(x, y);
 					node.setSize(column.layoutSize, row.layoutSize);
 					node.getFormat().setLineStyle(0);
-					const items = getAutoSizeCount();
 					let yInner = 0;
-					let usedHeight = margin;
 					node.getItems().forEach(subItem => {
-						if (!this.isAutoResizeNode(subItem)) {
-							usedHeight += subItem.getHeight().getValue();
-						}
-						usedHeight += margin;
-					});
-					const autoHeight =  items ? (row.layoutSize - usedHeight) / items : 1000;
-					let height = 0;
-					node.getItems().forEach(subItem => {
-						if (this.isAutoResizeNode(subItem)) {
-							height = autoHeight;
-						} else {
-							height = subItem.getHeight().getValue();
-						}
+						const height = subItem.getHeight().getValue();
 						subItem.setSize(column.layoutSize - margin * 2, height);
 						subItem.setOrigin(margin, yInner + margin);
 						yInner += height + margin;

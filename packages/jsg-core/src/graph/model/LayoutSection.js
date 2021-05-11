@@ -27,6 +27,14 @@ module.exports = class LayoutSection {
 		return this._size === undefined ? 3000 : this._size;
 	}
 
+	set size(size) {
+		this._size = size;
+	}
+
+	get minSize() {
+		return this._minSize === 'auto' ? 1000 : this._minSize;
+	}
+
 	fromJSON(json) {
 		this._size = json.size;
 		this._minSize = json.minSize;
