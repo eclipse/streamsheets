@@ -234,6 +234,16 @@ class GraphContextComponent extends Component {
 		return selection.length > 1;
 	}
 
+	isLayoutSectionSelected() {
+		const viewer = graphManager.getGraphViewer();
+		if (viewer === undefined) {
+			return false;
+		}
+
+		const context = viewer.getSelectionProvider().getSelectionContext();
+		return (context && context.obj === 'layoutsection');
+	}
+
 	canEditPoints() {
 		const viewer = graphManager.getGraphViewer();
 		if (viewer === undefined) {
@@ -258,6 +268,10 @@ class GraphContextComponent extends Component {
 			return false;
 		}
 	}
+
+	onShowLayoutSectionProperties = () => {
+		this.props.setAppState({ showLayoutSectionProperties: true });
+	};
 
 	onShowChartProperties = () => {
 		// const sheetView = graphManager.getActiveSheetView();
@@ -305,20 +319,33 @@ class GraphContextComponent extends Component {
 								{...bindHover(popupState)}
 								{...bindMenu(popupState)}
 							>
-								<MenuItem onClick={this.onShowChartProperties} dense>
-									{item instanceof JSG.SheetPlotNode ? [<ListItemIcon>
-										<SvgIcon style={styles.menuItem}>
-											<path d='M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z' />
-										</SvgIcon>
-									</ListItemIcon>, <ListItemText
-										primary={<FormattedMessage id='EditChart' defaultMessage='Edit Chart' />}
-									/>] : [<ListItemIcon>
-										<SettingsIcon style={styles.menuItem} />
-									</ListItemIcon>, <ListItemText
-										primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
-									/>]}
-								</MenuItem>
-								<Divider />
+								{this.isLayoutSectionSelected() ? [
+										<MenuItem onClick={this.onShowLayoutSectionProperties} dense>
+											<ListItemIcon>
+												<SettingsIcon style={styles.menuItem} />
+											</ListItemIcon>
+											<ListItemText
+												primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
+											/>
+										</MenuItem>,
+										<Divider />
+									] : null}
+								{!this.isMultiSelection() ? [
+										<MenuItem onClick={this.onShowChartProperties} dense>
+											{item instanceof JSG.SheetPlotNode ? [<ListItemIcon>
+												<SvgIcon style={styles.menuItem}>
+													<path d='M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z' />
+												</SvgIcon>
+											</ListItemIcon>, <ListItemText
+												primary={<FormattedMessage id='EditChart' defaultMessage='Edit Chart' />}
+											/>] : [<ListItemIcon>
+												<SettingsIcon style={styles.menuItem} />
+											</ListItemIcon>, <ListItemText
+												primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
+											/>]}
+										</MenuItem>,
+										<Divider />
+									] : null}
 								<MenuItem onClick={this.onCut} dense>
 									<ListItemIcon>
 										<IconCut style={styles.menuItem} />

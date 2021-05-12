@@ -35,6 +35,7 @@ import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
 import GraphItemProperties from "./GraphItemProperties";
 import ViewModeProperties from "./ViewModeProperties";
+import LayoutSectionProperties from './LayoutSectionProperties';
 // import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 
 export class CanvasComponent extends Component {
@@ -320,6 +321,7 @@ export class CanvasComponent extends Component {
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
 				{viewMode.active === true || !canEdit ? null : <GraphItemProperties dummy={this.state.dummy} />}
+				{viewMode.active === true || !canEdit ? null : <LayoutSectionProperties dummy={this.state.dummy} />}
 				{viewMode.active === true && canEdit ?  <ViewModeProperties viewMode={viewMode}/> : null}
 				{viewMode.active === true || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>

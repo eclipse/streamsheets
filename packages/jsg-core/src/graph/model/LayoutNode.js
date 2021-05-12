@@ -293,6 +293,7 @@ module.exports = class LayoutNode extends Node {
 		}
 		const margin = 200;
 
+		size.x = 0;
 		size.y = 0;
 		this._rowData.forEach((row, rowIndex) => {
 			sizeSection = row.size;
@@ -339,12 +340,15 @@ module.exports = class LayoutNode extends Node {
 				}
 				x += column.layoutSize;
 			});
-			x = 0;
 			y += row.layoutSize;
+			if (!rowIndex) {
+				size.x = x;
+			}
+			x = 0;
 		});
 
 		// set height of layout node
-		this.setHeight(size.y);
+		this.setSizeToPoint(size);
 	}
 
 	isAddLabelAllowed() {
