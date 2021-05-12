@@ -519,9 +519,8 @@ module.exports = class StreamSheetContainer extends Node {
 			let sheetSize = size.x - left;
 			const layoutSize = layoutNode.getSizeAsPoint();
 			switch (layoutMode) {
-			case 'center': {
+			case 'center':
 				layoutNode.setOrigin(Math.max(0, (sheetSize - layoutSize.x) / 2), 0);
-			}
 				break;
 			case 'resize': {
 				layoutNode.setOrigin(0, 0);
