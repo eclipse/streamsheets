@@ -273,6 +273,7 @@ JSG.AddSheetNameCommand = require('./src/graph/command/AddSheetNameCommand');
 JSG.SetSheetNameCommand = require('./src/graph/command/SetSheetNameCommand');
 JSG.DeleteSheetNameCommand = require('./src/graph/command/DeleteSheetNameCommand');
 JSG.AddLayoutSectionCommand = require('./src/graph/command/AddLayoutSectionCommand');
+JSG.SetLayoutSectionCommand = require('./src/graph/command/SetLayoutSectionCommand');
 JSG.DeleteLayoutSectionCommand = require('./src/graph/command/DeleteLayoutSectionCommand');
 JSG.AddGraphCellCommand = require('./src/graph/command/AddGraphCellCommand');
 JSG.SetGraphCellCommand = require('./src/graph/command/SetGraphCellCommand');

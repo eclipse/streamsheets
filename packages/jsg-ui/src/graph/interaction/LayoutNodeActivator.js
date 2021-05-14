@@ -170,7 +170,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 								newSelection.push(contr);
 							}
 						});
-						selectionProvider.setSelection(newSelection, {obj: 'layoutsection', data});
+						selectionProvider.setSelection(newSelection, {obj: 'layoutsectionrow', data});
 						event.hasActivated = true;
 					} else {
 						data = this.getColumnHeader(event, viewer, point, layoutNode);
@@ -188,7 +188,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 									newSelection.push(contr);
 								}
 							});
-							selectionProvider.setSelection(newSelection, {obj: 'layoutsection', data});
+							selectionProvider.setSelection(newSelection, {obj: 'layoutsectioncolumn', data});
 							event.hasActivated = true;
 						}
 					}

@@ -55,11 +55,28 @@ export default class LayoutNodeInteraction extends Interaction {
 		}
 		this._controller.getModel().layout();
 		viewer.getGraph().markDirty();
+
 		event.doRepaint = true;
 		event.isConsumed = true;
 	}
 
 	onMouseUp(event, viewer) {
+
+		if (this.row) {
+			this.data.size = Math.max(this.data.minSize, this._oldSize + this._ptDrag.y - this._ptDown.y);
+		} else {
+			this.data.size = Math.max(this.data.minSize, this._oldSize + this._ptDrag.x - this._ptDown.x);
+		}
+		const node = this._controller.getModel();
+		const index = this.row ? node.rowData.indexOf(this.data) : node.columnData.indexOf(this.data);
+		const cmd = new JSG.SetLayoutSectionCommand(node,
+			index,
+			this.row,
+			this.data.size,
+			this.data.minSize,
+			this.data.sizeMode);
+		viewer.getInteractionHandler().execute(cmd);
+
 		super.onMouseUp(event, viewer);
 	}
 }

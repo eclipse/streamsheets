@@ -241,7 +241,7 @@ class GraphContextComponent extends Component {
 		}
 
 		const context = viewer.getSelectionProvider().getSelectionContext();
-		return (context && context.obj === 'layoutsection');
+		return (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow'));
 	}
 
 	canEditPoints() {

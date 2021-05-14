@@ -14,12 +14,10 @@
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 import {
-	AppBar, IconButton, Paper, Slide, TextField // FormControl,
-	// TextField
+	AppBar, IconButton, Paper, Slide,
+	TextField
 	// Typography
 } from '@material-ui/core';
-// import PropTypes from 'prop-types';
-// import { FormattedMessage } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import JSG from '@cedalo/jsg-ui';
@@ -31,6 +29,7 @@ import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
 import { FormattedMessage } from 'react-intl';
+import MenuItem from '@material-ui/core/MenuItem';
 // import {intl} from "../../helper/IntlGlobalProvider";
 
 const styles = {
@@ -52,7 +51,6 @@ const styles = {
 
 export class LayoutSectionProperties extends Component {
 	static propTypes = {
-		// title: PropTypes.string.isRequired,
 		dummy: PropTypes.string
 	};
 
@@ -61,16 +59,12 @@ export class LayoutSectionProperties extends Component {
 	};
 
 	state = {
-		view: undefined,
-		category: ''
+		minSize: 1000,
+		size: 1000,
+		sizeMode: 'auto',
 	};
 
 	componentDidMount() {
-		// JSG.NotificationCenter.getInstance().register(
-		// 	this,
-		// 	JSG.PLOT_DOUBLE_CLICK_NOTIFICATION,
-		// 	'onPlotDoubleClicked',
-		// );
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION,
@@ -79,23 +73,39 @@ export class LayoutSectionProperties extends Component {
 	}
 
 	componentWillUnmount() {
-		// JSG.NotificationCenter.getInstance().unregister(this, JSG.PLOT_DOUBLE_CLICK_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION);
 	}
 
 	onGraphSelectionChanged() {
 		const viewer = graphManager.getGraphViewer();
 		const context = viewer.getSelectionProvider().getSelectionContext();
-		if (!context || context.obj !== 'layoutsection') {
+		if (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow')) {
+			const data = this.getSection();
+			this.setState({
+				minSize: data.minSize,
+				size: data.size,
+				sizeMode: data.sizeMode
+			});
+		} else {
 			this.props.setAppState({showLayoutSectionProperties: false});
 		}
-		this.setState({dummy: String(Math.random())});
+	}
+
+	getItem() {
+		const viewer = graphManager.getGraphViewer();
+		return viewer.getSelectionProvider().getFirstSelection().getModel();
+	}
+
+	isRowSection() {
+		const viewer = graphManager.getGraphViewer();
+		const context = viewer.getSelectionProvider().getSelectionContext();
+		return (context && context.obj === 'layoutsectionrow');
 	}
 
 	getSection() {
 		const viewer = graphManager.getGraphViewer();
 		const context = viewer.getSelectionProvider().getSelectionContext();
-		if (context && context.obj === 'layoutsection') {
+		if (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow')) {
 			return context.data;
 		}
 		return undefined;
@@ -113,30 +123,55 @@ export class LayoutSectionProperties extends Component {
 		this.props.setAppState({ showLayoutSectionProperties: false });
 	};
 
-	handleSize = (event, data) => {
-		data.size = Number(event.target.value);
+	handleSize = (event) => {
+		this.setState({size: event.target.value});
 	};
 
-	updateState() {
-		// const view = LayoutSectionProperties.getView();
-		// if (view === undefined) {
-		// 	return;
-		// }
-		//
-		// this.setState({
-		// 	view
-		// });
+	handleSizeBlur = (event) => {
+		const data = this.getSection();
+		data.size = Number(event.target.value);
+		this.execute(data);
+	};
+
+	execute(data) {
+		const viewer = graphManager.getGraphViewer();
+		const context = viewer.getSelectionProvider().getSelectionContext();
+		if (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow')) {
+			const node = this.getItem().getParent();
+			const row = context.obj === 'layoutsectionrow';
+			const index = row ? node.rowData.indexOf(data) : node.columnData.indexOf(data);
+			const cmd = new JSG.SetLayoutSectionCommand(node,
+				index,
+				row,
+				data.size,
+				data.minSize,
+				data.sizeMode);
+			graphManager.synchronizedExecute(cmd);
+		}
 	}
+
+	handleMinimumSize = (event) => {
+		this.setState({minSize: event.target.value});
+	};
+
+	handleMinimumSizeBlur = (event) => {
+		const data = this.getSection();
+		data.minSize = Number(event.target.value);
+		this.execute(data);
+	};
+
+	handleSizeMode = (event) => {
+		const data = this.getSection();
+		data.sizeMode = event.target.value;
+		this.setState({sizeMode: event.target.value});
+		this.execute(data);
+
+	};
 
 	render() {
 		if (!this.props.showLayoutSectionProperties) {
 			return <div />;
 		}
-		const data = this.getSection();
-		if (!data) {
-			return null;
-		}
-		// const classes = this.props.classes;
 		return (
 			<Slide direction="left" in={this.props.showLayoutSectionProperties} mountOnEnter unmountOnExit>
 				<Paper
@@ -199,11 +234,48 @@ export class LayoutSectionProperties extends Component {
 						<TextField
 							variant="outlined"
 							size="small"
+							fullWidth
 							margin="normal"
-							defaultValue={data.size}
-							onBlur={event => this.handleSize(event, data)}
+							select
+							value={this.state.sizeMode}
+							onChange={event => this.handleSizeMode(event)}
 							label={
-							<FormattedMessage id="GraphItemProperties.MinimumWidth" defaultMessage="Minimum Width" />}
+								<FormattedMessage id="GraphItemProperties.SizeMode" defaultMessage="Size" />
+							}
+						>
+							<MenuItem value="auto">
+								<FormattedMessage id="GraphItemProperties.Automatic" defaultMessage="Automatic"/>
+							</MenuItem>
+							<MenuItem value="metric">
+								<FormattedMessage id="GraphItemProperties.Metric" defaultMessage="Metric"/>
+							</MenuItem>
+							{this.isRowSection() ? null : (
+								<MenuItem value="relative">
+									<FormattedMessage id="GraphItemProperties.Relative" defaultMessage="Relative to Container Size"/>
+								</MenuItem>
+							)}
+						</TextField>
+						<TextField
+							variant="outlined"
+							size="small"
+							margin="normal"
+							fullWidth
+							value={this.state.size}
+							onChange={event => this.handleSize(event)}
+							onBlur={event => this.handleSizeBlur(event)}
+							label={
+							<FormattedMessage id="GraphItemProperties.Width" defaultMessage="Width" />}
+						/>
+						<TextField
+							variant="outlined"
+							size="small"
+							fullWidth
+							margin="normal"
+							value={this.state.minSize}
+							onChange={event => this.handleMinimumSize(event)}
+							onBlur={event => this.handleMinimumSizeBlur(event)}
+							label={
+								<FormattedMessage id="GraphItemProperties.MinimumWidth" defaultMessage="Minimum Width" />}
 						/>
 					</div>
 				</Paper>
@@ -223,3 +295,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(LayoutSectionProperties));
+

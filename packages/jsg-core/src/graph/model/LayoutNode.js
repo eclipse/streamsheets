@@ -297,10 +297,12 @@ module.exports = class LayoutNode extends Node {
 		size.y = 0;
 		this._rowData.forEach((row, rowIndex) => {
 			sizeSection = row.size;
-			if (Numbers.isNumber(sizeSection)) {
-				row.layoutSize = sizeSection;
-			} else { // auto size
-				let height = Math.max(row._minSize === 'auto' ? 1000 : row._minSize);
+			switch (row.sizeMode) {
+			case 'metric':
+				row.layoutSize = Numbers.isNumber(row.size) ? row.size : 3000;
+				break;
+			case 'auto': {
+				let height = row._minSize;
 				this._columnData.forEach((column, columnIndex) => {
 					let usedHeight = margin;
 					const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
@@ -314,6 +316,9 @@ module.exports = class LayoutNode extends Node {
 					height = Math.max(height, usedHeight);
 				});
 				row.layoutSize = height;
+				row.size = height;
+				break;
+			}
 			}
 			size.y += row.layoutSize;
 		});
