@@ -16,12 +16,12 @@ import {
 import Interaction from './Interaction';
 
 export default class LayoutNodeInteraction extends Interaction {
-	constructor(controller, row, data) {
+	constructor(controller, row, index) {
 		super();
 
 		this._controller = controller;
 		this.row = row;
-		this.data = data;
+		this.index = index;
 	}
 
 	deactivate(viewer) {
@@ -40,18 +40,28 @@ export default class LayoutNodeInteraction extends Interaction {
 		return point;
 	}
 
+	getData() {
+		if (this.row) {
+			return this._controller.getModel().rowData[this.index];
+		}
+
+		return this._controller.getModel().columnData[this.index];
+	}
+
 	onMouseDown(event, viewer) {
-		this._oldSize = this.data.size;
+		const data = this.getData();
+		this._oldSize = data.size;
 		this._ptDown = this.pointToNode(event, viewer);
 	}
 
 	onMouseDrag(event, viewer) {
 		this._ptDrag = this.pointToNode(event, viewer);
+		const data = this.getData();
 
 		if (this.row) {
-			this.data.size = Math.max(this.data.minSize, this._oldSize + this._ptDrag.y - this._ptDown.y);
+			data.size = Math.max(0, this._oldSize + this._ptDrag.y - this._ptDown.y);
 		} else {
-			this.data.size = Math.max(this.data.minSize, this._oldSize + this._ptDrag.x - this._ptDown.x);
+			data.size = Math.max(0, this._oldSize + this._ptDrag.x - this._ptDown.x);
 		}
 		this._controller.getModel().layout();
 		viewer.getGraph().markDirty();
@@ -61,20 +71,25 @@ export default class LayoutNodeInteraction extends Interaction {
 	}
 
 	onMouseUp(event, viewer) {
+		if (!this._ptDrag) {
+			super.onMouseUp(event, viewer);
+			return;
+		}
+		const data = this.getData();
 
 		if (this.row) {
-			this.data.size = Math.max(this.data.minSize, this._oldSize + this._ptDrag.y - this._ptDown.y);
+			data.size = Math.max(0, this._oldSize + this._ptDrag.y - this._ptDown.y);
 		} else {
-			this.data.size = Math.max(this.data.minSize, this._oldSize + this._ptDrag.x - this._ptDown.x);
+			data.size = Math.max(0, this._oldSize + this._ptDrag.x - this._ptDown.x);
 		}
 		const node = this._controller.getModel();
-		const index = this.row ? node.rowData.indexOf(this.data) : node.columnData.indexOf(this.data);
 		const cmd = new JSG.SetLayoutSectionCommand(node,
-			index,
+			this.index,
 			this.row,
-			this.data.size,
-			this.data.minSize,
-			this.data.sizeMode);
+			data.size,
+			data.minSize,
+			data.sizeMode);
+
 		viewer.getInteractionHandler().execute(cmd);
 
 		super.onMouseUp(event, viewer);

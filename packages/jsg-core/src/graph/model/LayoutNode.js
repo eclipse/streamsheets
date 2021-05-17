@@ -159,7 +159,6 @@ module.exports = class LayoutNode extends Node {
 		}
 		this._columnData.length = this._columns;
 
-		let rowData;
 		let node;
 		// const cmd = new CompoundCommand();
 
@@ -240,43 +239,76 @@ module.exports = class LayoutNode extends Node {
 
 		// do column layout first to get row heights
 		let sizeLeftOver = size.x;
-		let percentLeftOver = 100;
-		let numAuto = 0;
-		let sizeSection;
+		let sumRelative = 0;
+		let layoutSize;
+		const columns = [];
 
 		// deduct fixed sizes from available space
 		this._columnData.forEach(column => {
-			sizeSection = column.size;
-			if (Numbers.isNumber(sizeSection)) {
-				sizeLeftOver -= sizeSection;
-			} else if (Strings.isString(sizeSection)) {
-				if (sizeSection.endsWith('%')) {
-					percentLeftOver -= Number(sizeSection.slice(0, -1));
-				} else {
-					numAuto += 1;
-				}
+			switch (column.sizeMode) {
+			case 'absolute':
+				sizeLeftOver -= column.size;
+				break;
+			case 'relative':
+			default:
+				sumRelative += column.size;
+				break;
 			}
 		});
 
-		numAuto = Math.max(1, numAuto);
+		sumRelative = Math.max(1, sumRelative);
+		sizeLeftOver = Math.max(0, sizeLeftOver);
 
+		// check, if min size > relative size
 		this._columnData.forEach(column => {
-			sizeSection = column.size;
-			if (Numbers.isNumber(sizeSection)) {
-				column.layoutSize = sizeSection;
-			} else if (Strings.isString(sizeSection)) {
-				if (sizeSection.endsWith('%')) {
-					sizeSection = Number(sizeSection.slice(0, -1));
-					if (Numbers.isNumber(sizeSection)) {
-						column.layoutSize = sizeSection / 100 * sizeLeftOver;
-					} else {
-						column.layoutSize = 3000;
-					}
+			const colData = {};
+			switch (column.sizeMode) {
+			case 'absolute':
+				colData.size = column.size;
+				colData.sizeMode = column.sizeMode;
+				break;
+			case 'relative':
+			default:
+				layoutSize = column.size / sumRelative * sizeLeftOver;
+				if (layoutSize > column.minSize) {
+					colData.size = column.size;
+					colData.sizeMode = column.sizeMode;
 				} else {
-					column.layoutSize = percentLeftOver / 100 / numAuto * sizeLeftOver;
+					colData.size = column.minSize;
+					colData.sizeMode = 'absolute';
 				}
-			} else {
-				column.layoutSize = 3000;
+				break;
+			}
+			columns.push(colData);
+		});
+
+		sumRelative = 0;
+		sizeLeftOver = size.x;
+
+		columns.forEach(column => {
+			switch (column.sizeMode) {
+			case 'absolute':
+				sizeLeftOver -= column.size;
+				break;
+			case 'relative':
+			default:
+				sumRelative += column.size;
+				break;
+			}
+		});
+
+		sumRelative = Math.max(1, sumRelative);
+		sizeLeftOver = Math.max(0, sizeLeftOver);
+
+		columns.forEach((column, index) => {
+			switch (column.sizeMode) {
+			case 'absolute':
+				this.columnData[index].layoutSize = column.size;
+				break;
+			case 'relative':
+			default:
+				this.columnData[index].layoutSize = column.size / sumRelative * sizeLeftOver;
+				break;
 			}
 		});
 
@@ -296,9 +328,8 @@ module.exports = class LayoutNode extends Node {
 		size.x = 0;
 		size.y = 0;
 		this._rowData.forEach((row, rowIndex) => {
-			sizeSection = row.size;
 			switch (row.sizeMode) {
-			case 'metric':
+			case 'absolute':
 				row.layoutSize = Numbers.isNumber(row.size) ? row.size : 3000;
 				break;
 			case 'auto': {

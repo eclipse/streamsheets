@@ -32,6 +32,7 @@ import { FormattedMessage } from 'react-intl';
 import MenuItem from '@material-ui/core/MenuItem';
 // import {intl} from "../../helper/IntlGlobalProvider";
 
+
 const styles = {
 	icon: {
 		color: 'white'
@@ -70,10 +71,20 @@ export class LayoutSectionProperties extends Component {
 			JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION,
 			'onGraphSelectionChanged',
 		);
+		JSG.NotificationCenter.getInstance().register(
+			this,
+			JSG.LAYOUT_DOUBLE_CLICK_NOTIFICATION,
+			'onLayoutSectionSelection',
+		);
 	}
 
 	componentWillUnmount() {
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.LAYOUT_DOUBLE_CLICK_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION);
+	}
+
+	onLayoutSectionSelection() {
+		this.props.setAppState({ showLayoutSectionProperties: true });
 	}
 
 	onGraphSelectionChanged() {
@@ -105,8 +116,13 @@ export class LayoutSectionProperties extends Component {
 	getSection() {
 		const viewer = graphManager.getGraphViewer();
 		const context = viewer.getSelectionProvider().getSelectionContext();
-		if (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow')) {
-			return context.data;
+		if (context) {
+			const node = this.getItem().getParent();
+			if (context.obj === 'layoutsectioncolumn') {
+				return node.columnData[context.index];
+			} else if (context.obj === 'layoutsectionrow') {
+				return node.rowData[context.index];
+			}
 		}
 		return undefined;
 	}
@@ -139,7 +155,7 @@ export class LayoutSectionProperties extends Component {
 		if (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow')) {
 			const node = this.getItem().getParent();
 			const row = context.obj === 'layoutsectionrow';
-			const index = row ? node.rowData.indexOf(data) : node.columnData.indexOf(data);
+			const index = context.index;
 			const cmd = new JSG.SetLayoutSectionCommand(node,
 				index,
 				row,
@@ -243,15 +259,16 @@ export class LayoutSectionProperties extends Component {
 								<FormattedMessage id="GraphItemProperties.SizeMode" defaultMessage="Size" />
 							}
 						>
-							<MenuItem value="auto">
-								<FormattedMessage id="GraphItemProperties.Automatic" defaultMessage="Automatic"/>
+							<MenuItem value="absolute">
+								<FormattedMessage id="GraphItemProperties.Absolute" defaultMessage="Absolute"/>
 							</MenuItem>
-							<MenuItem value="metric">
-								<FormattedMessage id="GraphItemProperties.Metric" defaultMessage="Metric"/>
-							</MenuItem>
-							{this.isRowSection() ? null : (
+							{this.isRowSection() ? (
+								<MenuItem value="auto">
+									<FormattedMessage id="GraphItemProperties.Automatic" defaultMessage="Automatic"/>
+								</MenuItem>
+								) : (
 								<MenuItem value="relative">
-									<FormattedMessage id="GraphItemProperties.Relative" defaultMessage="Relative to Container Size"/>
+									<FormattedMessage id="GraphItemProperties.Relative" defaultMessage="Relative"/>
 								</MenuItem>
 							)}
 						</TextField>

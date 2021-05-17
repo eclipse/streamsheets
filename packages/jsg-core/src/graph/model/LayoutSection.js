@@ -13,9 +13,7 @@
 
 module.exports = class LayoutSection {
 	constructor(size) {
-		// auto, content, 1/100mm, percent
-		this._size = size === undefined ? 'auto' : size;
-		// auto, px
+		this._size = size === undefined ? 4000 : size;
 		this._minSize = 1000;
 		this._sizeMode = 'auto';
 		this._paddingBefore = 300;
@@ -25,7 +23,7 @@ module.exports = class LayoutSection {
 	}
 
 	get size() {
-		return this._size === undefined ? 3000 : this._size;
+		return this._size;
 	}
 
 	set size(size) {
@@ -52,6 +50,10 @@ module.exports = class LayoutSection {
 		this._size = json.size;
 		this._minSize = json.minSize;
 		this._sizeMode = json.sizeMode;
+
+		if (this._sizeMode === 'metric') {
+			this._sizeMode = 'absolute';
+		}
 	}
 
 	toJSON() {
