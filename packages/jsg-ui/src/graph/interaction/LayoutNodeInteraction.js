@@ -49,21 +49,20 @@ export default class LayoutNodeInteraction extends Interaction {
 	}
 
 	onMouseDown(event, viewer) {
-		const data = this.getData();
-		this._oldSize = data.size;
+		const node = this._controller.getModel();
+		node.prepareResize(this.row, this.index);
+
 		this._ptDown = this.pointToNode(event, viewer);
 	}
 
 	onMouseDrag(event, viewer) {
 		this._ptDrag = this.pointToNode(event, viewer);
-		const data = this.getData();
+		const node = this._controller.getModel();
 
-		if (this.row) {
-			data.size = Math.max(0, this._oldSize + this._ptDrag.y - this._ptDown.y);
-		} else {
-			data.size = Math.max(0, this._oldSize + this._ptDrag.x - this._ptDown.x);
-		}
-		this._controller.getModel().layout();
+		node.resizeSection(node.resizeInfo.row ?
+			this._ptDrag.y - this._ptDown.y :
+			this._ptDrag.x - this._ptDown.x);
+
 		viewer.getGraph().markDirty();
 
 		event.doRepaint = true;
@@ -76,12 +75,6 @@ export default class LayoutNodeInteraction extends Interaction {
 			return;
 		}
 		const data = this.getData();
-
-		if (this.row) {
-			data.size = Math.max(0, this._oldSize + this._ptDrag.y - this._ptDown.y);
-		} else {
-			data.size = Math.max(0, this._oldSize + this._ptDrag.x - this._ptDown.x);
-		}
 		const node = this._controller.getModel();
 		const cmd = new JSG.SetLayoutSectionCommand(node,
 			this.index,

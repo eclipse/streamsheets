@@ -56,7 +56,22 @@ module.exports = class LayoutNode extends Node {
 	_copy(copiednodes, deep, ids) {
 		const copy = super._copy(copiednodes, deep, ids);
 
+		copy._rows = this._rows;
+		copy._columns = this._columns;
+		copy._rowData = [];
+		copy._columnData = [];
+		this._rowData.forEach(row => {
+			copy._rowData.push(row.copy());
+		});
+		this._columnData.forEach(column => {
+			copy._columnData.push(column.copy());
+		});
+
 		return copy;
+	}
+
+	isFeedbackDetailed() {
+		return true;
 	}
 
 	getItemType() {
@@ -124,6 +139,45 @@ module.exports = class LayoutNode extends Node {
 
 		this.updateData();
 		this.getGraph().markDirty();
+	}
+
+	prepareResize(row, index) {
+		this.resizeInfo = {
+			row,
+			index,
+			sectionSize: row ? this._rowData[index].size : this._columnData[index].size,
+			size: row ? this.getHeight().getValue() : this.getWidth().getValue(),
+			relativeSize: this.getRelativeSizeInfo()
+		};
+	}
+
+	resizeSection(delta) {
+		const layoutMode = this.getAttributeValueAtPath('layoutmode');
+		if (layoutMode === 'resize') {
+
+		} else {
+			const info = this.resizeInfo;
+			const data = info.row ?
+				this._rowData[info.index] :
+				this._columnData[info.index];
+			if (data.sizeMode === 'relative') {
+				const factor = info.relativeSize.space ? info.relativeSize.sum / info.relativeSize.space : 1;
+				const size = (info.sectionSize + delta * factor) / factor;
+				if (size > data.minSize) {
+					data.size = Math.max(0, info.sectionSize + delta * factor);
+				} else {
+					return;
+				}
+			} else {
+				data.size = Math.max(0, info.sectionSize + delta);
+			}
+			if (info.row) {
+				this.setHeight(info.size + delta);
+			} else {
+				this.setWidth(info.size + delta);
+			}
+		}
+		this.layout();
 	}
 
 	addCell(rowIndex, columnIndex) {
@@ -228,6 +282,28 @@ module.exports = class LayoutNode extends Node {
 		return ((node instanceof JSG.SheetPlotNode) || (node instanceof JSG.StreamSheetContainerWrapper));
 	}
 
+	getRelativeSizeInfo() {
+		const size = this.getSize().toPoint();
+		const ret = {
+			sum: 0,
+			space: size.x
+		};
+
+		this._columnData.forEach(column => {
+			switch (column.sizeMode) {
+			case 'absolute':
+				ret.space -= column.size;
+				break;
+			case 'relative':
+			default:
+				ret.sum += column.size;
+				break;
+			}
+		});
+
+		return ret;
+	}
+
 	layout() {
 		super.layout();
 
@@ -264,7 +340,7 @@ module.exports = class LayoutNode extends Node {
 			const colData = {};
 			switch (column.sizeMode) {
 			case 'absolute':
-				colData.size = column.size;
+				colData.size = Math.max(column.minSize, column.size);
 				colData.sizeMode = column.sizeMode;
 				break;
 			case 'relative':
@@ -312,21 +388,11 @@ module.exports = class LayoutNode extends Node {
 			}
 		});
 
-		// do row layout
-		const getAutoSizeCount = (node) => {
-			let cnt = 0;
-			node.getItems().forEach(subItem => {
-				if (this.isAutoResizeNode(subItem)) {
-					cnt += 1;
-				}
-			});
-
-			return cnt;
-		}
 		const margin = 200;
 
 		size.x = 0;
 		size.y = 0;
+
 		this._rowData.forEach((row, rowIndex) => {
 			switch (row.sizeMode) {
 			case 'absolute':
@@ -338,7 +404,6 @@ module.exports = class LayoutNode extends Node {
 					let usedHeight = margin;
 					const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
 					if (node) {
-						// const items = getAutoSizeCount(node);
 						node.getItems().forEach(subItem => {
 							usedHeight += subItem.getHeight().getValue();
 							usedHeight += margin;

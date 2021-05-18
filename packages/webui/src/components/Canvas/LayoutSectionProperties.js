@@ -277,11 +277,11 @@ export class LayoutSectionProperties extends Component {
 							size="small"
 							margin="normal"
 							fullWidth
-							value={this.state.size}
+							value={Math.round(this.state.size)}
 							onChange={event => this.handleSize(event)}
 							onBlur={event => this.handleSizeBlur(event)}
 							label={
-							<FormattedMessage id="GraphItemProperties.Width" defaultMessage="Width" />}
+							<FormattedMessage id="GraphItemProperties.Size" defaultMessage="Size" />}
 						/>
 						<TextField
 							variant="outlined"
@@ -292,7 +292,7 @@ export class LayoutSectionProperties extends Component {
 							onChange={event => this.handleMinimumSize(event)}
 							onBlur={event => this.handleMinimumSizeBlur(event)}
 							label={
-								<FormattedMessage id="GraphItemProperties.MinimumWidth" defaultMessage="Minimum Width" />}
+								<FormattedMessage id="GraphItemProperties.MinimumSize" defaultMessage="Minimum Size" />}
 						/>
 					</div>
 				</Paper>

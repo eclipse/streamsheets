@@ -22,6 +22,19 @@ module.exports = class LayoutSection {
 		this._marginAfter = 300;
 	}
 
+	copy() {
+		const copy = new LayoutSection(this._size);
+		copy._minSize = this._minSize;
+		copy._sizeMode = this._sizeMode;
+		copy._paddingBefore = this._paddingBefore;
+		copy._paddingAfter = this._paddingAfter;
+		copy._marginBefore = this._marginBefore;
+		copy._marginAfter = this._marginAfter;
+		copy.layoutSize = this.layoutSize;
+
+		return copy;
+	}
+
 	get size() {
 		return this._size;
 	}

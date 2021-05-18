@@ -479,7 +479,7 @@ class GraphItemController extends ModelController {
 	 */
 	createFeedback() {
 		const model = this.getModel();
-		const detailed = model.getReshapeCoordinates().length !== 0;
+		const detailed = model.isFeedbackDetailed();
 		const fbItem = this.createFeedbackItem(detailed);
 		const fbView = this.createFeedbackView(fbItem, detailed);
 

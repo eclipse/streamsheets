@@ -330,6 +330,10 @@ class GraphItem extends Model {
 		return path;
 	}
 
+	isFeedbackDetailed() {
+		return this.getReshapeCoordinates().length !== 0;
+	}
+
 	isDrawEnabled() {
 		return this._drawEnabled;
 	}
