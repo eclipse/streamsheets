@@ -505,8 +505,10 @@ class GraphItemView extends View {
 
 					const label = this.getItem().getExtraLabel();
 					if (label) {
+						graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
 						graphics.setTextBaseline('top');
 						graphics.setFontSize(7);
+						graphics.setFillColor(format.getLineColor().getValue());
 						graphics.setFontName(this.getItem().getTextFormat().getFontName().getValue());
 						graphics.setFont();
 						graphics.fillText(label, rect.x + 275, rect.y);

@@ -121,8 +121,8 @@ module.exports = class LayoutNode extends Node {
 		}
 		this._columns += 1;
 
-		for (let i = this._rowData.length - 1; i  >= 0; i -= 1) {
-			this.addCell(i, this._columnData.length);
+		for (let i = 0; i  < this._rowData.length; i += 1) {
+			this.addCell(i, this._columnData.length - 1);
 		}
 		this.updateData();
 		this.getGraph().markDirty();
@@ -149,34 +149,55 @@ module.exports = class LayoutNode extends Node {
 			size: row ? this.getHeight().getValue() : this.getWidth().getValue(),
 			relativeSize: this.getRelativeSizeInfo()
 		};
+
+		if (row) {
+
+		} else {
+			this.resizeInfo.sectionSizes = [];
+			this.resizeInfo.sectionSizesSum = 0;;
+			this._columnData.forEach((column, colIndex) => {
+				this.resizeInfo.sectionSizes.push(column.size);
+				if (colIndex !== index && column.sizeMode === 'relative') {
+					this.resizeInfo.sectionSizesSum += column.size;
+				}
+			});
+		}
 	}
 
 	resizeSection(delta) {
 		const layoutMode = this.getAttributeValueAtPath('layoutmode');
-		if (layoutMode === 'resize') {
+		const info = this.resizeInfo;
+		const data = info.row ?
+			this._rowData[info.index] :
+			this._columnData[info.index];
 
-		} else {
-			const info = this.resizeInfo;
-			const data = info.row ?
-				this._rowData[info.index] :
-				this._columnData[info.index];
-			if (data.sizeMode === 'relative') {
-				const factor = info.relativeSize.space ? info.relativeSize.sum / info.relativeSize.space : 1;
-				const size = (info.sectionSize + delta * factor) / factor;
-				if (size > data.minSize) {
-					data.size = Math.max(0, info.sectionSize + delta * factor);
-				} else {
-					return;
+		if (data.sizeMode === 'relative') {
+			const factor = info.relativeSize.space ? info.relativeSize.sum / info.relativeSize.space : 1;
+			const size = (info.sectionSize + delta * factor) / factor;
+			if (size > data.minSize) {
+				data.size = Math.max(0, info.sectionSize + delta * factor);
+				if (layoutMode === 'resize') {
+					const fact = data.size - info.sectionSize;
+					this._columnData.forEach((column, index) => {
+						if (index !== info.index && column.sizeMode === 'relative') {
+							column.size = this.resizeInfo.sectionSizes[index] -
+								this.resizeInfo.sectionSizes[index] /
+								this.resizeInfo.sectionSizesSum * fact;
+						}
+					});
 				}
 			} else {
-				data.size = Math.max(0, info.sectionSize + delta);
+				return;
 			}
-			if (info.row) {
-				this.setHeight(info.size + delta);
-			} else {
-				this.setWidth(info.size + delta);
-			}
+		} else {
+			data.size = Math.max(0, info.sectionSize + delta);
 		}
+		if (info.row) {
+			this.setHeight(info.size + delta);
+		} else if (layoutMode !== 'resize') {
+			this.setWidth(info.size + delta);
+		}
+
 		this.layout();
 	}
 

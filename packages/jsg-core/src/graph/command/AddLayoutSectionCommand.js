@@ -16,24 +16,23 @@ class AddLayoutSectionCommand extends AbstractItemCommand {
 		let cmd;
 		const item = graph.getItemById(data.itemId);
 		if (item) {
-			cmd = new AddLayoutSectionCommand(item, data.size, data.row, data.index).initWithObject(data);
+			cmd = new AddLayoutSectionCommand(item, data.size, data.sizeMode, data.row, data.index).initWithObject(data);
 		}
 		return cmd;
 	}
 
-	constructor(item, size, row, index) {
+	constructor(item, size, mode, row, index) {
 		super(item);
 
 		this._size = size;
+		this._sizeMode = mode;
 		this._index = index;
 		this._row = row;
 	}
 
 	execute() {
-		let section;
-		if (this._size !== undefined) {
-			section = new LayoutSection(this._size);
-		}
+		const section = new LayoutSection(this._size);
+		section.sizeMode = this._sizeMode;
 		if (this._row) {
 			this.getItem().addRow(section);
 		} else {
@@ -51,6 +50,7 @@ class AddLayoutSectionCommand extends AbstractItemCommand {
 		const data = super.toObject();
 
 		data.size = this._size;
+		data.sizeMode = this._sizeMode;
 		data.index = this._index;
 		data.row = this._row;
 

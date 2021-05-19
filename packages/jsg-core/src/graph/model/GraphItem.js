@@ -1641,7 +1641,7 @@ class GraphItem extends Model {
 	}
 
 	getExtraLabel() {
-		const labelAttr = this.getItemAttributes().getAttribute('label');
+		const labelAttr = this.getItemAttributes().getLabel();
 		if (labelAttr) {
 			const label = labelAttr.getValue();
 			if (label) {

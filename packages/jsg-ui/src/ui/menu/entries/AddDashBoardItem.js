@@ -107,6 +107,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 					new Notification(NotificationCenter.ADD_SHEET_NOTIFICATION, this));
 				node = new JSG.StreamSheetContainerWrapper();
 				editor.getGraph()._sheetWrapper = node;
+				node.getFormat().setLineCorner(75);
 				node.setHeight(5000);
 				break;
 			}
@@ -116,7 +117,8 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node.series.forEach((serie) => {
 					serie.type = type;
 				});
-
+				node.getFormat().setLineCorner(75);
+				node.getFormat().setLineColor(JSG.theme.border);
 				node.setChartTypeForSeries(type);
 				node.setHeight(5000);
 				break;

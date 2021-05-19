@@ -126,6 +126,7 @@ export class AttributeProperties extends Component {
 		const item = this.props.view.getItem();
 		return (
 			<FormGroup>
+				{this.getAttributeHandler("GraphItemProperties.Label", item, JSG.ItemAttributes.LABEL)}
 				{this.getAttributeHandler("GraphItemProperties.Container", item, JSG.ItemAttributes.CONTAINER)}
 				{this.getAttributeHandler("GraphItemProperties.Selection", item, JSG.ItemAttributes.SELECTIONMODE,  [
 					{ value: '0', label: 'GraphItemProperties.NotSelectable'},

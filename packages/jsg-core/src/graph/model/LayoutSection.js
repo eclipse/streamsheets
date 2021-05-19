@@ -15,7 +15,7 @@ module.exports = class LayoutSection {
 	constructor(size) {
 		this._size = size === undefined ? 4000 : size;
 		this._minSize = 1000;
-		this._sizeMode = 'auto';
+		this._sizeMode = 'absolute';
 		this._paddingBefore = 300;
 		this._paddingAfter = 300;
 		this._marginBefore = 300;

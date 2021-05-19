@@ -398,7 +398,7 @@ export default class StreamSheetView extends WorksheetView {
 					node.setText(new Expression(0, `INBOXDATA.${itemPath}`));
 					node.associate(false);
 					node.setHeight(1000);
-					node.getItemAttributes().addAttribute(new JSG.StringAttribute('label', label));
+					node.getItemAttributes().setLabel(label);
 					cmd.add(new JSG.AddItemCommand(node, item));
 				}
 			}

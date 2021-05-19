@@ -616,6 +616,14 @@ class EditTextInteraction extends AbstractInteraction {
 	 * @return {String} Text content of TextNode.
 	 */
 	getEditText(item) {
+		const view = this.isWorksheetView();
+		const expr = item.getText();
+		if (view && expr.hasFormula()) {
+			return !expr.hasTerm() ?
+				`=${expr.getFormula()}`
+				: expr.toLocaleString(JSG.getParserLocaleSettings(), { item: view.getItem(), useName: true });
+		}
+
 		return item.repair(item.getText().getValue());
 	}
 

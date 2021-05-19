@@ -21,7 +21,7 @@ export default class AddLayoutRow extends ItemMenuEntry {
 	onEvent(event, item, editor) {
 		const handled = event.type === 'click';
 		if (handled) {
-			const cmd = new AddLayoutSectionCommand(item, 'auto', true);
+			const cmd = new AddLayoutSectionCommand(item, 4000, 'auto', true);
 			editor.getInteractionHandler().execute(cmd);
 		}
 		return handled;
