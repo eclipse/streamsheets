@@ -420,13 +420,26 @@ class LoadSubscribeMachineRequestHandler extends RequestHandler {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE);
 	}
 
-	async subscribe(request, machineserver) {
-		const clientId = request.sender ? request.sender.id : undefined;
-		return handleRequest(this, machineserver, request, 'subscribe', { clientId });
+	createSubscribeRequest(response, loadRequest) {
+		const { machine } = response || {};
+		const { requestId, scope, sender, session } = loadRequest;
+		const machineId = machine ? machine.id : undefined;
+		return { type: 'subscribe', machineId, scope, session, sender, requestId }; // : IdGenerator.generate() };
+	}
+
+	async send(request, machineserver) {
+		try {
+			const subscribeHandler = new SubscribeMachineRequestHandler();
+			await subscribeHandler.handle(request, machineserver);
+		} catch (err) {
+			/* simply log and ignore */
+			logger.error(`Failed to subscribe to machine ${request.machineId}!\nError:`, err);
+		}
 	}
 	async handle(request, machineserver, repositoryManager) {
 		const result = await new LoadMachineRequestHandler().handle(request, machineserver, repositoryManager);
-		await this.subscribe(request, machineserver);
+		const subscribe = this.createSubscribeRequest(result.response, request);
+		await this.send(subscribe, machineserver);
 		return result;
 	}
 }
