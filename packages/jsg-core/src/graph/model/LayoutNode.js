@@ -151,10 +151,17 @@ module.exports = class LayoutNode extends Node {
 		};
 
 		if (row) {
-
+			this.resizeInfo.sectionSizes = [];
+			this.resizeInfo.sectionSizesSum = 0;
+			this._rowData.forEach((rowa, rowIndex) => {
+				this.resizeInfo.sectionSizes.push(rowa.size);
+				if (rowIndex !== index && rowa.sizeMode === 'relative') {
+					this.resizeInfo.sectionSizesSum += rowa.size;
+				}
+			});
 		} else {
 			this.resizeInfo.sectionSizes = [];
-			this.resizeInfo.sectionSizesSum = 0;;
+			this.resizeInfo.sectionSizesSum = 0;
 			this._columnData.forEach((column, colIndex) => {
 				this.resizeInfo.sectionSizes.push(column.size);
 				if (colIndex !== index && column.sizeMode === 'relative') {
