@@ -765,7 +765,7 @@ export default class CellEditor {
 		// clean first
 		const refs = this.div.getElementsByTagName('span');
 		for (let i = refs.length - 1; i >= 0; i -= 1) {
-			if ((refs[i].id === 'range' && refs[i].textContent === '') || refs[i].id.startsWith('pos')) {
+			if (refs[i].id === 'range' && refs[i].textContent === '') {
 				this.div.removeChild(refs[i]);
 			}
 		}
@@ -775,7 +775,15 @@ export default class CellEditor {
 
 		const range = document.createRange();
 		if (refs[index].childNodes.length) {
-			range.selectNodeContents(refs[index].childNodes[0]);
+			let indexRange = 0;
+			for (let i = 0; i < refs.length; i += 1) {
+				if (refs[i].id === 'range') {
+					if (indexRange === index) {
+						range.selectNodeContents(refs[i].childNodes[0]);
+					}
+					indexRange += 1;
+				}
+			}
 		}
 
 		const sel = window.getSelection();
@@ -801,7 +809,7 @@ export default class CellEditor {
 		// clean first
 		let refs = this.div.getElementsByTagName('span');
 		for (let i = refs.length - 1; i >= 0; i -= 1) {
-			if ((refs[i].id === 'range' && refs[i].textContent === '') || refs[i].id.startsWith('pos')) {
+			if (refs[i].id === 'range' && refs[i].textContent === '') {
 				this.div.removeChild(refs[i]);
 			}
 		}
