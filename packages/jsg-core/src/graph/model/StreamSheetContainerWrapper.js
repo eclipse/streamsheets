@@ -26,16 +26,6 @@ module.exports = class StreamSheetContainerWrapper extends Node {
 		return 'streamsheetcontainerwrapper';
 	}
 
-	dispose() {
-		super.dispose();
-
-		const sheet = this.streamsheet;
-		if (sheet) {
-			sheet.getStreamSheetContainerAttributes().setSheetType('sheet');
-
-		}
-	}
-
 	show(flag) {
 		const sheet = this.streamsheet;
 		if (sheet) {

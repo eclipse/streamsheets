@@ -3531,7 +3531,12 @@ class GraphItem extends Model {
 		this._shapesChanged = json.changed;
 
 		GraphUtils.traverseItem(this, item => {
-			json.shapes.push(item.toJSON());
+			// do not save sheet sub items for noe
+			if (item.getItemType() !== 'cellsnode' && item.getItemType() !== 'rowheadernode' &&
+				item.getItemType() !== 'columnheadernode' && item.getItemType() !== 'sheetheadernode' &&
+				item.getItemType() !== 'contentpane') {
+				json.shapes.push(item.toJSON());
+			}
 		}, false);
 
 		return json;

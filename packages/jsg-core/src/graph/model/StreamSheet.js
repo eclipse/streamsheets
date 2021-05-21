@@ -21,6 +21,7 @@ const JSONReader = require('../../commons/JSONReader');
 const JSONWriter = require('../../commons/JSONWriter');
 const Expression = require('../expr/Expression');
 const WorksheetNode = require('./WorksheetNode');
+const StreamSheetContainer = require('./StreamSheetContainer');
 const CellsNode = require('./CellsNode');
 const CellRange = require('./CellRange');
 const NotificationCenter = require('../notifications/NotificationCenter');
@@ -310,7 +311,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 	getStreamSheetContainer() {
 		const parent = this.getParent();
-		if (parent instanceof Graph) {
+		if (!(parent instanceof JSG.StreamSheetContainer)) {
 			return undefined;
 		}
 		return parent;
@@ -411,6 +412,14 @@ module.exports = class StreamSheet extends WorksheetNode {
 			node._lastJSON = jsonShape;
 			parentMap[shape.id] = node;
 			itemMap[shape.id] = undefined;
+			if (node instanceof StreamSheet) {
+				// do not removed unsaved sub items
+				const contentPane = node._subItems[0];
+				itemMap[contentPane.getId()] = undefined;
+				for (let i = 0; i < 4; i += 1) {
+					itemMap[contentPane._subItems[i].getId()] = undefined;
+				}
+			}
 		});
 
 		// remove deleted items

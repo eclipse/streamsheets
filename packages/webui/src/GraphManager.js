@@ -344,7 +344,7 @@ export default class GraphManager {
 
 	getActiveSheetView() {
 		return (this._graphEditor && this._graphEditor.getGraphViewer()) ?
-			this._graphEditor.getGraphViewer().activeView :
+			this._graphEditor.getGraphViewer().getGraphView().activeView :
 			undefined;
 	}
 

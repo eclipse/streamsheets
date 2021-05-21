@@ -121,9 +121,9 @@ export default class WorksheetView extends ContentNodeView {
 			this.getOwnSelection().toStringMulti()
 		);
 		cmd._noDraw = true;
-		viewer.activeView = this;
+		viewer.getGraphView().activeView = this;
 		viewer.getInteractionHandler().execute(cmd);
-		viewer.activeView = this;
+		viewer.getGraphView().activeView = this;
 
 		this.activateLayerSelection();
 	}

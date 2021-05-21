@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 import {
-	GraphUtils,
+	CellRange, GraphUtils
 } from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
@@ -20,6 +20,16 @@ export default class StreamSheetContainerWrapperView extends NodeView {
 		super.drawFill(graphics, format, rect);
 		const view = this.getCellsView();
 		if (view) {
+			const wsView = view.getWorksheetView();
+			const attr = this.getItem().getAttributeAtPath('range');
+			if (!attr) {
+				return;
+			}
+			const rangeString = attr.getValue();
+			const range = CellRange.parse(rangeString, wsView.getItem());
+			const rectRange = wsView.getRangeRect(range);
+			graphics.translate(-rectRange.x, -rectRange.y);
+
 			graphics.save();
 			// due to setting clip area...
 			this._shapeRenderer.setClipArea(this._item._shape, graphics);
@@ -42,10 +52,10 @@ export default class StreamSheetContainerWrapperView extends NodeView {
 
 		GraphUtils.traverseView(graphView, (v) => {
 			if (v.getItem && v.getItem().getId() === id) {
-				view = v._subviews[4];
+				view = v.getCellsView();
 			}
 		}, false);
 
-		return view ? view.getContentPane()._subviews[0] : undefined;
+		return view;
 	}
 }

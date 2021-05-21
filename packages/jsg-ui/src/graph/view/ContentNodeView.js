@@ -240,6 +240,7 @@ class ContentNodeView extends NodeView {
 		} else {
 			this._viewpanel.getFormat().setFillColor(JSG.theme.graph);
 		}
+		model._updateBoundingBox();
 		const box = JSG.boxCache.get();
 		const bounds = this.getBoundingBox(box).toRectangle(JSG.rectCache.get());
 		JSG.boxCache.release(box);
@@ -251,6 +252,16 @@ class ContentNodeView extends NodeView {
 		this._scrollview.setBoundsTo(bounds);
 		this._scrollview.layout();
 		JSG.rectCache.release(bounds);
+
+		this.layoutSubViews();
+	}
+
+	layoutSubViews() {
+		this._viewpanel._subviews[0]._subviews.forEach(view => {
+			if (view.layout)
+				view.layout();
+		});
+
 	}
 
 	/**

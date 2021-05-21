@@ -15,6 +15,7 @@ import {
 	InboxContainer,
 	OutboxContainer,
 	StreamSheet,
+	StreamSheetContainer,
 	TextNode,
 	StringExpression,
 	SheetPlotNode,
@@ -26,13 +27,13 @@ import {
 	SheetCommandFactory,
 	Point,
 	BoundingBox,
-	Shape, SetAttributeAtPathCommand
+	Shape,
+	SetAttributeAtPathCommand,
 } from '@cedalo/jsg-core';
 import CellFeedbackView from '../feedback/CellFeedbackView';
 import WorksheetView from './WorksheetView';
 import ClientEvent from '../../ui/events/ClientEvent';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
-import ContentNodeView from "./ContentNodeView";
 
 const SHEET_DROP_FROM_OUTBOX = 'sheet_drop_from_outbox';
 
@@ -49,19 +50,18 @@ const SHEET_DROP_FROM_OUTBOX = 'sheet_drop_from_outbox';
 export default class StreamSheetView extends WorksheetView {
 	// to allow scrolling while formula editing
 	handleMouseEvent(ev, viewer) {
+		const node = this.getItem();
 		// content hidden -> ignore
-		if (!this.getItem().isVisible()) {
+		if (!node.isVisible()) {
 			return;
 		}
 
 		this._scrollview.handleMouseEvent(ev);
 		if (ev.isConsumed) {
-			const node = this.getItem();
 			ev.keepFocus = true;
 
 			node.getGraph().markDirty();
-
-			if (viewer !== undefined) {
+			if (viewer !== undefined && (node.getParent() instanceof StreamSheetContainer)) {
 				this.getParent().moveSheetToTop(viewer);
 			}
 		}

@@ -81,8 +81,7 @@ export default class CellsView extends NodeView {
 
 		this.drawData(graphics, rect, viewRect);
 
-		const id = graph.getTopStreamSheetContainerId();
-
+		const id = this.getGraphView().getActiveViewId();
 		if (id !== undefined && id !== this._wsItem.getId()) {
 			this.drawSelections(graphics, rect);
 		}

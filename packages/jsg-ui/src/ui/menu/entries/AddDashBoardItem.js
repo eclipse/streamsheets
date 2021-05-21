@@ -102,15 +102,15 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node = new JSG.SheetKnobNode();
 				node.setHeight(3000);
 				break;
-			case 'sheet': {
-				NotificationCenter.getInstance().send(
-					new Notification(NotificationCenter.ADD_SHEET_NOTIFICATION, this));
-				node = new JSG.StreamSheetContainerWrapper();
-				editor.getGraph()._sheetWrapper = node;
-				node.getFormat().setLineCorner(75);
-				node.setHeight(5000);
-				break;
-			}
+			// case 'sheet': {
+			// 	NotificationCenter.getInstance().send(
+			// 		new Notification(NotificationCenter.ADD_SHEET_NOTIFICATION, this));
+			// 	node = new JSG.StreamSheetContainerWrapper();
+			// 	editor.getGraph()._sheetWrapper = node;
+			// 	node.getFormat().setLineCorner(75);
+			// 	node.setHeight(5000);
+			// 	break;
+			// }
 			default:
 				node = new JSG.SheetPlotNode();
 				type = node.setChartType(type);
@@ -167,8 +167,8 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
 		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
 		addElement('text', 'Title', 'lib/res/svg/label.svg');
-		addTitle('Table');
-		addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
+		// addTitle('Table');
+		// addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
 		// addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
 
 

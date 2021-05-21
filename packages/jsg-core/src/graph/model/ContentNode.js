@@ -57,6 +57,10 @@ class ContentPane extends GraphItem {
 		}
 	}
 
+	getItemType() {
+		return 'contentpane';
+	}
+
 	layoutAll() {
 		const notifyLayout = !!this._layout && this._layout.isEnabled(this);
 
@@ -266,9 +270,17 @@ class ContentNode extends Node {
 		super._doRefresh(force);
 		// refresh content pane too...
 		if (this._contentPane !== undefined) {
-			this._contentPane.refresh(force);
+			this._contentPane._doRefresh(force);
+			// this._contentPane.refresh(force);
 		}
 		this._changed = false;
+	}
+
+	setRefreshNeeded(flag) {
+		super.setRefreshNeeded(flag);
+		if (this._contentPane !== undefined) {
+			this._contentPane.setRefreshNeeded(flag);
+		}
 	}
 
 	_update() {

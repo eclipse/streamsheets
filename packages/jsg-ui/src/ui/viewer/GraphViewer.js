@@ -549,13 +549,7 @@ class GraphViewer extends ControllerViewer {
 		this.setZoom(factor);
 	}
 
-	set activeView(view) {
-		this._activeView = view;
-	}
 
-	get activeView() {
-		return this._activeView;
-	}
 }
 
 export default GraphViewer;
