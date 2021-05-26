@@ -31,7 +31,7 @@ const ColumnHeaderNode = require('./ColumnHeaderNode');
 const SheetHeaderNode = require('./SheetHeaderNode');
 const WorksheetNode = require('./WorksheetNode');
 const StreamSheetContainer = require('./StreamSheetContainer');
-const StreamSheetContainerWrapper = require('./StreamSheetContainerWrapper');
+const StreamSheetWrapper = require('./StreamSheetWrapper');
 const StreamSheetsContainer = require('./StreamSheetsContainer');
 const MachineContainer = require('./MachineContainer');
 const StreamSheet = require('./StreamSheet');
@@ -2545,8 +2545,8 @@ class GraphItemFactory {
 				return new OutboxContainer();
 			case 'layoutnode':
 				return new LayoutNode();
-			case 'streamsheetcontainerwrapper':
-				return new StreamSheetContainerWrapper();
+			case 'StreamSheetWrapper':
+				return new StreamSheetWrapper();
 			default:
 				return createItem(typeStr);
 		}

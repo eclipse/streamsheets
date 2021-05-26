@@ -607,9 +607,17 @@ export default class GraphManager {
 				if (container) {
 					const type = container.getSheetType();
 					switch (type) {
-					case 'dashboard':
-						editor.getInteractionHandler().updateGraphItems();
+					case 'dashboard': {
+						let path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,
+							JSG.WorksheetAttributes.SHOWGRID);
+						const cmp = new JSG.CompoundCommand();
+						cmp.add(new JSG.SetAttributeAtPathCommand(container.getStreamSheet(), path, false));
+						path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,
+							JSG.WorksheetAttributes.SHOWHEADER);
+						cmp.add(new JSG.SetAttributeAtPathCommand(container.getStreamSheet(), path, false));
+						editor.getInteractionHandler().execute(cmp);
 						break;
+					}
 					case 'cellsheet': {
 						this.getGraph()._sheetWrapper.addAttribute(new JSG.NumberAttribute('streamsheet', container.getId()));
 						this.getGraph()._sheetWrapper = undefined;

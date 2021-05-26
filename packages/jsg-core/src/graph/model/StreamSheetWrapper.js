@@ -9,9 +9,9 @@
  *
  ********************************************************************************/
 const JSG = require('../../JSG');
-const Node = require('./Node');
+const ContentNode = require('./ContentNode');
 
-module.exports = class StreamSheetContainerWrapper extends Node {
+module.exports = class StreamSheetWrapper extends ContentNode {
 	constructor() {
 		super();
 
@@ -19,11 +19,11 @@ module.exports = class StreamSheetContainerWrapper extends Node {
 	}
 
 	newInstance() {
-		return new StreamSheetContainerWrapper();
+		return new StreamSheetWrapper();
 	}
 
 	getItemType() {
-		return 'streamsheetcontainerwrapper';
+		return 'StreamSheetWrapper';
 	}
 
 	show(flag) {

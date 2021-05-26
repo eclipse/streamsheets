@@ -1,20 +1,21 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { Event, NotificationCenter, StreamSheet, WorksheetNode } from '@cedalo/jsg-core';
+import { Event, NotificationCenter, StreamSheet, StreamSheetWrapper, WorksheetNode } from '@cedalo/jsg-core';
 import NodeController from './NodeController';
 import GraphItemController from './GraphItemController';
 import StreamSheetView from '../view/StreamSheetView';
 import WorksheetView from '../view/WorksheetView';
 import ContentPaneView from '../view/ContentPaneView';
 import ContentNodeView from '../view/ContentNodeView';
+import StreamSheetWrapperView from '../view/StreamSheetWrapperView';
 
 class ContentPaneController extends GraphItemController {
 	createFeedback() {
@@ -85,6 +86,9 @@ class ContentNodeController extends NodeController {
 		}
 		if (model instanceof WorksheetNode) {
 			return new WorksheetView(model);
+		}
+		if (model instanceof StreamSheetWrapper) {
+			return new StreamSheetWrapperView(model);
 		}
 
 		return new ContentNodeView(model, this._viewer.getCoordinateSystem());

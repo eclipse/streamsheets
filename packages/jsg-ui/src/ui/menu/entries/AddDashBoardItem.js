@@ -105,7 +105,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			// case 'sheet': {
 			// 	NotificationCenter.getInstance().send(
 			// 		new Notification(NotificationCenter.ADD_SHEET_NOTIFICATION, this));
-			// 	node = new JSG.StreamSheetContainerWrapper();
+			// 	node = new JSG.StreamSheetWrapper();
 			// 	editor.getGraph()._sheetWrapper = node;
 			// 	node.getFormat().setLineCorner(75);
 			// 	node.setHeight(5000);

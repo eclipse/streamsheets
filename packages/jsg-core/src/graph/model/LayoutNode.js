@@ -307,7 +307,7 @@ module.exports = class LayoutNode extends Node {
 	}
 
 	isAutoResizeNode(node) {
-		return ((node instanceof JSG.SheetPlotNode) || (node instanceof JSG.StreamSheetContainerWrapper));
+		return ((node instanceof JSG.SheetPlotNode) || (node instanceof JSG.StreamSheetWrapper));
 	}
 
 	getRelativeSizeInfo() {

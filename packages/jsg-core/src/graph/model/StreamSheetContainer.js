@@ -80,14 +80,12 @@ module.exports = class StreamSheetContainer extends Node {
 
 	addDashboardSettings() {
 		this._layoutNode = new LayoutNode();
-		this._processSheet.getCells().addItem(this._layoutNode);
 		this._layoutNode.setSize(20000, 10000);
 		this._layoutNode.getPin().setLocalPoint(0, 0);
 		this._layoutNode.setOrigin(0, 0);
 		this._layoutNode.getItemAttributes().setMoveable(false);
 		this._layoutNode.getItemAttributes().setDeleteable(false);
-		this._processSheet.getWorksheetAttributes().setShowHeader(false);
-		this._processSheet.getWorksheetAttributes().setShowGrid(false);
+		this._processSheet.getCells().addItem(this._layoutNode);
 	}
 
 	createButtons() {

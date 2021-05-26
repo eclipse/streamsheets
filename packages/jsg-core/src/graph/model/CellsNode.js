@@ -47,13 +47,39 @@ module.exports = class CellsNode extends Node {
 		return copy;
 	}
 
+	getSheet() {
+		return this.getParent() ? this.getParent().getParent() : undefined;
+	}
+
+	getSectionData() {
+		const sheet = this.getSheet();
+		if (sheet) {
+			const sourceSheet = sheet.sourceSheet;
+			if (sourceSheet) {
+				if (this instanceof JSG.RowHeaderNode) {
+					return sourceSheet._rows.sectionData;
+				}
+				return sourceSheet._columns.sectionData;
+			}
+		}
+
+
+		return this._sectionData;
+	}
+
 	getDataProvider() {
+		const sheet = this.getSheet();
+		if (sheet) {
+			const sourceSheet = sheet.sourceSheet;
+			if (sourceSheet) {
+				return sourceSheet.getCells().getDataProvider();
+			}
+		}
+
 		if (this._data._sheet === undefined) {
 			// init with sheet, if not done yet
-			let parent = this.getParent();
-			if (parent) {
-				parent = parent.getParent();
-				this._data._sheet = parent;
+			if (sheet) {
+				this._data._sheet = sheet;
 			}
 		}
 		return this._data;
