@@ -112,6 +112,23 @@ describe('DotReferenceOperator', () => {
 		expect(sheet.cellAt('A1')).toBeDefined();
 		expect(sheet.cellAt('A1').value).toBe('123id');
 	});
+	it('should support reference inbox, inboxdata and inboxmetadata of different sheet', () => {
+		const machine = new Machine();
+		const s1 = new StreamSheet({ name: 'S1' });
+		const s2 = new StreamSheet({ name: 'S2' });
+		s2.inbox.put(new Message({ key: 42 }, '123id'));
+		machine.addStreamSheet(s1);
+		machine.addStreamSheet(s2);
+		createCellAt('A1', { formula: 'S2!inbox.data.key' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1')).toBeDefined();
+		expect(s1.sheet.cellAt('A1').value).toBe(42);
+		createCellAt('A1', { formula: 'S2!inboxdata.key' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1')).toBeDefined();
+		expect(s1.sheet.cellAt('A1').value).toBe(42);
+		createCellAt('A1', { formula: 'S2!inboxmetadata.id' }, s1.sheet);
+		expect(s1.sheet.cellAt('A1')).toBeDefined();
+		expect(s1.sheet.cellAt('A1').value).toBe('123id');
+	});
 	it('should support outbox, outboxdata and outboxmetadata', () => {
 		const machine = new Machine();
 		const streamsheet = new StreamSheet();
@@ -149,9 +166,9 @@ describe('DotReferenceOperator', () => {
 		createCellAt('A1', { formula: '12+4*inbox.data.key' }, sheet);
 		expect(sheet.cellAt('A1')).toBeDefined();
 		expect(sheet.cellAt('A1').formula).toBe('12+4*INBOX.data.key');
-		createCellAt('A1', { formula: 'inbox.inbox.key' }, sheet);
+		createCellAt('A1', { formula: 'inbox."inbox".key' }, sheet);
 		expect(sheet.cellAt('A1')).toBeDefined();
-		expect(sheet.cellAt('A1').formula).toBe('INBOX.inbox.key');
+		expect(sheet.cellAt('A1').formula).toBe('INBOX."inbox".key');
 		createCellAt('A1', { formula: 'inboxdata.customer.age' }, sheet);
 		expect(sheet.cellAt('A1')).toBeDefined();
 		expect(sheet.cellAt('A1').formula).toBe('INBOXDATA.customer.age');
@@ -161,9 +178,9 @@ describe('DotReferenceOperator', () => {
 		createCellAt('A1', { formula: 'outbox.data.key' }, sheet);
 		expect(sheet.cellAt('A1')).toBeDefined();
 		expect(sheet.cellAt('A1').formula).toBe('OUTBOX.data.key');
-		createCellAt('A1', { formula: 'outbox.outbox.key' }, sheet);
+		createCellAt('A1', { formula: 'outbox."outbox".key' }, sheet);
 		expect(sheet.cellAt('A1')).toBeDefined();
-		expect(sheet.cellAt('A1').formula).toBe('OUTBOX.outbox.key');
+		expect(sheet.cellAt('A1').formula).toBe('OUTBOX."outbox".key');
 		createCellAt('A1', { formula: 'outboxdata.customer.age' }, sheet);
 		expect(sheet.cellAt('A1')).toBeDefined();
 		expect(sheet.cellAt('A1').formula).toBe('OUTBOXDATA.customer.age');
