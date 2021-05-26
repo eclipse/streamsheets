@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const ObjectFactory = require('../../ObjectFactory');
-const { readObject, writeJSON } = require('./utils');
+const { readObject, writeObject } = require('./utils');
 const AbstractItemCommand = require('./AbstractItemCommand');
 const Settings = require('../../layout/Settings');
 
@@ -20,7 +20,7 @@ const restoreSettings = (settingsData) => {
 };
 const writeSettings = (settings) => ({
 	type: settings.getClassName(),
-	json: writeJSON('settings', settings)
+	json: writeObject('settings', settings)
 });
 
 /**

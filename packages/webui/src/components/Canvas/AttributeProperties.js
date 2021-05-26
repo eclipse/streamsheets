@@ -20,6 +20,8 @@ import JSG from '@cedalo/jsg-ui';
 import { graphManager } from '../../GraphManager';
 import CellRangeComponent from './CellRangeComponent';
 import {intl} from "../../helper/IntlGlobalProvider";
+import { FormattedMessage } from 'react-intl';
+import MenuItem from '@material-ui/core/MenuItem';
 // import {FormattedMessage} from "react-intl";
 
 function MyInputComponent(props) {
@@ -35,9 +37,8 @@ function MyInputComponent(props) {
 
 export class AttributeProperties extends Component {
 	state = {
-		fillStyle: 0,
-		gradientType: 0,
-	};
+		dummy: 0,
+	}
 
 	getSheetView() {
 		const selection = graphManager.getGraphViewer().getSelection();
@@ -118,6 +119,19 @@ export class AttributeProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	handleLayoutColumns = (event) => {
+		const item = this.props.view.getItem();
+		const settings = new JSG.Settings();
+		settings.set(JSG.MatrixLayout.COLUMNS, Number(event.target.value));
+		settings.set(JSG.MatrixLayout.MARGIN, 1000);
+		const cmd = new JSG.SetLayoutSettingCommand(item, settings);
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+
+	};
+
 	render() {
 		const sheetView = this.getSheetView();
 		if (!sheetView) {
@@ -144,6 +158,34 @@ export class AttributeProperties extends Component {
 					{ value: '2', label: 'GraphItemProperties.OnlyHorizontal'},
 					{ value: '3', label: 'GraphItemProperties.MoveFree'},
 					])}
+				{
+					item.getLayout() && item.getLayout().getType() === 'jsg.matrix.layout' ? (
+						<TextField
+							variant="outlined"
+							size="small"
+							margin="normal"
+							select
+							value={item.getLayoutSettings().get(JSG.MatrixLayout.COLUMNS)}
+							onChange={event => this.handleLayoutColumns(event)}
+							label={
+								<FormattedMessage id="GraphItemProperties.LayoutColumns" defaultMessage="Layout Columns" />
+							}
+						>
+							<MenuItem value="1">
+								1
+							</MenuItem>
+							<MenuItem value="2">
+								2
+							</MenuItem>
+							<MenuItem value="3">
+								3
+							</MenuItem>
+							<MenuItem value="4">
+								4
+							</MenuItem>
+						</TextField>
+					) : null
+				}
 			</FormGroup>
 		);
 	}

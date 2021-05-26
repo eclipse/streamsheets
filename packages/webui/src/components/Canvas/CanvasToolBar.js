@@ -4203,6 +4203,13 @@ export class CanvasToolBar extends Component {
 							</IconButton>
 						</GridListTile>
 						<GridListTile cols={1}>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('matrix2')}>
+								<SvgIcon>
+									<path d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
 							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('layout')}>
 								<BorderAllIcon fontSize="inherit" />
 							</IconButton>
