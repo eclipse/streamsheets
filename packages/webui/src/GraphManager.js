@@ -520,9 +520,10 @@ export default class GraphManager {
 
 			if (settings.active && sheet) {
 				this.getGraphViewer().clearSelection();
-				const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
+				this.removeSelection(sheet.getSelectionId());
+				// const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
 				// cmd._noDraw = true;
-				this.synchronizedExecute(cmd);
+				// this.synchronizedExecute(cmd);
 			}
 
 			graph.setRefreshNeeded(true);
