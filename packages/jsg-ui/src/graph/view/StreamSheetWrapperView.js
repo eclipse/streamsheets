@@ -9,12 +9,13 @@
  *
  ********************************************************************************/
 import {
-	CellRange, GraphUtils
+	CellRange,
+	GraphUtils
 } from '@cedalo/jsg-core';
 
-import NodeView from './NodeView';
+import ContentNodeView from './ContentNodeView';
 
-export default class StreamSheetContainerWrapperView extends NodeView {
+export default class StreamSheetWrapperView extends ContentNodeView {
 
 	drawFill(graphics, format, rect) {
 		super.drawFill(graphics, format, rect);

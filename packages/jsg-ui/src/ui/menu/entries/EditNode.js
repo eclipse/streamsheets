@@ -1,7 +1,7 @@
 /* global document */
 
 import {
-	StreamSheetContainerWrapper,
+	StreamSheetWrapper,
 	SetAttributeAtPathCommand,
 	ItemAttributes,
 	CompoundCommand,
@@ -21,7 +21,7 @@ export default class EditNode extends ItemMenuEntry {
 	}
 
 	isVisible(item) {
-		return (item instanceof StreamSheetContainerWrapper) && !item.isProtected();
+		return (item instanceof StreamSheetWrapper) && !item.isProtected();
 	}
 
 	onEvent(event, item, editor) {

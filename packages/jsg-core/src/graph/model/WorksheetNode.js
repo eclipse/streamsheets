@@ -107,6 +107,19 @@ module.exports = class WorksheetNode extends ContentNode {
 		return new WorksheetNode();
 	}
 
+	get sourceSheet() {
+		const attr = this.getAttributeAtPath('streamsheet');
+		if (attr) {
+			const id = attr.getValue();
+			const graph = this.getGraph();
+			if (graph) {
+				return graph.getItemById(id);
+			}
+		}
+
+		return undefined;
+	}
+
 	getDefaultFormat() {
 		return this._defaultCell.getFormat();
 	}
@@ -402,6 +415,22 @@ module.exports = class WorksheetNode extends ContentNode {
 
 	getItemType() {
 		return 'worksheetnode';
+	}
+
+	toJSON() {
+		const ret = super.toJSON();
+
+		ret.worksheetattributes = this.getWorksheetAttributes().toJSON(true);
+
+		return ret;
+	}
+
+	fromJSON(json) {
+		super.fromJSON(json);
+
+		if (json.worksheetattributes) {
+			this.getWorksheetAttributes().fromJSON(json.worksheetattributes);
+		}
 	}
 
 	saveContent(writer, absolute) {
