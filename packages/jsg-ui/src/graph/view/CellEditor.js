@@ -20,7 +20,8 @@ let showFuncInfo = localStorage.getItem('funcinfo') !== 'false';
 let showParamInfo = localStorage.getItem('paraminfo') !== 'false';
 
 const VERSION = process.env.REACT_APP_VERSION || '2.3.0';
-const semverRegExp = new RegExp('(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.*(?<patch>0|[1-9]\d*)*', 'i');
+// const semverRegExp = new RegExp('(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.*(?<patch>0|[1-9]\d*)*', 'i');
+const semverRegExp = /(?<major>0|[1-9]\d*)\\.(?<minor>0|[1-9]\d*)\\.*(?<patch>0|[1-9]\d*)*/i;
 const versionObject = VERSION.match(semverRegExp);
 const versionLink = `${versionObject.groups.major}.${versionObject.groups.minor}`
 
