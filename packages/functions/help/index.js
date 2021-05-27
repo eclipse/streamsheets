@@ -22,6 +22,7 @@ const math = require('../src/functions/math/help');
 const parse = require('../src/functions/parse/help');
 const stack = require('../src/functions/stack/help');
 const statistical = require('../src/functions/statistical/help');
+const streams = require('../src/functions/streams/help');
 const streamsheet = require('../src/functions/streamsheet/help');
 const text = require('../src/functions/text/help');
 const timeseries = require('../src/functions/timeseries/help');
@@ -42,6 +43,7 @@ module.exports = {
 	parse,
 	stack,
 	statistical,
+	streams,
 	streamsheet,
 	text,
 	timeseries,
