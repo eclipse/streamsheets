@@ -12,6 +12,7 @@ import IdGenerator from '@cedalo/id-generator';
 import { MessagingClient } from '@cedalo/messaging-client';
 import { Topics } from '@cedalo/protocols';
 import { PropType } from '../common';
+import MachineServiceMessageRouter from '../services/gateway/MachineServiceMessageRouter';
 import {
 	IWSEvent,
 	ServiceResponse,
@@ -52,20 +53,25 @@ type PendingRequest<T> = {
 	timeoutId?: NodeJS.Timeout;
 };
 
+type ConnectionContext = {
+	machineRouter?: MachineServiceMessageRouter
+};
 export default class ServerConnection {
 	private id: string;
 	private type: string;
 	private serviceType: string;
+	private context: ConnectionContext;
 	private timeout: number;
 	private _pendingRequests: PendingRequestMap<ServiceResponse>;
 	private messagingClient: MessagingClient;
 	private _redisConnection?: RedisConnection;
 	private _evHandler: null | ((event: any) => any);
 
-	constructor(type: string, serviceType: string) {
+	constructor(type: string, serviceType: string, context: ConnectionContext = {}) {
 		this.id = IdGenerator.generate();
 		this.type = type;
 		this.serviceType = serviceType;
+		this.context = context;
 		// request timeout in ms:
 		this.timeout = 500000;
 		this._evHandler = null;
@@ -130,6 +136,8 @@ export default class ServerConnection {
 				if (this._redisConnection) {
 					this._redisConnection.unsubscribe(message.machineId);
 				}
+				// publish to inform machine-service
+				if (this.context.machineRouter) this.context.machineRouter.handleMachineServiceInputMessage(message);
 				this.messagingClient.unsubscribe(`${Topics.SERVICES_MACHINES_EVENTS}/${message.machineId}`);
 				break;
 			case 'graph_unsubscribe':

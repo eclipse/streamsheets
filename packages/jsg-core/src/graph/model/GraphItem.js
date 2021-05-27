@@ -3580,7 +3580,7 @@ class GraphItem extends Model {
 						this.removeAttributeAtPath(path);
 					}
  					break;
-				case 8: // fillformat
+				case 8: // FillColor
 					if (param instanceof FuncTerm) {
 						switch (param.name) {
 							case 'FILLPATTERN':

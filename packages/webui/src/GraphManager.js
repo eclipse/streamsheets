@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 import JSG from '@cedalo/jsg-ui';
+import { applyPropertiesDefinitions } from '@cedalo/jsg-core/src/graph/model/utils';
 import { NumberFormatter } from '@cedalo/number-format';
 import { Locale } from '@cedalo/parser';
 import SheetParserContext from './SheetParserContext';
@@ -367,6 +368,7 @@ export default class GraphManager {
 		stats,
 		inbox,
 		currentMessage,
+		properties
 	) {
 		this.updateStreamSheetId(streamsheetId);
 		const updatePathCommand = this.updatePath(streamsheetId, jsonpath);
@@ -395,8 +397,8 @@ export default class GraphManager {
 		if (currentMessage) {
 			this.selectInboxMessage(streamsheetId, currentMessage.id, currentMessage.isProcessed);
 		}
-
 		this.updateStats(streamsheetId, stats);
+		this.updateSheetProperties(streamsheetId, properties);
 		this.updateDataView();
 	}
 
@@ -459,6 +461,22 @@ export default class GraphManager {
 		return null;
 	}
 
+	updateSheetProperties(streamsheetId, properties) {
+		if (properties) {
+			const sheet = this.getStreamSheet(streamsheetId);
+			const { properties: sharedprops } = properties;
+			const cleared = sharedprops && sharedprops.cleared;
+			if (sheet) applyPropertiesDefinitions(sheet, properties, sharedprops, cleared);
+				// const data = sheet.getDataProvider();
+				// // TODO: update sheet, cols and rows properties...
+				// Object.entries(properties.cells).forEach(([reference, props]) => {
+				// 	const cell = getOrCreateCell(reference, data);
+				// 	if (cell) applyCellProperties(cell, props);
+				// });
+			// }
+		}
+	}
+
 	rescaleCanvas(canvas) {
 		const ctx = canvas.getContext('2d');
 		const devicePixelRatio = window.devicePixelRatio || 1;
@@ -474,7 +492,7 @@ export default class GraphManager {
 		canvas.height = oldHeight * ratio;
 	}
 
-	updateCanvas(tools, settings) {
+	updateCanvas(settings) {
 		const canvas = document.getElementById('canvas');
 		const graph = this.getGraph();
 		if (canvas && graph && graph.getItemCount() && settings) {
@@ -491,7 +509,7 @@ export default class GraphManager {
 				sheet.getParent().viewSettings = settings;
 				const controller = graphController.getControllerByModelId(sheet.getId());
 				const view = controller.getView();
-				if (!settings.allowScroll) {
+				if (settings.allowScroll === false && settings.active) {
 					sheet.setHorizontalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
 					sheet.setVerticalScrollbarMode(JSG.ScrollBarMode.HIDDEN);
 					sheet.layout();
@@ -499,6 +517,15 @@ export default class GraphManager {
 				view.layout();
 			}
 			this.updateViewMode(graph, settings.active && sheet ? sheet.getParent() : undefined);
+
+			if (settings.active && sheet) {
+				this.getGraphViewer().clearSelection();
+				this.removeSelection(sheet.getSelectionId());
+				// const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
+				// cmd._noDraw = true;
+				// this.synchronizedExecute(cmd);
+			}
+
 			graph.setRefreshNeeded(true);
 			graph.markDirty();
 

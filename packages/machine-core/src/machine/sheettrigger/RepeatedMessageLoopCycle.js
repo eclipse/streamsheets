@@ -24,6 +24,6 @@ const RepeatedMessageLoopCycle = (BaseCycle) =>
 		}
 	};
 
-	module.exports = {
+module.exports = {
 	withBaseClass: (BaseCycle) => RepeatedMessageLoopCycle(BaseCycle)
 };

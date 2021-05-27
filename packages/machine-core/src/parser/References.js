@@ -13,9 +13,11 @@ const SheetRange = require('../machine/SheetRange');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { ParserError, Reference } = require('@cedalo/parser');
 
+const ERROR = FunctionErrors.code;
+
 const isValidIndex = (index, scope) => !scope || !scope.isValidIndex || scope.isValidIndex(index);
 
-class AbstractCellReference extends Reference {
+class AbstractReference extends Reference {
 	constructor(scope) {
 		super();
 		this.scope = scope;
@@ -24,11 +26,11 @@ class AbstractCellReference extends Reference {
 
 	get sheet() {
 		let sheet = this.scope;
-		if (sheet) {
+		if (sheet && this._streamsheetId) {
 			const machine = sheet.machine || sheet;
-			if (machine && this._streamsheetId && machine.getStreamSheet) {
+			if (machine && machine.getStreamSheet) {
 				const streamsheet = machine.getStreamSheet(this._streamsheetId);
-				sheet = streamsheet ? streamsheet.sheet : FunctionErrors.code.REF;
+				sheet = streamsheet ? streamsheet.sheet : ERROR.REF;
 			}
 		}
 		return sheet;
@@ -54,7 +56,7 @@ class AbstractCellReference extends Reference {
 }
 
 
-class NamedCellReference extends AbstractCellReference {
+class NamedCellReference extends AbstractReference {
 	static fromString(str, scope) {
 		let ref;
 		if (scope) {
@@ -79,7 +81,7 @@ class NamedCellReference extends AbstractCellReference {
 			cell.value = value;
 			return value;
 		}
-		return FunctionErrors.code.REF;
+		return ERROR.REF;
 	}
 
 	get target() {
@@ -106,7 +108,7 @@ class NamedCellReference extends AbstractCellReference {
 	}
 }
 
-class CellReference extends AbstractCellReference {
+class CellReference extends AbstractReference {
 	static fromString(str, scope, ignoreValidation = false) {
 		const parts = str.split('.');
 		const indexstr = parts.length === 2 ? parts[1] : str;
@@ -116,7 +118,7 @@ class CellReference extends AbstractCellReference {
 				return new CellReference(index, scope);
 			}
 			// index is invalid, so throw an error...
-			throw ParserError.create({ code: FunctionErrors.code.NAME }); // excel returns #NAME? if specified ref is invalid...
+			throw ParserError.create({ code: ERROR.NAME }); // excel returns #NAME? if specified ref is invalid...
 		}
 		return undefined;
 	}
@@ -135,7 +137,7 @@ class CellReference extends AbstractCellReference {
 		const sheet = this.sheet;
 		const error =
 			FunctionErrors.isError(sheet) ||
-			(sheet && !isValidIndex(index, sheet) ? FunctionErrors.code.REF : undefined);
+			(sheet && !isValidIndex(index, sheet) ? ERROR.REF : undefined);
 		return error || sheet.cellAt(index);
 	}
 
@@ -173,7 +175,7 @@ class CellReference extends AbstractCellReference {
 		return this.description(this.index.toString());
 	}
 }
-class CellRangeReference extends AbstractCellReference {
+class CellRangeReference extends AbstractReference {
 	static fromString(str, scope, ignoreValidation = false) {
 		const range = str && SheetRange.fromRangeStr(str);
 		if (range) {
@@ -184,7 +186,7 @@ class CellRangeReference extends AbstractCellReference {
 				return new CellRangeReference(range, scope);
 			}
 			// range is invalid, so throw an error...
-			throw ParserError.create({ code: FunctionErrors.code.NAME }); // excel returns #NAME? if specified ref is invalid...
+			throw ParserError.create({ code: ERROR.NAME }); // excel returns #NAME? if specified ref is invalid...
 		}
 		return undefined;
 	}
@@ -205,7 +207,7 @@ class CellRangeReference extends AbstractCellReference {
 		const error =
 			FunctionErrors.isError(sheet) ||
 			(sheet && (!isValidIndex(range.start, sheet) || !isValidIndex(range.end, sheet))
-				? FunctionErrors.code.REF
+				? ERROR.REF
 				: null);
 		return error || range;
 	}
@@ -242,6 +244,66 @@ class CellRangeReference extends AbstractCellReference {
 	}
 }
 
+const MSGBOX_REFERENCES = ['INBOX', 'INBOXMETADATA', 'INBOXDATA', 'OUTBOX', 'OUTBOXMETADATA', 'OUTBOXDATA'];
+const getInbox = (sheet) => sheet.streamsheet.inbox;
+const getOutbox = (sheet) => sheet.machine.outbox;
+const getMessage = (message) => message;
+const getMessageData = (message) => message ? message.data : undefined;
+const getMessageMetaData = (message) => message ? message.metadata : undefined;
+class MessageBoxReference extends AbstractReference {
+	static fromString(str, scope) {
+		const refstr = str.toUpperCase();
+		if (MSGBOX_REFERENCES.includes(refstr)) {
+			const getBox = refstr.startsWith('INBOX') ? getInbox : getOutbox;
+			// eslint-disable-next-line no-nested-ternary
+			const getMessagePart = refstr.endsWith('METADATA')
+				? getMessageMetaData
+				: refstr.endsWith('DATA')
+				? getMessageData
+				: getMessage;
+			return new MessageBoxReference(scope, refstr, getBox, getMessagePart);
+		}
+		return undefined;
+	}
+
+	constructor(scope, refstr, getBox, getMessagePart) {
+		super();
+		this.scope = scope;
+		this._refstr = refstr;
+		this._getMessageBox = getBox;
+		this._getMessagePart = getMessagePart;
+		this._streamsheetId = undefined;
+	}
+
+	get isMessageBoxReference() {
+		return true;
+	}
+
+	get value() {
+		const sheet = this.sheet;
+		const messagebox = sheet && this._getMessageBox(this.sheet);
+		return messagebox ? this._getMessagePart(messagebox.peek()) : ERROR.REF;
+	}
+
+	copy() {
+		const ref = MessageBoxReference.fromString(this._refstr, this.scope);
+		ref._streamsheetId = this._streamsheetId;
+		return ref;
+	}
+
+	isTypeOf(type) {
+		return type === 'MessageBoxReference' || super.isTypeOf(type);
+	}
+
+	isEqualTo(operand) {
+		return operand.isMessageBoxReference && operand._refstr === this._refstr;
+	}
+
+	toString() {
+		return this.description(this._refstr);
+	}
+}
+
 const referenceFromString = (str, scope) => {
 	// sheet reference
 	let streamsheetId;
@@ -251,12 +313,13 @@ const referenceFromString = (str, scope) => {
 		// we have a sheet reference...
 		const machine = scope.machine || scope;
 		const streamsheet = machine ? machine.getStreamSheetByName(parts[0]) : undefined;
-		if (!streamsheet) throw ParserError.create({ code: FunctionErrors.code.REF });
+		if (!streamsheet) throw ParserError.create({ code: ERROR.REF });
 		streamsheetId = streamsheet.id;
 		str = parts[1];
 	}
 	const reference =
 		NamedCellReference.fromString(str, scope) ||
+		MessageBoxReference.fromString(str, scope) ||
 		CellReference.fromString(str, scope, externalRef) ||
 		CellRangeReference.fromString(str, scope, externalRef);
 	if (reference) reference._streamsheetId = streamsheetId;
@@ -271,6 +334,7 @@ module.exports = {
 	CellReference,
 	CellRangeReference,
 	NamedCellReference,
+	MessageBoxReference,
 	referenceFromNode,
 	referenceFromString
 };

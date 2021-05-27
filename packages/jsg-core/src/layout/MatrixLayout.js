@@ -69,8 +69,7 @@ module.exports = class MatrixLayout extends Layout {
 		const margin = lsettings.get(MARGIN);
 		const width = (box.getWidth() - margin * (columns + 1)) / columns;
 		const rows = Math.ceil(count / columns);
-		const height = 5100; // (box.getHeight() - ((rows + 1) * margin)) / Math.ceil(count / columns);
-
+		const height = 5100;
 		let cnt = 0;
 
 		item.getItems().forEach((litem, index) => {
@@ -97,17 +96,14 @@ module.exports = class MatrixLayout extends Layout {
 			if (!item.getHeight().hasFormula()) {
 				item.setHeight(box.getHeight());
 			}
-			const center = box.getCenter();
+			const origin = oldbox.getTopLeft();
 			const pin = item.getPin();
 			if (!pin.getX().hasFormula()) {
-				pin.setX(new JSG.NumberExpression(center.x));
+				pin.setX(new JSG.NumberExpression(origin.x + box.getWidth() / 2));
 			}
 			if (!pin.getY().hasFormula()) {
-				pin.setY(new JSG.NumberExpression(center.y));
+				pin.setY(new JSG.NumberExpression(origin.y + box.getHeight() / 2));
 			}
-
-			// this.setOriginTo(newbbox.getTopLeft(newTopLeft));
-			// item.setBoundingBoxTo(box, true);
 			changed = true;
 		}
 		JSG.boxCache.release(oldbox, box, newbox);

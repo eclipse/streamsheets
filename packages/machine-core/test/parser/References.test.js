@@ -8,21 +8,17 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { createTerm, functions, validate } = require('../utils');
-const { Machine, StreamSheet, Sheet, SheetIndex, SheetParser } = require('../..');
+const { createCellAt, createTerm, validate } = require('../utils');
+const { Machine, Message, referenceFromString, StreamSheet, Sheet, SheetIndex } = require('../..');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
 
-beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
-});
-
 const createMachine = () => {
 	const machine = new Machine();
 	machine.removeAllStreamSheets();
-	machine.addStreamSheet(new StreamSheet({ name: 'T1' }));
-	machine.addStreamSheet(new StreamSheet({ name: 'T2' }));
+	machine.addStreamSheet(new StreamSheet({ name: 'S1' }));
+	machine.addStreamSheet(new StreamSheet({ name: 'S2' }));
 	return machine;
 };
 
@@ -102,34 +98,34 @@ describe('CellReference', () => {
 		it('should be possible to reference cell from different stream-sheet', () => {
 			// only works via machine...
 			const machine = createMachine();
-			const [t1, t2] = machine.streamsheets;
-			t2.sheet.load({ cells: { IF2: 42, Z2: 'hello' } });
-			validate.term(createTerm('T2!Z2', t1.sheet))
+			const [s1, s2] = machine.streamsheets;
+			s2.sheet.load({ cells: { IF2: 42, Z2: 'hello' } });
+			validate.term(createTerm('S2!Z2', s1.sheet))
 				.hasOperandType('CellReference')
 				.hasValue('hello')
-				.hasDescription('T2!Z2');
-			validate.term(createTerm('T2!IF2', t1.sheet))
+				.hasDescription('S2!Z2');
+			validate.term(createTerm('S2!IF2', s1.sheet))
 				.hasOperandType('CellReference')
 				.hasValue(42)
-				.hasDescription('T2!IF2');
-			validate.term(createTerm('T2!if2', t1.sheet))
+				.hasDescription('S2!IF2');
+			validate.term(createTerm('S2!if2', s1.sheet))
 				.hasOperandType('CellReference')
 				.hasValue(42)
-				.hasDescription('T2!IF2');
+				.hasDescription('S2!IF2');
 		});
 		// DL-1716
 		it('should be possible to use cell from different sheet within arithmetic operation', () => {
 			const machine = createMachine();
-			const [t1, t2] = machine.streamsheets;
-			t1.sheet.load({ cells: { B3: 2 } });
-			t2.sheet.load({ cells: { B3: 23 } });
-			expect(createTerm('B3*T2!B3', t1.sheet).value).toBe(46);
+			const [s1, s2] = machine.streamsheets;
+			s1.sheet.load({ cells: { B3: 2 } });
+			s2.sheet.load({ cells: { B3: 23 } });
+			expect(createTerm('B3*S2!B3', s1.sheet).value).toBe(46);
 		});
 		// DL-1958
 		it('should return 0 as value for undefined cells', () => {
 			const machine = createMachine();
-			const [t1] = machine.streamsheets;
-			const sheet = t1.sheet.loadCells({ 
+			const [s1] = machine.streamsheets;
+			const sheet = s1.sheet.loadCells({ 
 				A1: { formula: 'A3' }, B1: {formula: 'A1'},
 				C1: {formula: 'concat(A3,"text")'}, D1: {formula: 'concat(A1,"text")'}
 			});
@@ -175,18 +171,18 @@ describe('CellReference', () => {
 		});
 		it(`should return ${ERROR.REF} if referenced stream-sheet is invalid`, () => {
 			const machine = createMachine();
-			const [t1] = machine.streamsheets;
-			validate.term(createTerm('T4!A1', t1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('T3!A1', t1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('t2!A1', t1.sheet)).hasValue(ERROR.REF);
+			const [s1] = machine.streamsheets;
+			validate.term(createTerm('S4!A1', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S3!A1', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('s2!A1', s1.sheet)).hasValue(ERROR.REF);
 		});
 		it(`should return ${ERROR.REF} if referenced stream-sheet becomes invalid`, () => {
 			const machine = createMachine();
-			const [t1, t2] = machine.streamsheets;
-			t2.sheet.load({ cells: { A2: 'hello' } });
-			validate.term(createTerm('T2!A2', t1.sheet)).hasValue('hello');
-			machine.removeStreamSheet(t2);
-			validate.term(createTerm('T2!A2', t1.sheet)).hasValue(ERROR.REF);
+			const [s1, s2] = machine.streamsheets;
+			s2.sheet.load({ cells: { A2: 'hello' } });
+			validate.term(createTerm('S2!A2', s1.sheet)).hasValue('hello');
+			machine.removeStreamSheet(s2);
+			validate.term(createTerm('S2!A2', s1.sheet)).hasValue(ERROR.REF);
 		});
 	});
 });
@@ -325,29 +321,29 @@ describe('CellRangeReference', () => {
 		it('should be possible to reference a cell range from different stream-sheet', () => {
 			// only works via machine...
 			const machine = createMachine();
-			const [t1, t2] = machine.streamsheets;
-			t2.sheet.load({ cells: { IF2: 42, A2: 'hello', Z2: 'world' } });
-			validate.term(createTerm('T2!IF2:Z2', t1.sheet))
+			const [s1, s2] = machine.streamsheets;
+			s2.sheet.load({ cells: { IF2: 42, A2: 'hello', Z2: 'world' } });
+			validate.term(createTerm('S2!IF2:Z2', s1.sheet))
 				.hasOperandType('CellRangeReference')
-				.hasDescription('T2!IF2:Z2')
+				.hasDescription('S2!IF2:Z2')
 				.validate('operand.range')
 				.expect(rangeStartEnd, [SheetIndex.create('IF2'), SheetIndex.create('Z2')])
 				.expect(rangeValues, [42, 'hello', 'world']);
-			validate.term(createTerm('T2!IF2:IF2', t1.sheet))
+			validate.term(createTerm('S2!IF2:IF2', s1.sheet))
 				.hasOperandType('CellRangeReference')
-				.hasDescription('T2!IF2:IF2')
+				.hasDescription('S2!IF2:IF2')
 				.validate('operand.range')
 				.expect(rangeStartEnd, [SheetIndex.create('IF2'), SheetIndex.create('IF2')])
 				.expect(rangeValues, [42]);
-			validate.term(createTerm('T2!a2:Z2', t1.sheet))
+			validate.term(createTerm('S2!a2:Z2', s1.sheet))
 				.hasOperandType('CellRangeReference')
-				.hasDescription('T2!A2:Z2')
+				.hasDescription('S2!A2:Z2')
 				.validate('operand.range')
 				.expect(rangeStartEnd, [SheetIndex.create('A2'), SheetIndex.create('Z2')])
 				.expect(rangeValues, ['hello', 'world']);
-			validate.term(createTerm('T2!Z2:z2', t1.sheet))
+			validate.term(createTerm('S2!Z2:z2', s1.sheet))
 				.hasOperandType('CellRangeReference')
-				.hasDescription('T2!Z2:Z2')
+				.hasDescription('S2!Z2:Z2')
 				.validate('operand.range')
 				.expect(rangeStartEnd, [SheetIndex.create('Z2'), SheetIndex.create('Z2')])
 				.expect(rangeValues, ['world']);
@@ -400,18 +396,219 @@ describe('CellRangeReference', () => {
 		});
 		it(`should return ${ERROR.REF} if referenced stream-sheet is invalid`, () => {
 			const machine = createMachine();
-			const [t1] = machine.streamsheets;
-			validate.term(createTerm('T4!A1:A1', t1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('T3!A1:A1', t1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('t2!A1:A1', t1.sheet)).hasValue(ERROR.REF);
+			const [s1] = machine.streamsheets;
+			validate.term(createTerm('S4!A1:A1', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S3!A1:A1', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('s2!A1:A1', s1.sheet)).hasValue(ERROR.REF);
 		});
 		it(`should return ${ERROR.REF} if referenced stream-sheet becomes invalid`, () => {
 			const machine = createMachine();
-			const [t1, t2] = machine.streamsheets;
-			t2.sheet.load({ cells: { A2: 'hello' } });
-			validate.term(createTerm('T2!A2:A2', t1.sheet)).validate('operand.range').expect(rangeValues, ['hello']);
-			machine.removeStreamSheet(t2);
-			validate.term(createTerm('T2!A2:A2', t1.sheet)).hasValue(ERROR.REF);
+			const [s1, s2] = machine.streamsheets;
+			s2.sheet.load({ cells: { A2: 'hello' } });
+			validate.term(createTerm('S2!A2:A2', s1.sheet)).validate('operand.range').expect(rangeValues, ['hello']);
+			machine.removeStreamSheet(s2);
+			validate.term(createTerm('S2!A2:A2', s1.sheet)).hasValue(ERROR.REF);
 		});
 	});
 });
+describe('MessageBoxReference', () => {
+	describe('creation', () => {
+		it('should be possible to create a MessageReference term', () => {
+			const machine = createMachine();
+			const message = new Message();
+			const [s1] = machine.streamsheets;
+			s1.inbox.put(message);
+			machine.outbox.put(message);
+			validate.term(createTerm('INBOX', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('INBOX');
+			validate.term(createTerm('OUTBOX', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('OUTBOX');
+		});
+		it('should be case insensitive', () => {
+			const machine = createMachine();
+			const message = new Message();
+			const [s1] = machine.streamsheets;
+			s1.inbox.put(message);
+			machine.outbox.put(message);
+			validate.term(createTerm('inBoX', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('INBOX');
+			validate.term(createTerm('OuTbOx', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('OUTBOX');
+		});
+		it('should return undefined if reference string is not supported', () => {
+			const machine = createMachine();
+			const [s1] = machine.streamsheets;
+			expect(referenceFromString('hello', s1.sheet)).toBeUndefined();
+			// NOTE: INBOX2 is a CellReference although invalid because too large
+			expect(referenceFromString('INBOX_2', s1.sheet)).toBeUndefined();
+			expect(referenceFromString('OUTBOXDATAA', s1.sheet)).toBeUndefined();
+		});
+	});
+	describe('dispose', () => {
+		it('should clear scope reference', () => {
+			const machine = createMachine();
+			const [s1] = machine.streamsheets;
+			validate
+				.term(createTerm('INBOX', s1.sheet))
+				.validate('operand')
+				.hasProperty('sheet')
+				.done()
+				.execute((term) => term.dispose())
+				.validate('operand')
+				.hasNoProperty('sheet');
+			validate
+				.term(createTerm('OUTBOX', s1.sheet))
+				.validate('operand')
+				.hasProperty('sheet')
+				.done()
+				.execute((term) => term.dispose())
+				.validate('operand')
+				.hasNoProperty('sheet');
+		});
+	});
+	describe('usage', () => {
+		it('should be possible to reference message via inbox, inboxmetadata and inboxdata', () => {
+			const machine = createMachine();
+			const msgdata = { customer: 'john does' };
+			const message = new Message(msgdata);
+			const [s1] = machine.streamsheets;
+			s1.inbox.put(message);
+			validate.term(createTerm('INBOX', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('INBOX');
+			validate.term(createTerm('INBOXDATA', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(msgdata)
+				.hasDescription('INBOXDATA');
+			validate.term(createTerm('INBOXMETADATA', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message.metadata)
+				.hasDescription('INBOXMETADATA');
+		});
+		it('should be possible to reference message via oubox, ouboxmetadata and ouboxdata', () => {
+			const machine = createMachine();
+			const msgdata = { customer: 'john does' };
+			const message = new Message(msgdata);
+			const [s1] = machine.streamsheets;
+			machine.outbox.put(message);
+			validate.term(createTerm('OUTBOX', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('OUTBOX');
+			validate.term(createTerm('OUTBOXDATA', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(msgdata)
+				.hasDescription('OUTBOXDATA');
+			validate.term(createTerm('OUTBOXMETADATA', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message.metadata)
+				.hasDescription('OUTBOXMETADATA');
+		});
+		it('should be possible to reference message in inbox of another sheets', () => {
+			const machine = createMachine();
+			const msgdata = { customer: 'john does' };
+			const message = new Message(msgdata);
+			const [s1, s2] = machine.streamsheets;
+			s2.inbox.put(message);
+			validate.term(createTerm('S2!INBOX', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('S2!INBOX');
+			validate.term(createTerm('S2!INBOXDATA', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(msgdata)
+				.hasDescription('S2!INBOXDATA');
+			validate.term(createTerm('S2!INBOXMETADATA', s1.sheet))
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message.metadata)
+				.hasDescription('S2!INBOXMETADATA');
+		});
+		it('should be possible to copy a messagebox-reference', () => {
+			const machine = createMachine();
+			const msgdata = { customer: 'john does' };
+			const message = new Message(msgdata);
+			const [s1,s2] = machine.streamsheets;
+			s2.inbox.put(message);
+			machine.outbox.put(message);
+			validate.term(createTerm('S2!INBOX', s1.sheet).copy())
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('S2!INBOX');
+			validate.term(createTerm('OUTBOX', s1.sheet).copy())
+				.hasOperandType('MessageBoxReference')
+				.hasValue(message)
+				.hasDescription('OUTBOX');
+		});
+		test('corresponding functions still work', async () => {
+			const machine = createMachine();
+			const msgdata = { customer: 'john does' };
+			const message = new Message(msgdata);
+			const [s1, s2] = machine.streamsheets;
+			s2.inbox.put(message);
+			machine.outbox.put(message);
+			s1.sheet.loadCells({
+				A1: { formula: 'S2!INBOX' },
+				B1: { formula: 'S2!INBOXMETADATA' },
+				C1: { formula: 'S2!INBOXDATA' },
+				D1: { formula: 'S2!OUTBOX' },
+				E1: { formula: 'S2!OUTBOXMETADATA' },
+				F1: { formula: 'S2!OUTBOXDATA' }
+			});
+			s2.sheet.loadCells({
+				A2: { formula: 'INBOX("S2")' },
+				B2: { formula: 'INBOXMETADATA("S2")' },
+				C2: { formula: 'INBOXDATA("S2")' },
+				D2: { formula: `OUTBOX("${message.id}")` },
+				E2: { formula: `OUTBOXMETADATA("${message.id}")` },
+				F2: { formula: `OUTBOXDATA("${message.id}")` }
+			});
+			await machine.step();
+			expect(s1.sheet.cellAt('A1').value).toEqual(message);
+			expect(s1.sheet.cellAt('B1').value).toEqual(message.metadata);
+			expect(s1.sheet.cellAt('C1').value).toEqual(msgdata);
+			expect(s1.sheet.cellAt('D1').value).toEqual(message);
+			expect(s1.sheet.cellAt('E1').value).toEqual(message.metadata);
+			expect(s1.sheet.cellAt('F1').value).toEqual(msgdata);
+			expect(s2.sheet.cellAt('A2').value).toBe('[S2][]');
+			expect(s2.sheet.cellAt('B2').value).toBe('[S2][]');
+			expect(s2.sheet.cellAt('C2').value).toBe('[S2][]');
+			expect(s2.sheet.cellAt('D2').value).toBe(`[${message.id}]`);
+			expect(s2.sheet.cellAt('E2').value).toBe(`[${message.id}]`);
+			expect(s2.sheet.cellAt('F2').value).toBe(`[${message.id}]`);
+		});
+	});
+	describe('message unavailable', () => {
+		it('should return undefined if no message is available', () => {
+			const machine = createMachine();
+			const [s1] = machine.streamsheets;
+			validate.term(createTerm('INBOX', s1.sheet)).hasValue(undefined);
+			validate.term(createTerm('INBOXDATA', s1.sheet)).hasValue(undefined);
+			validate.term(createTerm('INBOXMETADATA', s1.sheet)).hasValue(undefined);
+			validate.term(createTerm('OUTBOX', s1.sheet)).hasValue(undefined);
+			validate.term(createTerm('OUTBOXDATA', s1.sheet)).hasValue(undefined);
+			validate.term(createTerm('OUTBOXMETADATA', s1.sheet)).hasValue(undefined);
+		});
+		it(`should return ${ERROR.REF} if referenced stream-sheet is invalid`, () => {
+			const machine = createMachine();
+			const message = new Message();
+			const [s1] = machine.streamsheets;
+			s1.inbox.put(message);
+			validate.term(createTerm('S4!INBOX', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S4!INBOXDATA', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S4!INBOXMETADATA', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S4!OUTBOX', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S4!OUTBOXDATA', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S4!OUTBOXMETADATA', s1.sheet)).hasValue(ERROR.REF);
+		});
+	});
+});
+

@@ -8,34 +8,28 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { MessagingService } = require('@cedalo/service-core');
+const { logger } = require('@cedalo/logger');
 const {
 	GatewayMessagingProtocol,
 	GraphServerMessagingProtocol,
 	Topics,
 	MachineServerMessagingProtocol
 } = require('@cedalo/protocols');
-const { MonitorManager, RequestHandlers } = require('@cedalo/service-core');
-const { logger } = require('@cedalo/logger');
-
-const SheetParserContext = require('../../graph/SheetParserContext');
+const {	RepositoryManager, MongoDBGraphRepository } = require('@cedalo/repository');
+const { MessagingService, MonitorManager, RequestHandlers } = require('@cedalo/service-core');
 const GraphManager = require('../../graph/GraphManager');
 const GraphMonitor = require('../../graph/GraphMonitor');
+const SheetParserContext = require('../../graph/SheetParserContext');
 const GraphRequestHandlers = require('../handlers/GraphRequestHandlers');
-
-const {
-	RepositoryManager,
-	MongoDBGraphRepository,
-} = require('@cedalo/repository');
-
+const { SERVER_COMMANDS, ignoreAll } = require('../../utils/ignore');
 const config = require('../../../config/config');
 
 const TOPIC_SERVICE_STREAMS_FUNCTIONS = `${Topics.SERVICES_STREAMS_EVENTS}/functions`;
 const graphRepository = new MongoDBGraphRepository(config.mongodb);
 
-RepositoryManager.init({
-	graphRepository,
-});
+RepositoryManager.init({ graphRepository });
+
+const ignoreCommand = ignoreAll(SERVER_COMMANDS.concat('command.SetSelectionCommand'));
 
 module.exports = class GraphService extends MessagingService {
 	constructor(metadata) {
@@ -110,7 +104,8 @@ module.exports = class GraphService extends MessagingService {
 				logger.debug(
 					'PersistenceService: update graph after executed command'
 				);
-				if (response.command.name !== 'command.SetSelectionCommand') {
+				// if (response.command.name !== 'command.SetSelectionCommand') {
+				if (!ignoreCommand(response.command.name)) {
 					await RepositoryManager.graphRepository.updateGraph(
 						response.graph.id,
 						response.graph

@@ -42,6 +42,10 @@ const evaluate = (cell, newValue) => {
 };
 
 const isCellReference = (value) => value && (value.isCellReference || value.isCellRangeReference);
+const limitString = (str, sheet) => {
+	const limit = sheet.settings.maxchars;
+	return limit > 0 && str.length > limit ? str.substr(0, limit) : str;
+};
 
 // DL-4113 prevent displaying values like [object Object]...
 const valueDescription = (value) => {
@@ -82,6 +86,7 @@ class Cell {
 	constructor(value, term) {
 		setTerm(term, this);
 		this._value = value;
+		this._sheet = undefined;
 		this._cellValue = undefined;
 		this._isInited = false;
 		this.row = -1;
@@ -97,6 +102,8 @@ class Cell {
 		const value = valueDescription(this.cellValue);
 		const descr = { formula: this.formula, value };
 		const rawtype = isCellReference(this.value) ? typeof value : typeof this.value;
+		// DL-4908: limit string values
+		if (this._sheet && rawtype === 'string') descr.value = limitString(value, this._sheet);
 		descr.type = term ? term.operand.type : typeof value;
 		if (term && term.isUnit && !descr.formula) {
 			descr.type = 'unit';
@@ -111,7 +118,8 @@ class Cell {
 	}
 
 	// TODO review - do it explicitly like now or keep it private and do it implicitly?
-	init(row, col) {
+	init(row, col, sheet) {
+		if (sheet) this._sheet = sheet;
 		if (row != null) this.row = row;
 		if (col != null) this.col = col;
 		if (!this._isInited) {
@@ -126,6 +134,7 @@ class Cell {
 
 	dispose() {
 		this.row = -1;
+		this._sheet = undefined;
 		setTerm(undefined, this);
 	}
 
@@ -143,10 +152,6 @@ class Cell {
 	// if cell value is based on a cell reference or formula, otherwise undefined
 	get formula() {
 		return this.hasFormula ? this._term.toString() : undefined;
-	}
-
-	get format() {
-		return this._format;
 	}
 
 	get info() {

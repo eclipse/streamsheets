@@ -26,6 +26,7 @@ const getSettings = (definition, sheet) => {
 	if (preferences) {
 		newsettings.maxrow = valueOr(preferences.sheetRows, newsettings.maxrow);
 		newsettings.maxcol = valueOr(preferences.sheetColumns, newsettings.maxcol);
+		newsettings.maxchars = valueOr(preferences.maxchars, newsettings.maxchars);
 		newsettings.protected = valueOr(preferences.sheetProtect, newsettings.protected);
 	}
 	return newsettings;

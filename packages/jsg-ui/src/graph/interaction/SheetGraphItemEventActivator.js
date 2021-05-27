@@ -15,6 +15,7 @@ import SheetGraphItemEventInteraction from './SheetGraphItemEventInteraction';
 import InteractionActivator from './InteractionActivator';
 import Feedback from '../feedback/Feedback';
 import Cursor from '../../ui/Cursor';
+import SelectionProvider from '../view/SelectionProvider';
 
 const KEY = 'sheetgraphitemevent.activator';
 
@@ -54,6 +55,15 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 
 	onMouseDoubleClick(event, viewer, dispatcher) {
 		this.handleClick(event, viewer, dispatcher, 'double');
+
+		// if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+			const cont = this._getShapeControllerAt(event.location, viewer, dispatcher);
+			if (cont && !cont.getModel().isProtected()) {
+				NotificationCenter.getInstance().send(
+					new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION, {open: true})
+				);			}
+		// }
+
 	}
 
 	onMouseDown(event, viewer, dispatcher) {

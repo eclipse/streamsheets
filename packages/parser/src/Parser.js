@@ -12,8 +12,10 @@ const Tokenizer = require('./Tokenizer');
 const Transformer = require('./Transformer');
 
 const createInfo = (token, parent, paramIndex) => {
-	const { arg, end, isInvalid, start, type } = token;
-	const info = { arg, end, isInvalid, start, type, parent, paramIndex, value: token.operator || token.value };
+	const { arg, end, isInvalid, start, type, cparen = -1, oparen = -1 } = token;
+	const value = token.operator || token.value;
+	const brackets = { open: oparen, close: cparen };
+	const info = { arg, end, isInvalid, start, type, parent, paramIndex, brackets, value };
 	if (parent && paramIndex != null) {
 		const params = parent.params || [];
 		params[paramIndex] = info;

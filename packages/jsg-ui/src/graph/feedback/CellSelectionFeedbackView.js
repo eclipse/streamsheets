@@ -124,8 +124,7 @@ export default class CellSelectionFeedbackView extends View {
 		viewBounds.width -= sbSize;
 		viewBounds.height -= sbSize;
 
-		const wsattributes = this._sheetview.getItem().getWorksheetAttributes();
-		const header = wsattributes.getShowHeader().getValue();
+		const header = this._sheetview.getItem().isHeaderVisible();
 
 		const org = pane
 			.getSubviewAt(0)

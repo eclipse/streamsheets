@@ -41,12 +41,12 @@ const cancel = (sheet) => (context) => {
 	clearResumeTimeout(context);
 	sheet.streamsheet.stopProcessing();
 };
-const doSleep = (context, seconds) => {
+const doSleep = (context, seconds, isPaused) => {
 	const ms = seconds * 1000;
 	if (ms < 1) {
 		resume(context);
 	} else if (context.hasCell) {
-		if (!context.resumeTimeoutId || ms !== context.period) {
+		if (!context.resumeTimeoutId || ms !== context.period || !isPaused) {
 			pause(context, ms);
 		}
 	} else {
@@ -71,7 +71,7 @@ const sleep = (sheet, ...terms) =>
 		.withArgCount(1)
 		.mapNextArg((seconds) => convert.toNumberStrict(seconds.value, ERROR.VALUE))
 		.beforeRun(() => initContext(sleep.context, sheet))
-		.run((seconds) => doSleep(sleep.context, seconds));
+		.run((seconds) => doSleep(sleep.context, seconds, sheet.isPaused));
 sleep.displayName = true;
 
 module.exports = sleep;

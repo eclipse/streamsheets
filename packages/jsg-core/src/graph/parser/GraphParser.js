@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -12,6 +12,7 @@ const { Parser } = require('@cedalo/parser');
 const GraphParserContext = require('./GraphParserContext');
 
 const isFunction = ({ type } = {}) => type === 'function' || type === 'condition';
+const isValidBrackets = (brackets) => brackets && (brackets.open !== -1 || brackets.close !== -1);
 const getFunctionName = ({ type, value }) => (type === 'condition' ? 'IF' : type === 'function' ? value : undefined);
 const tokenAt = (infos, pos) => infos.reduce((token, info) => {
 	// ignore info with no length or use it if it is next parameter
@@ -22,11 +23,16 @@ const tokenAt = (infos, pos) => infos.reduce((token, info) => {
 }, {});
 const infoForToken = (token, pos, info = {}) => {
 	if (token) {
-		const { end, isInvalid, paramIndex, parent, start } = token;
-		info.paramIndex =
-			info.paramIndex != null ? info.paramIndex : !isFunction(token) || pos === start || pos >= end ? paramIndex : undefined;
-		info.function = pos > start && pos < end || isInvalid ? getFunctionName(token) : undefined;
-		if (info.function == null) infoForToken(parent, pos, info);
+		const isNoFunction = !isFunction(token);
+		const { brackets, end, isInvalid, paramIndex, parent, start } = token;
+		if (info.paramIndex == null) {
+			info.paramIndex = isNoFunction || pos === start || pos >= end ? paramIndex : undefined;
+		}
+		info.function = (pos > start && pos < end) || isInvalid ? getFunctionName(token) : undefined;
+		if (info.function == null) {
+			if (info.brackets == null && isNoFunction && isValidBrackets(brackets)) info.brackets = brackets;
+			infoForToken(parent, pos, info);
+		} else info.brackets = brackets;
 	}
 	return info;
 };

@@ -8,17 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-/* eslint-disable no-unused-vars */
-const { decode } = require('../utils/utils');
-const trycatch = require('../utils/trycatch');
-const logger = require('../utils/logger').create({
-	name: 'MachineRequestHandlers'
-});
 const { RequestHandler } = require('@cedalo/service-core');
 const { MachineServerMessagingProtocol } = require('@cedalo/protocols');
+const { decode } = require('../utils/utils');
+const trycatch = require('../utils/trycatch');
+const logger = require('../utils/logger').create({ name: 'MachineRequestHandlers' });
 const VERSION = require('../../package.json').version;
 const BUILD_NUMBER = require('../../meta.json').buildNumber;
+const ServerCommandsRequestHandlers = require('./ServerCommandsRequestHandlers');
 
+const addAll = (fromMap, toMap) => {
+	fromMap.forEach((value, key) => toMap.set(key, value));
+	return toMap;
+};
 const toTypeStr = (t) => {
 	switch (t) {
 		case 's':
@@ -38,9 +40,9 @@ const getUserId = (request) => {
 	return user && user.userId;
 };
 
-const fixCellRange = str => str && str.indexOf(':') < 0 ? `${str}:${str}` : str;
+const fixCellRange = (str) => (str && str.indexOf(':') < 0 ? `${str}:${str}` : str);
 
-const parseExpression = trycatch(expr => JSON.parse(expr), logger);
+const parseExpression = trycatch((expr) => JSON.parse(expr), logger);
 const getCellDescriptorFromCommand = (command, undo) => {
 	const { json, expr } = undo ? command.undo : command;
 	const data = parseExpression(json || expr.json);
@@ -61,11 +63,7 @@ const filterRequestCellDescriptors = (descriptors = []) =>
 		const { value, formula, type } = descr;
 		descr.type = type === 'boolean' ? 'bool' : type;
 		// filter cells without value, formula or type...
-		return (
-			value != null ||
-			formula ||
-			(type && type !== 'undefined' && type !== 'null')
-		);
+		return value != null || formula || (type && type !== 'undefined' && type !== 'null');
 	});
 
 const descriptorsToCellDescriptorsObject = (descriptors = []) => {
@@ -78,13 +76,7 @@ const descriptorsToCellDescriptorsObject = (descriptors = []) => {
 	return cells;
 };
 
-const handleRequest = async (
-	handler,
-	machineserver,
-	request,
-	type,
-	props = {},
-) => {
+const handleRequest = async (handler, machineserver, request, type, props = {}) => {
 	logger.info(`handle request: ${type}...`);
 	const runner = machineserver.getMachineRunner(request.machineId);
 	const userId = getUserId(request);
@@ -94,21 +86,13 @@ const handleRequest = async (
 		return handler.confirm(request, result);
 	}
 	// no runner, no machine:
-	logger.error(
-		`handle request failed. no machine with id ${request.machineId}!`
-	);
-	throw handler.reject(
-		request,
-		`No machine found with id '${request.machineId}'!`
-	);
+	logger.error(`handle request failed. no machine with id ${request.machineId}!`);
+	throw handler.reject(request, `No machine found with id '${request.machineId}'!`);
 };
 
 class GetMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.GET_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.GET_MACHINE_MESSAGE_TYPE);
 	}
 	async handle(request, machineserver) {
 		const runner = machineserver.getMachineRunner(request.machineId);
@@ -117,22 +101,14 @@ class GetMachineRequestHandler extends RequestHandler {
 			return this.confirm(request, { machine: result.machine });
 		}
 		// no runner, no machine:
-		logger.error(
-			`handle request failed. no machine with id ${request.machineId}!`
-		);
-		throw this.reject(
-			request,
-			`No machine found with id '${request.machineId}'!`
-		);
+		logger.error(`handle request failed. no machine with id ${request.machineId}!`);
+		throw this.reject(request, `No machine found with id '${request.machineId}'!`);
 	}
 }
 
 class UnloadMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.UNLOAD_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.UNLOAD_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -147,17 +123,13 @@ class UnloadMachineRequestHandler extends RequestHandler {
 
 class DeleteMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.DELETE_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.DELETE_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
 		const machineId = request.machineId;
 		const result = { machine: { id: machineId, deleted: true } };
-		result.warning = (await machineserver.unloadMachine(result
-			))
+		result.warning = (await machineserver.unloadMachine(result))
 			? undefined
 			: `No machine found for id ${request.machineId}.`;
 		return this.confirm(request, result);
@@ -166,10 +138,7 @@ class DeleteMachineRequestHandler extends RequestHandler {
 
 class StartMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.START_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.START_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -179,10 +148,7 @@ class StartMachineRequestHandler extends RequestHandler {
 
 class PauseMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.PAUSE_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.PAUSE_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -192,10 +158,7 @@ class PauseMachineRequestHandler extends RequestHandler {
 
 class StopMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.STOP_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.STOP_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -205,20 +168,17 @@ class StopMachineRequestHandler extends RequestHandler {
 
 class RenameMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.RENAME_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.RENAME_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver, repositoryManager) {
-		const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(request.machineId, request.newName)
+		const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(
+			request.machineId,
+			request.newName
+		);
 		if (nameInUse) {
 			// machine with same name already exists:
-			throw this.reject(
-				request,
-				`Machine with same name exists: '${request.newName}'!`
-			);
+			throw this.reject(request, `Machine with same name exists: '${request.newName}'!`);
 		}
 		return handleRequest(this, machineserver, request, 'update', {
 			props: { name: request.newName }
@@ -239,10 +199,7 @@ class UpdateMachineImageRequestHandler extends RequestHandler {
 
 class UpdateStreamSheetStreamsRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.EVENTS
-				.STREAMSHEET_STREAM_UPDATE_EVENT
-		); // FIXME: in protocols
+		super(MachineServerMessagingProtocol.EVENTS.STREAMSHEET_STREAM_UPDATE_EVENT); // FIXME: in protocols
 	}
 
 	async handle(request, machineserver) {
@@ -257,10 +214,7 @@ class UpdateStreamSheetStreamsRequestHandler extends RequestHandler {
 
 class StepMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.STEP_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.STEP_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -268,7 +222,6 @@ class StepMachineRequestHandler extends RequestHandler {
 	}
 }
 
-/** @deprecated REVIEW: still makes sense? don't think so... */
 class SubscribeMachineRequestHandler extends RequestHandler {
 	constructor() {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.SUBSCRIBE_MACHINE_MESSAGE_TYPE);
@@ -285,30 +238,18 @@ class SubscribeMachineRequestHandler extends RequestHandler {
 /** @deprecated REVIEW: is this really good? will affect all clients, even those which can handle fast updates... */
 class SetMachineUpdateIntervalRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.SET_MACHINE_UPDATE_INTERVAL_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_MACHINE_UPDATE_INTERVAL_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
 		const stepUpdateInterval = request.streamsheetStepInterval || -1;
-		return handleRequest(
-			this,
-			machineserver,
-			request,
-			'updateMachineMonitor',
-			{ props: { stepUpdateInterval } }
-		);
+		return handleRequest(this, machineserver, request, 'updateMachineMonitor', { props: { stepUpdateInterval } });
 	}
 }
 
 class SetMachineCycleTimeRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -320,10 +261,7 @@ class SetMachineCycleTimeRequestHandler extends RequestHandler {
 
 class SetMachineLocaleRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.SET_MACHINE_LOCALE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_MACHINE_LOCALE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -334,9 +272,7 @@ class SetMachineLocaleRequestHandler extends RequestHandler {
 }
 class MachineUpdateSettingsRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_UPDATE_SETTINGS
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_UPDATE_SETTINGS);
 	}
 
 	async handle(request, machineserver, repositoryManager) {
@@ -365,29 +301,27 @@ class MachineUpdateSettingsRequestHandler extends RequestHandler {
 	}
 }
 
-/** @deprecated REVIEW: still makes sense? don't think so... */
 class UnsubscribeMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.UNSUBSCRIBE_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.UNSUBSCRIBE_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
-		const clientId = request.sender ? request.sender.id : undefined;
-		return handleRequest(this, machineserver, request, 'unsubscribe', {
-			clientId
-		});
+		const { machineId, sender } = request;
+		const clientId = sender ? sender.id : undefined;
+		try {
+			// await or otherwise possible error is not caught, making try/catch senseless here
+			return await handleRequest(this, machineserver, request, 'unsubscribe', { clientId });
+		} catch (err) {
+			logger.info(`Ignore unsubscribe! No open machine found for id ${machineId}.`);
+			return this.confirm(request, { warning: `No open machine found for id ${machineId}.` });
+		}
 	}
 }
 
 class CreateStreamSheetRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.CREATE_STREAMSHEET_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.CREATE_STREAMSHEET_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -402,19 +336,13 @@ class CreateStreamSheetRequestHandler extends RequestHandler {
 			return this.confirm(request, result);
 		}
 		// no runner, no machine:
-		throw this.reject(
-			request,
-			`No machine found with id '${request.machineId}'!`
-		);
+		throw this.reject(request, `No machine found with id '${request.machineId}'!`);
 	}
 }
 
 class DeleteStreamSheetRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.DELETE_STREAMSHEET_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.DELETE_STREAMSHEET_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
@@ -427,48 +355,30 @@ class DeleteStreamSheetRequestHandler extends RequestHandler {
 
 class SetStreamSheetsOrderRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.STREAMSHEETS_ORDER_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.STREAMSHEETS_ORDER_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
 		const { streamsheetIDs } = request;
-		return handleRequest(
-			this,
-			machineserver,
-			request,
-			'setStreamSheetsOrder',
-			{ streamsheetIDs }
-		);
+		return handleRequest(this, machineserver, request, 'setStreamSheetsOrder', { streamsheetIDs });
 	}
 }
 
 class OpenMachineRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.OPEN_MACHINE_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.OPEN_MACHINE_MESSAGE_TYPE);
 	}
 
 	async handle(request, machineserver) {
 		logger.info(`open machine: ${request.machineId}...`);
 		try {
 			// we always need a machine definition in request!
-			const result = await machineserver.openMachine(
-				request.machineDefinition,
-				request.session
-			);
+			const result = await machineserver.openMachine(request.machineDefinition, request.session);
 			logger.info(`open machine ${request.machineId} successful`);
 			return this.confirm(request, result);
 		} catch (err) {
 			logger.error(`open machine ${request.machineId} failed:`, err);
-			throw this.reject(
-				request,
-				`Failed to open machine with id '${request.machineId}'!`
-			);
+			throw this.reject(request, `Failed to open machine with id '${request.machineId}'!`);
 		}
 	}
 }
@@ -482,13 +392,14 @@ class LoadMachineRequestHandler extends RequestHandler {
 		logger.info(`load machine: ${request.machineId}...`);
 		const { machineId, migrations, scope } = request;
 		try {
-			let result = await machineserver.loadMachine(machineId, scope, async () => {
+			const result = await machineserver.loadMachine(machineId, scope, async () => {
 				const machine = await repositoryManager.machineRepository.findMachine(machineId);
 				if (machine.isTemplate) machine.scope = scope;
 				return machine;
 			});
 			if (migrations) {
-				result = await machineserver.applyMigrations(machineId, scope, migrations);
+				const migrated = await machineserver.applyMigrations(machineId, scope, migrations);
+				result.machine = migrated.machine;
 			}
 			const newMachine = !!result.templateId;
 			if (newMachine) {
@@ -508,8 +419,27 @@ class LoadSubscribeMachineRequestHandler extends RequestHandler {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE);
 	}
 
+	createSubscribeRequest(response, loadRequest) {
+		const { machine } = response || {};
+		const { requestId, scope, sender, session } = loadRequest;
+		const machineId = machine ? machine.id : undefined;
+		return { type: 'subscribe', machineId, scope, session, sender, requestId }; // : IdGenerator.generate() };
+	}
+
+	async send(request, machineserver) {
+		try {
+			const subscribeHandler = new SubscribeMachineRequestHandler();
+			await subscribeHandler.handle(request, machineserver);
+		} catch (err) {
+			/* simply log and ignore */
+			logger.error(`Failed to subscribe to machine ${request.machineId}!\nError:`, err);
+		}
+	}
 	async handle(request, machineserver, repositoryManager) {
-		return new LoadMachineRequestHandler().handle(request, machineserver, repositoryManager);
+		const result = await new LoadMachineRequestHandler().handle(request, machineserver, repositoryManager);
+		const subscribe = this.createSubscribeRequest(result.response, request);
+		await this.send(subscribe, machineserver);
+		return result;
 	}
 }
 
@@ -523,14 +453,8 @@ class LoadSheetCellsRequestHandler extends RequestHandler {
 		const { machineId, machineDescriptor, command } = request;
 		const runner = machineserver.getMachineRunner(machineId);
 		if (runner) {
-			const result = await runner.request(
-				'updateMachine',
-				getUserId(request),
-				machineDescriptor
-			);
-			logger.info(
-				`LoadSheetCellsRequestHandler update machine: ${runner.name}`
-			);
+			const result = await runner.request('updateMachine', getUserId(request), machineDescriptor);
+			logger.info(`LoadSheetCellsRequestHandler update machine: ${runner.name}`);
 			return this.confirm(request, {
 				machineId,
 				command: command.name,
@@ -538,10 +462,7 @@ class LoadSheetCellsRequestHandler extends RequestHandler {
 			});
 		}
 		// no runner, no machine:
-		throw this.reject(
-			request,
-			`No machine found with id '${request.machineId}'!`
-		);
+		throw this.reject(request, `No machine found with id '${request.machineId}'!`);
 	}
 }
 class AddInboxMessageRequestHandler extends RequestHandler {
@@ -618,10 +539,7 @@ class SetNamedCellsRequestHandler extends RequestHandler {
 				namedCells,
 				streamsheetId
 			});
-			logger.info(
-				'SetNamedCellsRequestHandler set named-cells: ',
-				namedCells
-			);
+			logger.info('SetNamedCellsRequestHandler set named-cells: ', namedCells);
 			return this.confirm(request, {
 				machineId,
 				streamsheetId,
@@ -647,9 +565,7 @@ class SetSheetCellsRequestHandler extends RequestHandler {
 		if (runner) {
 			// TODO we have to define the format of passed cells => convert appropriately...
 			const cellDescriptors = request.cellDescriptors;
-			const cells = descriptorsToCellDescriptorsObject(
-				filterRequestCellDescriptors(cellDescriptors)
-			);
+			const cells = descriptorsToCellDescriptorsObject(filterRequestCellDescriptors(cellDescriptors));
 			const result = await runner.request('setCells', getUserId(request), {
 				cells,
 				streamsheetId
@@ -664,69 +580,12 @@ class SetSheetCellsRequestHandler extends RequestHandler {
 			});
 		}
 		// no runner, no machine:
-		throw this.reject(
-			request,
-			`No machine found with id '${request.machineId}'!`
-		);
+		throw this.reject(request, `No machine found with id '${request.machineId}'!`);
 	}
-}
-
-// TODO: remove undo handling or check it with persistence
-class DeleteCellsCommandRequestHandler {
-	async handleCommand(command, runner, streamsheetId, userId, undo) {
-		const cmd = undo ? 'insert' : 'delete';
-		const info = command.msrvrinfo || {};
-		info.streamsheetId = streamsheetId;
-		return info.range ? runner.request(cmd, userId, info) : {};
-	}
-}
-// TODO: remove undo handling or check it with persistence
-class InsertCellsCommandRequestHandler {
-	async handleCommand(command, runner, streamsheetId, userId, undo) {
-		const cmd = undo ? 'delete' : 'insert';
-		const info = command.msrvrinfo || {};
-		info.streamsheetId = streamsheetId;
-		return info.range ? runner.request(cmd, userId, info) : {};
-	}
-}
-// TODO: remove undo handling or check it with persistence
-class PasteCellsCommandRequestHandler {
-	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
-		// const { sourceref, targetref, action, fill } = command;
-		const { sourcecells, targetcells, action, fill } = command;
-		// fix target and source ranges
-		// const sourcerange = fixCellRange(sourceref);
-		// const targetrange = fixCellRange(targetref);
-		return runner.request('pasteCells', userId, { streamsheetId, sourcecells, targetcells, action, fill });
-	}
-}
-
-class AbstractCellsPropertiesCommandHandler {
-	getInfo({info}) {
-		if (info) {
-			// adjust cell references/ranges...
-			info.cells.forEach((cell) => {
-				if (cell.range) cell.range = fixCellRange(cell.range);
-			});
-		}
-		return info;
-	}
-
-	async handleCommand(command, runner, streamsheetId, userId ) {
-		const info = this.getInfo(command);
-		return info ? runner.request('mergeCellsProperties', { streamsheetId, userId, info }) : {};
-	}
-}
-class FormatCellsCommandRequestHandler extends AbstractCellsPropertiesCommandHandler {
-}
-class TextFormatCellsCommandRequestHandler extends AbstractCellsPropertiesCommandHandler {
-}
-class CellAttributesCommandRequestHandler extends AbstractCellsPropertiesCommandHandler {
 }
 
 // DL-1668
 class SetCellsCommandRequestHandler {
-
 	toReferences(all, descr) {
 		// DL-1668 delete cell if it has no value, formula or level...
 		if (descr.value == null && !descr.formula && !descr.level) {
@@ -740,7 +599,9 @@ class SetCellsCommandRequestHandler {
 		if (deleteCells.length) {
 			try {
 				return runner.request('deleteCells', userId, { indices: deleteCells, streamsheetId });
-			} catch (ex) {	/* ignore any failure on delete */	}
+			} catch (ex) {
+				/* ignore any failure on delete */
+			}
 		}
 		return undefined;
 	}
@@ -860,9 +721,10 @@ class ZoomChartCommandRequestHandler {
 		return 0;
 	}
 
-	async runCommand(cmd, runner, streamsheetId, userId) {
+	async runCommand(cmd, runner, userId, defStreamsheetId) {
 		try {
-			const handler = this.handlers.get(cmd.name);
+			const { name, streamsheetId = defStreamsheetId } = cmd;
+			const handler = this.handlers.get(name);
 			if (handler) return await handler.handleCommand(cmd, runner, streamsheetId, userId);
 			throw new Error(`No handler for command: ${cmd.name}`);
 		} catch (err) {
@@ -872,12 +734,11 @@ class ZoomChartCommandRequestHandler {
 	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
 		command.commands.sort(this.sortCommands);
 		const results = await Promise.all(
-			command.commands.map((cmd) => this.runCommand(cmd, runner, streamsheetId, userId))
+			command.commands.map((cmd) => this.runCommand(cmd, runner, userId, streamsheetId))
 		);
 		return results;
 	}
 }
-
 
 class UpdateSheetNamesCommandRequestHandler {
 	mapCommand(command) {
@@ -901,8 +762,7 @@ class UpdateSheetNamesCommandRequestHandler {
 		const namedCells = {};
 		command.commands.forEach((cmd) => {
 			const mappedCmd = this.mapCommand(cmd);
-			if (mappedCmd)
-				namedCells[mappedCmd.name] = mappedCmd.celldescr || {};
+			if (mappedCmd) namedCells[mappedCmd.name] = mappedCmd.celldescr || {};
 		});
 		return Object.keys(namedCells).length
 			? runner.request('setNamedCells', userId, { namedCells, streamsheetId })
@@ -910,102 +770,21 @@ class UpdateSheetNamesCommandRequestHandler {
 	}
 }
 
-// TODO: for testing purpose only. Should be removed!!!
-// replace each CompoundCommand we deal with by a custom one...
-class CompoundCommandRequestHandler {
-	constructor(handlers) {
-		this.handlers = handlers;
-	}
-
-	async handleCommand(command, runner, streamsheetId, userId) {
-		const requests = [];
-		command.commands.forEach((cmd) => {
-			const handler = this.handlers.get(cmd.name);
-			if (handler && handler.f) {
-				requests.push(handler.toRequest(cmd));
-			}
-		});
-		return requests.length ? runner.request('bulkRequests', userId, { streamsheetId, requests }) : {};
-	}
-}
-
 class CommandRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES.COMMAND_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.COMMAND_MESSAGE_TYPE);
 		this._commandRequestHandlers = new Map([
-			// include editable-web-component:
-			// [
-			// 	'command.CellAttributesCommand',
-			// 	new CellAttributesCommandRequestHandler()
-			// ],
-			// [
-			// 	'command.DeleteCellsCommand',
-			// 	new DeleteCellsCommandRequestHandler()
-			// ],
-			// ~
-
-			[
-				'command.DeleteCellContentCommand',
-				new DeleteCellContentCommandRequestHandler()
-			],
-			[
-				'command.DeleteTreeItemCommand',
-				new DeleteTreeItemCommandRequestHandler()
-			],
-			[
-				'command.ExecuteFunctionCommand',
-				new ExecuteFunctionCommandRequestHandler()
-			],
-
-			// include editable-web-component:
-			// [
-			// 	'command.FormatCellsCommandWC',
-			// 	new FormatCellsCommandRequestHandler()
-			// ],
-			// [
-			// 	'command.InsertCellsCommand',
-			// 	new InsertCellsCommandRequestHandler()
-			// ],
-			// [
-			// 	'command.PasteCellsFromClipboardCommand',
-			// 	new PasteCellsCommandRequestHandler()
-			// ],
-			// ~
-			[
-				'command.MarkCellValuesCommand',
-				new MarkCellValuesCommandRequestHandler()
-			],
-			[
-				'command.SetCellDataCommand',
-				new SetCellDataCommandRequestHandler()
-			],
-			[
-				'command.SetCellLevelsCommand',
-				new SetCellLevelsCommandRequestHandler()
-			],
-			[
-				'command.SetCellsCommand',
-				new SetCellsCommandRequestHandler()
-			],
-			[
-				'command.SetGraphItemsCommand',
-				new SetGraphItemsCommandRequestHandler()
-			],
-
-			// include editable-web-component:
-			// [
-			// 	'command.TextFormatCellsCommand',
-			// 	new TextFormatCellsCommandRequestHandler()
-			// ],
-			// ~
-
-			[
-				'command.UpdateSheetNamesCommand',
-				new UpdateSheetNamesCommandRequestHandler()
-			]
+			['command.DeleteCellContentCommand', new DeleteCellContentCommandRequestHandler()],
+			['command.DeleteTreeItemCommand', new DeleteTreeItemCommandRequestHandler()],
+			['command.ExecuteFunctionCommand', new ExecuteFunctionCommandRequestHandler()],
+			['command.MarkCellValuesCommand', new MarkCellValuesCommandRequestHandler()],
+			['command.SetCellDataCommand', new SetCellDataCommandRequestHandler()],
+			['command.SetCellLevelsCommand', new SetCellLevelsCommandRequestHandler()],
+			['command.SetCellsCommand', new SetCellsCommandRequestHandler()],
+			['command.SetGraphItemsCommand', new SetGraphItemsCommandRequestHandler()],
+			['command.UpdateSheetNamesCommand', new UpdateSheetNamesCommandRequestHandler()]
 		]);
+		addAll(ServerCommandsRequestHandlers, this._commandRequestHandlers);
 		// compound commands:
 		this._commandRequestHandlers.set(
 			'command.ZoomChartCommand',
@@ -1022,19 +801,16 @@ class CommandRequestHandler extends RequestHandler {
 		// logger.info('handle command request: ', command);
 		logger.info(`handle request for command: ${command.name}`);
 		if (runner) {
-			const result = await this.handleCommand(
-				command,
-				runner,
-				streamsheetId,
-				getUserId(request),
-				request.undo
-			) || {};
+			const result =
+				(await this.handleCommand(command, runner, streamsheetId, getUserId(request), request.undo)) || {};
 			result.command = command.name;
 			result.machineId = machineId;
 			result.streamsheetId = streamsheetId;
 			return this.confirm(request, result);
 		}
-		throw this.reject(request, `No machine found with id '${request.machineId}'.`);
+		// throw this.reject(request, `No machine found with id '${request.machineId}'.`);
+		logger.info(`Ignore command "${command.name}"! No machine found for id ${machineId}.`);
+		return this.confirm(request, { warning: `No machine found for id ${machineId}.` });
 	}
 
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
@@ -1049,13 +825,7 @@ class CommandRequestHandler extends RequestHandler {
 		// ~
 
 		if (requestHandler) {
-			const result = await requestHandler.handleCommand(
-				command,
-				runner,
-				streamsheetId,
-				userId,
-				undo
-			);
+			const result = await requestHandler.handleCommand(command, runner, streamsheetId, userId, undo);
 			return result;
 		}
 		logger.info(`Ignore command: ${command.name}`);
@@ -1065,10 +835,7 @@ class CommandRequestHandler extends RequestHandler {
 
 class MetaInformationRequestHandler extends RequestHandler {
 	constructor() {
-		super(
-			MachineServerMessagingProtocol.MESSAGE_TYPES
-				.META_INFORMATION_MESSAGE_TYPE
-		);
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.META_INFORMATION_MESSAGE_TYPE);
 	}
 
 	handle(request /* , machineserver */) {
@@ -1096,7 +863,7 @@ class MachineActionRequestHandler extends RequestHandler {
 			try {
 				const result = await runner.request('runMachineAction', getUserId(request), action);
 				return this.confirm(request, result);
-			} catch(error) {
+			} catch (error) {
 				return this.reject(request, error.message);
 			}
 		}

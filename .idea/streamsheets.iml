@@ -6,6 +6,10 @@
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
     </content>
+    <content url="file://$MODULE_DIR$/packages/gateway" />
+    <content url="file://$MODULE_DIR$/packages/service-graphs" />
+    <content url="file://$MODULE_DIR$/packages/service-machines" />
+    <content url="file://$MODULE_DIR$/packages/service-streams" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

@@ -82,7 +82,7 @@ class Shapes {
 
 	evaluateObject(obj) {
 		Object.entries(obj).forEach(([key, value]) => {
-			if (value.v) {
+			if (value.v !== undefined) {
 				// if its a term and shall be calculated on server
 				if (value.msc) {
 					if  (!value.term) {

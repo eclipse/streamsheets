@@ -19,6 +19,7 @@ import {
 	Selection,
 	Point,
 	MathUtils,
+	GraphUtils,
 	Numbers,
 	TextFormatAttributes,
 	SheetPlotNode,
@@ -926,6 +927,9 @@ export default class CellsView extends NodeView {
 			}
 			return;
 		}
+		if (formattedValue.formattedValue.length > 500) {
+			formattedValue.formattedValue = `${formattedValue.formattedValue.slice(0, 500)   }...`;
+		}
 
 		if (columnInfo.index === 1) {
 			const state =
@@ -1125,17 +1129,20 @@ export default class CellsView extends NodeView {
 		}
 
 		let y = 0;
-
+		const name = textproperties && textproperties.fontname ? textproperties.fontname : 'Verdana';
+		const size = textproperties && textproperties.fontsize ? textproperties.fontsize : 9;
+		const height = graphics.getCoordinateSystem().deviceToLogYNoZoom(GraphUtils.getFontMetricsEx(name, size).baselinePx, true);
 		const valign =
 			textproperties === undefined || textproperties.valign === undefined ? 2 : Number(textproperties.valign);
+
 		switch (valign) {
 			case 0:
 				y = rowInfo.y + 50;
 				graphics.setTextBaseline('top');
 				break;
 			case 1:
-				y = rowInfo.y + rowInfo.height / 2;
-				graphics.setTextBaseline('middle');
+				y = rowInfo.y + rowInfo.height / 2 + height / 2;
+				graphics.setTextBaseline('alphabetic');
 				break;
 			case 2:
 			default:
@@ -1323,7 +1330,7 @@ export default class CellsView extends NodeView {
 						pos -= 1;
 						data = dataProvider.getRC(pos, index);
 						width = this._columns.getSectionSize(pos)
-						if (width && data !== undefined && data.getValue() !== undefined) {
+						if (width && data !== undefined && data.getValue() !== undefined && data.getValue() !== null && data.getValue().toString() !== '') {
 							rowInfo.leftCellInfo = {
 								section: this._columns.getSection(pos),
 								index: pos,
@@ -1560,8 +1567,9 @@ export default class CellsView extends NodeView {
 				.getFocus()
 				.getView() === wsView;
 		const selections = ws.getSelectionList();
+		const parent = ws.getParent();
 
-		if (selections !== undefined) {
+		if (selections !== undefined && !parent.viewSettings.active) {
 			graphics.setTextBaseline('top');
 			graphics.setTextAlignment(TextFormatAttributes.TextAlignment.RIGHT);
 			graphics.setFontTo('7pt Verdana');

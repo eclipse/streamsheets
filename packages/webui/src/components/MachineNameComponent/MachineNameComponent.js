@@ -139,6 +139,8 @@ class MachineNameComponent extends React.Component {
 							onChange={this.handleChangeMachineName}
 							onFocus={this.handleFocus}
 							onKeyPress={this.handleKeyPress}
+							inputProps={{maxLength: 200}}
+							/* eslint-disable-next-line react/jsx-no-duplicate-props */
 							InputProps={!this.props.monitor.machineNameSaved ? {
 								style: styles[this.state.styles],
 								endAdornment: (

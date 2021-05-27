@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -13,6 +13,7 @@ import {
 	PortMapper,
 	TextNode,
 	ButtonNode,
+	LayoutNode,
 	CaptionNode,
 	CellsNode,
 	ColumnHeaderNode,
@@ -43,6 +44,7 @@ import CellsView from '../view/CellsView';
 import ScrollbarView from '../view/ScrollbarView';
 import CaptionView from '../view/CaptionView';
 import ButtonView from '../view/ButtonView';
+import LayoutView from '../view/LayoutView';
 import TreeItemsView from '../view/TreeItemsView';
 import SheetButtonView from '../view/SheetButtonView';
 import SheetCheckboxView from '../view/SheetCheckboxView';
@@ -181,6 +183,9 @@ class NodeController extends GraphItemController {
 		}
 		if (model instanceof ButtonNode) {
 			return new ButtonView(model);
+		}
+		if (model instanceof LayoutNode) {
+			return new LayoutView(model);
 		}
 		if (model instanceof TreeItemsNode) {
 			return new TreeItemsView(model);

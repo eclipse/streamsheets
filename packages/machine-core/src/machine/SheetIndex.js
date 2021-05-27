@@ -110,6 +110,12 @@ class SheetIndex {
 		return this._isAbsRow;
 	}
 
+	add(offsetrow, offsetcol = offsetrow) {
+		this._row += offsetrow;
+		this._col += offsetcol;
+		return this;
+	}
+
 	set(row, col = this._col) {
 		if (typeof row === 'string') {
 			return !!SheetIndex.create(row, this);

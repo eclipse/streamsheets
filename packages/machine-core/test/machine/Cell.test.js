@@ -8,15 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { functions } = require('../utils');
 const { description } = require('./utils');
 const { Cell, Machine, SheetParser, StreamSheet } = require('../..');
 const { Term } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
-
-beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
-});
 
 describe('Cell', () => {
 	const streamsheet = new StreamSheet();
@@ -128,7 +123,7 @@ describe('Cell', () => {
 			const sheet1 = new StreamSheet().sheet.load({
 				cells: { 
 					A1: 'key', B1: 42,
-					A2: {formula: 'json(A1:B1)'},
+					A2: {formula: 'JSON(A1:B1)'},
 					A3: {formula: 'A2'}
 				}
 			});
@@ -139,6 +134,81 @@ describe('Cell', () => {
 			expect(json.cells).toBeDefined();
 			expect(json.cells.A2.value).toBe(Cell.VALUE_REPLACEMENT);
 			expect(json.cells.A3.value).toBe(Cell.VALUE_REPLACEMENT);
+		});
+		// DL-4908
+		it('should limit string values to max length specified by sheet setting', async () => {
+			const sheet1 = new StreamSheet().sheet.load({
+				cells: { 
+					A1: 'hello world', B1: 'john doe',
+					A2: {formula: 'CONCAT(A1,B1)'}
+				}
+			});
+			const machine = new Machine();
+			machine.addStreamSheet(sheet1.streamsheet);
+			await machine.step();
+			let json = sheet1.toJSON();
+			expect(json.cells).toBeDefined();
+			expect(json.cells.A1.value).toBe('hello world');
+			expect(json.cells.B1.value).toBe('john doe');
+			expect(json.cells.A2.value).toBe('hello worldjohn doe');
+			// change maxchars setting
+			sheet1.updateSettings({maxchars: 7});
+			expect(sheet1.settings.maxchars).toBe(7);
+			await machine.step();
+			json = sheet1.toJSON();
+			expect(json.cells).toBeDefined();
+			expect(json.cells.A1.value).toBe('hello w');
+			expect(json.cells.B1.value).toBe('john do');
+			expect(json.cells.A2.value).toBe('hello w');
+			// change maxchars setting
+			sheet1.updateSettings({maxchars: -1});
+			expect(sheet1.settings.maxchars).toBe(-1);
+			await machine.step();
+			json = sheet1.toJSON();
+			expect(json.cells).toBeDefined();
+			expect(json.cells.A1.value).toBe('hello world');
+			expect(json.cells.B1.value).toBe('john doe');
+			expect(json.cells.A2.value).toBe('hello worldjohn doe');
+			// change maxchars setting
+			sheet1.updateSettings({maxchars: undefined });
+			expect(sheet1.settings.maxchars).toBe(-1);
+			await machine.step();
+			json = sheet1.toJSON();
+			expect(json.cells).toBeDefined();
+			expect(json.cells.A1.value).toBe('hello world');
+			expect(json.cells.B1.value).toBe('john doe');
+			expect(json.cells.A2.value).toBe('hello worldjohn doe');
+		});
+		test('sheet string limit should be independent per sheet', async () => {
+			const sheet1 = new StreamSheet().sheet.loadCells({ A1: 'hello world' });
+			const sheet2 = new StreamSheet().sheet.loadCells({ A2: 'killroy was here' });
+			const machine = new Machine();
+			machine.addStreamSheet(sheet1.streamsheet);
+			machine.addStreamSheet(sheet2.streamsheet);
+			sheet1.updateSettings({maxchars: 5});
+			sheet2.updateSettings({maxchars: 7});
+			await machine.step();
+			let json1 = sheet1.toJSON();
+			let json2 = sheet2.toJSON();
+			expect(json1.cells.A1.value).toBe('hello');
+			expect(json2.cells.A2.value).toBe('killroy');
+			sheet1.updateSettings({maxchars: -1});
+			json1 = sheet1.toJSON();
+			json2 = sheet2.toJSON();
+			expect(json1.cells.A1.value).toBe('hello world');
+			expect(json2.cells.A2.value).toBe('killroy');
+			sheet1.updateSettings({maxchars: 5});
+			sheet2.updateSettings({maxchars: undefined});
+			json1 = sheet1.toJSON();
+			json2 = sheet2.toJSON();
+			expect(json1.cells.A1.value).toBe('hello');
+			expect(json2.cells.A2.value).toBe('killroy was here');
+			sheet1.updateSettings({maxchars: undefined});
+			sheet2.updateSettings({maxchars: -1});
+			json1 = sheet1.toJSON();
+			json2 = sheet2.toJSON();
+			expect(json1.cells.A1.value).toBe('hello world');
+			expect(json2.cells.A2.value).toBe('killroy was here');
 		});
 	});
 	describe('update', () => {

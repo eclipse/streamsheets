@@ -244,7 +244,7 @@ export default class ChartSelectionFeedbackView extends View {
 					let outer;
 					const size = axis.size ? axis.size.width + 150 : 1000;
 
-					while (current.value <= final) {
+					while (gaugeInfo && current.value <= final) {
 						if (axis.type === 'category' && current.value > axis.scale.max) {
 							break;
 						}
@@ -297,16 +297,18 @@ export default class ChartSelectionFeedbackView extends View {
 						switch (axis.align) {
 							case 'radialoutside':
 							case 'radialinside': {
-								pos = gaugeInfo.startAngle + pos * gaugeInfo.angle;
-								rect.set(gaugeInfo.xc + Math.cos(pos) * gaugeInfo.xRadius - 50,
-									gaugeInfo.yc + Math.sin(pos) * gaugeInfo.xRadius - 50, 100, 100);
-								graphics.drawMarker(rect, false);
+								if (gaugeInfo) {
+									pos = gaugeInfo.startAngle + pos * gaugeInfo.angle;
+									rect.set(gaugeInfo.xc + Math.cos(pos) * gaugeInfo.xRadius - 50,
+										gaugeInfo.yc + Math.sin(pos) * gaugeInfo.xRadius - 50, 100, 100);
+									graphics.drawMarker(rect, false);
 
-								const radius = gaugeInfo.xRadius * item.chart.hole;
+									const radius = gaugeInfo.xRadius * item.chart.hole;
 
-								rect.set(gaugeInfo.xc + Math.cos(pos) * radius - 50,
-									gaugeInfo.yc + Math.sin(pos) * radius - 50, 100, 100);
-								graphics.drawMarker(rect, false);
+									rect.set(gaugeInfo.xc + Math.cos(pos) * radius - 50,
+										gaugeInfo.yc + Math.sin(pos) * radius - 50, 100, 100);
+									graphics.drawMarker(rect, false);
+								}
 								break;
 							}
 							case 'left':
@@ -634,7 +636,7 @@ export default class ChartSelectionFeedbackView extends View {
 							}
 							switch (serie.type) {
 								case 'gauge': {
-									if (selection.element === 'series' || index === selection.pointIndex) {
+									if (gaugeInfo && (selection.element === 'series' || index === selection.pointIndex)) {
 										const radii = item.getGaugeRadius(axes, gaugeInfo, serie, selection.index, index);
 										const section = item.getGaugeSection(axes, gaugeInfo, value, info);
 										if (value.x !== undefined && value.y !== undefined) {

@@ -37,6 +37,9 @@
     "moment": "2.22.2",
     "request": "2.88.0"
   },
+  "peerDependencies": {
+    "@cedalo/functions": "2.3.0"
+  },
   "jest": {
     "collectCoverage": true,
     "coverageDirectory": "coverage",

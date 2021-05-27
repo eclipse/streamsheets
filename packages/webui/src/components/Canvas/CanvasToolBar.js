@@ -81,7 +81,8 @@ const {
 	TextFormatAttributes,
 	SelectionProvider,
 	MatrixLayout,
-	SheetPlotNode
+	SheetPlotNode,
+	SheetCommandFactory
 } = JSG;
 const { RESOURCE_TYPES, RESOURCE_ACTIONS } = accessManager;
 
@@ -589,6 +590,9 @@ export class CanvasToolBar extends Component {
 		});
 
 		switch (type) {
+			case 'layout':
+				node = new JSG.LayoutNode();
+				break;
 			case 'button':
 				node = new JSG.SheetButtonNode();
 				break;
@@ -678,7 +682,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -708,7 +716,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -737,7 +749,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -764,7 +780,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -785,29 +805,30 @@ export class CanvasToolBar extends Component {
 	};
 
 	onFormatPercent = () => {
-		const sheetView = graphManager.getActiveSheetView();
-		if (sheetView) {
-			const attributesMap = new Dictionary();
+		const attributesMap = new Dictionary();
 
-			attributesMap.put(TextFormatAttributes.NUMBERFORMAT, '0%');
-			attributesMap.put(TextFormatAttributes.LOCALCULTURE, 'percent;0');
+		attributesMap.put(TextFormatAttributes.NUMBERFORMAT, '0%');
+		attributesMap.put(TextFormatAttributes.LOCALCULTURE, 'percent;0');
 
-			if (
-				graphManager
-					.getGraphEditor()
-					.getSelectionProvider()
-					.hasSelection()
-			) {
-				// graphManager.getGraphEditor().getInteractionHandler().applyTextFormatMap(attributesMap);
-			} else {
-				const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+		if (
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			graphManager.getGraphEditor().getInteractionHandler().applyTextFormatMap(attributesMap);
+		} else {
+			const sheetView = graphManager.getActiveSheetView();
+			if (sheetView) {
+				const cmd = SheetCommandFactory.create('command.TextFormatCellsCommand',
+					sheetView.getOwnSelection().getRanges(), attributesMap);
 				graphManager
 					.getGraphViewer()
 					.getInteractionHandler()
 					.execute(cmd);
 			}
-			this.updateState();
 		}
+		this.updateState();
 		graphManager.getCanvas().focus();
 	};
 
@@ -828,6 +849,8 @@ export class CanvasToolBar extends Component {
 					return sel.element === 'serieslabel' ||
 						sel.element === 'xAxis' ||
 						sel.element === 'yAxis';
+				} else if (cont.getModel() instanceof JSG.TextNode) {
+					return true;
 				}
 			}
 			return false;
@@ -844,7 +867,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -870,115 +897,117 @@ export class CanvasToolBar extends Component {
 	};
 
 	onFormatDecimals = (more, thousandsFlag) => {
+		const attributesMap = new Dictionary();
 		const sheetView = graphManager.getActiveSheetView();
-		if (sheetView) {
-			const attributesMap = new Dictionary();
-			const tf = this.state.cellTextFormat;
+		const tf = this.state.cellTextFormat;
+		if (!tf) {
+			return;
+		}
 
-			if (!tf) {
-				return;
-			}
+		let decimals = 0;
+		let category = 'number';
+		let currency = '€';
+		let thousands = false;
 
-			let decimals = 0;
-			let category = 'number';
-			let currency = '€';
-			let thousands = false;
-
-			let sections = tf.getLocalCulture() ? tf.getLocalCulture().getValue() : '';
-			sections = sections.split(';');
-			if (sections.length) {
-				switch (sections[0]) {
-					case 'general':
-						category = 'number';
-						break;
-					case 'currency':
-						[, , , currency] = sections;
-						currency = currency === 'undefined' ? '€' : currency;
-						decimals = Number(sections[1]);
-						[category] = sections;
-						thousands = sections[2] === 'true';
-						break;
-					case 'number':
-						decimals = Number(sections[1]);
-						[category] = sections;
-						thousands = sections[2] === 'true';
-						break;
-					case 'percent':
-					case 'science':
-						decimals = Number(sections[1]);
-						[category] = sections;
-						break;
-					default:
-						category = 'number';
-						break;
-				}
-			}
-
-			if (decimals !== undefined) {
-				decimals = Math.max(0, more ? decimals + 1 : decimals - 1);
-			}
-			if (thousandsFlag !== undefined) {
-				thousands = true;
-			}
-
-			let template;
-			let culture;
-
-			switch (category) {
-				default:
-				case 'number':
-					template = numberFormatTemplates.getNegativeNumberTemplates(
-						thousands,
-						Number(decimals),
-						'red',
-						0,
-						0,
-						undefined,
-						0
-					);
-					culture = `number;${decimals};${thousands}`;
+		let sections = tf.getLocalCulture() ? tf.getLocalCulture().getValue() : '';
+		sections = sections.split(';');
+		if (sections.length) {
+			switch (sections[0]) {
+				case 'general':
+					category = 'number';
 					break;
 				case 'currency':
-					template = numberFormatTemplates.getNegativeNumberTemplates(
-						thousands,
-						Number(decimals),
-						'red',
-						0,
-						0,
-						currency,
-						0
-					);
-					culture = `currency;${decimals};${thousands};${currency}`;
+					[, , , currency] = sections;
+					currency = currency === 'undefined' ? '€' : currency;
+					decimals = Number(sections[1]);
+					[category] = sections;
+					thousands = sections[2] === 'true';
+					break;
+				case 'number':
+					decimals = Number(sections[1]);
+					[category] = sections;
+					thousands = sections[2] === 'true';
 					break;
 				case 'percent':
-					template = numberFormatTemplates.getNumberTemplate(Number(decimals), 0, 5, 0);
-					culture = `percent;${decimals}`;
-					break;
 				case 'science':
-					template = numberFormatTemplates.getNumberTemplate(Number(decimals), 0, 7, 0);
-					culture = `science;${decimals}`;
+					decimals = Number(sections[1]);
+					[category] = sections;
+					break;
+				default:
+					category = 'number';
 					break;
 			}
-
-			attributesMap.put(TextFormatAttributes.NUMBERFORMAT, template.format);
-			attributesMap.put(TextFormatAttributes.LOCALCULTURE, culture);
-
-			if (
-				graphManager
-					.getGraphEditor()
-					.getSelectionProvider()
-					.hasSelection()
-			) {
-				// graphManager.getGraphEditor().getInteractionHandler().applyTextFormatMap(attributesMap);
-			} else {
-				const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
-				graphManager
-					.getGraphViewer()
-					.getInteractionHandler()
-					.execute(cmd);
-			}
-			this.updateState();
 		}
+
+		if (decimals !== undefined) {
+			decimals = Math.max(0, more ? decimals + 1 : decimals - 1);
+		}
+		if (thousandsFlag !== undefined) {
+			thousands = true;
+		}
+
+		let template;
+		let culture;
+
+		switch (category) {
+			default:
+			case 'number':
+				template = numberFormatTemplates.getNegativeNumberTemplates(
+					thousands,
+					Number(decimals),
+					'red',
+					0,
+					0,
+					undefined,
+					0
+				);
+				culture = `number;${decimals};${thousands}`;
+				break;
+			case 'currency':
+				template = numberFormatTemplates.getNegativeNumberTemplates(
+					thousands,
+					Number(decimals),
+					'red',
+					0,
+					0,
+					currency,
+					0
+				);
+				culture = `currency;${decimals};${thousands};${currency}`;
+				break;
+			case 'percent':
+				template = numberFormatTemplates.getNumberTemplate(Number(decimals), 0, 5, 0);
+				culture = `percent;${decimals}`;
+				break;
+			case 'science':
+				template = numberFormatTemplates.getNumberTemplate(Number(decimals), 0, 7, 0);
+				culture = `science;${decimals}`;
+				break;
+		}
+
+		attributesMap.put(TextFormatAttributes.NUMBERFORMAT, template.format);
+		attributesMap.put(TextFormatAttributes.LOCALCULTURE, culture);
+
+		if (
+			graphManager
+				.getGraphEditor()
+				.getSelectionProvider()
+				.hasSelection()
+		) {
+			graphManager.getGraphEditor().getInteractionHandler().applyTextFormatMap(attributesMap);
+		} else {
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
+			graphManager
+				.getGraphViewer()
+				.getInteractionHandler()
+				.execute(cmd);
+		}
+		this.updateState();
+
 		graphManager.getCanvas().focus();
 	};
 
@@ -1000,8 +1029,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
-
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -1039,7 +1071,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -1081,8 +1117,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.FormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
-
+			const cmd = SheetCommandFactory.create(
+				'command.FormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -1119,7 +1158,7 @@ export class CanvasToolBar extends Component {
 			attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, style);
 			attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, style);
 			attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, style);
-			cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+			cmd = SheetCommandFactory.create('command.CellAttributesCommand', selection.getRanges(), attributesMap);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -1184,7 +1223,7 @@ export class CanvasToolBar extends Component {
 			attributesMap.put(JSG.CellAttributes.TOPBORDERWIDTH, width);
 			attributesMap.put(JSG.CellAttributes.RIGHTBORDERWIDTH, width);
 			attributesMap.put(JSG.CellAttributes.BOTTOMBORDERWIDTH, width);
-			cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+			cmd = SheetCommandFactory.create('command.CellAttributesCommand',selection.getRanges(), attributesMap);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -1233,7 +1272,11 @@ export class CanvasToolBar extends Component {
 						attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 						attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
-						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+						cmd = SheetCommandFactory.create(
+							'command.CellAttributesCommand',
+							selection.getRanges(),
+							attributesMap
+						);
 						break;
 					case 'clear':
 						attributesMap.put(JSG.CellAttributes.LEFTBORDERSTYLE, FormatAttributes.LineStyle.NONE);
@@ -1249,7 +1292,13 @@ export class CanvasToolBar extends Component {
 						attributesMap.put(JSG.CellAttributes.RIGHTBORDERCOLOR, JSG.theme.border);
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERCOLOR, JSG.theme.border);
 						cmd = new CompoundCommand();
-						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
+						cmd.add(
+							SheetCommandFactory.create(
+								'command.CellAttributesCommand',
+								selection.getRanges(),
+								attributesMap
+							)
+						);
 						selection.getRanges().forEach((range) => {
 							if (range._y1) {
 								attributesMap.clear();
@@ -1269,7 +1318,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy = range.copy();
 								rangeCopy._y1 -= 1;
 								rangeCopy._y2 = rangeCopy._y1;
-								cmd.add(new JSG.CellAttributesCommand([rangeCopy], attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										[rangeCopy],
+										attributesMap
+									)
+								);
 							}
 							if (range._y2 < range.getSheet().getRowCount()) {
 								attributesMap.clear();
@@ -1286,7 +1341,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy = range.copy();
 								rangeCopy._y1 = rangeCopy._y2 + 1;
 								rangeCopy._y2 = rangeCopy._y1;
-								cmd.add(new JSG.CellAttributesCommand([rangeCopy], attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										[rangeCopy],
+										attributesMap
+									)
+								);
 							}
 							if (range._x1) {
 								attributesMap.clear();
@@ -1303,7 +1364,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy = range.copy();
 								rangeCopy._x1 -= 1;
 								rangeCopy._x2 = rangeCopy._x1;
-								cmd.add(new JSG.CellAttributesCommand([rangeCopy], attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										[rangeCopy],
+										attributesMap
+									)
+								);
 							}
 							if (range._x2 < range.getSheet().getColumnCount()) {
 								attributesMap.clear();
@@ -1320,7 +1387,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy = range.copy();
 								rangeCopy._x1 = rangeCopy._x2 + 1;
 								rangeCopy._x2 = rangeCopy._x1;
-								cmd.add(new JSG.CellAttributesCommand([rangeCopy], attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										[rangeCopy],
+										attributesMap
+									)
+								);
 							}
 						});
 						break;
@@ -1330,7 +1403,11 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range.setWidth(1);
 						});
-						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+						cmd = SheetCommandFactory.create(
+							'command.CellAttributesCommand',
+							selection.getRanges(),
+							attributesMap
+						);
 						break;
 					case 'top':
 						attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
@@ -1338,7 +1415,11 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range.setHeight(1);
 						});
-						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+						cmd = SheetCommandFactory.create(
+							'command.CellAttributesCommand',
+							selection.getRanges(),
+							attributesMap
+						);
 						break;
 					case 'right':
 						attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
@@ -1346,7 +1427,11 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range._x1 = range._x2;
 						});
-						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+						cmd = SheetCommandFactory.create(
+							'command.CellAttributesCommand',
+							selection.getRanges(),
+							attributesMap
+						);
 						break;
 					case 'bottom':
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
@@ -1354,7 +1439,11 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range._y1 = range._y2;
 						});
-						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+						cmd = SheetCommandFactory.create(
+							'command.CellAttributesCommand',
+							selection.getRanges(),
+							attributesMap
+						);
 						break;
 					case 'bottomfat':
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
@@ -1363,7 +1452,11 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range._y1 = range._y2;
 						});
-						cmd = new JSG.CellAttributesCommand(selection.getRanges(), attributesMap);
+						cmd = SheetCommandFactory.create(
+							'command.CellAttributesCommand',
+							selection.getRanges(),
+							attributesMap
+						);
 						break;
 					case 'inner': {
 						let copyRanges;
@@ -1379,7 +1472,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy.setWidth(1);
 								copyRanges = [];
 								copyRanges.push(rangeCopy);
-								cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										copyRanges,
+										attributesMap
+									)
+								);
 
 								if (range.getWidth() > 2) {
 									attributesMap.clear();
@@ -1397,7 +1496,13 @@ export class CanvasToolBar extends Component {
 									rangeCopy._x2 -= 1;
 									copyRanges = [];
 									copyRanges.push(rangeCopy);
-									cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+									cmd.add(
+										SheetCommandFactory.create(
+											'command.CellAttributesCommand',
+											copyRanges,
+											attributesMap
+										)
+									);
 								}
 
 								attributesMap.clear();
@@ -1406,7 +1511,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy._x1 = rangeCopy._x2;
 								copyRanges = [];
 								copyRanges.push(rangeCopy);
-								cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										copyRanges,
+										attributesMap
+									)
+								);
 							}
 						});
 
@@ -1421,7 +1532,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy.setHeight(1);
 								copyRanges = [];
 								copyRanges.push(rangeCopy);
-								cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										copyRanges,
+										attributesMap
+									)
+								);
 
 								if (range.getHeight() > 2) {
 									attributesMap.clear();
@@ -1439,7 +1556,13 @@ export class CanvasToolBar extends Component {
 									rangeCopy._y2 -= 1;
 									copyRanges = [];
 									copyRanges.push(rangeCopy);
-									cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+									cmd.add(
+										SheetCommandFactory.create(
+											'command.CellAttributesCommand',
+											copyRanges,
+											attributesMap
+										)
+									);
 								}
 
 								attributesMap.clear();
@@ -1448,7 +1571,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy._y1 = rangeCopy._y2;
 								copyRanges = [];
 								copyRanges.push(rangeCopy);
-								cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										copyRanges,
+										attributesMap
+									)
+								);
 							}
 						});
 						if (!cmd.hasCommands()) {
@@ -1467,7 +1596,13 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range.setWidth(1);
 						});
-						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
+						cmd.add(
+							SheetCommandFactory.create(
+								'command.CellAttributesCommand',
+								selection.getRanges(),
+								attributesMap
+							)
+						);
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.TOPBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 						if (type === 'outerfat') {
@@ -1477,7 +1612,13 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range.setHeight(1);
 						});
-						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
+						cmd.add(
+							SheetCommandFactory.create(
+								'command.CellAttributesCommand',
+								selection.getRanges(),
+								attributesMap
+							)
+						);
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.RIGHTBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 						if (type === 'outerfat') {
@@ -1487,7 +1628,13 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range._x1 = range._x2;
 						});
-						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
+						cmd.add(
+							SheetCommandFactory.create(
+								'command.CellAttributesCommand',
+								selection.getRanges(),
+								attributesMap
+							)
+						);
 						attributesMap.clear();
 						attributesMap.put(JSG.CellAttributes.BOTTOMBORDERSTYLE, FormatAttributes.LineStyle.SOLID);
 						if (type === 'outerfat') {
@@ -1497,7 +1644,13 @@ export class CanvasToolBar extends Component {
 						selection.getRanges().forEach((range) => {
 							range._y1 = range._y2;
 						});
-						cmd.add(new JSG.CellAttributesCommand(selection.getRanges(), attributesMap));
+						cmd.add(
+							SheetCommandFactory.create(
+								'command.CellAttributesCommand',
+								selection.getRanges(),
+								attributesMap
+							)
+						);
 						break;
 					case 'vertical': {
 						let copyRanges;
@@ -1513,7 +1666,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy.setWidth(1);
 								copyRanges = [];
 								copyRanges.push(rangeCopy);
-								cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										copyRanges,
+										attributesMap
+									)
+								);
 
 								if (range.getWidth() > 2) {
 									attributesMap.clear();
@@ -1531,7 +1690,13 @@ export class CanvasToolBar extends Component {
 									rangeCopy._x2 -= 1;
 									copyRanges = [];
 									copyRanges.push(rangeCopy);
-									cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+									cmd.add(
+										SheetCommandFactory.create(
+											'command.CellAttributesCommand',
+											copyRanges,
+											attributesMap
+										)
+									);
 								}
 
 								attributesMap.clear();
@@ -1540,7 +1705,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy._x1 = rangeCopy._x2;
 								copyRanges = [];
 								copyRanges.push(rangeCopy);
-								cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										copyRanges,
+										attributesMap
+									)
+								);
 							}
 						});
 						if (!cmd.hasCommands()) {
@@ -1562,7 +1733,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy.setHeight(1);
 								copyRanges = [];
 								copyRanges.push(rangeCopy);
-								cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										copyRanges,
+										attributesMap
+									)
+								);
 
 								if (range.getHeight() > 2) {
 									attributesMap.clear();
@@ -1580,7 +1757,13 @@ export class CanvasToolBar extends Component {
 									rangeCopy._y2 -= 1;
 									copyRanges = [];
 									copyRanges.push(rangeCopy);
-									cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+									cmd.add(
+										SheetCommandFactory.create(
+											'command.CellAttributesCommand',
+											copyRanges,
+											attributesMap
+										)
+									);
 								}
 
 								attributesMap.clear();
@@ -1589,7 +1772,13 @@ export class CanvasToolBar extends Component {
 								rangeCopy._y1 = rangeCopy._y2;
 								copyRanges = [];
 								copyRanges.push(rangeCopy);
-								cmd.add(new JSG.CellAttributesCommand(copyRanges, attributesMap));
+								cmd.add(
+									SheetCommandFactory.create(
+										'command.CellAttributesCommand',
+										copyRanges,
+										attributesMap
+									)
+								);
 							}
 						});
 						if (!cmd.hasCommands()) {
@@ -1623,8 +1812,11 @@ export class CanvasToolBar extends Component {
 
 		const sheetView = graphManager.getActiveSheetView();
 		if (sheetView) {
-			const cmd = new JSG.TextFormatCellsCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
-
+			const cmd = SheetCommandFactory.create(
+				'command.TextFormatCellsCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -1665,8 +1857,11 @@ export class CanvasToolBar extends Component {
 			attributesMap.put(JSG.CellAttributes.RIGHTBORDERCOLOR, color.hex);
 			attributesMap.put(JSG.CellAttributes.BOTTOMBORDERCOLOR, color.hex);
 
-			const cmd = new JSG.CellAttributesCommand(sheetView.getOwnSelection().getRanges(), attributesMap);
-
+			const cmd = SheetCommandFactory.create(
+				'command.CellAttributesCommand',
+				sheetView.getOwnSelection().getRanges(),
+				attributesMap
+			);
 			graphManager
 				.getGraphViewer()
 				.getInteractionHandler()
@@ -2219,7 +2414,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={() => this.onFormatDecimals(undefined, true)}
-							disabled={!this.props.cellSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -2237,7 +2432,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={this.onFormatPercent}
-							disabled={!this.props.cellSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -2255,7 +2450,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={() => this.onFormatDecimals(false)}
-							disabled={!this.props.cellSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -2274,7 +2469,7 @@ export class CanvasToolBar extends Component {
 					<div>
 						<IconButton
 							onClick={() => this.onFormatDecimals(true)}
-							disabled={!this.props.cellSelected}
+							disabled={!this.isNumberFormatAvailable()}
 							style={buttonStyle}
 						>
 							<SvgIcon>
@@ -4005,6 +4200,18 @@ export class CanvasToolBar extends Component {
 										d="M12,16A3,3 0 0,1 9,13C9,11.88 9.61,10.9 10.5,10.39L20.21,4.77L14.68,14.35C14.18,15.33 13.17,16 12,16M12,3C13.81,3 15.5,3.5 16.97,4.32L14.87,5.53C14,5.19 13,5 12,5A8,8 0 0,0 4,13C4,15.21 4.89,17.21 6.34,18.65H6.35C6.74,19.04 6.74,19.67 6.35,20.06C5.96,20.45 5.32,20.45 4.93,20.07V20.07C3.12,18.26 2,15.76 2,13A10,10 0 0,1 12,3M22,13C22,15.76 20.88,18.26 19.07,20.07V20.07C18.68,20.45 18.05,20.45 17.66,20.06C17.27,19.67 17.27,19.04 17.66,18.65V18.65C19.11,17.2 20,15.21 20,13C20,12 19.81,11 19.46,10.1L20.67,8C21.5,9.5 22,11.18 22,13Z"
 									/>
 								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateContainer('matrix2')}>
+								<SvgIcon>
+									<path d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3" />
+								</SvgIcon>
+							</IconButton>
+						</GridListTile>
+						<GridListTile cols={1}>
+							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('layout')}>
+								<BorderAllIcon fontSize="inherit" />
 							</IconButton>
 						</GridListTile>
 					</GridList>

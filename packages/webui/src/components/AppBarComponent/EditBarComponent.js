@@ -24,12 +24,11 @@ const {
 	StreamSheetContainerView,
 	WorksheetNode,
 	RemoveSelectionCommand,
-	DeleteCellContentCommand,
-	SetCellDataCommand,
 	SetChartFormulaCommand,
 	CellEditor,
 	Strings,
 	SelectionProvider,
+	SheetCommandFactory
 } = JSG;
 
 /**
@@ -264,7 +263,7 @@ export class EditBarComponent extends Component {
 	};
 
 	handleFormulaKeyUp = (event) => {
-		if (event.keyCode === 18 || event.altKey) {
+		if (!this._cellEditor || event.keyCode === 18 || event.altKey) {
 			event.preventDefault();
 			return false;
 		}
@@ -310,7 +309,7 @@ export class EditBarComponent extends Component {
 
 	handleFormulaSelect = () => {
 		const selection = window.getSelection();
-		if (selection.isCollapsed) {
+		if (this._cellEditor && selection.isCollapsed) {
 			this._cellEditor.focusOffset = selection.focusOffset;
 			this._cellEditor.focusNode = selection.focusNode;
 		}
@@ -459,9 +458,21 @@ export class EditBarComponent extends Component {
 			}
 			// DL-2281:
 			const activeCell = item.getOwnSelection().getActiveCell();
-			cmd = (activeCell.x === 1 && data.expression.getValue() === '')
-				? new DeleteCellContentCommand(item, item.getOwnSelection().toStringMulti(), "all")
-				: new SetCellDataCommand(item, ref, data.expression, true);
+			cmd =
+				activeCell.x === 1 && data.expression.getValue() === ''
+					? SheetCommandFactory.create(
+							'command.DeleteCellContentCommand',
+							item,
+							item.getOwnSelection().toStringMulti(),
+							'all'
+					  )
+					: SheetCommandFactory.create(
+							'command.SetCellDataCommand',
+							item,
+							ref,
+							data.expression,
+							true
+					  );
 		}
 
 		canvas.focus();

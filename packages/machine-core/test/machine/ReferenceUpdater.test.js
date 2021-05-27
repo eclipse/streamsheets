@@ -1,19 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { functions } = require('../utils');
 const { Machine, SheetParser, SheetRange, StreamSheet } = require('../..');
-
-beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
-});
 
 const createMachine = () => ({
 	machine: new Machine(),
@@ -36,9 +31,8 @@ const rangeFactory = (sheet) => (str) => {
 	return range;
 };
 
-
 describe('ReferenceUpdater', () => {
-	describe('handle insertion and deletion of rows & columns', () => {
+	describe.skip('handle insertion and deletion of rows & columns', () => {
 		it('should update references in formulas after row and/or column insert and delete', () => {
 			const sheet = createMachine().createSheet();
 			sheet.load({
@@ -249,32 +243,31 @@ describe('ReferenceUpdater', () => {
 			const machine = createMachine();
 			const sheet = machine.createSheet('S1');
 			const range = rangeFactory(sheet);
-			sheet.load({ cells: {
-				A5: { formula: 'A3+1' },
-				A6: { formula: 'A1:C4' },
-			} });
-			sheet.pasteCells(range('A5:A5'), range('C5:C5'));
-			expect(sheet.cellAt('A5').value).toBe(1);
+			let descriptors = [{ reference: 'A5', formula: 'A3+1' }];
+			sheet.pasteCells(descriptors, range('C5:C5'));
 			expect(sheet.cellAt('C5').value).toBe(1);
 			expect(sheet.cellAt('C5').formula).toBe('C3+1');
-			sheet.pasteCells(range('A6:A6'), range('D7:D7'));
-			expect(sheet.cellAt('D7').formula).toBe('D2:F5');
+			descriptors = [{ reference: 'A6', formula: 'A1+C4' }];
+			sheet.pasteCells(descriptors, range('D7:D7'));
+			expect(sheet.cellAt('D7').formula).toBe('D2+F5');
 		});
 		it('should adjust formulas within functions of pasted cell ranges', () => {
 			const machine = createMachine();
 			const sheet = machine.createSheet('S1');
 			const range = rangeFactory(sheet);
-			sheet.load({ cells: {
-				A5: { formula: 'sum(A3,1)' },
-				A6: { formula: 'sum(A1:C4, 42)' },
-			} });
-			sheet.pasteCells(range('A5:A6'), range('D7:E9'));
-			expect(sheet.cellAt('A5').value).toBe(1);
+			const descriptors = [
+				{ reference: 'A5', formula: 'sum(A3,1)' },
+				{ reference: 'A6', formula: 'sum(A1:C4, 42)' }
+			];
+			sheet.pasteCells(descriptors, range('D7:E9'));
 			expect(sheet.cellAt('D7').value).toBe(1);
 			expect(sheet.cellAt('D7').formula).toBe('SUM(D5,1)');
-			expect(sheet.cellAt('E7')).toBeUndefined();
+			expect(sheet.cellAt('E7').value).toBe(1);
+			expect(sheet.cellAt('E7').formula).toBe('SUM(D5,1)');
+			expect(sheet.cellAt('D8').value).toBe(42);
 			expect(sheet.cellAt('D8').formula).toBe('SUM(D3:F6,42)');
-			expect(sheet.cellAt('E8')).toBeUndefined();
+			expect(sheet.cellAt('E8').value).toBe(42);
+			expect(sheet.cellAt('E8').formula).toBe('SUM(D3:F6,42)');
 			expect(sheet.cellAt('D9')).toBeUndefined();
 			expect(sheet.cellAt('E9')).toBeUndefined();
 		});
@@ -282,17 +275,15 @@ describe('ReferenceUpdater', () => {
 			const machine = createMachine();
 			const sheet1 = machine.createSheet('S1');
 			const sheet2 = machine.createSheet('S2');
-			const range1 = rangeFactory(sheet1);
 			const range2 = rangeFactory(sheet2);
-			sheet1.load({
-				cells: {
-					A1: 23,
-					A2: { formula: 'A1+1' },
-					A3: { formula: 'sum(A1,1)' },
-					A4: { formula: 'S1!A1' }
-				}
-			});
-			sheet1.pasteCells(range1('A1:A4'), range2('C3:C6'));
+			const descriptors = [
+				{ reference: 'A1', value: 23 },
+				{ reference: 'A2', formula: 'A1+1' },
+				{ reference: 'A3', formula: 'sum(A1,1)' },
+				{ reference: 'A4', formula: 'S1!A1' }
+			];
+
+			sheet1.pasteCells(descriptors, range2('C3:C6'));
 			expect(sheet2.cellAt('C3').value).toBe(23);
 			expect(sheet2.cellAt('C4').value).toBe(24);
 			expect(sheet2.cellAt('C4').formula).toBe('C3+1');
@@ -302,22 +293,20 @@ describe('ReferenceUpdater', () => {
 		it('should not update absolute references of pasted cells', () => {
 			const machine = createMachine();
 			const sheet1 = machine.createSheet('S1');
-			const range1 = rangeFactory(sheet1);
 			const sheet2 = machine.createSheet('S2');
 			const range2 = rangeFactory(sheet2);
-			sheet1.load({
-				cells: {
-					A1: 23, B1:42,
-					A2: { formula: '$A1+1' },
-					A3: { formula: 'A$1+2' },
-					A4: { formula: '$A$1+3' },
-					A5: { formula: 'S1!$A1' },
-					A6: { formula: 'S1!A$1' },
-					A7: { formula: 'S1!A1' },
-					A8: { formula: 'sum(S1!$A$1:B$1)' },
-				}
-			});
-			sheet1.pasteCells(range1('A1:B8'), range2('C3:C3'));
+			const descriptors = [
+				{ reference: 'A1', value: 23 },
+				{ reference: 'B1', value: 42 },
+				{ reference: 'A2', formula: '$A1+1' },
+				{ reference: 'A3', formula: 'A$1+2' },
+				{ reference: 'A4', formula: '$A$1+3' },
+				{ reference: 'A5', formula: 'S1!$A1' },
+				{ reference: 'A6', formula: 'S1!A$1' },
+				{ reference: 'A7', formula: 'S1!A1' },
+				{ reference: 'A8', formula: 'sum(S1!$A$1:B$1)' }
+			];
+			sheet1.pasteCells(descriptors, range2('C3:C3'));
 			expect(sheet2.cellAt('C3').value).toBe(23);
 			expect(sheet2.cellAt('D3').value).toBe(42);
 			expect(sheet2.cellAt('C4').formula).toBe('$A3+1');

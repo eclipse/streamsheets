@@ -9,13 +9,8 @@
  *
  ********************************************************************************/
 const DEF_PROPS = require('../../defproperties.json');
-const { functions } = require('../utils');
-const { Cell, Machine, Sheet, SheetParser,SheetRange, StreamSheet } = require('../..');
+const { Cell, Machine, Sheet, SheetRange, StreamSheet } = require('../..');
 const { Term } = require('@cedalo/parser');
-
-beforeEach(() => {
-	Object.assign(SheetParser.context.functions, functions);
-});
 
 const setup = () => {
 	const machine = new Machine();
@@ -29,7 +24,7 @@ const rangeFactory = (sheet) => (str) => {
 	return range;
 };
 
-describe('insert rows', () => {
+describe.skip('insert rows', () => {
 	it('should be possible to insert single row', () => {
 		const sheet = new Sheet().load({ cells: {
 			COMMENT1: 'test', IF1: false, A1: { formula: 'A1+1' }, B1: { formula: 'row()' }, C1: { formula: 'row()+1' }
@@ -317,7 +312,7 @@ describe('insert rows', () => {
 		expect(props.getCellProperties(8,3).getStyleFormat('fillcolor')).toBe('red');
 	});
 });
-describe('insert columns', () => {
+describe.skip('insert columns', () => {
 	it('should be possible to insert single column', () => {
 		const sheet = new Sheet().load({ cells: {
 			COMMENT1: 'test', IF1: false, A1: { formula: 'A1+1' }, B1: { formula: 'column()' }, C1: { formula: 'column()+1' }
@@ -651,7 +646,7 @@ describe('insert columns', () => {
 		expect(props.getCellProperties(2, 10).getStyleFormat('fillcolor')).toBe('red');
 	});
 });
-describe('delete rows', () => {
+describe.skip('delete rows', () => {
 	it('should be possible to delete single row', () => {
 		const sheet = new Sheet().load({ cells: {
 			COMMENT2: 'test', IF2: false, A2: { formula: 'A2+1' }, B2: { formula: 'row()' }, C2: { formula: 'row()+1' }
@@ -851,7 +846,7 @@ describe('delete rows', () => {
 		expect(props.getCellProperties(2,3).getStyleFormat('fillcolor')).toBe('red');
 	});
 });
-describe('delete columns', () => {
+describe.skip('delete columns', () => {
 	it('should be possible to delete single column', () => {
 		const sheet = new Sheet().load({ cells: {
 			COMMENT1: 'test', IF1: false, A1: { formula: 'A1' }, B1: { formula: 'column()' }, C1: { formula: 'column()+1' }
@@ -1075,7 +1070,7 @@ describe('delete columns', () => {
 	});
 });
 
-describe('insert cells', () => {
+describe.skip('insert cells', () => {
 	it('should not create format on cell add', () => {
 		const sheet = new Sheet();
 		const props = sheet.properties;
@@ -1264,7 +1259,7 @@ describe('insert cells', () => {
 		expect(props.getCellStyleFormat(3, 5, 'fillcolor')).toBe('orange');
 	});
 });
-describe('delete cells', () => {
+describe.skip('delete cells', () => {
 	it('should not remove properties on cell delete', () => {
 		const sheet = new Sheet();
 		const props = sheet.properties;

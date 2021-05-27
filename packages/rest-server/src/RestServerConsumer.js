@@ -87,9 +87,7 @@ module.exports = class RestServerConsumer extends ConsumerMixin(RestServerConnec
 		const requestId = restMessage.metadata.id;
 		const expectResponse = this.config.expectResponse || restMessage.metadata.expectResponse;
 		if (this.verify(user)) {
-			const message = new Message({
-				data: Utils.transformToJSONObject(restMessage.data, this.config.mimeType)
-			});
+			const message = new Message(Utils.transformToJSONObject(restMessage.data, this.config.mimeType));
 			if (expectResponse) {
 				const timeoutId = setTimeout(
 					() =>

@@ -10,7 +10,7 @@
  ********************************************************************************/
 import {
 	default as JSG,
-	SetCellsCommand,
+	SheetCommandFactory,
 	SetAttributeAtPathCommand,
 	CellRange,
 	Numbers,
@@ -410,7 +410,11 @@ export default class SheetKnobView extends NodeView {
 						reference: range.toString(),
 						value: sliderValue
 					});
-					viewer.getInteractionHandler().execute(new SetCellsCommand(range.getSheet(), cellData, false));
+					viewer
+						.getInteractionHandler()
+						.execute(
+							SheetCommandFactory.create('command.SetCellsCommand', range.getSheet(), cellData, false)
+						);
 					this.onValueChange(viewer);
 					return false;
 				}

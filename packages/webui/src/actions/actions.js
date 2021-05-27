@@ -19,7 +19,6 @@ import { accessManager } from '../helper/AccessManager';
 import ConfigManager from '../helper/ConfigManager';
 import gatewayClient from '../helper/GatewayClient';
 import { intl } from '../helper/IntlGlobalProvider';
-import MachineHelper from '../helper/MachineHelper';
 import { Path } from '../helper/Path';
 import { functionStrings } from '../languages/FunctionStrings';
 import SheetParserContext from '../SheetParserContext';
@@ -277,8 +276,9 @@ function handleUserLeftEvent(event) {
 function handleSheetUpdateEvent(event) {
 	const streamsheetId = event.srcId;
 	const { sheet } = event;
-	const { cells, shapes, namedCells } = sheet;
+	const { cells, properties, shapes, namedCells } = sheet;
 	graphManager.updateCellValues(streamsheetId, cells, shapes, namedCells);
+	graphManager.updateSheetProperties(streamsheetId, properties);
 	graphManager.redraw();
 }
 
@@ -364,7 +364,13 @@ function handleMessageChangedEvent(/* event */) {
 	// }
 }
 
-function handleStreamUpdatedEvent(/* event */) {
+function handleStreamUpdatedEvent(event) {
+	const streamsheetId = event.src === 'streamsheet' ? event.srcId : undefined;
+	if (streamsheetId) {
+		const preferences = event.settings.preferences;
+		const settings = { streamsheetId, preferences };
+		store.dispatch({ type: ActionTypes.RECEIVE_SAVE_PROCESS_SETTINGS, settings });
+	}
 	/*
 	graphManager.updateStream(event.settings.streamsheetId, event.settings.inbox.stream.name);
 	try {
@@ -651,6 +657,7 @@ export function connect() {
 									shapes,
 									inbox,
 									loop,
+									properties,
 									stats
 								} = streamsheet;
 								graphManager.handleStreamSheetStep(
@@ -664,6 +671,7 @@ export function connect() {
 									stats,
 									inbox,
 									inbox.currentMessage,
+									properties
 								);
 							} catch (error) {
 								// this can happen if the machine step event comes
@@ -787,13 +795,9 @@ export function unsubscribe(machineId) {
 }
 
 export function openExport(machineId) {
-	return (dispatch) => {
+	return () => {
 		const path = Path.export(machineId);
-		if(MachineHelper.isMachineDetailsPage()){
-			window.open(path);
-		} else {
-			dispatch(push(path))
-		}
+		window.open(path);
 	}
 }
 
@@ -828,7 +832,7 @@ export async function machineWithSameNameExists(machineId, name) {
 		`
 		query MachinesWithName($name: String, $machineId: ID!) {
 			scopedByMachine(machineId: $machineId) {
-				machines(name: $name) {
+				machines(query: { name: $name }) {
 					id
 					name
 				}

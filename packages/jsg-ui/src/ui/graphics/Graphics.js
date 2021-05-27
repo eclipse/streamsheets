@@ -1792,6 +1792,23 @@ class Graphics {
 		this._context2D.fillRect(p.x, p.y, 1, 1);
 	}
 
+	fillMultiLineText(text, x, y, lineHeight) {
+		const lines = String(text).split('\n');
+		const height = lines.length * lineHeight + (lines.length - 1) * lineHeight * 0.4;
+		let yNow = -height / 2;
+
+
+		lines.forEach((line, index) => {
+			this.fillText(line, x, y + yNow);
+			yNow += lineHeight;
+			if (index < lines.length - 1) {
+				yNow += lineHeight * 0.4;
+			}
+		})
+
+		return yNow;
+	}
+
 	/**
 	 * Fill a text with the current fill and font definition. If the font style contains underline, the style is
 	 * emulated drawing a line.
@@ -1900,6 +1917,21 @@ class Graphics {
 	 */
 	measureText(text) {
 		return this._context2D.measureText(text);
+	}
+
+	measureMultiLineText(text, lineHeight) {
+		const lines = text.split('\n');
+		const size = {x: 0, y: 0};
+
+		lines.forEach((line, index) => {
+			size.x = Math.max(size.x, this._context2D.measureText(line).width);
+			size.y += lineHeight;
+			if (index < lines.length - 1) {
+				size.y += lineHeight * 0.4;
+			}
+		});
+
+		return size;
 	}
 
 	relativeToDevice(p) {

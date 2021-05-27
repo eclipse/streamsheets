@@ -20,6 +20,7 @@ const isEmptyCell = (cell) => cell.term == null && cell.value === '';
 // either pass SheetIndex or col & row number...
 const cellDescriptor = (cell, row, col) => {
 	const descr = cell ? cell.description() : {};
+	descr.ref = { col: SheetIndex.columnAsStr(col), row };
 	descr.reference = typeof row === 'number' ? `${SheetIndex.columnAsStr(col)}${row}` : row.toString();
 	return descr;
 };

@@ -35,7 +35,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 		this.addConnectorDefinition({
 			id: 'url',
 			label: 'URL',
-			defaultValue: 'mqtt://localhost',
+			defaultValue: 'mqtt://mosquitto',
 			help: 'mqtt://, mqtts://, tcp://,tls://, ws://, wss://'
 		});
 		this.addConnectorDefinition({

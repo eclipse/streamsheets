@@ -8,31 +8,25 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const {	functions: { compose } } = require('@cedalo/commons');
+const State = require('../State');
+const { getSheetCellsAsObject } = require('../ipc/utils');
+const { SheetParser } = require('../parser/SheetParser');
 const Cell = require('./Cell');
 const NamedCells = require('./NamedCells');
 const Shapes = require('./Shapes');
 const PropertiesManager = require('./PropertiesManager');
-const ReferenceUpdater = require('./ReferenceUpdater');
 const SheetIndex = require('./SheetIndex');
-const SheetRange = require('./SheetRange');
 const SheetProcessor = require('./SheetProcessor');
-const State = require('../State');
-const { SheetParser } = require('../parser/SheetParser');
-const { getSheetCellsAsObject } = require('../ipc/utils');
-const { updateArray } = require('../utils');
+// const { updateArray } = require('../utils');
 const SheetRequests = require('./SheetRequests');
+const SheetEdit = require('./SheetEdit');
 
-
-const setRowsAt = (rowidx, rows, prerows) => {
-	if (!rows[rowidx]) {
-		rows[rowidx] = [];
-	}
-	if (!prerows[rowidx]) {
-		prerows[rowidx] = [];
-	}
+const ensureRowAt = (rowidx, rows) => {
+	if (!rows[rowidx]) rows[rowidx] = [];
 };
 const toIndex = (idx) => (typeof idx === 'string' ? SheetIndex.create(idx) : idx);
-const toColIndex = (idx) => (typeof idx === 'object' ? idx.col : idx); //  - 1 : idx);
+// const toColIndex = (idx) => (typeof idx === 'object' ? idx.col : idx); //  - 1 : idx);
 const toRowIndex = (idx) => (typeof idx === 'object' ? idx.row : idx); //  - 1 : idx);
 
 const isValidRowIdx = (settings) => (row) => row >= settings.minrow && row <= settings.maxrow;
@@ -43,7 +37,8 @@ const rowAt = (index, sheet) => {
 	const colidx = index ? index.col : 0;
 	const rowidx = toRowIndex(index);
 	if (sheet.isValidCellIndex(rowidx, colidx)) {
-		setRowsAt(rowidx, sheet._rows, sheet._prerows);
+		ensureRowAt(rowidx, sheet._rows);
+		ensureRowAt(rowidx, sheet._prerows);
 		return colidx < 0 ? sheet._prerows[rowidx] : sheet._rows[rowidx];
 	}
 	return undefined;
@@ -74,52 +69,11 @@ const boundCells = (rows, prerows, maxcol, maxrow) => {
 
 const isMachineProcessing = (machine) => machine && machine.state === State.RUNNING;
 
-const copyCell = (orgcell, action, sheet) => {
-	const value = orgcell.value;
-	const term = action === 'values' || !orgcell.hasFormula
-		? SheetParser.parseValue(value, sheet)
-		: SheetParser.parse(orgcell.formula || value, sheet);
-	return action === 'formulas' ? new Cell(undefined, term) : new Cell(value, term);
-};
-const collectCells = (trgtSheet, cells, srcSheetProps, action) => (cell, index) => {
-	// collect source rows cells, with props inclusive
-	const cp = cell && action !== 'formats' ? copyCell(cell, action, trgtSheet) : undefined;
-	const props =
-		action === 'formats' || action === 'all'
-			? srcSheetProps.getCellProperties(index.row, index.col).toDiffsProperties()
-			: undefined;
-	if (cp || props) cells.push({ cp, props, row: index.row, col: index.col });
-};
-const removeCells = (sheet, rows, cols) => {
-	const cellidx = SheetIndex.create(1, 0);
-	for (let row = rows.start; row < rows.end; row += 1) {
-		for (let col = cols.start; col < cols.end; col += 1) {
-			cellidx.set(row, col);
-			sheet.setCellAt(cellidx, undefined);
-		}
-	}
-};
-const doPasteCells = (cells, fromSheet, toSheet, offset, { cut, action = 'all' } = {}) => {
-	const cellidx = SheetIndex.create(0, 0);
-	cells.forEach((cell) => {
-		cellidx.set(cell.row + offset.row, cell.col + offset.col);
-		if (toSheet.isValidCellIndex(cellidx.row, cellidx.col)) {
-			if (cell.cp) ReferenceUpdater.updateCell(cell.cp, offset);
-			if (action !== 'formats') toSheet._doSetCellAt(cellidx, cell.cp);
-			if (cell.props) {
-				toSheet.properties.setCellProperties(cellidx.row, cellidx.col, cell.props);
-			}
-		}
-		// delete source cell on cut:
-		cellidx.set(cell.row, cell.col);
-		if (cut) fromSheet._doSetCellAt(cellidx, undefined);
-	});
-};
-
 
 const DEF_CONF = {
 	// precolumns: ['IF', 'COMMENT'], <-- THINK ABOUT ADDING THIS!!
 	settings: {
+		maxchars: 1000,
 		minrow: 1,
 		maxrow: 100,
 		mincol: -SheetIndex.PRE_COLUMNS.length,
@@ -206,11 +160,14 @@ class Sheet {
 
 	updateSettings(settings) {
 		const { maxcol, maxrow } = this.settings;
-		this.settings = settings != null ? Object.assign(this.settings, settings) : this.settings;
-		if (maxcol !== this.settings.maxcol || maxrow !== this.settings.maxrow) {
-			boundCells(this._rows, this._prerows, this.settings.maxcol, this.settings.maxrow);
-			// REVIEW: additional event to notify about cell bounds change! => need to persist with adjusted cells...
-			if (this.onCellRangeChange) this.onCellRangeChange();
+		if (settings != null) {
+			this.settings = Object.assign(this.settings, settings);
+			if (!settings.maxchars) this.settings.maxchars = -1;
+			if (maxcol !== this.settings.maxcol || maxrow !== this.settings.maxrow) {
+				boundCells(this._rows, this._prerows, this.settings.maxcol, this.settings.maxrow);
+				// REVIEW: additional event to notify about cell bounds change! => need to persist with adjusted cells...
+				if (this.onCellRangeChange) this.onCellRangeChange();
+			}
 		}
 	}
 
@@ -224,224 +181,6 @@ class Sheet {
 
 	isValidIndex(index) {
 		return index ? this.isValidCellIndex(toRowIndex(index), index.col) : false;
-	}
-
-	deleteColumnsAt(index, count = 1) {
-		const colidx = toColIndex(index);
-		// prevent IF column from being deleted...
-		const doIt = colidx >= 0 && this.isInColRange(colidx); // do not check count since remove is always possible...
-		if (doIt) {
-			// currently only pos. indices are allowed => no prerows adjust necessary
-			this._rows.forEach((row) => row && updateArray(row, colidx, -count));
-			// update refs & properties:
-			ReferenceUpdater.updateColumn(this, colidx, -count);
-			this.properties.onUpdateColumnsAt(index, -count);
-		}
-		return doIt; // return deleted row??
-	}
-	insertColumnsAt(index, count = 1) {
-		const colidx = toColIndex(index);
-		const doIt = colidx >= 0 && this.isInColRange(colidx);
-		if (doIt) {
-			// currently only pos. indices are allowed => no prerows adjust necessary
-			this._rows.forEach((row) => row && updateArray(row, colidx, count));
-			// update refs & properties:
-			ReferenceUpdater.updateColumn(this, colidx, count);
-			this.properties.onUpdateColumnsAt(index, count);
-		}
-		return doIt;
-	}
-	deleteRowsAt(index, count = 1) {
-		const rowidx = toRowIndex(index);
-		const doIt = this.isInRowRange(rowidx); // do not check count since remove is always possible...
-		if (doIt) {
-			updateArray(this._rows, rowidx, -count);
-			updateArray(this._prerows, rowidx, -count);
-			// update refs & properties:
-			ReferenceUpdater.updateRow(this, rowidx, -count);
-			this.properties.onUpdateRowsAt(index, -count);
-		}
-		return doIt; // return deleted row??
-	}
-	insertRowsAt(index, count = 1) {
-		const rowidx = toRowIndex(index);
-		const doIt = this.isInRowRange(rowidx);
-		if (doIt) {
-			updateArray(this._rows, rowidx, count);
-			updateArray(this._prerows, rowidx, count);
-			// update refs & properties:
-			ReferenceUpdater.updateRow(this, rowidx, count);
-			this.properties.onUpdateRowsAt(index, count);
-		}
-		return doIt;
-	}
-
-	deleteCells(range, move = 'up') {
-		const toIdx = SheetIndex.create(0, 0);
-		const fromIdx = SheetIndex.create(0, 0);
-		const offset = { row: 0, col: 0 };
-		const cellrange = {
-			startrow: range.start.row, endrow: range.end.row,
-			startcol: range.start.col, endcol: range.end.col
-		};
-		const refRange = SheetRange.fromStartEnd(range.start, range.end);
-		if (move === 'up') {
-			offset.row = -range.height;
-			cellrange.startrow = range.end.row + 1;
-			cellrange.endrow = this.settings.maxrow;
-			refRange.end.set(this.settings.maxrow);
-		} else { // left
-			offset.col = -range.width;
-			cellrange.startcol = range.end.col + 1;
-			cellrange.endcol = this.settings.maxcol;
-			refRange.end.set(range.end.row, this.settings.maxcol);
-		}
-
-		// remove cells:
-		range.iterate((cell, index) => this._doSetCellAt(index, undefined));
-		// move all cells
-		for (let row = cellrange.startrow; row <= cellrange.endrow; row += 1) {
-			for (let col = cellrange.startcol; col <= cellrange.endcol; col += 1) {
-				fromIdx.set(row, col);
-				toIdx.set(fromIdx.row + offset.row, fromIdx.col + offset.col);
-				const cell = this.cellAt(fromIdx.set(row, col));
-				const props = this.properties.getCellProperties(fromIdx.row, fromIdx.col).toDiffsProperties();
-				// properties must be set, even if there is no cell...
-				this.properties.setCellProperties(toIdx.row, toIdx.col, props);
-				if (cell) {
-					// move this cell up...
-					this._doSetCellAt(toIdx, cell);
-					this._doSetCellAt(fromIdx, undefined, true);
-				}
-			}
-		}
-		// adjust references:
-		ReferenceUpdater.updateAllCellReferences(this, refRange, offset);
-	}
-
-	insertCells(range, move = 'bottom') {
-		const toIdx = SheetIndex.create(0, 0);
-		const fromIdx = SheetIndex.create(0, 0);
-		const offset = { row: 0, col: 0 };
-		const cellrange = {
-			startrow: range.start.row, endrow: range.end.row,
-			startcol: range.start.col, endcol: range.end.col
-		};
-		const refRange = SheetRange.fromStartEnd(range.start, range.end);
-		if (move === 'down') {
-			offset.row = range.height;
-			cellrange.endrow = this.settings.maxrow;
-			refRange.end.set(this.settings.maxrow);
-		} else { // right
-			offset.col = range.width;
-			cellrange.endcol = this.settings.maxcol;
-			refRange.end.set(range.end.row, this.settings.maxcol);
-		}
-
-		// move all cells
-		for (let row = cellrange.endrow; row >= cellrange.startrow; row -= 1) {
-			for (let col = cellrange.endcol; col >= cellrange.startcol; col -= 1) {
-				fromIdx.set(row, col);
-				toIdx.set(fromIdx.row + offset.row, fromIdx.col + offset.col);
-				const cell = this.cellAt(fromIdx.set(row, col));
-				const props = this.properties.getCellProperties(fromIdx.row, fromIdx.col).toDiffsProperties();
-				// properties must be set, even if there is no cell...
-				this.properties.setCellProperties(toIdx.row, toIdx.col, props);
-				if (cell) {
-					// move this cell up...
-					this._doSetCellAt(toIdx, cell);
-					this._doSetCellAt(fromIdx, undefined, true);
-				}
-			}
-		}
-		// clear cell properties:
-		range.iterate((cell, index) => this.properties.clearCellProperties(index.row, index.col));
-		// adjust references:
-		ReferenceUpdater.updateAllCellReferences(this, refRange, offset);
-	}
-	pasteCells(srcrange, trgtrange, options = {}) {
-		const start = trgtrange.start;
-		const trgtsheet = trgtrange.sheet;
-		const { action = 'all' } = options;
-		if (trgtsheet.isValidCellIndex(start.row, start.col)) {
-			const offset = { row: start.row - srcrange.start.row, col: start.col - srcrange.start.col };
-			// store original cells+properties before paste!!
-			const cells = [];
-			const collectCell = collectCells(trgtsheet, cells, this.properties, action);
-			srcrange.iterate(collectCell);
-			// paste cells
-			doPasteCells(cells, this, trgtsheet, offset, options);
-		}
-	}
-	pasteColumns(srcrange, trgtrange, options = {}) {
-		const trgtCol = trgtrange.start.col;
-		const trgtsheet = trgtrange.sheet;
-		if (trgtsheet.isInColRange(trgtCol)) {
-			const colcells = [];
-			const colprops = [];
-			const { cut, action = 'all' } = options;
-			const offset = { row: 0, col: trgtCol - srcrange.start.col };
-			const collectCell = collectCells(trgtsheet, colcells, this.properties, action);
-			srcrange.iterateByCol((cell, index, nextcol) => {
-				// collect source columns props
-				if (nextcol && (action === 'formats' || action === 'all')) {
-					const props = this.properties.getColumnProperties(index.col).toDiffsProperties();
-					colprops.push({ props, col: index.col });
-				}
-				collectCell(cell, index);
-			});
-			// paste column props
-			colprops.forEach(({ props, col }) => {
-				trgtsheet.properties.setColumnProperties(col + offset.col, props);
-				// clear props on cut...
-				if (cut) this.properties.clearColumnRowProperties(col);
-			});
-			// remove target cells:
-			if (action !== 'formats') {
-				removeCells(
-					trgtsheet,
-					{ start: trgtsheet.settings.minrow, end: trgtsheet.settings.maxrow + 1 },
-					{ start: trgtCol, end: trgtCol + srcrange.end.col - srcrange.start.col }
-				);
-			}
-			// paste cells
-			doPasteCells(colcells, this, trgtsheet, offset, options);
-		}
-	}
-	pasteRows(srcrange, trgtrange, options = {}) {
-		const trgtRow = trgtrange.start.row;
-		const trgtsheet = trgtrange.sheet;
-		if (trgtsheet.isInRowRange(trgtRow)) {
-			const rowcells = [];
-			const rowprops = [];
-			const { cut, action = 'all' } = options;
-			const offset = { row: trgtRow - srcrange.start.row, col: 0 };
-			const collectCell = collectCells(trgtsheet, rowcells, this.properties, action);
-			srcrange.iterate((cell, index, nextrow) => {
-				// collect source rows props
-				if (nextrow && (action === 'formats' || action === 'all')) {
-					const props = this.properties.getRowProperties(index.row).toDiffsProperties();
-					rowprops.push({ props, row: index.row });
-				}
-				collectCell(cell, index, action);
-			});
-			// paste row props
-			rowprops.forEach(({ props, row }) => {
-				trgtsheet.properties.setRowProperties(row + offset.row, props);
-				// clear props on cut...
-				if (cut) this.properties.clearRowProperties(row);
-			});
-			// remove target cells:
-			if (action !== 'formats') {
-				removeCells(
-					trgtsheet,
-					{ start: trgtRow, end: trgtRow + srcrange.end.row - srcrange.start.row },
-					{ start: trgtsheet.settings.mincol, end: trgtsheet.settings.maxcol + 1 }
-				);
-			}
-			// paste cells
-			doPasteCells(rowcells, this, trgtsheet, offset, options);
-		}
 	}
 
 	// index: string or index object
@@ -490,7 +229,7 @@ class Sheet {
 				// add cell first...
 				row[colidx] = cell;
 				// ...before init, since it may reference itself
-				if (cell != null) cell.init(idx.row, idx.col);
+				if (cell != null) cell.init(idx.row, idx.col, this);
 			}
 		}
 		return doIt;
@@ -527,8 +266,13 @@ class Sheet {
 	load(conf = {}) {
 		// prevent event on load:
 		const onUpdate = disableNotifyUpdate(this);
-		// settings is used in closure, so never overwrite it!!
-		this.settings = Object.assign(this.settings, DEF_CONF.settings, conf.settings);
+		const settings = conf.settings;
+		if (settings) {
+			// maxchars for existing machines
+			if (settings.maxchars == null) settings.maxchars = -1;
+			// settings is used in closure, so never overwrite it!!
+			this.settings = Object.assign(this.settings, DEF_CONF.settings, settings);
+		}
 		// include editable-web-component:
 		// this.properties = this.properties.load(conf.properties);
 		// load names first, they may be referenced by sheet cells...
@@ -592,5 +336,8 @@ class Sheet {
 	}
 };
 
-// if we have more better use compose(SheetEdit, SheetRequests,...)(Sheet)
-module.exports = SheetRequests(Sheet);
+// module.exports = SheetRequests(Sheet);
+module.exports = compose(
+	SheetEdit,
+	SheetRequests
+)(Sheet);

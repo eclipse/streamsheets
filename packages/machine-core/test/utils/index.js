@@ -9,7 +9,6 @@
  *
  ********************************************************************************/
 const sheet = require('./sheet');
-const functions = require('./functions');
 const monitor = require('./monitor');
 const symbols = require('./symbols');
 const validate = require('./validate');
@@ -26,7 +25,6 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 module.exports = {
 	expectValue,
-	functions,
 	...monitor,
 	...sheet,
 	...symbols,

@@ -207,6 +207,7 @@ function parseCondition() {
 		index -= 1; // move index one back, to get this character again when move on...
 		cond.isInvalid = true;
 	}
+	cond.oparen = index - 1;
 	ch = expr.charCodeAt(index);
 	index += 1;
 	cond.condition = parseConditionPart();
@@ -218,6 +219,7 @@ function parseCondition() {
 		// index -= 1; // move index one back, to get this character again when move on...
 		cond.isInvalid = true;
 	} else {
+		cond.cparen = index - 1;
 		 // move on...
 		ch = expr.charCodeAt(index); // move on...
 		index += 1;
@@ -315,16 +317,20 @@ function parseNumber() {
 function parseGroup() {
 	// start parsing a group, must be closed by parenthesis...
 	// if not throw exception...
+	const oparen = index - 1;
 	ch = expr.charCodeAt(index);
 	index += 1;
 	// eslint-disable-next-line
 	const group = parseExpression(true);
+	group.oparen = oparen;
 	skipWhiteSpace();
 	if (ch !== KEY_CODES.CPAREN && !throwException('Missing )', index, ErrorCode.EXPECTED_BRACKET_RIGHT)) {
 		index -= 1;
 		if (group) {
 			group.isInvalid = true;
 		}
+	} else {
+		group.cparen = index - 1;
 	}
 	ch = expr.charCodeAt(index);
 	index += 1;
@@ -380,7 +386,7 @@ function parseValue(rawval) {
 function parseParams(forList) {
 	const params = [];
 	const closeCh = forList ? KEY_CODES.CBRACKET : KEY_CODES.CPAREN;
-	while (ch !== closeCh) { // KEY_CODES.CPAREN) {
+	while (ch !== closeCh) {
 		// eslint-disable-next-line
 		const param = parseExpression(true) || { type: 'undef', start: index - 1, end: index };
 		params.push(param);
@@ -389,10 +395,10 @@ function parseParams(forList) {
 			ch = expr.charCodeAt(index);
 			index += 1;
 			// special case: ,)
-			if (ch === closeCh) { // KEY_CODES.CPAREN) {
+			if (ch === closeCh) {
 				params.push({ type: 'undef', start: index - 1, end: index });
 			}
-		} else if (ch !== closeCh) { // KEY_CODES.CPAREN) {
+		} else if (ch !== closeCh) {
 			const errmsg = index < length
 				? `Expected ${String.fromCharCode(KEY_CODES.PARAM_SEP)}`
 				: `Missing ${String.fromCharCode(closeCh)}`;
@@ -405,21 +411,25 @@ function parseParams(forList) {
 			}
 		}
 	}
-	if (ch === closeCh) { // KEY_CODES.CPAREN) {
+	if (ch === closeCh) {
+		params.cparen = index - 1;
 		ch = expr.charCodeAt(index);
 		index += 1;
+	} else {
+		params.cparen = -1;
 	}
 	return params;
 }
 
 function parseList() {
-	const token = { type: 'list', start: index - 1};
+	const token = { type: 'list', start: index - 1, oparen: index};
 	ch = expr.charCodeAt(index);
 	index += 1;
 	const params = parseParams(true);
 	token.params = params;
 	token.invalid = !!params.invalid;
 	token.end = index - 1;
+	token.cparen = params.cparen;
 	return token;
 }
 
@@ -430,6 +440,7 @@ function parseFunctionOrIdentifier() {
 		// we expecting a function:
 		const fname = ctxt.hasFunction(op.value) ? op.value : undefined;
 		if (fname) {
+			const oparen = index - 1;
 			ch = expr.charCodeAt(index);
 			index += 1;
 			const params = parseParams();
@@ -438,6 +449,8 @@ function parseFunctionOrIdentifier() {
 				start: op.start,
 				type: 'function',
 				value: fname,
+				cparen: params.cparen,
+				oparen,
 				params
 			};
 			op.isInvalid = !!params.invalid;
@@ -495,7 +508,7 @@ function parseOperand() {
 	} else if (ch === KEY_CODES.CPAREN || ch === KEY_CODES.PARAM_SEP) {
 		// closing parenthesis => we are inside a group expression
 		// or a comma which signals next term  => in both cases go on with undef operand, so
-		op = { type: 'undef', start: index - 1, end: index };
+		op = { type: 'undef', start: index - 1, end: index, cparen: index - 2 };
 	} else if (ch != null && !isNaN(ch)) {
 		op = parseFunctionOrIdentifier();
 		// currently all unit operations are single characters...

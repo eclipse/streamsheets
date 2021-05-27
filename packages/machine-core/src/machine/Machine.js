@@ -79,6 +79,7 @@ class Machine {
 		// a Map keeps its insertion order
 		this._streamsheets = new Map();
 		this._pendingStreamSheets = new Map();
+		this._subscriptions = new Set();
 		// tmp. until event/message handling is improved
 		this._isManualStep = false;
 		this.metadata = { ...DEF_CONF.metadata };
@@ -238,7 +239,7 @@ class Machine {
 			// DL-1582: cancel old cycle and use new time...
 			if (this.cyclemonitor.id) {
 				clearTimeout(this.cyclemonitor.id);
-				this.cyclemonitor.id = setTimeout(this.cycle, newtime, this.streamsheets);
+				this.cyclemonitor.id = setTimeout(this.cycle, newtime);
 			}
 		}
 	}
@@ -538,12 +539,13 @@ class Machine {
 			this.cyclemonitor.counterSecond = 0;
 		}
 		const nextcycle = Math.max(1, cycletime - (t1 - t0) - speedUp);
+		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
 		this.cyclemonitor.id = setTimeout(this.cycle, nextcycle);
 	}
 	_clearCycle() {
 		if (this.cyclemonitor.id) {
 			clearTimeout(this.cyclemonitor.id);
-			this.cyclemonitor.id = null;
+			this.cyclemonitor.id = undefined;
 		}
 	}
 
@@ -556,6 +558,16 @@ class Machine {
 	_emitStep() {
 		this._emitter.emit('update', 'step');
 		this._lastEmitStep = Date.now();
+	}
+
+	subscribe(clientId) {
+		if (clientId) this._subscriptions.add(clientId);
+	}
+	unsubscribe(clientId) {
+		this._subscriptions.delete(clientId);
+	}
+	getClientCount() {
+		return this._subscriptions.size;
 	}
 }
 

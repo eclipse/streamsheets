@@ -244,6 +244,12 @@ const typeDefs = gql`
 		clonedMachine: Machine
 	}
 
+	type DeleteMachineResult implements MutationResponse {
+		success: Boolean!
+		code: String!
+		message: String!
+	}
+
 	type RenameMachineFilePayload implements MutationResponse {
 		success: Boolean!
 		code: String!
@@ -259,9 +265,13 @@ const typeDefs = gql`
 		name: String
 	}
 
+	input MachineQuery {
+		name: String
+	}
+
 	type ScopedQuery {
 		machine(id: ID!): Machine
-		machines(name: String): [Machine!]!
+		machines(query: MachineQuery): [Machine!]!
 		streams: [Stream!]!
 		connectors: [Connector!]!
 		streamsLegacy: [StreamLegacy!]!
@@ -273,6 +283,7 @@ const typeDefs = gql`
 	type ScopedMutation {
 		import(input: ImportInput!, file: Upload!): ImportResult!
 		cloneMachine(machineId: ID!, newName: String): CloneResult!
+		deleteMachine(machineId: ID!): DeleteMachineResult!
 	}
 
 	type Query {

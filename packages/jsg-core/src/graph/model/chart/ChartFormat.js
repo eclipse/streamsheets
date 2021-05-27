@@ -219,7 +219,7 @@ module.exports = class ChartFormat {
 	}
 
 	get linkNumberFormat() {
-		return this.font && this.font.linknumber ? this.font.linknumber : undefined;
+		return this.font && this.font.linknumber !== undefined ? this.font.linknumber : undefined;
 	}
 
 	set linkNumberFormat(value) {
@@ -270,7 +270,7 @@ module.exports = class ChartFormat {
 			write |= writer.writeEndElement();
 		}
 		if (this.font && (this.fontColor || this.fontName || this.fontSize !== undefined ||
-			this.fontStyle !== undefined || this.numberFormat || this.localCulture || this.linkNumberFormat ||
+			this.fontStyle !== undefined || this.numberFormat || this.localCulture || this.linkNumberFormat !== undefined ||
 			this.fontRotation !== undefined)) {
 			writer.writeStartElement('font');
 			if (this.fontColor) {
@@ -291,7 +291,7 @@ module.exports = class ChartFormat {
 			if (this.localCulture) {
 				writer.writeAttributeString('local', this.localCulture);
 			}
-			if (this.linkNumberFormat) {
+			if (this.linkNumberFormat !== undefined) {
 				writer.writeAttributeNumber('linknumberformat', this.linkNumberFormat ? 1 : 0);
 			}
 			if (this.fontRotation !== undefined) {

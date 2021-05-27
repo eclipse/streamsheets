@@ -96,6 +96,7 @@ export class EventProperties extends Component {
 				InputProps={{
 					inputComponent: MyInputComponent,
 					inputProps: {
+						onlyReference: false,
 						component: CellRangeComponent,
 						sheetView,
 						range: this.getFormula(name)

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -17,9 +17,10 @@ const { CellEditor } = JSG;
 
 // setup help:
 const reduceCategories = (categories, [name, category]) => {
-	if (category) {
-		const { en = name, de = name } = category;
-		categories[name] = { en, de };
+	if (name && category) {
+		const { functions, ...locales } = category;
+		if (categories[name] == null) categories[name] = { en: name, de: name };
+		Object.assign(categories[name], { ...locales });
 	}
 	return categories;
 };
@@ -56,7 +57,7 @@ export default class FunctionStrings {
 					data.category,
 					data[locale].argumentList,
 					data[locale].description,
-					data.experimental,
+					data.experimental
 				);
 			}
 		});
