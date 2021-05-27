@@ -79,13 +79,13 @@ module.exports = class StreamSheetContainer extends Node {
 	}
 
 	addDashboardSettings() {
-		this._layoutNode = new LayoutNode();
-		this._layoutNode.setSize(20000, 10000);
-		this._layoutNode.getPin().setLocalPoint(0, 0);
-		this._layoutNode.setOrigin(0, 0);
-		this._layoutNode.getItemAttributes().setMoveable(false);
-		this._layoutNode.getItemAttributes().setDeleteable(false);
-		this._processSheet.getCells().addItem(this._layoutNode);
+		const layoutNode = new LayoutNode();
+		layoutNode.setSize(20000, 10000);
+		layoutNode.getPin().setLocalPoint(0, 0);
+		layoutNode.setOrigin(0, 0);
+		layoutNode.getItemAttributes().setMoveable(false);
+		layoutNode.getItemAttributes().setDeleteable(false);
+		this._processSheet.getCells().addItem(layoutNode);
 	}
 
 	createButtons() {
@@ -428,10 +428,7 @@ module.exports = class StreamSheetContainer extends Node {
 		let inbox;
 		let hideButtons = false;
 		let captions = true;
-
-		if (!this._layoutNode) {
-			this._layoutNode = this._processSheet.getLayoutNode();
-		}
+		const layoutNode = this._processSheet.getLayoutNode();
 
 		const settings = this.viewSettings;
 		if (settings.active === true) {
@@ -510,7 +507,6 @@ module.exports = class StreamSheetContainer extends Node {
 
 		this._processSheet.setBoundingBoxTo(box);
 
-		const layoutNode = this._layoutNode;
 		if (layoutNode) {
 			const layoutMode = layoutNode.getAttributeValueAtPath('layoutmode');
 			const minWidth = layoutNode.getAttributeValueAtPath('minwidth');

@@ -876,11 +876,16 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	getHitCode(location, viewer, checkSelectedRange = false) {
+		const item = this.getItem();
+		if (item.getLayoutNode()) {
+			return;
+		}
+
 		const bounds = this.getScrollView().getBounds();
 		let point = location.copy();
 		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
-		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+			item.getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const vScrollSize = item.getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point = this.translateToSheet(point, viewer);
 
@@ -904,11 +909,11 @@ export default class WorksheetView extends ContentNodeView {
 				: WorksheetView.HitCode.SHEET;
 		}
 
-		if (this.getItem().isProtected() === false) {
-			const colHeight = this.getItem()
+		if (item.isProtected() === false) {
+			const colHeight = item
 				.getColumns()
 				.getInternalHeight();
-			const rowWidth = this.getItem()
+			const rowWidth = item
 				.getRows()
 				.getInternalWidth();
 			let cv;
