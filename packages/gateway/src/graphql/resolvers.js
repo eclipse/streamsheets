@@ -227,6 +227,22 @@ const resolvers = {
 			} catch (error) {
 				return Payload.createFailure(error);
 			}
+		},
+		deleteMachineFiles: async (obj, args, { machineRepo, auth }) => {
+			const { machineId, files } = args;
+			const { scope } = await machineRepo.findMachine(machineId);
+			if (!auth.isValidScope(scope)) {
+				throw new Error('NOT_ALLOWED');
+			}
+			try {
+				await Promise.all(files.map(f => fs.unlink(path.join(MACHINE_DATA_DIR, machineId, path.basename(f)))))
+				return Payload.createSuccess({
+					code: 'FILES_DELETED',
+					message: 'Files deleted successfully'
+				});
+			} catch (error) {
+				return Payload.createFailure(error);
+			}
 		}
 	},
 	ScopedMutation: {
@@ -324,7 +340,16 @@ const resolvers = {
 			}
 			const machineFileDirectory = path.join(MACHINE_DATA_DIR, id);
 			try {
-				const files = await fs.readdir(machineFileDirectory);
+				const fileNames = await fs.readdir(machineFileDirectory);
+				const files = await Promise.all(
+					fileNames.map((file) =>
+						fs.stat(path.join(machineFileDirectory, file)).then((stats) => ({
+							name: file,
+							lastModified: stats.mtime.toISOString(),
+							path: `/api/v1.0/machines/${id}/files/${encodeURIComponent(file)}`
+						}))
+					)
+				);
 				return files;
 			} catch (error) {
 				return [];
@@ -356,7 +381,7 @@ const resolvers = {
 		lastModified: (obj) => new Date(obj.lastModified).getTime()
 	},
 	ImportExportData: GraphQLJSONObject,
-	JSON: GraphQLJSONObject,
+	JSON: GraphQLJSONObject
 };
 
 module.exports = { resolvers };
