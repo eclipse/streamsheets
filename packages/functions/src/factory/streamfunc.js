@@ -23,9 +23,9 @@ const BASE_FUNC = {
 
 const BASE_FUNC_HANDLER = {
 	// eslint-disable-next-line
-	[BASE_FUNC.REQUEST]: require('../functions/streamsheet/request').requestinternal,
+	[BASE_FUNC.REQUEST]: require('../functions/streams/request').requestinternal,
 	// eslint-disable-next-line
-	[BASE_FUNC.RESPOND]: require('../functions/streamsheet/respond').respondinternal,
+	[BASE_FUNC.RESPOND]: require('../functions/streams/respond').respondinternal,
 	// eslint-disable-next-line
 	[BASE_FUNC.PRODUCE]: require('../utils/publishinternal')
 };

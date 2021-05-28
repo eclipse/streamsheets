@@ -23,6 +23,7 @@ const parse = require('./parse');
 const stack = require('./stack');
 const statistical = require('./statistical');
 const streamsheet = require('./streamsheet');
+const streams = require('./streams');
 const text = require('./text');
 const timeseries = require('./timeseries');
 const url = require('./url');
@@ -43,6 +44,7 @@ module.exports = {
 	...stack.functions,
 	...statistical.functions,
 	...streamsheet.functions,
+	...streams.functions,
 	...text.functions,
 	...timeseries.functions,
 	...url.functions
