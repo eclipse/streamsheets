@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -223,7 +223,7 @@ module.exports = class DefaultApp {
 		/* ===== Static ===== */
 		const publicPath = path.join(__dirname, '..', '..', '..', 'public');
 		app.use(Express.static(publicPath));
-		const indexHtmlPath = path.join(publicPath, 'index.html')
+		const indexHtmlPath = path.join(publicPath, 'index.html');
 		app.use((req, res) => res.sendFile(indexHtmlPath));
 	}
 
