@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -33,6 +33,8 @@ const APIRouter = require('./APIRouter');
 const APIRouterRepositoryServer = require('./APIRouterRepositoryServer');
 const Error = require('./error/Error');
 const Auth = require('../Auth').default;
+
+const MACHINE_DATA_DIR = process.env.MACHINE_DATA_DIR || './machinedata';
 
 module.exports = class DefaultApp {
 	constructor(pkg, config, globalContext) {
@@ -144,8 +146,8 @@ module.exports = class DefaultApp {
 		app.use('/api/v1.0/meta', router);
 		app.use('/api/v1.0/config', router);
 		Object.values(this.globalContext.middleware).forEach((mw) => app.use(...mw));
-		/* ===== Graph QL ===== */
-		app.use('/api/v1.0/graphql', (req, res, next) => {
+
+		const authenticate = (req, res, next) => {
 			passport.authenticate('jwt', { session: false }, async (err, user) => {
 				if (user) {
 					try {
@@ -162,7 +164,10 @@ module.exports = class DefaultApp {
 					res.status(403).json({ error: 'Not authenticated' });
 				}
 			})(req, res, next);
-		});
+		};
+
+		/* ===== Graph QL ===== */
+		app.use('/api/v1.0/graphql', authenticate);
 
 		const getSession = (req) => ({ user: req.user });
 
@@ -172,7 +177,29 @@ module.exports = class DefaultApp {
 			(req) => this.globalContext.getRequestContext(this.globalContext, getSession(req)),
 			this.globalContext.graphql
 		);
-
+		app.get('/api/v1.0/machines/:machineId/files/:fileName', authenticate, async (req, res) => {
+			try {
+				const requestContext = await app.locals.globalContext.getRequestContext(
+					app.locals.globalContext,
+					getSession(req)
+				);
+				const { scope } = await requestContext.machineRepo.findMachine(req.params.machineId);
+				if (!requestContext.auth.isValidScope(scope)) {
+					res.status(403).json({ error: 'Not allowed' });
+				}
+				const machineFile = path.join(
+					MACHINE_DATA_DIR,
+					req.params.machineId,
+					path.basename(req.params.fileName)
+				);
+				const absoluteMachineFile = path.isAbsolute(machineFile)
+					? machineFile
+					: path.join(process.cwd(), machineFile);
+				res.sendFile(absoluteMachineFile);
+			} catch (e) {
+				logger.error(`Failed to resolve Machine#${req.params.machineId} file  ${req.params.fileName}`, e);
+			}
+		});
 		const routerRepository = new APIRouterRepositoryServer();
 		app.use('/api/v1.0', routerRepository);
 
@@ -196,7 +223,7 @@ module.exports = class DefaultApp {
 		/* ===== Static ===== */
 		const publicPath = path.join(__dirname, '..', '..', '..', 'public');
 		app.use(Express.static(publicPath));
-		const indexHtmlPath = path.join(publicPath, 'index.html')
+		const indexHtmlPath = path.join(publicPath, 'index.html');
 		app.use((req, res) => res.sendFile(indexHtmlPath));
 	}
 
