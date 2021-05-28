@@ -46,11 +46,11 @@ export const useGraphQL = (query, variables, customDeps, condition = always) => 
 	const deps = customDeps || [variables];
 	useEffect(() => {
 		let canceled = false;
-		dispatch({ type: 'load' });
 		(async () => {
 			if (!condition()) {
 				return;
 			}
+			dispatch({ type: 'load' });
 			try {
 				const data = await gatewayClient.graphql(query, variables);
 				if (!canceled) {

@@ -48,7 +48,7 @@ import {withStyles} from '@material-ui/core/styles';
 import {Path} from '../../helper/Path';
 import ListItemText from "@material-ui/core/ListItemText";
 
-const VERSION = process.env.REACT_APP_VERSION || 'unknown';
+const VERSION = process.env.REACT_APP_VERSION || '2.3';
 // const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
 
 /**

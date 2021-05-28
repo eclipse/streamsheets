@@ -375,7 +375,8 @@ module.exports = class MachineService extends MessagingService {
 	async _handleCommandMessage(message) {
 		const { response } = message;
 		switch (response.command) {
-			case 'command.DeleteCellsCommand':
+			// currently not handled by machine-server!
+			// case 'command.DeleteCellsCommand':
 			case 'command.DeleteCellContentCommand':
 			case 'command.SetCellDataCommand':
 			case 'command.SetCellLevelsCommand':

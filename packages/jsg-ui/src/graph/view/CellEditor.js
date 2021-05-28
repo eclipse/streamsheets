@@ -19,6 +19,11 @@ let functionInfo;
 let showFuncInfo = localStorage.getItem('funcinfo') !== 'false';
 let showParamInfo = localStorage.getItem('paraminfo') !== 'false';
 
+const VERSION = process.env.REACT_APP_VERSION || '2.3.0';
+const semverRegExp = new RegExp(/(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.*(?<patch>0|[1-9]\d*)*/, 'i');
+const versionObject = VERSION.match(semverRegExp);
+const versionLink = `${versionObject.groups.major}.${versionObject.groups.minor}`
+
 export default class CellEditor {
 	constructor(div, viewer, sheet) {
 		this.active = false;
@@ -310,9 +315,9 @@ export default class CellEditor {
 					)}</p>`;
 					html += `<p>${info[1][JSG.locale].description}</p>`;
 					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
-					html += `<a href="https://docs.cedalo.com/functions/${info[1].category}/${info[0]
+					html += `<a href="https://docs.cedalo.com/new/streamsheets/${versionLink}/functions/${info[1].category}/${info[0]
 						.toLowerCase()
-						.replace(/\./g, '')}.html" target="_blank">`;
+						.replace(/\./g, '')}" target="_blank">`;
 					html += `${JSG.getLocalizedString('More Info')}</a></p>`;
 				}
 				html += '</div>';
