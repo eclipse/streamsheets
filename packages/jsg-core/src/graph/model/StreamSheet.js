@@ -393,8 +393,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 							this._addImageCmds.push(new AddImageCommand(id, pattern));
 							JSG.imagePool.set(pattern, id);
 							node.getFormat().setPatternFromShape(id);
+						// } else if (pattern.indexOf('raw:') !== -1) {
+						// 	node.getFormat().setPatternFromShape(pattern);
 						} else {
-							const parts = pattern.split('?');
+							const parts = pattern.split('?', 2);
 							if (parts.length > 1) {
 								JSG.imagePool.update(parts[0], parts[1]);
 								node.getFormat().setPatternFromShape(parts[0]);

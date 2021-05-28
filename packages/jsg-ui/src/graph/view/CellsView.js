@@ -50,6 +50,18 @@ const defaultCellErrorValue = '#####';
  * @constructor
  */
 export default class CellsView extends NodeView {
+	drawSubViews(graphics) {
+
+		this._wsItem = this.getWorksheetNode();
+
+		this._subviews.forEach((subview) => {
+			if (subview.isVisible() === true) {
+				subview.draw(graphics);
+			}
+		});
+
+	}
+
 	drawBorder(graphics, format, rect) {
 		this._wsView = this.getWorksheetView();
 		this._wsItem = this.getWorksheetNode();

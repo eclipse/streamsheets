@@ -2438,12 +2438,17 @@ class Graphics {
 	 * @private
 	 */
 	getImage(url) {
+		// let image;
+		// if (url.indexOf('raw:') !== -1) {
+		// const arrayBufferView = new Uint8Array( url, 4 );
+		// 	const blob = new Blob( [ bytes ], { type: "image/png" } );
+		// 	const urlCreator = window.URL || window.webkitURL;
+		// 	const imageUrl = urlCreator.createObjectURL( blob );
+		// 	image = new Image();
+		// 	image.src = imageUrl;
+		// } else {
 		let image = JSG.imagePool.get(url);
-		if (
-			image === undefined ||
-			image.complete === false ||
-			(typeof image.naturalWidth !== 'undefined' && image.naturalWidth === 0)
-		) {
+		if (image === undefined || image.complete === false || (typeof image.naturalWidth !== 'undefined' && image.naturalWidth === 0)) {
 			if (image && image._backupImage !== undefined) {
 				image = image._backupImage;
 			} else {
