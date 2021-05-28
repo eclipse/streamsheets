@@ -37,7 +37,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	_getControllerAt(location, viewer, dispatcher) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
 			const item = cont.getModel();
-			if (!item.isVisible) {
+			if (!item.isVisible()) {
 				return false;
 			}
 			return (item.getAttributeValueAtPath('value') !== undefined ||
@@ -47,7 +47,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 
 	_getShapeControllerAt(location, viewer, dispatcher) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			if (!cont.getModel().isVisible) {
+			if (!cont.getModel().isVisible()) {
 				return false;
 			}
 			let item = cont.getModel().getParent();
