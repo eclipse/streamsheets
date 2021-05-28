@@ -225,28 +225,47 @@ export default class SheetPlotInteraction extends Interaction {
 						{ index: 4, value: valueStart.x },
 						{ index: 5, value: valueEnd.x },
 						{ index: 7, value: undefined },
-						{ index: 8, value: undefined }
+						{ index: 8, value: undefined },
+						{ index: 10, value: undefined },
+						{ index: 11, value: undefined }
 					]
 					const term = vitem.xAxes[0].formula.getTerm();
 					if (term) {
-						const field = vitem.getParamValue(vitem.xAxes[0].formula.getTerm(), 6);
-						if (field) {
+						const field1 = vitem.getParamValue(vitem.xAxes[0].formula.getTerm(), 6);
+						const field2 = vitem.getParamValue(vitem.xAxes[0].formula.getTerm(), 9);
+						if (field1 || field2) {
 							const ref = vitem.getDataSourceInfo(vitem.series[0].formula);
-							if (ref.time && ref.xKey && ref.time.values && ref.time.values[ref.xKey] && ref.time.values[field]) {
-								let start;
-								let end;
+							if (ref.time && ref.xKey && ref.time.values && ref.time.values[ref.xKey]) {
+								let start1;
+								let start2;
+								let end1;
+								let end2;
 								const refValues = ref.time.values[ref.xKey];
 								refValues.forEach((value, index) => {
 									if (valueStart.x > value) {
-										start = ref.time.values[field][index];
+										if (field1 && ref.time.values[field1]) {
+											start1 = ref.time.values[field1][index];
+										}
+										if (field2 && ref.time.values[field2]) {
+											start2 = ref.time.values[field2][index];
+										}
 									}
-									if (value > valueEnd.x && end === undefined) {
-										end = ref.time.values[field][index];
+									if (value > valueEnd.x && end1 === undefined) {
+										if (field1 && ref.time.values[field1]) {
+											end1 = ref.time.values[field1][index];
+										}
+									}
+									if (value > valueEnd.x && end2 === undefined) {
+										if (field2 && ref.time.values[field2]) {
+											end2 = ref.time.values[field2][index];
+										}
 									}
 								});
 
-								values[2].value = start;
-								values[3].value = end;
+								values[2].value = start1;
+								values[3].value = end1;
+								values[4].value = start2;
+								values[5].value = end2;
 							}
 						}
 					}
