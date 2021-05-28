@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const array = require('./array');
+const array = require('../streamsheet/array');
 const {
 	sheet: sheetutils,
 	terms: { getCellRangeFromTerm, isInboxTerm, isOutboxTerm, termAsNumber, termFromValue },
