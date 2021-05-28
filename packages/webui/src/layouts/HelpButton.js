@@ -16,7 +16,7 @@ import { FormattedMessage } from 'react-intl';
 
 export default function HelpButton() {
 	const onHelp = () => {
-		window.open('https://docs.cedalo.com', '_blank');
+		window.open('https://docs.cedalo.com/new', '_blank');
 	};
 	return (
 		<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.Help" defaultMessage="Help" />}>
