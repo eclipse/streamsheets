@@ -55,84 +55,96 @@ class TableSortHeader extends React.Component {
 					}}
 				>
 					{this.props.cells.map(
-						(row) => (
-							<TableCell
-								style={{
-									width: row.width,
-									minWidth: row.minWidth,
-								}}
-								padding={row.padding ? "default" : "none"}
-								key={row.id}
-								align={row.numeric ? 'right' : 'left'}
-								sortDirection={orderBy === row.id ? order : false}
-							>
-								{/* eslint-disable-next-line no-nested-ternary */}
-								{row.sort !== false ? (
-									<TableSortLabel
-										active={orderBy === row.id}
-										direction={order}
-										onClick={this.createSortHandler(row.id)}
-									>
-										{row.label.length ? this.props.intl.formatMessage({
-													id: row.label,
-													defaultMessage: 'title'
-											  }) : ''}
-									</TableSortLabel>
-								) : row.label ? (
-									this.props.intl.formatMessage({
-										id: row.label,
-										defaultMessage: 'title'
-									})
-								) : (
-									''
-								)}
-								{row.fields ? (
-									<IconButton style={{padding: '0px'}} size="small" onClick={this.handleClick}>
-										<ArrowDropDown />
-									</IconButton>
-								) : null}
-								{row.fields ? (
-									<Popover
-										open={Boolean(this.state.anchorEl)}
-										anchorEl={this.state.anchorEl}
-										onClose={this.handleClose}
-										anchorOrigin={{
-											vertical: 'bottom',
-											horizontal: 'left'
-										}}
-										transformOrigin={{
-											vertical: 'top',
-											horizontal: 'left'
-										}}
-									>
-										<List dense>
-											<div style={{ maxHeight: '250px', overflowY: 'scroll' }}>
-												{row.fields.map((field) => (
-													<ListItem
-														key={field.name}
-														style={{padding: '0px'}}
-														dense
-														button
-														onClick={(event) => this.handleToggle(field, event.target.checked)}
-													>
-														<Checkbox
-															checked={field.selected}
-															tabIndex={-1}
-															disableRipple
-														/>
-														<ListItemText
-															primary={field.name === 'Admin.#all_provs' ? this.props.intl.formatMessage({
-															id: field.name,
-															defaultMessage: field.name}) : field.name}
-														/>
-													</ListItem>
-												))}
-											</div>
-										</List>
-									</Popover>
-								) : null}
-							</TableCell>
-						),
+						(row) =>
+							row.component ? (
+								row.component
+							) : (
+								<TableCell
+									style={{
+										width: row.width,
+										minWidth: row.minWidth
+									}}
+									padding={row.padding ? 'default' : 'none'}
+									key={row.id}
+									align={row.numeric ? 'right' : 'left'}
+									sortDirection={orderBy === row.id ? order : false}
+								>
+									{/* eslint-disable-next-line no-nested-ternary */}
+									{row.sort !== false ? (
+										<TableSortLabel
+											active={orderBy === row.id}
+											direction={order}
+											onClick={this.createSortHandler(row.id)}
+										>
+											{row.label.length
+												? this.props.intl.formatMessage({
+														id: row.label,
+														defaultMessage: 'title'
+												  })
+												: ''}
+										</TableSortLabel>
+									) : row.label ? (
+										this.props.intl.formatMessage({
+											id: row.label,
+											defaultMessage: 'title'
+										})
+									) : (
+										''
+									)}
+									{row.fields ? (
+										<IconButton style={{ padding: '0px' }} size="small" onClick={this.handleClick}>
+											<ArrowDropDown />
+										</IconButton>
+									) : null}
+									{row.fields ? (
+										<Popover
+											open={Boolean(this.state.anchorEl)}
+											anchorEl={this.state.anchorEl}
+											onClose={this.handleClose}
+											anchorOrigin={{
+												vertical: 'bottom',
+												horizontal: 'left'
+											}}
+											transformOrigin={{
+												vertical: 'top',
+												horizontal: 'left'
+											}}
+										>
+											<List dense>
+												<div style={{ maxHeight: '250px', overflowY: 'scroll' }}>
+													{row.fields.map((field) => (
+														<ListItem
+															key={field.name}
+															style={{ padding: '0px' }}
+															dense
+															button
+															onClick={(event) =>
+																this.handleToggle(field, event.target.checked)
+															}
+														>
+															<Checkbox
+																checked={field.selected}
+																tabIndex={-1}
+																disableRipple
+															/>
+															<ListItemText
+																primary={
+																	field.name === 'Admin.#all_provs'
+																		? this.props.intl.formatMessage({
+																				id: field.name,
+																				defaultMessage: field.name
+																		  })
+																		: field.name
+																}
+															/>
+														</ListItem>
+													))}
+												</div>
+											</List>
+										</Popover>
+									) : null}
+								</TableCell>
+							),
 						this
 					)}
 				</TableRow>
