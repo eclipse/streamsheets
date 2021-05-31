@@ -74,7 +74,7 @@ const addValue = (fromObj) => (toObj, key) => {
 };
 const extract = (keys, fromObj) => keys.reduce(addValue(fromObj), {});
 const getErrorData = (error) => extract(ERRORDATA, error);
-const getResultData = (result) => extract(DATA, result);
+const getResultData = (result) => result.data || {};
 const createResult = (extractData) => (requestId, obj) => {
 	const data = extractData(obj);
 	const metadata = extract(METADATA, obj);
@@ -87,7 +87,7 @@ const createRequestCallback = (sheet, target, extractErrorData, extractResultDat
 	return (context, response, error) => {
 		const term = context.term;
 		const reqId = context._reqId;
-		const resobj = error ? createErrorResult(reqId, error) : createResponseResult(reqId, response.data);
+		const resobj = error ? createErrorResult(reqId, error) : createResponseResult(reqId, response);
 		resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
 		if (target) addResultToTarget(sheet, target, resobj);
 		if (term && !term.isDisposed) {
