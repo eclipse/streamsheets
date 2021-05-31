@@ -18,6 +18,7 @@ import InteractionActivator from './InteractionActivator';
 import SheetInteraction from './SheetInteraction';
 import ContentNodeView from '../view/ContentNodeView';
 import MouseEvent from '../../ui/events/MouseEvent';
+import ScrollBar from '../../ui/scrollview/ScrollBar';
 
 const KEY = 'sheet.activator';
 
@@ -195,7 +196,21 @@ export default class SheetActivator extends InteractionActivator {
 				if (!(controller.getView() instanceof WorksheetView)) {
 					controller = controller.getParent().getParent();
 				}
-				const view = controller.getView().getWorksheetView();
+
+				const view = controller.getView();
+				const item = view.getItem();
+				const rect = item.getTranslatedBoundingBox(item.getGraph()).getBoundingRectangle();
+				const point = viewer.translateFromParent(event.location.copy());
+				if (rect.containsPoint(point)) {
+					rect.expandBy(-200, -200);
+					if (!rect.containsPoint(point)) {
+						this._controller = undefined;
+						this._hitCode = undefined;
+						return;
+					}
+				}
+
+				// const view = controller.getView().getWorksheetView();
 				this._hitCode = view.getHitCode(event.location, viewer);
 				view.setCursor(this._hitCode, dispatcher);
 				this._controller = controller;

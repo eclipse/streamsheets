@@ -106,7 +106,7 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 	_filteredRow(row, item, position) {
 		const filtered = [];
 		for (let i = 0; i < row.length; i += 1) {
-			if (row[i].isVisible(item) && row[i].position === position) {
+			if (row[i].isVisible(item) && row[i].position[0] === position[0]) {
 				filtered.push(row[i]);
 			}
 		}

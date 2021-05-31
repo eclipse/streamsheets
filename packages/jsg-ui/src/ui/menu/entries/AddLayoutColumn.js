@@ -15,6 +15,7 @@ export default class AddLayoutColumn extends ItemMenuEntry {
 		this.element = new Image();
 		this.element.src = `lib/res/svg/add.svg`
 		this.element.style.cursor = 'pointer';
+		this.position = 'tri';
 	}
 
 	isVisible(item) {

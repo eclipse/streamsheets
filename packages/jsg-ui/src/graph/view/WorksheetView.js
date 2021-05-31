@@ -752,11 +752,6 @@ export default class WorksheetView extends ContentNodeView {
 		const item = this.getItem();
 		const rect = item.getCellRect(range);
 		const offset = this.getScrollOffset();
-		const viewport = this.getViewPort();
-
-		if (!viewport) {
-			return undefined;
-		}
 
 		const colSize = item.getColumns().getInternalHeight();
 		const rowSize = item.getRows().getInternalWidth();

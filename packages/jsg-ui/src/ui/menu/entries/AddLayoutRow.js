@@ -11,7 +11,7 @@ export default class AddLayoutRow extends ItemMenuEntry {
 		this.element = new Image();
 		this.element.src = `lib/res/svg/add.svg`
 		this.element.style.cursor = 'pointer';
-		this.position = 'bl';
+		this.position = 'bli';
 	}
 
 	isVisible(item) {

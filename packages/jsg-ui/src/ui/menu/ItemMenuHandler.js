@@ -16,8 +16,7 @@ export default class ItemMenuHandler {
 	constructor() {
 		this.editor = undefined;
 		this.provider = undefined;
-		this.menuHandleBL = undefined;
-		this.menuHandleTR = undefined;
+		this.menuHandles = [];
 	}
 
 	// pass undefined to unregister editor
@@ -87,10 +86,11 @@ export default class ItemMenuHandler {
 				this.provider.removedMenu(handle.menu);
 			}
 		}
-		hide(this.menuHandleBL);
-		hide(this.menuHandleTR);
-		this.menuHandleBL = undefined;
-		this.menuHandleTR = undefined;
+
+		this.menuHandles.forEach(handle => {
+			hide(handle);
+		});
+		this.menuHandles = [];
 	}
 
 	showMenu(item) {
@@ -100,15 +100,23 @@ export default class ItemMenuHandler {
 	}
 
 	createMenu(item) {
-		this.menuHandleBL = this.createMenuHandle(item, 'bl');
-		if (this.menuHandleBL) {
-			this.getCanvas().parentNode.appendChild(this.menuHandleBL.menu);
+		let ret = false;
+
+		const add = (position) => {
+			const handle = this.createMenuHandle(item, position);
+			if (handle) {
+				this.getCanvas().parentNode.appendChild(handle.menu);
+				this.menuHandles.push(handle);
+				ret = true;
+			}
 		}
-		this.menuHandleTR = this.createMenuHandle(item, 'tr');
-		if (this.menuHandleTR) {
-			this.getCanvas().parentNode.appendChild(this.menuHandleTR.menu);
-		}
-		return this.menuHandleBL || this.menuHandleTR;
+
+		add('tr');
+		add('tri');
+		add('bl');
+		add('bli');
+
+		return ret;
 	}
 
 	createMenuHandle(item, position) {
@@ -132,30 +140,47 @@ export default class ItemMenuHandler {
 				GraphUtils.translateBoundingBoxUp(itembox, item.getParent(), item.getGraph());
 				itembox.getBoundingRectangle(itemrect);
 
-				if (menuHandle.position === 'tr') {
+				switch (menuHandle.position) {
+				case 'tri':
+				case 'tr':
 					pos.set(itemrect.getRight(), itemrect.y);
-				} else {
+					break;
+				case 'bl':
+				case 'bli':
 					pos.set(itemrect.x, itemrect.getBottom());
+					break;
 				}
 
 				viewer._translateToParent(pos);
 				pos.x = cs.logToDeviceX(pos.x, false) + canvas.offsetLeft;
 				pos.y = cs.logToDeviceY(pos.y, false) + canvas.offsetTop;
 
-				if (menuHandle.position === 'tr') {
-					el.style.top = `${pos.y}px`;
-					el.style.left = `${pos.x + 5}px`;
-				} else {
+				switch (menuHandle.position) {
+				case 'tri':
 					el.style.top = `${pos.y + 5}px`;
-					el.style.left = `${pos.x}px`;
+					el.style.left = `${pos.x - el.offsetWidth - 5}px`;
+					break;
+				case 'tr':
+					el.style.top = `${pos.y + 5}px`;
+					el.style.left = `${pos.x + 5}px`;
+					break;
+				case 'bl':
+					el.style.top = `${pos.y + 5}px`;
+					el.style.left = `${pos.x + 5}px`;
+					break;
+				case 'bli':
+					el.style.top = `${pos.y - el.offsetHeight - 5}px`;
+					el.style.left = `${pos.x + 5}px`;
+					break;
 				}
 
 				JSG.boxCache.release(itembox);
 			}
 		}
 
-		place(this.menuHandleTR);
-		place(this.menuHandleBL);
+		this.menuHandles.forEach(handle => {
+			place(handle);
+		});
 
 		JSG.ptCache.release(pos);
 		JSG.rectCache.release(itemrect);
@@ -173,13 +198,21 @@ export default class ItemMenuHandler {
 			}
 		}
 
-		resize(this.menuHandleTR);
-		resize(this.menuHandleBL);
+		this.menuHandles.forEach(handle => {
+			resize(handle);
+		});
 	}
 
 	isVisible(item) {
-		return ((this.menuHandleBL && this.menuHandleBL.item === item) ||
-			(this.menuHandleTR && this.menuHandleTR.item === item));
+		let visible = false;
+
+		this.menuHandles.forEach(handle => {
+			if (handle.item === item) {
+				visible = true;
+			}
+		});
+
+		return visible;
 	}
 
 	// provider should fulfill ItemMenuProvider class...
@@ -194,12 +227,9 @@ export default class ItemMenuHandler {
 
 	// called on menu update, i.e. menu is already shown...
 	updateMenu() {
-		if (this.menuHandleBL) {
-			this.provider.updateMenu(this.menuHandleBL.menu, this.menuHandleBL.item, this.editor);
-		}
-		if (this.menuHandleTR) {
-			this.provider.updateMenu(this.menuHandleTR.menu, this.menuHandleTR.item, this.editor);
-		}
+		this.menuHandles.forEach(handle => {
+			this.provider.updateMenu(handle.menu, handle.item, this.editor);
+		});
 	}
 
 	getCanvas() {

@@ -51,15 +51,45 @@ const defaultCellErrorValue = '#####';
  */
 export default class CellsView extends NodeView {
 	drawSubViews(graphics) {
+		let view;
 
 		this._wsItem = this.getWorksheetNode();
-
-		this._subviews.forEach((subview) => {
-			if (subview.isVisible() === true) {
-				subview.draw(graphics);
+		if (!this._wsItem) {
+			return;
+		}
+		const sourceSheet = this._wsItem.sourceSheet;
+		if (sourceSheet) {
+			const graphView = this.getGraphView();
+			GraphUtils.traverseView(graphView, (v) => {
+				if (v.getItem && v.getItem().getId() === sourceSheet.getId()) {
+					view = v.getCellsView();
+				}
+			}, false);
+			this._wsView = this.getWorksheetView();
+			const attr = this._wsItem.getAttributeAtPath('range');
+			if (!attr) {
+				return;
 			}
-		});
+			const rangeString = attr.getValue();
+			const range = CellRange.parse(rangeString, sourceSheet);
+			const rect = sourceSheet.getCellRect(range);
 
+			graphics.translate(-rect.x, -rect.y);
+		} else {
+			view = this;
+		}
+
+		if (view) {
+			view._subviews.forEach((subview) => {
+				if (subview.isVisible() === true) {
+					subview.draw(graphics);
+				}
+			});
+		}
+	}
+
+	hasSubviews() {
+		return true;
 	}
 
 	drawBorder(graphics, format, rect) {
