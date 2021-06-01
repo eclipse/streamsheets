@@ -873,7 +873,7 @@ export default class WorksheetView extends ContentNodeView {
 	getHitCode(location, viewer, checkSelectedRange = false) {
 		const item = this.getItem();
 		if (item.getLayoutNode()) {
-			return;
+			return WorksheetView.HitCode.NONE;
 		}
 
 		const bounds = this.getScrollView().getBounds();
