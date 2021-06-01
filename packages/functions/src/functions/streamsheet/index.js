@@ -33,17 +33,12 @@ const INBOXJSON = require('./inboxjson');
 const INBOXMETADATA = require('./inboxmetadata');
 const JSON = require('./json');
 const JSONVALUE = require('./jsonvalue');
-const KAFKACOMMAND = require('./kafkacommand');
-const KAFKAQUERY = require('./kafkaquery');
 const OUTBOX = require('./outbox');
 // const OUTBOXDATA = require('./outboxdata');
 const OUTBOXJSON = require('./outboxjson');
-const PRODUCE = require('./produce');
 const RANGE = require('./range');
 const READ = require('./read');
 const REFRESH = require('./refresh');
-const { requestinternal, REQUEST, REQUESTINFO } = require('./request');
-const { RESPOND } = require('./respond');
 const RETURN = require('./return');
 const SELECT = require('./select');
 const SETCYCLETIME = require('./setcycletime');
@@ -64,7 +59,6 @@ module.exports = {
 		...outboxdata,
 		...table,
 		...values,
-		requestinternal,
 		ARRAY,
 		CALC,
 		CONTINUE,
@@ -81,20 +75,13 @@ module.exports = {
 		JSON,
 		'JSON.RANGE': jsontorange,
 		'JSON.VALUE': JSONVALUE,
-		// KAFKA HERE???
-		KAFKACOMMAND,
-		KAFKAQUERY,
 		OUTBOX,
 		// OUTBOXDATA,
 		'OUTBOX.GETIDS': outboxgetids,
 		OUTBOXJSON,
-		PRODUCE,
 		RANGE,
 		READ,
 		REFRESH,
-		REQUEST,
-		REQUESTINFO,
-		RESPOND,
 		RETURN,
 		SELECT,
 		SETCYCLETIME,

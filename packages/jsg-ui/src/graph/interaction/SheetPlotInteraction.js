@@ -152,23 +152,20 @@ export default class SheetPlotInteraction extends Interaction {
 
 		let view = this._controller.getView();
 		const selection = this.isElementHit(event, viewer, view.chartSelection);
-		if (selection === undefined) {
-			return;
-		}
+		if (selection) {
+			if (!view.getItem().isProtected() && !this.drag) {
+				view.chartSelection = selection;
+				NotificationCenter.getInstance().send(
+					new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, view.getItem())
+				);
+				viewer.setCursor(Cursor.Style.AUTO);
 
-		if (!view.getItem().isProtected() && !this.drag) {
-			view.chartSelection = selection;
-			NotificationCenter.getInstance().send(
-				new Notification(SelectionProvider.SELECTION_CHANGED_NOTIFICATION, view.getItem())
-			);
-			viewer.setCursor(Cursor.Style.AUTO);
-
-			if (selection) {
-				const layer = view.getGraphView().getLayer('chartselection');
-				layer.push(new ChartSelectionFeedbackView(view));
+				if (selection) {
+					const layer = view.getGraphView().getLayer('chartselection');
+					layer.push(new ChartSelectionFeedbackView(view));
+				}
 			}
 		}
-
 
 		const graphView = viewer.getGraphView();
 		const layer = graphView.getLayer('chartinfo');
@@ -224,10 +221,55 @@ export default class SheetPlotInteraction extends Interaction {
 				const zoomcmds = [];
 				layer.forEach((lview) => {
 					const vitem = lview.chartView.getItem();
-					const cmds = vitem.setParamValues(viewer, vitem.xAxes[0].formula, [
+					const values = [
 						{ index: 4, value: valueStart.x },
-						{ index: 5, value: valueEnd.x }
-					], item);
+						{ index: 5, value: valueEnd.x },
+						{ index: 7, value: undefined },
+						{ index: 8, value: undefined },
+						{ index: 10, value: undefined },
+						{ index: 11, value: undefined }
+					]
+					const term = vitem.xAxes[0].formula.getTerm();
+					if (term) {
+						const field1 = vitem.getParamValue(vitem.xAxes[0].formula.getTerm(), 6);
+						const field2 = vitem.getParamValue(vitem.xAxes[0].formula.getTerm(), 9);
+						if (field1 || field2) {
+							const ref = vitem.getDataSourceInfo(vitem.series[0].formula);
+							if (ref.time && ref.xKey && ref.time.values && ref.time.values[ref.xKey]) {
+								let start1;
+								let start2;
+								let end1;
+								let end2;
+								const refValues = ref.time.values[ref.xKey];
+								refValues.forEach((value, index) => {
+									if (valueStart.x > value) {
+										if (field1 && ref.time.values[field1]) {
+											start1 = ref.time.values[field1][index];
+										}
+										if (field2 && ref.time.values[field2]) {
+											start2 = ref.time.values[field2][index];
+										}
+									}
+									if (value > valueEnd.x && end1 === undefined) {
+										if (field1 && ref.time.values[field1]) {
+											end1 = ref.time.values[field1][index];
+										}
+									}
+									if (value > valueEnd.x && end2 === undefined) {
+										if (field2 && ref.time.values[field2]) {
+											end2 = ref.time.values[field2][index];
+										}
+									}
+								});
+
+								values[2].value = start1;
+								values[3].value = end1;
+								values[4].value = start2;
+								values[5].value = end2;
+							}
+						}
+					}
+					const cmds = vitem.setParamValues(viewer, vitem.xAxes[0].formula, values, item);
 					if (cmds.length) {
 						cmds.forEach(cmd => zoomcmds.push(cmd));
 					}

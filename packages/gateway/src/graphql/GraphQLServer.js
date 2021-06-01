@@ -64,6 +64,12 @@ const typeDefs = gql`
 		stream: Stream
 	}
 
+	type File {
+		name: String!
+		lastModified: String!
+		path: String!
+	}
+
 	type Machine {
 		id: ID!
 		name: String!
@@ -74,7 +80,7 @@ const typeDefs = gql`
 		streamsheets: [StreamSheet!]!
 		referencedStreams: [ID!]!
 		canEdit: Boolean
-		files: [String!]!
+		files: [File!]!
 		file(name: String!): String
 		scope: Scope!
 	}
@@ -265,6 +271,12 @@ const typeDefs = gql`
 		name: String
 	}
 
+	type DeleteMachineFilesPayload implements MutationResponse {
+		success: Boolean!
+		code: String!
+		message: String!
+	}
+
 	input MachineQuery {
 		name: String
 	}
@@ -304,6 +316,7 @@ const typeDefs = gql`
 		scopedByMachine(machineId: ID!): ScopedMutation!
 		renameMachineFile(machineId: ID!, oldName: String!, newName: String!): RenameMachineFilePayload!
 		deleteMachineFile(machineId: ID!, name: String!): DeleteMachineFilePayload!
+		deleteMachineFiles(machineId: ID!, files: [String!]!): DeleteMachineFilesPayload!
 	}
 `;
 

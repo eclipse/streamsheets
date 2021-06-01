@@ -94,6 +94,10 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 			parent.getView().moveSheetToTop(viewer);
 		}
 
+		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+			return;
+		}
+
 		viewer.clearSelection();
 
 		const interaction = this.activateInteraction(new SheetGraphItemEventInteraction(), dispatcher);
