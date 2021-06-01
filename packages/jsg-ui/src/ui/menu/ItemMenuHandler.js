@@ -228,7 +228,7 @@ export default class ItemMenuHandler {
 	// called on menu update, i.e. menu is already shown...
 	updateMenu() {
 		this.menuHandles.forEach(handle => {
-			this.provider.updateMenu(handle.menu, handle.item, this.editor);
+			this.provider.updateMenu(handle.menu, handle.item, this.editor, undefined, handle.position);
 		});
 	}
 

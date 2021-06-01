@@ -1,4 +1,4 @@
-/* global document */
+/* global document image */
 
 import {
 	LayoutNode,
@@ -11,7 +11,7 @@ export default class AddLayoutColumn extends ItemMenuEntry {
 	constructor() {
 		super();
 		this.id = 'addlayoutcolumn';
-		this.group = 'layoutcolumn';
+		this.group = 'layoutcolumn1';
 		this.element = new Image();
 		this.element.src = `lib/res/svg/add.svg`
 		this.element.style.cursor = 'pointer';

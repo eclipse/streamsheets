@@ -16,12 +16,10 @@ const FormatAttributes = require('../attr/FormatAttributes');
 const StringAttribute = require('../attr/StringAttribute');
 const NumberAttribute = require('../attr/NumberAttribute');
 const ItemAttributes = require('../attr/ItemAttributes');
-const Strings = require('../../commons/Strings');
 const Numbers = require('../../commons/Numbers');
 const Arrays = require('../../commons/Arrays');
-const CompoundCommand = require('../command/CompoundCommand');
-const AddItemCommand = require('../command/AddItemCommand');
 
+JSG.LAYOUT_SHOW_CONTEXT_MENU_NOTIFICATION = 'jsg.show.layout.context.menu';
 
 module.exports = class LayoutNode extends Node {
 	constructor() {

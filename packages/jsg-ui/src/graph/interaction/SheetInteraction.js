@@ -978,10 +978,10 @@ export default class SheetInteraction extends Interaction {
 						.getModel()
 						.getOwnSelection()
 						.getAt(0);
-					// range.shiftToSheet();
+					range.shiftToSheet();
 					node.getFormat().setLineCorner(75);
 					node.setHeight(5000);
-					node.getItemAttributes().setSelectionMode(JSG.ItemAttributes.SelectionMode.BORDER);
+					node.getItemAttributes().setSelectionMode(JSG.ItemAttributes.SelectionMode.DEFAULT);
 					node.getWorksheetAttributes().setShowHeader(false);
 					node.getWorksheetAttributes().setShowGrid(false);
 					node.addAttribute(new JSG.StringAttribute('range', range.toString()));

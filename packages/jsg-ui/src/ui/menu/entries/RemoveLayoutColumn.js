@@ -1,4 +1,4 @@
-/* global document */
+/* global document image */
 
 import {
 	LayoutNode,
@@ -11,7 +11,7 @@ export default class RemoveLayoutColumn extends ItemMenuEntry {
 	constructor() {
 		super();
 		this.id = 'removelayoutcolumn';
-		this.group = 'layoutcolumn';
+		this.group = 'layoutcolumn2';
 		this.element = new Image();
 		this.element.src = `lib/res/svg/delete.svg`
 		this.element.style.cursor = 'pointer';

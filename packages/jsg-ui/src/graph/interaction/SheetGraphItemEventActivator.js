@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, NotificationCenter, Notification, Shape, CellsNode } from '@cedalo/jsg-core';
+import { default as JSG, NotificationCenter, Notification, Shape, LayoutNode, CellsNode } from '@cedalo/jsg-core';
 
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
 import SheetGraphItemEventInteraction from './SheetGraphItemEventInteraction';
@@ -197,12 +197,21 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 				event.doRepaint = true;
 			}
 			event.hasActivated = true;
-			NotificationCenter.getInstance().send(
-				new Notification(JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION, {
-					event,
-					controller
-				})
-			);
+			if (controller.getParent().getModel() instanceof LayoutNode) {
+				NotificationCenter.getInstance().send(
+					new Notification(JSG.LAYOUT_SHOW_CONTEXT_MENU_NOTIFICATION, {
+						event,
+						controller
+					})
+				);
+			} else {
+				NotificationCenter.getInstance().send(
+					new Notification(JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION, {
+						event,
+						controller
+					})
+				);
+			}
 		}
 	}
 

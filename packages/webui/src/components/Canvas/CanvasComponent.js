@@ -28,6 +28,7 @@ import { graphManager } from '../../GraphManager';
 import ContextMenu from './ContextMenu';
 import TreeContextMenu from './TreeContextMenu';
 import GraphContextMenu from './GraphContextMenu';
+import LayoutContextMenu from './LayoutContextMenu';
 import EditPointsContextMenu from './EditPointsContextMenu';
 import SheetDeleteDialog from './SheetDeleteDialog';
 import MachineHelper from '../../helper/MachineHelper';
@@ -301,6 +302,7 @@ export class CanvasComponent extends Component {
 						<ContextMenu />
 						<TreeContextMenu />
 						<GraphContextMenu />
+						<LayoutContextMenu />
 						<EditPointsContextMenu />
 					</React.Fragment>
 				)}

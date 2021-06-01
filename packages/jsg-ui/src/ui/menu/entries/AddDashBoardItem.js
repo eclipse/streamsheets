@@ -1,4 +1,4 @@
-/* global document */
+/* global document image */
 
 import {default as JSG, ImagePool, Notification, NotificationCenter, LayoutNode, LayoutSection} from '@cedalo/jsg-core';
 import ItemMenuEntry from '../ItemMenuEntry';

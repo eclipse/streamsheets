@@ -3,19 +3,19 @@
 import {LayoutNode, AddLayoutSectionCommand} from '@cedalo/jsg-core';
 import ItemMenuEntry from '../ItemMenuEntry';
 
-export default class AddLayoutRow extends ItemMenuEntry {
+export default class RowMenu extends ItemMenuEntry {
 	constructor() {
 		super();
-		this.id = 'addlayoutrow';
-		this.group = 'layoutrow';
+		this.id = 'columnmenu';
+		this.group = 'columnmenu';
 		this.element = new Image();
-		this.element.src = `lib/res/svg/add.svg`
+		this.element.src = `lib/res/svg/columnmenu.svg`
 		this.element.style.cursor = 'pointer';
-		this.position = 'bli';
+		this.position = 'tri';
 	}
 
 	isVisible(item) {
-		return (item instanceof LayoutNode) && !item.isProtected();
+		return (item.getParent() instanceof LayoutNode) && !item.isProtected();
 	}
 
 	onEvent(event, item, editor) {

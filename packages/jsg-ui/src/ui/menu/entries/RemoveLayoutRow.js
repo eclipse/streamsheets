@@ -1,4 +1,4 @@
-/* global document */
+/* global document image */
 
 import {LayoutNode, DeleteLayoutSectionCommand} from '@cedalo/jsg-core';
 import ItemMenuEntry from '../ItemMenuEntry';

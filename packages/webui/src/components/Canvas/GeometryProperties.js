@@ -508,6 +508,9 @@ export class GeometryProperties extends Component {
 					this.getAttributeHandler("GraphItemProperties.StartAngle", item, 'start', 2),
 					this.getAttributeHandler("GraphItemProperties.EndAngle", item, 'end', 2),
 				] : null}
+				{(item instanceof JSG.StreamSheet) ? [
+				this.getAttributeHandler("GraphItemProperties.SourceRange", item, 'range')
+				] : null}
 				{(item instanceof JSG.LayoutNode) ? [
 					<TextField
 						variant="outlined"

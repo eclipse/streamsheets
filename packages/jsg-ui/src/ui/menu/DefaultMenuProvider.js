@@ -8,6 +8,8 @@ import AddLayoutColumn from './entries/AddLayoutColumn';
 import AddLayoutRow from './entries/AddLayoutRow';
 import RemoveLayoutColumn from './entries/RemoveLayoutColumn';
 import RemoveLayoutRow from './entries/RemoveLayoutRow';
+import RowMenu from './entries/RowMenu';
+import ColumnMenu from './entries/ColumnMenu';
 import EditNode from './entries/EditNode';
 
 const MENU_STYLE = 'jsg-item-menu';
@@ -45,6 +47,8 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 		this.addEntry(new AddDashBoardItem());
 		this.addEntry(new AddLayoutColumn());
 		this.addEntry(new AddLayoutRow());
+		// this.addEntry(new RowMenu());
+		// this.addEntry(new ColumnMenu());
 		this.addEntry(new EditNode());
 		this.addEntry(new RemoveLayoutColumn());
 		this.addEntry(new RemoveLayoutRow());
@@ -106,7 +110,7 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 	_filteredRow(row, item, position) {
 		const filtered = [];
 		for (let i = 0; i < row.length; i += 1) {
-			if (row[i].isVisible(item) && row[i].position[0] === position[0]) {
+			if (row[i].isVisible(item) && row[i].position === position) {
 				filtered.push(row[i]);
 			}
 		}

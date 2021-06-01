@@ -11,7 +11,7 @@ const STYLE_SELECTOR = 'jsg-item-menu';
 export default class ItemMenuProvider {
 	// called by framework to create an html-element which represents a menu for given item. return <code>undefined</code>
 	// if item is not handled... creates a div-element with default style class ItemMenuProvider.STYLE_SELECTOR
-	createMenu(item, editor) {
+	createMenu(item, editor, position) {
 		return undefined;
 	}
 

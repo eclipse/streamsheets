@@ -66,15 +66,19 @@ export default class CellsView extends NodeView {
 				}
 			}, false);
 			this._wsView = this.getWorksheetView();
+			this._wsItem.getItemAttributes().setSelectionMode(JSG.ItemAttributes.SelectionMode.DEFAULT);
+
 			const attr = this._wsItem.getAttributeAtPath('range');
 			if (!attr) {
 				return;
 			}
 			const rangeString = attr.getValue();
 			const range = CellRange.parse(rangeString, sourceSheet);
-			const rect = sourceSheet.getCellRect(range);
-
-			graphics.translate(-rect.x, -rect.y);
+			if (range) {
+				range.shiftFromSheet();
+				const rect = sourceSheet.getCellRect(range);
+				graphics.translate(-rect.x, -rect.y);
+			}
 		} else {
 			view = this;
 		}
