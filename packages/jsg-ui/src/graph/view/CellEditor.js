@@ -315,7 +315,7 @@ export default class CellEditor {
 					)}</p>`;
 					html += `<p>${info[1][JSG.locale].description}</p>`;
 					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
-					html += `<a href="https://docs.cedalo.com/new/streamsheets/${versionLink}/functions/${info[1].category}/${info[0]
+					html += `<a href="https://docs.cedalo.com/streamsheets/${versionLink}/functions/${info[1].category}/${info[0]
 						.toLowerCase()
 						.replace(/\./g, '')}" target="_blank">`;
 					html += `${JSG.getLocalizedString('More Info')}</a></p>`;
