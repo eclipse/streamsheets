@@ -1,6 +1,6 @@
 const sdk = require('@cedalo/sdk-streams');
 
-module.exports = class MqttProviderConfiguration extends sdk.ProviderConfiguration {
+module.exports = class AMPQProviderConfiguration extends sdk.ProviderConfiguration {
 	constructor() {
 		super({
 			name: 'AMPQ Provider',
@@ -107,6 +107,14 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			},
 			defaultValue: '',
 			helperText: 'For Direct queue leave exchange empty and set queue as routing key',
+		});
+		this.addProducerDefinition({
+			id: 'replyTo',
+			label: {
+				en: 'replyTo',
+			},
+			defaultValue: '',
+			helperText: 'The response will be expected into the replyTo queue. This is usually a temp queue',
 		});
 		this.addConnectorDefinition({
 			id: 'properties',
