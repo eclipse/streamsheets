@@ -92,11 +92,16 @@ module.exports = class LayoutNode extends Node {
 		return this._columns;
 	}
 
-	addRow(section) {
+	addRow(section, index) {
 		if (section) {
-			this.rowData.push(section);
+			Arrays.insertAt(this.rowData, index, section);
 		}
 		this._rows += 1;
+
+		for (let i = 0; i < this._columnData.length; i += 1) {
+			this.addCell(index, i);
+		}
+
 		this.updateData();
 		this.getGraph().markDirty();
 	}
@@ -113,14 +118,14 @@ module.exports = class LayoutNode extends Node {
 		this.getGraph().markDirty();
 	}
 
-	addColumn(section) {
+	addColumn(section, index) {
 		if (section) {
-			this.columnData.push(section);
+			Arrays.insertAt(this.columnData, index, section);
 		}
 		this._columns += 1;
 
 		for (let i = 0; i  < this._rowData.length; i += 1) {
-			this.addCell(i, this._columnData.length - 1);
+			this.addCell(i, index);
 		}
 		this.updateData();
 		this.getGraph().markDirty();

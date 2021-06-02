@@ -129,24 +129,131 @@ class LayoutContextComponent extends Component {
 	}
 
 	onDelete = () => {
-		graphManager
-			.getGraphEditor()
-			.getInteractionHandler()
-			.deleteSelection();
-	};
-
-	onChangeOrder = (popupState, order) => {
-		popupState.close();
-
-		const viewer = graphManager.getGraphViewer();
-		if (viewer === undefined) {
+		const cmd = new JSG.CompoundCommand();
+		const info = this.getNodeInfo();
+		if (!info) {
 			return;
 		}
 
+		info.item.getItems().forEach(item => {
+			cmd.add(new JSG.DeleteItemCommand(item));
+		});
+
+		graphManager
+			.getGraphEditor()
+			.getInteractionHandler().execute(cmd);
+	};
+
+	onDeleteRow = (popupState) => {
+		popupState.close();
+		const info = this.getNodeInfo();
+		if (!info) {
+			return;
+		}
+
+		const cmd = new JSG.DeleteLayoutSectionCommand(info.layoutNode, info.row, true);
+
+		graphManager
+			.getGraphEditor()
+			.getInteractionHandler().execute(cmd);
+	};
+
+	onAddRow = (popupState, before) => {
+		popupState.close();
+		const info = this.getNodeInfo();
+		if (!info) {
+			return;
+		}
+
+		const cmd = new JSG.AddLayoutSectionCommand(info.layoutNode, 4000, 'auto', true, before ? info.row : info.row + 1);
+
+		graphManager
+			.getGraphEditor()
+			.getInteractionHandler().execute(cmd);
+	};
+
+	onDeleteColumn = (popupState) => {
+		popupState.close();
+		const info = this.getNodeInfo();
+		if (!info) {
+			return;
+		}
+
+		const cmd = new JSG.DeleteLayoutSectionCommand(info.layoutNode, info.column, false);
+
+		graphManager
+			.getGraphEditor()
+			.getInteractionHandler().execute(cmd);
+	};
+
+	onAddColumn = (popupState, before) => {
+		popupState.close();
+		const info = this.getNodeInfo();
+		if (!info) {
+			return;
+		}
+
+		const cmd = new JSG.AddLayoutSectionCommand(info.layoutNode, 4000, 'absolute', false, before ? info.column : info.column + 1);
+
+		graphManager
+			.getGraphEditor()
+			.getInteractionHandler().execute(cmd);
+	};
+
+	getNodeInfo() {
+		const viewer = graphManager.getGraphViewer();
 		const selection = viewer.getSelection();
 		const item = selection.length ? selection[0].getModel() : undefined;
+		if (!item) {
+			return undefined;
+		}
+		const layoutNode = item.getParent();
+		if (!(layoutNode instanceof JSG.LayoutNode)) {
+			return undefined;
+		}
 
-		graphManager.synchronizedExecute(new JSG.ChangeItemOrderCommand(item, order, viewer));
+		const index = layoutNode.getItems().indexOf(item);
+
+		return {
+			item,
+			layoutNode,
+			row: Math.floor(index / layoutNode.columns),
+			column: index % layoutNode.columns
+		}
+	}
+
+	onRowProperties = (popupState) => {
+		popupState.close();
+
+		const info = this.getNodeInfo()
+		const viewer = graphManager.getGraphViewer();
+		viewer.getSelectionProvider().setSelectionContext({
+			obj: 'layoutsectionrow',
+			index: info.row,
+		});
+
+		JSG.NotificationCenter.getInstance().send(
+			new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, info.item)
+		);
+
+		this.props.setAppState({ showLayoutSectionProperties: true });
+	};
+
+	onColumnProperties = (popupState) => {
+		popupState.close();
+
+		const info = this.getNodeInfo()
+		const viewer = graphManager.getGraphViewer();
+		viewer.getSelectionProvider().setSelectionContext({
+			obj: 'layoutsectioncolumn',
+			index: info.column,
+		});
+
+		JSG.NotificationCenter.getInstance().send(
+			new JSG.Notification(JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION, info.item)
+		);
+
+		this.props.setAppState({ showLayoutSectionProperties: true });
 	};
 
 	onShowChartProperties = () => {
@@ -212,26 +319,23 @@ class LayoutContextComponent extends Component {
 								<Submenu
 									popupId='rowMenu' title={<FormattedMessage id='Layout.Row' defaultMessage='Row' />}
 								>
-									<MenuItem onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.DOWN)}
-											  dense>
+									<MenuItem onClick={() => this.onRowProperties(popupState)} dense>
 										<ListItemText
-											primary={<FormattedMessage id='Layout.Properties' defaultMessage='Properties' />} />
+											primary={<FormattedMessage id='Layout.Properties' defaultMessage='Properties' />}
+										/>
 									</MenuItem>
 									<Divider />
-									<MenuItem
-										onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.TOTOP)}
-										dense>
+									<MenuItem onClick={() => this.onAddRow(popupState, true)} dense>
 										<ListItemText primary={<FormattedMessage id='Layout.AddBefore'
 																				 defaultMessage='Add Before' />} />
 									</MenuItem>
-									<MenuItem onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.UP)}
+									<MenuItem onClick={() => this.onAddRow(popupState, false)}
 											  dense>
 										<ListItemText
 											primary={<FormattedMessage id='Layout.AddBehind' defaultMessage='Add Behind' />} />
 									</MenuItem>
 									<Divider />
-									<MenuItem onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.DOWN)}
-											  dense>
+									<MenuItem onClick={() => this.onDeleteRow(popupState)} dense>
 										<ListItemText
 											primary={<FormattedMessage id='Layout.Delete' defaultMessage='Delete' />} />
 									</MenuItem>
@@ -239,26 +343,25 @@ class LayoutContextComponent extends Component {
 								<Submenu
 									popupId='columnMenu' title={<FormattedMessage id='Layout.Column' defaultMessage='Column' />}
 								>
-									<MenuItem onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.DOWN)}
-											  dense>
+									<MenuItem onClick={() => this.onColumnProperties(popupState)} dense>
 										<ListItemText
-											primary={<FormattedMessage id='Layout.Properties' defaultMessage='Properties' />} />
+											primary={<FormattedMessage id='Layout.Properties' defaultMessage='Properties' />}
+										/>
 									</MenuItem>
 									<Divider />
 									<MenuItem
-										onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.TOTOP)}
+										onClick={() => this.onAddColumn(popupState, true)}
 										dense>
 										<ListItemText primary={<FormattedMessage id='Layout.AddBefore'
 																				 defaultMessage='Add Before' />} />
 									</MenuItem>
-									<MenuItem onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.UP)}
+									<MenuItem onClick={() => this.onAddColumn(popupState, false)}
 											  dense>
 										<ListItemText
 											primary={<FormattedMessage id='Layout.AddBehind' defaultMessage='Add Behind' />} />
 									</MenuItem>
 									<Divider />
-									<MenuItem onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.DOWN)}
-											  dense>
+									<MenuItem onClick={() => this.onDeleteColumn(popupState)} dense>
 										<ListItemText
 											primary={<FormattedMessage id='Layout.Delete' defaultMessage='Delete' />} />
 									</MenuItem>
