@@ -45,13 +45,13 @@ export default class DefaultMenuProvider extends ItemMenuProvider {
 		this.addEntry(new StreamChartSeries());
 		this.addEntry(new StreamChartData());
 		this.addEntry(new AddDashBoardItem());
-		this.addEntry(new AddLayoutColumn());
-		this.addEntry(new AddLayoutRow());
+		// this.addEntry(new AddLayoutColumn());
+		// this.addEntry(new AddLayoutRow());
 		// this.addEntry(new RowMenu());
 		// this.addEntry(new ColumnMenu());
-		this.addEntry(new EditNode());
-		this.addEntry(new RemoveLayoutColumn());
-		this.addEntry(new RemoveLayoutRow());
+		// this.addEntry(new EditNode());
+		// this.addEntry(new RemoveLayoutColumn());
+		// this.addEntry(new RemoveLayoutRow());
 	}
 
 	// adds a MenuEntry to this provider

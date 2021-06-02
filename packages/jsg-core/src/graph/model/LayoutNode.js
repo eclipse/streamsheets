@@ -182,7 +182,7 @@ module.exports = class LayoutNode extends Node {
 			this._columnData[info.index];
 
 		if (data.sizeMode === 'relative') {
-			const factor = info.relativeSize.space ? info.relativeSize.sum / info.relativeSize.space : 1;
+			const factor = info.reltiveSize.space ? info.relativeSize.sum / info.relativeSize.space : 1;
 			const size = (info.sectionSize + delta * factor) / factor;
 			if (size > data.minSize) {
 				data.size = Math.max(0, info.sectionSize + delta * factor);
