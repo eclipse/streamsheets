@@ -3438,6 +3438,9 @@ class GraphItem extends Model {
 		if (json.type !== undefined) {
 			this.getType().fromJSON(json.type);
 		}
+		if (json.name !== undefined) {
+			this.getName().fromJSON(json.name);
+		}
 
 		if (json.reshape) {
 			this._reshapeCoordinates = [];
@@ -3496,7 +3499,7 @@ class GraphItem extends Model {
 		}
 
 		if (this._name.getValue() !== '') {
-			ret.name = this.getName().getValue();
+			ret.name = this.getName().toJSON(true);
 		}
 
 		if (this._type.getValue() !== '') {

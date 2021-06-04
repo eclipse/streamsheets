@@ -113,6 +113,40 @@ class Shapes {
 			});
 		}
 	}
+
+	getShapeValue(shape) {
+		const get = (obj, defValue) => {
+			if (!obj) {
+				return defValue
+			}
+			let val =  obj.sv === undefined ? obj.v : obj.sv;
+			if (obj.t === 'n') {
+				val = Number(val);
+			} else if (obj.t === 'b') {
+				val = val === 'true' || val === true;
+			// } else {
+			// 	val = Strings.decode(String(input));
+			}
+			return val;
+		};
+
+		return {
+			ID: shape.id,
+			NAME: get(shape.name, ''),
+			VISIBLE: get(shape.attributes.visible, true),
+			VALUE: shape.modelattributes ? get(shape.modelattributes.value, 0) : undefined,
+		}
+	}
+
+	getShapeByName(name) {
+		if (this.json) {
+			const shapes = this.json.shapes.filter(shape => {
+				return shape.name && shape.name.v && shape.name.v.toUpperCase() === name;
+			});
+			return shapes.length === 1 ? shapes[0] : undefined;
+		}
+		return undefined;
+	}
 }
 
 module.exports = Shapes;

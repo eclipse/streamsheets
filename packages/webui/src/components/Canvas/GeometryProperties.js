@@ -244,6 +244,13 @@ export class GeometryProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	handleName = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.SetNameCommand(item, expr.expression);
+		graphManager.synchronizedExecute(cmd);
+	}
+
 	handleRotationCenter = (event) => {
 		const item = this.props.view.getItem();
 		const pin = item.getPin();
@@ -483,6 +490,7 @@ export class GeometryProperties extends Component {
 						</MenuItem>
 					</TextField>
 				)}
+				{this.getPropertyHandler("GraphItemProperties.Name", this.handleName, item.getName())}
 				{item.getShape() instanceof JSG.PolygonShape ? (
 					this.getPropertyHandler("GraphItemProperties.PointRange", this.handlePointRange, item.getShape().getSource())
 				) : null}
