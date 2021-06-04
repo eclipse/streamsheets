@@ -127,6 +127,10 @@ module.exports = class Cell {
 		this._info = info;
 	}
 
+	get error() {
+		return this._info && this._info.error;
+	}
+
 	get displayFunctionName() {
 		return this._info && this._info.displayName;
 	}
