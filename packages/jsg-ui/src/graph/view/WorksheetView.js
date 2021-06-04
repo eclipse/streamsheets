@@ -44,6 +44,7 @@ import { FuncTerm, Locale } from '@cedalo/parser';
 import { NumberFormatter } from '@cedalo/number-format';
 import CellSelectionFeedbackView from '../feedback/CellSelectionFeedbackView';
 import CellEditor from './CellEditor';
+import CellInfoView from './CellInfoView';
 import ContentNodeView from './ContentNodeView';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
 import Cursor from '../../ui/Cursor';
@@ -68,7 +69,8 @@ const HitCode = {
 	COLUMNSIZEHIDDEN: 12,
 	COLUMNOUTLINE: 13,
 	ROWOUTLINE: 14,
-	DATAVIEW: 15
+	DATAVIEW: 15,
+	ERRORVIEW: 16
 };
 
 /**
@@ -1024,6 +1026,10 @@ export default class WorksheetView extends ContentNodeView {
 			return WorksheetView.HitCode.DATAVIEW;
 		}
 
+		if (this.isErrorView(point, cell, viewer)) {
+			return WorksheetView.HitCode.ERRORVIEW;
+		}
+
 		return WorksheetView.HitCode.SHEET;
 	}
 
@@ -1114,6 +1120,7 @@ export default class WorksheetView extends ContentNodeView {
 				interaction.setCursor(Cursor.Style.CROSSHAIR);
 				break;
 			case WorksheetView.HitCode.DATAVIEW:
+			case WorksheetView.HitCode.ERRORVIEW:
 				interaction.setCursor(Cursor.Style.EXECUTE);
 				break;
 			case WorksheetView.HitCode.REFERENCEMOVE: {
@@ -1888,121 +1895,25 @@ export default class WorksheetView extends ContentNodeView {
 			point.y > cellRect.y &&
 			point.y < cellRect.y + 300;
 	}
-
-	handleDataView(sheet, dataCell, targetRange, viewer) {
-		if (targetRange === undefined) {
-			return;
-		}
-
-		const data = sheet.getDataProvider();
-		const cell = data.get(dataCell);
-
-		if (cell === undefined) {
-			return
-		}
-
-		this.showCellValues(viewer, cell, targetRange);
+	isErrorView(point, cellPos) {
+		const data = this.getItem().getDataProvider();
+		const cell = data.get(cellPos);
+		const cellRect = cell && cell.error ? this.getCellRect(cellPos) : undefined;
+		return cellRect && 
+			point.x > cellRect.x &&
+			point.x < cellRect.x + 300 &&
+			point.y > cellRect.y &&
+			point.y < cellRect.y + 300;
 	}
-
-	showCellValues(viewer, cell, targetRange) {
-		const cellRect = this.getRangeRect(targetRange);
-		const pos = this.getDevCellPosition(viewer, {x: targetRange._x1, y: targetRange._y1});
-		const div = document.createElement('div');
-		const cs = viewer.getCoordinateSystem();
-		const values = cell.values;
-		let scrollTop;
-		const remove = () => {
-			const dataView = this.getFromGraph();
-			if (dataView) {
-				const table = document.getElementById('dataviewtable');
-				if (table) {
-					scrollTop = table.scrollTop;
-				}
-				viewer.getCanvas().parentNode.removeChild(dataView.div);
-				this.deRegisterAtGraph();
-			}
-		};
-
-		remove();
-
-		if (targetRange.getWidth() > 1) {
-			div.style.width = `${cs.logToDeviceY(cellRect.width, false) - 1}px`;
+	handleDataView(sheet, dataCell, targetRange, viewer) {
+		this.handleInfoView(HitCode.DATAVIEW, sheet, dataCell, targetRange, viewer);
+	}
+	handleInfoView(infoType, sheet, dataCell, targetRange, viewer) {
+		if (targetRange != null) {
+			const data = sheet.getDataProvider();
+			const cell = data.get(dataCell);
+			if (cell != null) CellInfoView.of(infoType, viewer, this).showInfo(cell, targetRange);
 		}
-
-		let maxHeight = 320;
-
-		if (targetRange.getHeight() > 1) {
-			div.style.height = `${cs.logToDeviceY(cellRect.height, false)}px`;
-			maxHeight = cs.logToDeviceY(cellRect.height, false);
-		}
-
-		div.style.left = `${pos.x}px`;
-		div.style.top = `${pos.y}px`;
-		div.style.minWidth = `${cs.logToDeviceY(cellRect.width, false) - 1}px`;
-		div.style.minHeight = `${cs.logToDeviceY(cellRect.height, false)}px`;
-		div.style.backgroundColor = JSG.theme.fill;
-		div.style.borderColor = JSG.theme.border;
-		div.style.borderWidth = '1px';
-		div.style.borderStyle = 'solid';
-		div.style.position = 'absolute';
-		div.style.fontSize = '8pt';
-
-		const fields = values ? Object.entries(values) : [];
-		const rowCount = fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined ? fields[0][1].length : 0;
-
-		let html = `<p style="color: ${JSG.theme.text}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
-		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-		html +=	`<div id="dataviewtable" style="overflow-y: auto; max-height: ${maxHeight - 25}px">`;
-		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${targetRange.getWidth() > 1 ? '100%' : 'inherit'}"><thead><tr>`;
-
-		fields.forEach(([key, entry]) => {
-			html += `<th style="padding: 5px;" >${key}</th>`;
-		});
-		html += '</tr></thead>';
-
-		html += '<tbody>';
-
-
-		if (rowCount) {
-			fields[0][1].forEach((value, index) => {
-				html += '<tr>';
-				fields.forEach(([key, entry]) => {
-					let val = entry[index];
-					if (key === 'time') {
-						const date = MathUtils.excelDateToJSDate(val);
-						val = `${date.toLocaleTimeString()} ${date.getMilliseconds()}`;
-
-					}
-					html += `<td style="padding: 5px;text-align: ${Numbers.isNumber(val) ? 'right' : 'left'}">${val === null || val === undefined ? '' : val}</td>`;
-				});
-				html += '</tr>';
-			});
-		}
-
-		html += '</tbody>';
-		html += '</table></div>';
-
-		div.innerHTML = html;
-		viewer.getCanvas().parentNode.appendChild(div);
-
-		document.getElementById('closeFunc').addEventListener(
-			'mousedown',
-			(event) => {
-				remove();
-			},
-			false
-		);
-
-		if (scrollTop) {
-			const table = document.getElementById('dataviewtable');
-			if (table) {
-				table.scrollTop = scrollTop;
-			}
-		}
-
-		div.focus();
-
-		this.registerAtGraph(viewer, cell, targetRange, div);
 	}
 
 	handleMouseWheel(event, viewer) {
