@@ -63,6 +63,8 @@ const {
 	MathUtils,
 	ViewActivator,
 	WorksheetNode,
+	WorksheetView,
+	CellInfoView
 } = JSG;
 
 
@@ -406,7 +408,11 @@ export default class GraphManager {
 		const graph = this.getGraph();
 		if (graph && graph.dataView) {
 			const data = graph.dataView;
-			data.view.showCellValues(data.viewer, data.cell, data.targetRange);
+			// data.view.showCellValues(data.viewer, data.cell, data.targetRange);
+			CellInfoView.of(WorksheetView.HitCode.DATAVIEW, data.viewer, data.view).showInfo(
+				data.cell,
+				data.targetRange
+			);
 		}
 	}
 
