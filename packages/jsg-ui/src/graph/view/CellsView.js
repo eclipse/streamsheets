@@ -896,6 +896,17 @@ export default class CellsView extends NodeView {
 				graphics.fillPolyline(pts, true);
 				graphics.setFillColor('#000000');
 			}
+			// draw error 
+			if (data.error) {
+				graphics.setFillColor('#FF0000');
+				const pts = [
+					{x: columnInfo.x, y: rowInfo.y},
+					{x: columnInfo.x + 200, y: rowInfo.y},
+					{x: columnInfo.x, y: rowInfo.y + 200}
+				];
+				graphics.fillPolyline(pts, true);
+				graphics.setFillColor('#000000');
+			}
 		}
 	}
 
