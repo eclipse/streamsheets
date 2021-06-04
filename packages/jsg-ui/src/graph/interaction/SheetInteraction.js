@@ -226,9 +226,10 @@ export default class SheetInteraction extends Interaction {
 				this._endCell = this._startCell.copy();
 				this._doSelect(event, viewer, false, true);
 				break;
-			case WorksheetView.HitCode.DATAVIEW: {
+			case WorksheetView.HitCode.DATAVIEW:
+			case WorksheetView.HitCode.ERRORVIEW: {
 				const cellPos = this.getCell(view, event.location, viewer);
-				view.handleDataView(view.getItem(), cellPos, new CellRange(
+				view.handleInfoView(this._hitCode,view.getItem(), cellPos, new CellRange(
 					view.getItem(),
 					cellPos.x,
 					cellPos.y + 1,
