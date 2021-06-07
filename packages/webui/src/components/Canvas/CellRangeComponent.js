@@ -174,6 +174,12 @@ class CellRangeComponent extends React.Component {
 		graphManager.redraw();
 	};
 
+	handleMouseUp = () => {
+		const cellEditor = CellEditor.getActiveCellEditor();
+
+		cellEditor.updateFunctionInfo();
+	};
+
 	handleKeyUp = (event) => {
 		const view = this.props.sheetView;
 		const cellEditor = CellEditor.getActiveCellEditor();
@@ -195,6 +201,8 @@ class CellRangeComponent extends React.Component {
 			cellEditor.updateEditRangesView(view);
 			break;
 		}
+
+		cellEditor.updateFunctionInfo();
 	};
 
 	handleKeyDown = (event) => {
@@ -204,6 +212,9 @@ class CellRangeComponent extends React.Component {
 		}
 
 		const cellEditor = CellEditor.getActiveCellEditor();
+		if (cellEditor.handleFunctionListKey(event, view)) {
+			return;
+		}
 
 		switch (event.key) {
 		case 'F2':
@@ -374,6 +385,7 @@ class CellRangeComponent extends React.Component {
 					onFocus={this.handleFocus}
 					onBlur={(event) => this.handleBlur(event)}
 					onKeyUp={this.handleKeyUp}
+					onMouseUp={this.handleMouseUp}
 					onKeyDown={this.handleKeyDown}
 					onDoubleClick={this.handleDoubleClick}
 					onSelect={this.handleSelect}

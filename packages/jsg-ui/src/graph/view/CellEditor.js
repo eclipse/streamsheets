@@ -40,6 +40,7 @@ export default class CellEditor {
 		this.div = div;
 		this.funcDiv = undefined;
 		this.funcIndex = 0;
+		this.propertyPage = div.id === 'sheet-ref'
 	}
 
 	static activateCellEditor(div, viewer, sheet) {
@@ -288,11 +289,13 @@ export default class CellEditor {
 				let html;
 				let parameters;
 				html = '<div style="padding: 3px;background-color: #DDDDDD">';
+				const width = this.propertyPage ? '235px' : '305px';
+
 				if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
-					parameters = `<p style="width:305px">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
+					parameters = `<p style="width:${width}">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
 				} else {
 					const params = info[1][JSG.locale].argumentList.split(',');
-					parameters = `<p style="width:305px">${info[0]}(`;
+					parameters = `<p style="width:${width}">${info[0]}(`;
 					params.forEach((param, paramIndex) => {
 						if (paramIndex === this.funcInfo.paramIndex) {
 							parameters  += `<span style="font-weight: bold">${param}</span>`;
@@ -308,7 +311,10 @@ export default class CellEditor {
 				parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
 				html += parameters;
 				html += `<div id="expandFunc" style="width:15px;height:15px;position: absolute; top: 6px; right: 15px; transform: scale(2.0,1.0); font-size: 7pt; color: #777777;cursor: pointer">${showParamInfo ? '&#x2C4' : '&#x2C5'}</div>`;
-				html += `<div id="closeFunc" style="width:13px;height:15px;position: absolute; top: 3px; right: 2px; transform: scale(1.3,1.0); font-size: 11pt; color: #777777;cursor: pointer">x</div>`;
+				if (!this.propertyPage) {
+					html +=
+						`<div id='closeFunc' style='width:13px;height:15px;position: absolute; top: 3px; right: 2px; transform: scale(1.3,1.0); font-size: 11pt; color: #777777;cursor: pointer'>x</div>`;
+				}
 				if (showParamInfo) {
 					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
 						'Summary'
@@ -411,7 +417,7 @@ export default class CellEditor {
 	updateFunctionInfo() {
 		this.funcs = this.getPotentialFunctionsUnderCursor();
 
-		if (this.funcs && this.funcs.length === 1 && showFuncInfo === false) {
+		if (this.funcs && this.funcs.length === 1 && showFuncInfo === false && !this.propertyPage) {
 			const y = this.div.offsetTop + (this.editBar ? 0 : 4);
 			if (!this.helpDiv) {
 				this.helpDiv = document.createElement('div');
@@ -429,6 +435,7 @@ export default class CellEditor {
 				this.helpDiv.style.border = '1px solid #BBBBBB';
 				this.helpDiv.style.left = `${this.div.offsetLeft - 22}px`;
 				this.helpDiv.style.top = `${y}px`;
+				this.helpDiv.style.zIndex = '1000';
 				this.helpDiv.innerText = '?';
 				this.div.parentNode.appendChild(this.helpDiv);
 				this.helpDiv.addEventListener(
@@ -464,7 +471,11 @@ export default class CellEditor {
 				this.funcDiv.style.position = 'absolute';
 				this.funcDiv.style.fontFamily = 'Roboto, Verdana, Arial, sans-serif';
 				this.funcDiv.style.fontSize = '8pt';
-				this.funcDiv.style.width = '350px';
+				this.funcDiv.style.width = this.propertyPage ? '280px' : '350px';
+				if (this.propertyPage) {
+					this.funcDiv.style.maxHeight = '350px';
+				}
+				this.funcDiv.style.zIndex = '1000';
 				this.funcDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y}px`;
 				this.funcDiv.style.overflowY = 'auto';
 				this.funcDiv.style.color = '#333333';
@@ -483,9 +494,8 @@ export default class CellEditor {
 				child.addEventListener('mousedown', (event) => this.handleFunctionListMouseDown(event), false);
 			});
 			if (this.funcs.length === 1) {
-				document.getElementById('closeFunc').addEventListener(
-					'mousedown',
-					(event) => {
+				if (!this.propertyPage) {
+					document.getElementById('closeFunc').addEventListener('mousedown', (event) => {
 						showFuncInfo = false;
 						localStorage.setItem('funcinfo', false);
 						this.div._ignoreBlur = true;
@@ -495,9 +505,8 @@ export default class CellEditor {
 						this.updateFunctionInfo();
 						this.div.focus();
 						this.div._ignoreBlur = false;
-					},
-					false
-				);
+					}, false);
+				}
 				document.getElementById('expandFunc').addEventListener(
 					'mousedown',
 					(event) => {
