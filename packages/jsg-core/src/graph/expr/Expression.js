@@ -687,7 +687,7 @@ class Expression {
 		}
 		const type = typeof this.getValue();
 
-		if (type[0] !== 'n') {
+		if (type !== undefined && type[0] !== 'n') {
 			ret.t = type[0];
 		}
 		if (serverCalc && this._formula) {

@@ -57,7 +57,7 @@ const updateValue = (obj) => {
 
 const evaluateObject = (obj, sheet) => {
 	Object.values(obj).forEach((value) => {
-		if (value.v !== undefined) {
+		if (value.f !== undefined) {
 			// if its a term and shall be calculated on server
 			if (value.msc) {
 				if (!value.term) {
@@ -107,7 +107,7 @@ class Shape {
 		evaluateObject(this.shapejson, sheet);
 	}
 
-	
+
 	get ID() {
 		return this.shapejson.id;
 	}
@@ -116,11 +116,11 @@ class Shape {
 	}
 	get VISIBLE() {
 		// attributes available?
-		return getValue(this.shapejson.attributes.visible, true);
+		return this.shapejson.attributes ? getValue(this.shapejson.attributes.visible, true) : true;
 	}
 	get VALUE() {
 		// modelattributes available?
-		return this.shapejson.modelattributes ? getValue(this.shapejson.modelattributes.value, 0) : undefined;
+		return this.shapejson.modelattributes ? getValue(this.shapejson.modelattributes.value, 0) : 0;
 	}
 }
 
@@ -150,7 +150,7 @@ class Shapes {
 	}
 
 	getShapeByName(name) {
-		return this.json.shapes.find((shape) => shape.NAME.toUpperCase() === name);
+		return this.json.shapes.find((shape) => name && shape.NAME.toUpperCase() === name.toUpperCase());
 	}
 }
 
