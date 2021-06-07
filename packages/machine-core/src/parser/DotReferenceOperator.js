@@ -39,7 +39,9 @@ class DotReferenceOperator extends BinaryOperator {
 		// string from right
 		const key = right != null ? convert.toString(right.value) : undefined;
 		if (key == null) return ERROR.VALUE;
-		return json[key];
+		// check requested value. null might be wanted, but not undefined...
+		const value = json[key];
+		return value === undefined ? ERROR.NA : value;
 	}
 }
 
