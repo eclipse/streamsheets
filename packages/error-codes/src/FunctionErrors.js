@@ -1,18 +1,25 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const LocalizedError = require('./LocalizedError');
+
+const ERROR_TYPES = {
+	ERROR: 'ERROR',
+	WARNING: 'WARNING'
+};
+
 const EXCEL_ERRORS = {
 	DIV0: '#DIV0',
 	NA: '#NA!',
 	NAME: '#NAME?',
-	NULL: '#NULL',
+	// NULL: '#NULL',
 	NUM: '#NUM!',
 	REF: '#REF!',
 	VALUE: '#VALUE!'
@@ -64,6 +71,10 @@ class FunctionErrors {
 		return allErrors;
 	}
 
+	get types() {
+		return ERROR_TYPES;
+	}
+
 	add(errors = {}) {
 		Object.assign(allErrors, errors);
 		errorValues = Object.values(allErrors);
@@ -95,6 +106,11 @@ class FunctionErrors {
 	}
 	errorAt(index, error) {
 		return `${error}_${index}`;
+	}
+
+	localizeError(error, locale) {
+		locale = locale ? locale.toLowerCase() : 'en';
+		return error ? LocalizedError.from(error, locale) : error;
 	}
 }
 

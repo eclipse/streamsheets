@@ -1,0 +1,16 @@
+{
+	"ERROR": "Fehler",
+	"WARNING": "Warnung",
+
+	"code": "Fehlercode",
+	"description": "Beschreibung",
+	"param": "Parameter",
+	"message": "Nachricht",
+	
+	"#DIV0": "Division durch Null.",
+	"#NA!": "Wert nicht verfügbar.",
+	"#NAME?": "Wert nicht verfügbar.",
+	"#NUM!": "Nummerischer Wert is ungültig.",
+	"#REF!": "Ungültige Referenz.",
+	"#VALUE!": "Falscher Wertetyp."
+}

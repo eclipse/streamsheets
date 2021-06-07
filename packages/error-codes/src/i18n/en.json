@@ -1,0 +1,16 @@
+{
+	"ERROR": "Error",
+	"WARNING": "Warning",
+
+	"code": "Error-Code",
+	"description": "Description",
+	"param": "Parameter",
+	"message": "Message",
+
+	"#DIV0": "Divided by zero.",
+	"#NA!": "Value not available.",
+	"#NAME?": "Unknown formula or identifier.",
+	"#NUM!": "Invalid number value.",
+	"#REF!": "Invalid reference.",
+	"#VALUE!": "Wrong value type."
+}
