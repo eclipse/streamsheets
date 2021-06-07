@@ -351,6 +351,9 @@ JSG.init = (jsghome, locale) => {
 	JSG.loadCSS(`${jsghome}/res/css/jsg.css`);
 };
 
+// TODO: review
+JSG.appLocalizer = undefined;
+
 JSG.setParserLocale = (locale) => {
 	JSG.parserLocale = locale;
 };
