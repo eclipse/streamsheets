@@ -18,6 +18,7 @@ import GraphSynchronizationInteractionHandler from './helper/synchronization/Gra
 import store from './store';
 import StreamHelper from './helper/StreamHelper';
 import { intl } from './helper/IntlGlobalProvider';
+import * as Localizer from './languages/localizer';
 
 const {
 	AddTreeItemCommand,
@@ -87,6 +88,7 @@ export default class GraphManager {
 		JSG.imagePool.add('resources/statuswarning.png', 'statuswarning');
 		JSG.SelectionStyle.MARKER_FILL_COLOR = '#90B5EE';
 		JSG.SelectionStyle.FILL = true;
+		JSG.appLocalizer = Localizer;
 
 		const xhr = JSG._createRequest(`maps/mapinfo.json`, {
 			onload(response) {
