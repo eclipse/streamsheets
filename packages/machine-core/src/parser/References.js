@@ -317,7 +317,7 @@ class ShapeReference extends AbstractReference {
 				sheet = sheet.sheet;
 			}
 		}
-		const shape = sheet.shapes.getShapeByName(str);
+		const shape = sheet && sheet.shapes.getShapeByName(str);
 		return shape ? new ShapeReference(scope, str) : undefined;
 	}
 
