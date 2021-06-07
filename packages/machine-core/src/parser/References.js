@@ -321,7 +321,7 @@ class ShapeReference extends AbstractReference {
 		return shape ? new ShapeReference(scope, str) : undefined;
 	}
 
-	constructor(scope, refstr, shape) {
+	constructor(scope, refstr /*, shape */) {
 		super();
 		this.scope = scope;
 		this._refstr = refstr;
@@ -334,10 +334,7 @@ class ShapeReference extends AbstractReference {
 
 	get value() {
 		const shape = this.sheet.shapes.getShapeByName(this._refstr);
-		if (shape) {
-			return this.sheet.shapes.getShapeValue(shape);
-		}
-		return ERROR.REF;
+		return shape || ERROR.REF;
 	}
 
 	copy() {

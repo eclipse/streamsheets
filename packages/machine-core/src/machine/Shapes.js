@@ -55,98 +55,199 @@ const updateValue = (obj) => {
 	}
 };
 
+const evaluateObject = (obj, sheet) => {
+	Object.values(obj).forEach((value) => {
+		if (value.v !== undefined) {
+			// if its a term and shall be calculated on server
+			if (value.msc) {
+				if (!value.term) {
+					value.term = SheetParser.parse(decode(value.f), sheet);
+					if (value.term) {
+						registerSheet(value.term, sheet);
+					}
+				}
+				updateValue(value);
+			}
+		} else if (typeof value === 'object') {
+			evaluateObject(value, sheet);
+		}
+	});
+};
+const getValue = (obj, defValue) => {
+	if (!obj) {
+		return defValue;
+	}
+	let val = obj.sv === undefined ? obj.v : obj.sv;
+	if (obj.t === 'n') {
+		val = Number(val);
+	} else if (obj.t === 'b') {
+		val = val === 'true' || val === true;
+		// } else {
+		// 	val = Strings.decode(String(input));
+	}
+	return val;
+};
+
+const removeAllTerms = (key, value) => (key === 'term' ? undefined : value);
+
+class Shape {
+	static fromJSON(json) {
+		return new Shape(json);
+	}
+
+	constructor(json) {
+		this.shapejson = json;
+	}
+
+	toJSON() {
+		return this.shapejson;
+	}
+
+	evaluate(sheet) {
+		evaluateObject(this.shapejson, sheet);
+	}
+
+	
+	get ID() {
+		return this.shapejson.id;
+	}
+	get NAME() {
+		return getValue(this.shapejson.name, '');
+	}
+	get VISIBLE() {
+		// attributes available?
+		return getValue(this.shapejson.attributes.visible, true);
+	}
+	get VALUE() {
+		// modelattributes available?
+		return this.shapejson.modelattributes ? getValue(this.shapejson.modelattributes.value, 0) : undefined;
+	}
+}
+
+
 class Shapes {
 	constructor(sheet) {
 		this.sheet = sheet;
 		this.json = {
-			shapes:[],
+			shapes: [],
 			timestamp: 0,
-			version: 0,
+			version: 0
 		};
 	}
 
 	toJSON() {
-		if (this.json === undefined) {
-			return undefined;
-		}
-
-		const json = JSON.parse(JSON.stringify(this.json, (key, value) => {
-				if (key === 'term') {
-					return undefined;
-				}
-				return value;
-			}
-		));
-
-		return json;
+		return JSON.parse(JSON.stringify(this.json, removeAllTerms));
 	}
 
-	fromJSON(json) {
-		this.json = json;
-
+	fromJSON(json = {}) {
+		Object.assign(this.json, json);
+		this.json.shapes = json.shapes ? json.shapes.map((shape) => Shape.fromJSON(shape)) : [];
 		return true;
 	}
 
-	evaluateObject(obj) {
-		Object.entries(obj).forEach(([key, value]) => {
-			if (value.v !== undefined) {
-				// if its a term and shall be calculated on server
-				if (value.msc) {
-					if  (!value.term) {
-						value.term = SheetParser.parse(decode(value.f), this.sheet);
-						if (value.term) {
-							registerSheet(value.term, this.sheet);
-						}
-					}
-					updateValue(value);
-				}
-			} else if (typeof value === 'object') {
-				this.evaluateObject(value);
-			}
-		})
-	}
-
 	evaluate() {
-		if (this.json) {
-			this.json.shapes.forEach(shape => {
-				this.evaluateObject(shape);
-			});
-		}
-	}
-
-	getShapeValue(shape) {
-		const get = (obj, defValue) => {
-			if (!obj) {
-				return defValue
-			}
-			let val =  obj.sv === undefined ? obj.v : obj.sv;
-			if (obj.t === 'n') {
-				val = Number(val);
-			} else if (obj.t === 'b') {
-				val = val === 'true' || val === true;
-			// } else {
-			// 	val = Strings.decode(String(input));
-			}
-			return val;
-		};
-
-		return {
-			ID: shape.id,
-			NAME: get(shape.name, ''),
-			VISIBLE: get(shape.attributes.visible, true),
-			VALUE: shape.modelattributes ? get(shape.modelattributes.value, 0) : undefined,
-		}
+		this.json.shapes.forEach((shape) => shape.evaluate(this.sheet));
 	}
 
 	getShapeByName(name) {
-		if (this.json) {
-			const shapes = this.json.shapes.filter(shape => {
-				return shape.name && shape.name.v && shape.name.v.toUpperCase() === name;
-			});
-			return shapes.length === 1 ? shapes[0] : undefined;
-		}
-		return undefined;
+		return this.json.shapes.find((shape) => shape.NAME.toUpperCase() === name);
 	}
 }
 
 module.exports = Shapes;
+
+// class Shapes {
+// 	constructor(sheet) {
+// 		this.sheet = sheet;
+// 		this.json = {
+// 			shapes:[],
+// 			timestamp: 0,
+// 			version: 0,
+// 		};
+// 	}
+
+// 	toJSON() {
+// 		if (this.json === undefined) {
+// 			return undefined;
+// 		}
+
+// 		const json = JSON.parse(JSON.stringify(this.json, (key, value) => {
+// 				if (key === 'term') {
+// 					return undefined;
+// 				}
+// 				return value;
+// 			}
+// 		));
+
+// 		return json;
+// 	}
+
+// 	fromJSON(json) {
+// 		this.json = json;
+
+// 		return true;
+// 	}
+
+// 	evaluateObject(obj) {
+// 		Object.entries(obj).forEach(([key, value]) => {
+// 			if (value.v !== undefined) {
+// 				// if its a term and shall be calculated on server
+// 				if (value.msc) {
+// 					if  (!value.term) {
+// 						value.term = SheetParser.parse(decode(value.f), this.sheet);
+// 						if (value.term) {
+// 							registerSheet(value.term, this.sheet);
+// 						}
+// 					}
+// 					updateValue(value);
+// 				}
+// 			} else if (typeof value === 'object') {
+// 				this.evaluateObject(value);
+// 			}
+// 		})
+// 	}
+
+// 	evaluate() {
+// 		if (this.json) {
+// 			this.json.shapes.forEach(shape => {
+// 				this.evaluateObject(shape);
+// 			});
+// 		}
+// 	}
+
+// 	getShapeValue(shape) {
+// 		const get = (obj, defValue) => {
+// 			if (!obj) {
+// 				return defValue
+// 			}
+// 			let val =  obj.sv === undefined ? obj.v : obj.sv;
+// 			if (obj.t === 'n') {
+// 				val = Number(val);
+// 			} else if (obj.t === 'b') {
+// 				val = val === 'true' || val === true;
+// 			// } else {
+// 			// 	val = Strings.decode(String(input));
+// 			}
+// 			return val;
+// 		};
+
+// 		return {
+// 			ID: shape.id,
+// 			NAME: get(shape.name, ''),
+// 			VISIBLE: get(shape.attributes.visible, true),
+// 			VALUE: shape.modelattributes ? get(shape.modelattributes.value, 0) : undefined,
+// 		}
+// 	}
+
+// 	getShapeByName(name) {
+// 		if (this.json) {
+// 			const shapes = this.json.shapes.filter(shape => {
+// 				return shape.name && shape.name.v && shape.name.v.toUpperCase() === name;
+// 			});
+// 			return shapes.length === 1 ? shapes[0] : undefined;
+// 		}
+// 		return undefined;
+// 	}
+// }
+
+// module.exports = Shapes;
