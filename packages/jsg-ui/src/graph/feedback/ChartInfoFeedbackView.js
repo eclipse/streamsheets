@@ -290,6 +290,7 @@ export default class ChartInfoFeedbackView extends View {
 			}
 
 			let xValue;
+			let cnt = 0;
 
 			values.forEach((value) => {
 				if (!xValue) {
@@ -298,6 +299,7 @@ export default class ChartInfoFeedbackView extends View {
 				}
 				if (value) {
 					width = Math.max(width, graphics.measureText(getLabel(value, false, circular)).width);
+					cnt += 1;
 				}
 			});
 
@@ -315,7 +317,7 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.beginPath();
 			graphics.setFillColor('#FFFFFF');
 			graphics.setLineColor('#AAAAAA');
-			graphics.rect(x, y, width + margin * 2, margin * 2 + (values.length + 1) * height);
+			graphics.rect(x, y, width + margin * 2, margin * 2 + (cnt + 1) * height);
 			graphics.fill();
 			graphics.stroke();
 
@@ -325,7 +327,10 @@ export default class ChartInfoFeedbackView extends View {
 				graphics.fillText(xValue, x + margin, y + margin);
 			}
 
-			values.forEach((value, index) => {
+			cnt = 0;
+
+			for (let i = values.length - 1; i >= 0; i -= 1) {
+				const value = values[i];
 				if (value) {
 					const label = getLabel(value, false, circular);
 					if (circular) {
@@ -335,9 +340,12 @@ export default class ChartInfoFeedbackView extends View {
 							value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex)
 						);
 					}
-					graphics.fillText(label, x + margin, y + height * (index + 1) + margin * 2);
+					if (label && label !== '') {
+						graphics.fillText(label, x + margin, y + height * (cnt + 1) + margin * 2);
+						cnt += 1;
+					}
 				}
-			});
+			}
 		}
 	}
 }
