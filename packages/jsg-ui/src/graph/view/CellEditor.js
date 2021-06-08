@@ -227,7 +227,7 @@ export default class CellEditor {
 		const info = this.parseFormulaInfo(text, cursorPosition);
 
 		for (let child = this.div.firstChild; child !== null; child = child.nextSibling) {
-			if (child.nodeName.toUpperCase() === 'SPAN' && child.id.startsWith('pos')) {
+			if (child.nodeName.toUpperCase() === 'SPAN' && child.id.startsWith('pos§')) {
 				const id = Number(child.id.slice(3));
 				if (info && info.brackets && id - 1 === info.brackets.open) {
 					child.style.fontWeight = 'bold';
@@ -575,7 +575,7 @@ export default class CellEditor {
 			if (text[i] === '(' || text[i] === ')') {
 				const first = text.slice(0, i);
 				const second = text.slice(i + 1);
-				text = `${first}<span id=pos${bracketPos[currentPos]} style="font-weight: normal">${text[i]}</span>${second}`;
+				text = `${first}<span id=pos§${bracketPos[currentPos]} style="font-weight: normal">${text[i]}</span>${second}`;
 				currentPos += 1;
 			}
 		}
