@@ -402,6 +402,30 @@ export default class GraphManager {
 		this.updateStats(streamsheetId, stats);
 		this.updateSheetProperties(streamsheetId, properties);
 		this.updateDataView();
+		this.updateEditBar();
+	}
+
+	updateEditBar() {
+		if (JSG.CellEditor.getActiveCellEditor() || this.getGraphViewer().getSelection().length) {
+			return;
+		}
+
+		const view = this.getActiveSheetView();
+		const item = view.getItem();
+		const activeCell = item.getOwnSelection().getActiveCell();
+		const formula = document.getElementById('editbarformula');
+		const info = document.getElementById('editbarreference');
+
+		if (activeCell === undefined) {
+			formula.innerHTML = '';
+			info.innerHTML = '';
+			return;
+		}
+
+		const value = view ? view.getEditString(activeCell) : '';
+
+		formula.innerHTML = value;
+		info.innerHTML = item.getOwnSelection().refToString();
 	}
 
 	updateDataView() {
