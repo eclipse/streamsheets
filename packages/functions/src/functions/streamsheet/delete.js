@@ -47,7 +47,7 @@ const _delete = (sheet, ...terms) =>
 		.reduce(pathstr => [jsonpath.parse(pathstr)])
 		.addMappedArg(() => getFuncName(terms[0]))
 		.addMappedArg((path, funcname) => (funcname.startsWith('OUTBOX')
-			? getOutbox(sheet) || ERROR.OUTBOX
+			? getOutbox(sheet)
 			: getInbox(sheet, path.shift()) || ERROR.NO_MSG))
 		.run((path, funcname, box) => deleteFromMessageBox(box, path, funcname) || true);
 

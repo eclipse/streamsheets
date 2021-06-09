@@ -101,18 +101,18 @@ const copyvalues = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withArgCount(2)
 		.mapNextArg(source => getCellRangeFromTerm(source, sheet))
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.RANGE)
 		.run((source, target) =>
 			copyRange(source, target)
 			|| copyCellValue(terms[0], target)
-			|| ERROR.SOURCE);
+			|| ERROR.RANGE);
 
 const movevalues = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
-		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.SOURCE)
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
+		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.RANGE)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.RANGE)
 		.run((source, target) => {
 			const values = rangevalues(source);
 			const moved = moverangevalues(values, target);
@@ -134,8 +134,8 @@ const swapvalues = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
-		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.SOURCE)
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
+		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.RANGE)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.RANGE)
 		.run((source, target) => {
 			const sourcevalues = rangevalues(source);
 			const targetvalues = rangevalues(target);

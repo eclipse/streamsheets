@@ -301,7 +301,7 @@ const requestinternal = (funcTerm, s, ...t) =>
 				isInboxTerm(target) ||
 				isOutboxTerm(target) ||
 				isRangeTerm(targetRange) ||
-				ERROR.TARGET
+				ERROR.RANGE
 		)
 		.run(({ sheet, streamId, message, internal: { target, resultKeys, timeout } }, targetRange) => {
 			let reqId = getRequestId(funcTerm);
@@ -335,7 +335,7 @@ const requestinternallegacy = (funcTerm, s, ...t) =>
 		.check(({ message }) => FunctionErrors.ifTrue(message == null, ERROR.NO_MSG_DATA))
 		.check(
 			({ targetTerm }) =>
-				isInboxTerm(targetTerm) || isOutboxTerm(targetTerm) || isRangeTerm(targetTerm) || ERROR.TARGET
+				isInboxTerm(targetTerm) || isOutboxTerm(targetTerm) || isRangeTerm(targetTerm) || ERROR.RANGE
 		)
 		.with(({ resultKeysTerm, sheet }) => resultKeysTermToArray(sheet, resultKeysTerm))
 		.with(({ timeoutTerm }) => termAsNumber(timeoutTerm))

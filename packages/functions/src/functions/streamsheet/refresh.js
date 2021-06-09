@@ -16,6 +16,6 @@ const ERROR = FunctionErrors.code;
 const refresh = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
-		.run(() => ERROR.NOT_AVAILABLE);
+		.run(() => ERROR.NA);
 
 module.exports = refresh;
