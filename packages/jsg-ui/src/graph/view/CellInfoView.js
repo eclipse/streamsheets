@@ -44,25 +44,18 @@ class CellInfoView {
 	constructor(viewer, worksheetView) {
 		this.viewer = viewer;
 		this.wsView = worksheetView;
-		this.removeView = this.removeView.bind(this);
+		this.removeInfoView = this.removeInfoView.bind(this);
 	}
 
 	addCloseListener() {
-		document.getElementById('closeFunc').addEventListener('mousedown', this.removeView, false);
+		document.getElementById('closeFunc').addEventListener('mousedown', this.removeInfoView, false);
 	}
 
-	removeView() {
-		const infoView = this.wsView.getFromGraph();
-		if (infoView) {
-			this.viewer.getCanvas().parentNode.removeChild(infoView.div);
-			this.wsView.deRegisterAtGraph();
-		}
-	}
 	registerView(div, cell, targetRange) {
 		this.wsView.registerAtGraph({ type: this.type, viewer: this.viewer, cell, targetRange, div });
 	}
 
-	getBounds(cellRange) {
+	getCellBounds(cellRange) {
 		const cs = this.viewer.getCoordinateSystem();
 		const cellRect = this.wsView.getRangeRect(cellRange);
 		const pos = this.wsView.getDevCellPosition(this.viewer, { x: cellRange._x1, y: cellRange._y1 });
@@ -103,18 +96,38 @@ class CellInfoView {
 		div.focus();
 	}
 
+	createInfoHTML(info, bounds) {
+		throw new Error('Must be implemented by subclass');
+	};
+	getInfo(cell) {
+		throw new Error('Must be implemented by subclass');
+	};
+
+	addInfoView(cell, cellRange) {
+		const info = this.getInfo(cell);
+		if (info) {
+			const bounds = this.getCellBounds(cellRange);
+			const content = this.createInfoHTML(info, bounds);
+			const divView = this.createDiv(content);
+			const tableEl = getTableElement();
+			tableEl.storeScrollTop();
+			this.setDivBounds(divView, bounds);
+			this.appendDiv(divView);
+			this.registerView(divView, cell, cellRange);
+			tableEl.restoreScrollTop();
+		}
+	}
+	removeInfoView() {
+		const infoView = this.wsView.getFromGraph();
+		if (infoView) {
+			this.viewer.getCanvas().parentNode.removeChild(infoView.div);
+			this.wsView.deRegisterAtGraph();
+		}
+	}
 	showInfo(cell, cellRange) {
-		const bounds = this.getBounds(cellRange);
-		const content = this.createContentHTML(cell, bounds);
-		const divView = this.createDiv(content);
-		const tableEl = getTableElement();
-		tableEl.storeScrollTop();
-		// remove previous view
-		this.removeView();
-		this.setDivBounds(divView, bounds);
-		this.appendDiv(divView);
-		tableEl.restoreScrollTop();
-		this.registerView(divView, cell, cellRange);
+		// remove previous view before adding new one
+		this.removeInfoView();
+		this.addInfoView(cell, cellRange);
 	}
 }
 
@@ -123,8 +136,11 @@ class DataInfoView extends CellInfoView {
 		return WorksheetHitCode.DATAVIEW;
 	}
 
-	createContentHTML(cell, bounds) {
-		const values = cell.values;
+	getInfo(cell) {
+		return cell.values;
+	};
+
+	createInfoHTML(values, bounds) {
 		const fields = values ? Object.entries(values) : [];
 		const rowCount =
 			fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined
@@ -174,9 +190,15 @@ class ErrorInfoView extends CellInfoView {
 	get type() {
 		return WorksheetHitCode.ERRORVIEW;
 	}
-	createContentHTML(cell, bounds) {
-		const error = cell.error ? localizeError(cell.error) : undefined;
-		const fields = error ? Object.entries(error) : [];
+
+	getInfo(cell) {
+		return cell.error;
+	};
+
+	createInfoHTML(error, bounds) {
+		// const error = localizeError(error);
+		// const fields = error ? Object.entries(error) : [];
+		const fields = Object.entries(localizeError(error));
 
 		// title:
 		let html = `<p style="color: ${
