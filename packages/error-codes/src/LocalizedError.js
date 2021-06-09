@@ -11,16 +11,17 @@
 const i18n = require('./i18n');
 // const FunctionErrors = require('./FunctionErrors');
 
+const localizations = (translations = {}) => (str) => translations[str] || str;
+
 class LocalizedError {
 	static from(error, locale) {
-		const localizations = i18n[locale];
+		const localize = localizations(i18n[locale]);
 		const localizedError = Object.entries(error).reduce((all, [key, value]) => {
-			key = localizations[key] || key;
-			all[key] = value;
+			all[localize(key)] = value;
 			return all;
 		}, {});
-		localizedError.type = localizations[error.type] || error.type;
-		localizedError.description = localizations[error.code];
+		localizedError.type = localize(error.type);
+		localizedError.description = localize(error.code);
 		return localizedError;
 		// return new Error(type, code);
 	}
