@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const logger = require('../logger').create({ name: 'SheetParserContext' });
-const { referenceFromNode } = require('./References');
-const FunctionRegistry = require('../FunctionRegistry');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { ParserContext, Term } = require('@cedalo/parser');
+const logger = require('../logger').create({ name: 'SheetParserContext' });
+const FunctionRegistry = require('../FunctionRegistry');
+const { referenceFromNode } = require('./References');
 
 // DL-1431
 const EXCLUDE_FUNCTIONS = ['ACOS', 'ASIN', 'ATAN', 'ATAN2'];
@@ -31,7 +31,9 @@ const executor = (func) => function wrappedFunction(sheet, ...terms) {
 		result = func(sheet, ...terms);
 	} catch (err) {
 		logger.error('Error', err);
-		return FunctionErrors.code.FUNC_EXEC;
+		const { FUNC_EXEC } = FunctionErrors.code;
+		if (term.cell) term.cell.setCellInfo('error', ErrorInfo.create(FUNC_EXEC, err.message));
+		return FUNC_EXEC;
 	}
 	func.term = undefined;
 	func.context = undefined;
