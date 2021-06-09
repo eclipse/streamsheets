@@ -13,7 +13,6 @@
 import {
 	default as JSG,
 	GraphUtils,
-	MathUtils,
 	FormatAttributes,
 	CellRange,
 	PasteCellsFromClipboardCommand,
@@ -48,30 +47,12 @@ import CellInfoView from './CellInfoView';
 import ContentNodeView from './ContentNodeView';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
 import Cursor from '../../ui/Cursor';
+import WorksheetHitCode from './WorksheetHitCode';
 
 const SHEET_ACTION_NOTIFICATION = 'sheet_action_notification';
 const SHEET_MESSAGE_NOTIFICATION = 'sheet_message_notification';
 const SHEET_SCROLL_NOTIFICATION = 'sheet_scroll_notification';
 
-const HitCode = {
-	NONE: 0,
-	SHEET: 1,
-	COLUMN: 2,
-	ROW: 3,
-	COLUMNSIZE: 4,
-	ROWSIZE: 5,
-	CORNER: 6,
-	SELECTIONMOVE: 7,
-	REFERENCEMOVE: 8,
-	REFERENCERESIZE: 9,
-	SELECTIONEXTEND: 10,
-	ROWSIZEHIDDEN: 11,
-	COLUMNSIZEHIDDEN: 12,
-	COLUMNOUTLINE: 13,
-	ROWOUTLINE: 14,
-	DATAVIEW: 15,
-	ERRORVIEW: 16
-};
 
 /**
  * This view is for a {{#crossLink "WorkbookNode"}}{{/crossLink}} model.
@@ -887,7 +868,7 @@ export default class WorksheetView extends ContentNodeView {
 		point = this.translateToSheet(point, viewer);
 
 		if (point.x > bounds.width - vScrollSize || point.y > bounds.height - hScrollSize) {
-			return WorksheetView.HitCode.NONE;
+			return WorksheetHitCode.NONE;
 		}
 
 		if (checkSelectedRange) {
@@ -902,8 +883,8 @@ export default class WorksheetView extends ContentNodeView {
 				}
 				return selRect.containsPoint(point);
 			})
-				? WorksheetView.HitCode.NONE
-				: WorksheetView.HitCode.SHEET;
+				? WorksheetHitCode.NONE
+				: WorksheetHitCode.SHEET;
 		}
 
 		if (this.getItem().isProtected() === false) {
@@ -916,7 +897,7 @@ export default class WorksheetView extends ContentNodeView {
 			let cv;
 
 			if (point.x < rowWidth && point.y < colHeight) {
-				return WorksheetView.HitCode.CORNER;
+				return WorksheetHitCode.CORNER;
 			}
 
 			if (colHeight && point.y < colHeight) {
@@ -925,15 +906,15 @@ export default class WorksheetView extends ContentNodeView {
 					const size = cv.getItem().getSizeAsPoint()
 					if (point.x - rowWidth < cv.getItem().getWidth() + JSG.findRadius / 2) {
 						if (point.y < size.y - ColumnHeaderNode.HEIGHT) {
-							return WorksheetView.HitCode.COLUMNOUTLINE;
+							return WorksheetHitCode.COLUMNOUTLINE;
 						}
 						const section = cv.getSectionSplit(point.x);
 						if (section !== undefined) {
 							return cv.getItem().getSectionSize(section) ?
-								WorksheetView.HitCode.COLUMNSIZE :
-								WorksheetView.HitCode.COLUMNSIZEHIDDEN;
+								WorksheetHitCode.COLUMNSIZE :
+								WorksheetHitCode.COLUMNSIZEHIDDEN;
 						}
-						return WorksheetView.HitCode.COLUMN;
+						return WorksheetHitCode.COLUMN;
 					}
 				}
 			}
@@ -944,15 +925,15 @@ export default class WorksheetView extends ContentNodeView {
 					const size = cv.getItem().getSizeAsPoint()
 					if (point.y - colHeight < size.y + JSG.findRadius / 2) {
 						if (point.x < size.x - RowHeaderNode.WIDTH) {
-							return WorksheetView.HitCode.ROWOUTLINE;
+							return WorksheetHitCode.ROWOUTLINE;
 						}
 						const section = cv.getSectionSplit(point.y);
 						if (section !== undefined) {
 							return cv.getItem().getSectionSize(section) ?
-								WorksheetView.HitCode.ROWSIZE :
-								WorksheetView.HitCode.ROWSIZEHIDDEN;
+								WorksheetHitCode.ROWSIZE :
+								WorksheetHitCode.ROWSIZEHIDDEN;
 						}
-						return WorksheetView.HitCode.ROW;
+						return WorksheetHitCode.ROW;
 					}
 				}
 			}
@@ -999,7 +980,7 @@ export default class WorksheetView extends ContentNodeView {
 						return false;
 					})
 				) {
-					return WorksheetView.HitCode.REFERENCEMOVE;
+					return WorksheetHitCode.REFERENCEMOVE;
 				}
 			}
 		}
@@ -1011,26 +992,26 @@ export default class WorksheetView extends ContentNodeView {
 				selRect.reduceBy(250);
 				if (!selRect.containsPoint(point)) {
 					if (point.x > selRect.getRight() && point.y > selRect.getBottom()) {
-						return WorksheetView.HitCode.SELECTIONEXTEND;
+						return WorksheetHitCode.SELECTIONEXTEND;
 					}
-					return WorksheetView.HitCode.SELECTIONMOVE;
+					return WorksheetHitCode.SELECTIONMOVE;
 				}
 			}
 		}
 
 		const cell = this.getCell(point);
 		if (cell === undefined) {
-			return WorksheetView.HitCode.NONE;
+			return WorksheetHitCode.NONE;
 		}
 		if (this.isDataView(point, cell, viewer)) {
-			return WorksheetView.HitCode.DATAVIEW;
+			return WorksheetHitCode.DATAVIEW;
 		}
 
 		if (this.isErrorView(point, cell, viewer)) {
-			return WorksheetView.HitCode.ERRORVIEW;
+			return WorksheetHitCode.ERRORVIEW;
 		}
 
-		return WorksheetView.HitCode.SHEET;
+		return WorksheetHitCode.SHEET;
 	}
 
 	getSection(hitCode, location, viewer) {
@@ -1048,15 +1029,15 @@ export default class WorksheetView extends ContentNodeView {
 		}
 
 		switch (hitCode) {
-			case WorksheetView.HitCode.COLUMNSIZE:
-			case WorksheetView.HitCode.COLUMNSIZEHIDDEN:
+			case WorksheetHitCode.COLUMNSIZE:
+			case WorksheetHitCode.COLUMNSIZEHIDDEN:
 				cv = this.getColumnHeaderView();
 				if (cv) {
 					return cv.getSectionSplit(point.x);
 				}
 				break;
-			case WorksheetView.HitCode.ROWSIZE:
-			case WorksheetView.HitCode.ROWSIZEHIDDEN:
+			case WorksheetHitCode.ROWSIZE:
+			case WorksheetHitCode.ROWSIZEHIDDEN:
 				cv = this.getRowHeaderView();
 				if (cv) {
 					return cv.getSectionSplit(point.y);
@@ -1091,39 +1072,39 @@ export default class WorksheetView extends ContentNodeView {
 
 	setCursor(hitCode, interaction) {
 		switch (hitCode) {
-			case WorksheetView.HitCode.SHEET:
-			case WorksheetView.HitCode.CORNER:
+			case WorksheetHitCode.SHEET:
+			case WorksheetHitCode.CORNER:
 				interaction.setCursor(Cursor.Style.SHEET);
 				break;
-			case WorksheetView.HitCode.ROW:
+			case WorksheetHitCode.ROW:
 				interaction.setCursor(Cursor.Style.SHEETROW);
 				break;
-			case WorksheetView.HitCode.COLUMN:
+			case WorksheetHitCode.COLUMN:
 				interaction.setCursor(Cursor.Style.SHEETCOLUMN);
 				break;
-			case WorksheetView.HitCode.COLUMNSIZE:
+			case WorksheetHitCode.COLUMNSIZE:
 				interaction.setCursor(Cursor.Style.SHEETCOLUMNSIZE);
 				break;
-			case WorksheetView.HitCode.COLUMNSIZEHIDDEN:
+			case WorksheetHitCode.COLUMNSIZEHIDDEN:
 				interaction.setCursor(Cursor.Style.SPLITH);
 				break;
-			case WorksheetView.HitCode.ROWSIZE:
+			case WorksheetHitCode.ROWSIZE:
 				interaction.setCursor(Cursor.Style.SHEETROWSIZE);
 				break;
-			case WorksheetView.HitCode.ROWSIZEHIDDEN:
+			case WorksheetHitCode.ROWSIZEHIDDEN:
 				interaction.setCursor(Cursor.Style.SPLITV);
 				break;
-			case WorksheetView.HitCode.SELECTIONMOVE:
+			case WorksheetHitCode.SELECTIONMOVE:
 				interaction.setCursor(Cursor.Style.MOVE);
 				break;
-			case WorksheetView.HitCode.SELECTIONEXTEND:
+			case WorksheetHitCode.SELECTIONEXTEND:
 				interaction.setCursor(Cursor.Style.CROSSHAIR);
 				break;
-			case WorksheetView.HitCode.DATAVIEW:
-			case WorksheetView.HitCode.ERRORVIEW:
+			case WorksheetHitCode.DATAVIEW:
+			case WorksheetHitCode.ERRORVIEW:
 				interaction.setCursor(Cursor.Style.EXECUTE);
 				break;
-			case WorksheetView.HitCode.REFERENCEMOVE: {
+			case WorksheetHitCode.REFERENCEMOVE: {
 				const cellEditor = CellEditor.getActiveCellEditor();
 				let rangeResize;
 				if (cellEditor) {
@@ -1906,7 +1887,7 @@ export default class WorksheetView extends ContentNodeView {
 			point.y < cellRect.y + 300;
 	}
 	handleDataView(sheet, dataCell, targetRange, viewer) {
-		this.handleInfoView(HitCode.DATAVIEW, sheet, dataCell, targetRange, viewer);
+		this.handleInfoView(WorksheetHitCode.DATAVIEW, sheet, dataCell, targetRange, viewer);
 	}
 	handleInfoView(infoType, sheet, dataCell, targetRange, viewer) {
 		if (targetRange != null) {
@@ -1970,8 +1951,7 @@ export default class WorksheetView extends ContentNodeView {
 		return SHEET_SCROLL_NOTIFICATION;
 	}
 
-	// TODO: extract as class
 	static get HitCode() {
-		return HitCode;
+		return WorksheetHitCode;
 	}
 }
