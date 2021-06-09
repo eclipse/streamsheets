@@ -186,7 +186,7 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 
 		if (!controller) {
 			if (viewer.getSelectionProvider().hasSingleSelection()) {
-				const bbox = viewer.getSelectionView().getBoundingBox(JSG.boxCache.get());
+				const bbox = viewer.getSelectionView().getBoundingBox();
 				const rect = bbox.getBoundingRectangle();
 				if (rect.containsPoint(event.location)) {
 					controller = viewer.getSelectionProvider().getFirstSelection();
