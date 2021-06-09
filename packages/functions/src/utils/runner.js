@@ -30,10 +30,8 @@ class ErrorHandler {
 	}
 
 	getError() {
-		// return this._errorCode ? { code: this._errorCode, index: this._errorIndex } : undefined;
 		const error = this._errorCode ? ErrorInfo.create(this._errorCode) : undefined;
 		return error && this._errorIndex >= 0 ? error.setParamIndex(this._errorIndex + 1) : error;
-		// return this._errorCode ? ErrorInfo.create(this._errorCode).setParamIndex(this._errorIndex + 1) : undefined;
 	}
 
 	hasError() {
