@@ -166,6 +166,9 @@ export interface CommandRequest extends IWSRequest {
 export interface AddInboxMessageRequest extends IWSRequest {
 	type: 'add_inbox_message';
 	machineId: string;
+	streamsheetId: string;
+	message: any;
+	metadata: object;
 }
 export interface GetMachineRequest extends IWSRequest {
 	type: 'machine_get';

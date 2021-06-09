@@ -12,6 +12,7 @@ import { MessagingClient } from '@cedalo/messaging-client';
 import { Topics } from '@cedalo/protocols';
 import { MessagingRequestHelper } from '@cedalo/service-core';
 import {
+	AddInboxMessageRequest,
 	ID,
 	LoadMachineRequest,
 	PauseMachineRequest,
@@ -82,4 +83,19 @@ export class MachineServiceProxy {
 		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_MACHINES_INPUT });
 		return result;
 	}
+
+	async addInboxMessage(id: ID, streamsheetId: ID, inboxMessage: any, metadata: object) {
+		const message: AddInboxMessageRequest = {
+			type: 'add_inbox_message',
+			requestId: Math.random(),
+			machineId: id,
+			streamsheetId,
+			message: inboxMessage,
+			metadata
+		};
+
+		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_MACHINES_INPUT });
+		return result;
+	}
+
 }
