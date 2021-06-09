@@ -9,11 +9,12 @@
  *
  ********************************************************************************/
 const { convert, serialnumber: { serial2ms } } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
 const {	date: { localNow }, runFunction, terms: { hasValue } } = require('../../utils');
 const toJSON = require('../streamsheet/json');
 const stateListener = require('./stateListener');
+const { setCellInfo } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 1000;
@@ -34,13 +35,7 @@ const insert = (entry, entries) => {
 	entries.splice(right, 0, entry);
 	return entries;
 };
-const sizeFilter = (size) => (entries) => {
-	if (entries.length > size) {
-		entries.shift();
-		return ERROR.LIMIT;
-	}
-	return true;
-};
+const sizeFilter = (size) => (entries) => entries.length > size ? entries.shift() : undefined;
 const periodFilter = (period) => (entries) => {
 	const delta = entries[entries.length - 1].ts - entries[0].ts;
 	if (delta > period) entries.shift();
@@ -128,8 +123,12 @@ const store = (sheet, ...terms) =>
 		.run((values, period, timestamp, limit) => {
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);
+			const storeLimitReached = timestore.push(timestamp || localNow(), values);
+			const errorInfo = storeLimitReached ? ErrorInfo.createWarning(ERROR.LIMIT) : undefined;
+			setCellInfo('error', errorInfo, term);
+			// TODO: use context instead!!
 			stateListener.registerCallback(sheet, term, timestore.reset);
-			return timestore.push(timestamp || localNow(), values);
+			return true;
 		});
 store.displayName = true;
 

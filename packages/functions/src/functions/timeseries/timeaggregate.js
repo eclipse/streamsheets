@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { calculate, runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { Functions, Term } = require('@cedalo/parser');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { Cell, State, isType } = require('@cedalo/machine-core');
-
+const { Functions, Term } = require('@cedalo/parser');
+const { calculate, runFunction, sheet: sheetutils, terms: { getCellRangeFromTerm } } = require('../../utils');
+const { setCellInfo } = require('./utils');
 
 const IGNORE = 'ignore';
 const MIN_INTERVAL = 1 / 1000; // 1ms
@@ -126,8 +126,11 @@ class Aggregator {
 		this._aggregatedValues = ERROR.NA;
 	}
 
+	isLimitReached() {
+		return this.valStore.entries.length >= this.settings.limit;
+	}
 	getAggregatedValues() {
-		return this.valStore.entries.length < this.settings.limit ? this._aggregatedValues : ERROR.LIMIT;
+		return this._aggregatedValues;
 	}
 
 	hasEqual({ period, method, interval, sorted, limit }) {
@@ -168,6 +171,7 @@ class Aggregator {
 		// DL-2306 always return entries with cell
 		const marker = term ? term._marker : undefined;
 		cell.info = { marker, xvalue: 'time', values: entries.reduce(entriesReduce, { time: [], value: [] }) };
+		if (this.isLimitReached()) setCellInfo('error', ErrorInfo.createWarning(ERROR.LIMIT), term);
 	}
 }
 
@@ -180,10 +184,6 @@ const getAggregator = (term, settings) => {
 		term._timeaggregator = Aggregator.of(settings);
 	}
 	return term._timeaggregator;
-};
-const setXValue = (term) => {
-	const cell = term && term.cell;
-	if (cell) cell.setCellInfo('xvalue', 'time');
 };
 
 
@@ -202,7 +202,7 @@ const timeaggregate = (sheet, ...terms) =>
 		.mapNextArg(doSort => doSort != null ? convert.toBoolean(doSort.value) : false)
 		.mapNextArg(limit => convert.toNumberStrict(limit != null ? limit.value || DEF_LIMIT: DEF_LIMIT, ERROR.VALUE))
 		.validate((v, p, m, t, interval) =>	((interval != null && interval < MIN_INTERVAL) ? ERROR.VALUE : undefined))
-		.beforeRun(() => setXValue(timeaggregate.term))
+		.beforeRun(() => setCellInfo('xvalue', 'time', timeaggregate.term))
 		.run((val, period, method, timestamp, interval, targetrange, sorted, limit) => {
 			period *= 1000; // in ms
 			interval = interval != null ? interval * 1000 : -1;
