@@ -64,7 +64,6 @@ const {
 	MathUtils,
 	ViewActivator,
 	WorksheetNode,
-	WorksheetView,
 	CellInfoView
 } = JSG;
 
@@ -403,18 +402,15 @@ export default class GraphManager {
 		}
 		this.updateStats(streamsheetId, stats);
 		this.updateSheetProperties(streamsheetId, properties);
-		this.updateDataView();
+		this.updateInfoView();
 	}
 
-	updateDataView() {
+	updateInfoView() {
 		const graph = this.getGraph();
-		if (graph && graph.dataView) {
-			const data = graph.dataView;
+		const info = graph && graph.infoView;
+		if (info) {
 			// data.view.showCellValues(data.viewer, data.cell, data.targetRange);
-			CellInfoView.of(WorksheetView.HitCode.DATAVIEW, data.viewer, data.view).showInfo(
-				data.cell,
-				data.targetRange
-			);
+			CellInfoView.of(info.type, info.viewer, info.view).showInfo(info.cell, info.targetRange);
 		}
 	}
 
