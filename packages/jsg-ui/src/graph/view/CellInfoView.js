@@ -58,8 +58,8 @@ class CellInfoView {
 			this.wsView.deRegisterAtGraph();
 		}
 	}
-	registerView(div, cell, cellRange) {
-		this.wsView.registerAtGraph(this.viewer, cell, cellRange, div);
+	registerView(div, cell, targetRange) {
+		this.wsView.registerAtGraph({ type: this.type, viewer: this.viewer, cell, targetRange, div });
 	}
 
 	getBounds(cellRange) {

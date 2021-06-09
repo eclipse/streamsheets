@@ -1926,17 +1926,15 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	getFromGraph() {
-		return this.getItem().getGraph().dataView;
+		return this.getItem().getGraph().infoView;
 	}
 
-	registerAtGraph(viewer, cell, targetRange, div) {
-		this.getItem().getGraph().dataView = {
-			viewer, cell, targetRange, view: this, div
-		};
+	registerAtGraph(info) {
+		this.getItem().getGraph().infoView = { ...info, view: this };
 	}
 
 	deRegisterAtGraph() {
-		this.getItem().getGraph().dataView = undefined;
+		this.getItem().getGraph().infoView = undefined;
 	}
 
 	static get SHEET_ACTION_NOTIFICATION() {
