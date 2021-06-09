@@ -12,6 +12,7 @@
 
 import { default as JSG, MathUtils, Numbers } from '@cedalo/jsg-core';
 // import WorksheetView from './WorksheetView';
+import WorksheetHitCode from './WorksheetHitCode';
 
 const localizeError = (error) => {
 	const Localizer = JSG.appLocalizer;
@@ -33,8 +34,11 @@ const getTableElement = () => {
 
 class CellInfoView {
 	static of(type, viewer, worksheetView) {
-		// eslint-disable-next-line no-use-before-define
-		return type === 16 ? new ErrorInfoView(viewer, worksheetView) : new DataInfoView(viewer, worksheetView);
+		return type === WorksheetHitCode.ERRORVIEW
+			// eslint-disable-next-line no-use-before-define
+			? new ErrorInfoView(viewer, worksheetView)
+			// eslint-disable-next-line no-use-before-define
+			: new DataInfoView(viewer, worksheetView);
 	}
 	// private
 	constructor(viewer, worksheetView) {
@@ -48,9 +52,9 @@ class CellInfoView {
 	}
 
 	removeView() {
-		const dataView = this.wsView.getFromGraph();
-		if (dataView) {
-			this.viewer.getCanvas().parentNode.removeChild(dataView.div);
+		const infoView = this.wsView.getFromGraph();
+		if (infoView) {
+			this.viewer.getCanvas().parentNode.removeChild(infoView.div);
 			this.wsView.deRegisterAtGraph();
 		}
 	}
@@ -115,6 +119,10 @@ class CellInfoView {
 }
 
 class DataInfoView extends CellInfoView {
+	get type() {
+		return WorksheetHitCode.DATAVIEW;
+	}
+
 	createContentHTML(cell, bounds) {
 		const values = cell.values;
 		const fields = values ? Object.entries(values) : [];
@@ -163,23 +171,28 @@ class DataInfoView extends CellInfoView {
 }
 
 class ErrorInfoView extends CellInfoView {
+	get type() {
+		return WorksheetHitCode.ERRORVIEW;
+	}
 	createContentHTML(cell, bounds) {
 		const error = cell.error ? localizeError(cell.error) : undefined;
 		const fields = error ? Object.entries(error) : [];
-		
+
 		// title:
-		let html = `<p style="color: ${JSG.theme.text}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">${error.type}</p>`;
+		let html = `<p style="color: ${
+			JSG.theme.text
+		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">${error.type}</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-		
+
 		// table:
 		html += `<div id="dataviewtable" style="overflow-y: auto; max-height: ${bounds.maxHeight - 25}px">`;
 		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${bounds.width ? '100%' : 'inherit'}">`;
 
 		// table header:
-		html += '<thead><tr>'
-		html += '<th style="padding: 5px;" ></th><th style="padding: 5px;" ></th>'
+		html += '<thead><tr>';
+		html += '<th style="padding: 5px;" ></th><th style="padding: 5px;" ></th>';
 		html += '</tr></thead>';
-		
+
 		// table body
 		html += '<tbody>';
 		fields.forEach(([key, val]) => {
@@ -188,7 +201,9 @@ class ErrorInfoView extends CellInfoView {
 				html += `<td style="padding: 5px;font-weight: bold;text-align: left}">${
 					key === null || key === undefined ? '' : key
 				}:</td>`;
-				html += `<td style="padding: 5px;text-align: left}">${val === null || val === undefined ? '' : val}</td>`;
+				html += `<td style="padding: 5px;text-align: left}">${
+					val === null || val === undefined ? '' : val
+				}</td>`;
 				html += '</tr>';
 			}
 		});
