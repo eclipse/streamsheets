@@ -121,7 +121,10 @@ class CellRangeComponent extends React.Component {
 			return;
 		}
 
-		const cellEditor = CellEditor.activateCellEditor(event.target, graphManager.getGraphViewer(), view.getItem());
+		let cellEditor = CellEditor.getActiveCellEditor();
+		if (!cellEditor) {
+			cellEditor = CellEditor.activateCellEditor(event.target, graphManager.getGraphViewer(), view.getItem());
+		}
 		cellEditor.alwaysReplace = this.props.onlyReference;
 		cellEditor.activateReferenceMode();
 		cellEditor.updateEditRangesView(this.props.sheetView);
@@ -152,6 +155,10 @@ class CellRangeComponent extends React.Component {
 	};
 
 	handleBlur = (event) => {
+		if (event.relatedTarget && event.relatedTarget.tagName === 'A') {
+			return;
+		}
+
 		if (event.relatedTarget) {
 			const cancel = event.relatedTarget.id === 'RefCancel';
 			event.target.innerHTML = cancel ? this.state.oldValue : event.target.textContent;
@@ -176,8 +183,9 @@ class CellRangeComponent extends React.Component {
 
 	handleMouseUp = () => {
 		const cellEditor = CellEditor.getActiveCellEditor();
-
-		cellEditor.updateFunctionInfo();
+		if (cellEditor) {
+			cellEditor.updateFunctionInfo();
+		}
 	};
 
 	handleKeyUp = (event) => {
