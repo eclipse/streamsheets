@@ -19,11 +19,11 @@ class ErrorInfo {
 	static TYPE() {
 		return TYPES;
 	}
-	static create(code, message) {
-		return new ErrorInfo(TYPES.ERROR, code, message);
+	static create(code, message, fnName) {
+		return new ErrorInfo({ type: TYPES.ERROR, code, message, fnName });
 	}
-	static createWarning(code, message) {
-		return new ErrorInfo(TYPES.WARNING, code, message);
+	static createWarning(code, message, fnName) {
+		return new ErrorInfo({ type: TYPES.WARNING, code, message, fnName });
 	}
 
 	static localize(error, locale) {
@@ -36,21 +36,34 @@ class ErrorInfo {
 		localizedError.type = localize(error.type);
 		localizedError[localize('code')] = error.code;
 		localizedError[localize('description')] = localize(error.code);
+		if (error.fnName != null) localizedError.Function = error.fnName;
 		if (error.paramIndex != null) localizedError[localize('paramIndex')] = error.paramIndex;
 		localizedError[localize('message')] = error.message || '-';
 		return localizedError;
 	}
-	constructor(type, code, message) {
+	constructor({type, code, fnName, message, paramIndex, description } = {}) {
 		this.type = type || ErrorInfo.TYPE.ERROR;
 		this.code = code;
+		this.fnName = fnName;
 		this.message = message;
-		this.paramIndex = undefined;
-		this.description = undefined;
+		this.paramIndex = paramIndex;
+		this.description = description;
+		// no sub-classing so we can simply do this to be immutable:
+		Object.freeze(this);
 	}
 
+	get isErrorInfo() {
+		return true;
+	}
+
+	setFunctionName(name) {
+		return new ErrorInfo({ ...this, fnName: name });
+	}
+	setMessage(message) {
+		return new ErrorInfo({ ...this, message });
+	}
 	setParamIndex(index) {
-		this.paramIndex = index;
-		return this;
+		return new ErrorInfo({ ...this, paramIndex: index });
 	}
 }
 
