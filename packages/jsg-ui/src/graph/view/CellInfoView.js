@@ -196,14 +196,13 @@ class ErrorInfoView extends CellInfoView {
 	};
 
 	createInfoHTML(error, bounds) {
-		// const error = localizeError(error);
-		// const fields = error ? Object.entries(error) : [];
-		const fields = Object.entries(localizeError(error));
+		const locError = localizeError(error);
+		const fields = Object.entries(locError);
 
 		// title:
 		let html = `<p style="color: ${
 			JSG.theme.text
-		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">${error.type}</p>`;
+		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">${locError.type}</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
 
 		// table:
