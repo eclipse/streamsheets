@@ -13,10 +13,15 @@ const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const ERROR = FunctionErrors.code;
 
 const remove = (index, arr) => arr.splice(index, 1)[0];
-const setErrorInfo = (cell, error) => (cell ? cell.setCellInfo('error', error) : undefined);
+// const setErrorInfo = (cell, error) => (cell ? cell.setCellInfo('error', error) : undefined);
+const setFunctionName = (fn) => (error) => {
+	const name = fn && fn.term && fn.term.name;
+	return name ? error.setFunctionName(name) : error;
+};
 
 class ErrorHandler {
 	constructor() {
+		this._errorInfo = undefined;
 		this._errorCode = undefined;
 		this._errorIndex = -1;
 		this._ignoreError = false;
@@ -30,25 +35,42 @@ class ErrorHandler {
 	}
 
 	getError() {
+		if (this._errorInfo) {
+			return this._errorInfo;
+		}
 		const error = this._errorCode ? ErrorInfo.create(this._errorCode) : undefined;
 		return error && this._errorIndex >= 0 ? error.setParamIndex(this._errorIndex + 1) : error;
 	}
 
 	hasError() {
-		return this._errorCode && !this._ignoreError;
+		return (this._errorCode || this._errorInfo) && !this._ignoreError;
 	}
 
-	update(res, index) {
+	updateORG(res, index) {
 		if (res && !this._errorCode) {
 			this._errorCode = FunctionErrors.isError(res);
 			this._errorIndex = index != null ? index : -1;
+		}
+	}
+	update(res, index) {
+		if (res && !this._errorCode) {
+			const error = FunctionErrors.isError(res);
+			if (error) {
+				if (error.isErrorInfo) {
+					this._errorInfo = error;
+				} else {
+					this._errorCode = FunctionErrors.isError(res);
+				}
+				this._errorIndex = index != null ? index : -1;
+			}
 		}
 	}
 }
 class Runner {
 	constructor(sheet, args, fn) {
 		this.sheet = sheet;
-		this.cell = fn && fn.term ? fn.term.cell : undefined;
+		// this.cell = fn && fn.term ? fn.term.cell : undefined;
+		this.setFunctionName = setFunctionName(fn);
 		// work on copy or not???
 		this.args = args ? args.slice(0) : [];
 		this.index = 0;
@@ -56,7 +78,7 @@ class Runner {
 		this.isEnabled = true;
 		this.defReturnValue = true;
 		this.mappedArgs = [];
-		this.errorHandler = new ErrorHandler();
+		this.errorHandler = new ErrorHandler(fn);
 		this.errorHandler.update(FunctionErrors.ifNot(sheet, ERROR.ARGS));
 	}
 
@@ -175,13 +197,15 @@ class Runner {
 	run(fn) {
 		const error = this.errorHandler.getError();
 		if (error && !this.errorHandler.ignoreError) {
-			setErrorInfo(this.cell, error);
-			return error.code;
+			return this.setFunctionName(error);
+			// setErrorInfo(this.cell, error);
+			// return error;
 		}
 		if (this.isEnabled) {
 			const res = fn(...this.mappedArgs, error);
 			// fn returns an error?
-			if (FunctionErrors.isError(res)) setErrorInfo(this.cell, ErrorInfo.create(res));
+			// if (FunctionErrors.isError(res)) setErrorInfo(this.cell, ErrorInfo.create(res));
+			if (FunctionErrors.isError(res) && res.isErrorInfo) return this.setFunctionName(res);
 			return res;
 		}
 		return this.defReturnValue;

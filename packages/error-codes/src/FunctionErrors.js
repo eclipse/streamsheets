@@ -75,7 +75,7 @@ class FunctionErrors {
 	}
 
 	isError(value) {
-		return value != null && (errorValues.includes(value) ? value : undefined);
+		return value != null && (value.isErrorInfo || (errorValues.includes(value)) ? value : undefined);
 	}
 
 	containsError(values) {
@@ -96,9 +96,6 @@ class FunctionErrors {
 			return error != null;
 		});
 		return error;
-	}
-	errorAt(index, error) {
-		return `${error}_${index}`;
 	}
 
 	localizeError(error, locale) {

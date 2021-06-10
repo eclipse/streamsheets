@@ -8,10 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { BinaryOperator, BoolOperator, UnaryOperator } = require('@cedalo/parser');
 
 const ERROR = FunctionErrors.code;
+const DIV0 = () => ErrorInfo.create(ERROR.DIV0);
 
 const termValue = (term, defval) => {
 	const val = term != null ? term.value : null;
@@ -24,33 +25,35 @@ const calc = (left, right, op) => {
 	return isNaN(left) || isNaN(right) ? ERROR.VALUE : op(left, right);
 };
 
-const isError = (left, right) =>
-// eslint-disable-next-line no-nested-ternary
-	FunctionErrors.isError(left) ? left : (FunctionErrors.isError(right) ? right : undefined);
+const getError = (l, r) => {
+	if (FunctionErrors.isError(l)) return l; // .isErrorInfo ? l.setParamIndex('1') : l;
+	// return FunctionErrors.isError(r) ? r.isErrorInfo ? r.setParamIndex('2') : r : undefined;
+	return FunctionErrors.isError(r) ? r : undefined;
+};
 
 
 // replace some basic operations to behave more excel like, including excel-like error values...
 module.exports.Operations = [
-	new BinaryOperator('+', (left, right) => isError(left, right) || calc(left, right, (l, r) => l + r)),
-	new BinaryOperator('-', (left, right) => isError(left, right) || calc(left, right, (l, r) => l - r)),
-	new BinaryOperator('*', (left, right) => isError(left, right) || calc(left, right, (l, r) => l * r)),
+	new BinaryOperator('+', (left, right) => getError(left, right) || calc(left, right, (l, r) => l + r)),
+	new BinaryOperator('-', (left, right) => getError(left, right) || calc(left, right, (l, r) => l - r)),
+	new BinaryOperator('*', (left, right) => getError(left, right) || calc(left, right, (l, r) => l * r)),
 	// eslint-disable-next-line
-	new BinaryOperator('/', (left, right) => isError(left, right) || calc(left, right, (l, r) => (!r ? ERROR.DIV0 : !l ? 0 : l / r))),
-	new UnaryOperator('-', (right) => isError(right) || calc(-1, right, (l, r) => l * r)),
+	new BinaryOperator('/', (left, right) => getError(left, right) || calc(left, right, (l, r) => (!r ? DIV0() : !l ? 0 : l / r))),
+	new UnaryOperator('-', (right) => getError(right) || calc(-1, right, (l, r) => l * r)),
 
 	// eslint-disable-next-line
-	new BoolOperator('!=', (left, right) => isError(left, right) || left != right),
+	new BoolOperator('!=', (left, right) => getError(left, right) || left != right),
 	// eslint-disable-next-line
-	new BoolOperator('<>', (left, right) => isError(left, right) || left != right),
+	new BoolOperator('<>', (left, right) => getError(left, right) || left != right),
 	// eslint-disable-next-line
-	new BoolOperator('=', (left, right) => isError(left, right) || left == right),
+	new BoolOperator('=', (left, right) => getError(left, right) || left == right),
 	// eslint-disable-next-line
-	new BoolOperator('==', (left, right) => isError(left, right) || left == right),
-	new BoolOperator('>', (left, right) => isError(left, right) || left > right),
-	new BoolOperator('>=', (left, right) => isError(left, right) || left >= right),
-	new BoolOperator('<', (left, right) => isError(left, right) || left < right),
-	new BoolOperator('<=', (left, right) => isError(left, right) || left <= right),
-	new BoolOperator('|', (left, right) => isError(left, right) || (left || right))
+	new BoolOperator('==', (left, right) => getError(left, right) || left == right),
+	new BoolOperator('>', (left, right) => getError(left, right) || left > right),
+	new BoolOperator('>=', (left, right) => getError(left, right) || left >= right),
+	new BoolOperator('<', (left, right) => getError(left, right) || left < right),
+	new BoolOperator('<=', (left, right) => getError(left, right) || left <= right),
+	new BoolOperator('|', (left, right) => getError(left, right) || (left || right))
 ];
 
 module.exports.ConcatOperator = class ConcatOperator extends BinaryOperator {
@@ -60,13 +63,13 @@ module.exports.ConcatOperator = class ConcatOperator extends BinaryOperator {
 	}
 
 	calc(left, right) {
-		return isError(left, right) ||  `${termValue(left, '')}${termValue(right, '')}`;
+		return getError(left, right) ||  `${termValue(left, '')}${termValue(right, '')}`;
 	}
 };
 
 // used by timequery's where clause
 module.exports.AndOperator = class AndOperator extends BoolOperator {
 	constructor() {
-		super('&&', (left, right) => isError(left, right) || (left && right));
+		super('&&', (left, right) => getError(left, right) || (left && right));
 	}
 };
