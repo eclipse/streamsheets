@@ -1779,7 +1779,7 @@ export default class WorksheetView extends ContentNodeView {
 					);
 					if (formattingResult.formattedValue !== undefined) {
 						const metrics = GraphUtils.getFontMetrics(textFormat);
-						const textHeight = metrics.lineheight + 100;
+						const textHeight = metrics.lineheight + Math.max(metrics.lineheight * 0.15, 100);
 						height = Math.max(textHeight, height);
 					}
 				}
@@ -1899,7 +1899,7 @@ export default class WorksheetView extends ContentNodeView {
 		const data = this.getItem().getDataProvider();
 		const cell = data.get(cellPos);
 		const cellRect = cell && cell.error ? this.getCellRect(cellPos) : undefined;
-		return cellRect && 
+		return cellRect &&
 			point.x > cellRect.x &&
 			point.x < cellRect.x + 300 &&
 			point.y > cellRect.y &&

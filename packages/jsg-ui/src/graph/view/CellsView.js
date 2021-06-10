@@ -896,7 +896,7 @@ export default class CellsView extends NodeView {
 				graphics.fillPolyline(pts, true);
 				graphics.setFillColor('#000000');
 			}
-			// draw error 
+			// draw error
 			if (data.error) {
 				graphics.setFillColor('#FF0000');
 				const pts = [
@@ -1142,23 +1142,25 @@ export default class CellsView extends NodeView {
 		let y = 0;
 		const name = textproperties && textproperties.fontname ? textproperties.fontname : 'Verdana';
 		const size = textproperties && textproperties.fontsize ? textproperties.fontsize : 9;
-		const height = graphics.getCoordinateSystem().deviceToLogYNoZoom(GraphUtils.getFontMetricsEx(name, size).baselinePx, true);
+		const metrics = GraphUtils.getFontMetricsEx(name, size);
+		const height = graphics.getCoordinateSystem().deviceToLogYNoZoom(graphics.measureText('H').actualBoundingBoxAscent, true);
+		// const height = graphics.getCoordinateSystem().deviceToLogYNoZoom(GraphUtils.getFontMetricsEx(name, size).baselinePx, true);
 		const valign =
 			textproperties === undefined || textproperties.valign === undefined ? 2 : Number(textproperties.valign);
 
 		switch (valign) {
-			case 0:
-				y = rowInfo.y + 50;
-				graphics.setTextBaseline('top');
+		case 0:
+				y = rowInfo.y + metrics.lineheight + Math.max(50, metrics.lineheight * 0.075);
+				graphics.setTextBaseline('bottom');
 				break;
 			case 1:
-				y = rowInfo.y + rowInfo.height / 2 + height / 2;
-				graphics.setTextBaseline('alphabetic');
+				y = rowInfo.y + rowInfo.height / 2 - height / 2 * 0.85;
+				graphics.setTextBaseline('top');
 				break;
 			case 2:
 			default:
 				graphics.setTextBaseline('bottom');
-				y = rowInfo.y + rowInfo.height - 50;
+				y = rowInfo.y + rowInfo.height - Math.max(50, metrics.lineheight * 0.075);
 				break;
 		}
 
