@@ -626,7 +626,8 @@ export default class CellsView extends NodeView {
 			if (rowInfo.grey) {
 				graphics.setTransparency(60);
 			}
-			this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width + 20, rowInfo.height + 20, styleproperties.fillcolor);
+			const pix = graphics.getCoordinateSystem().deviceToLogX(1);
+			this.rect(graphics, columnInfo.x, rowInfo.y, columnInfo.width + pix, rowInfo.height + pix, styleproperties.fillcolor);
 			if (rowInfo.grey) {
 				graphics.setTransparency(100);
 			}
