@@ -104,6 +104,10 @@ class CellInfoView {
 		this.removeView();
 		this.setDivBounds(divView, bounds);
 		this.appendDiv(divView);
+		const rightBorderOverlap = (divView.offsetLeft + divView.offsetWidth) - (divView.parentNode.offsetLeft + divView.parentNode.offsetWidth);
+		if (rightBorderOverlap > 0) {
+			divView.style.left = `${divView.offsetLeft - rightBorderOverlap}px`;
+		}
 		tableEl.restoreScrollTop();
 		this.registerView(divView, cell, cellRange);
 	}
