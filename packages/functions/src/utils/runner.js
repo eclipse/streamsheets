@@ -9,68 +9,58 @@
  *
  ********************************************************************************/
 const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
+const { setCellInfo } = require('../functions/timeseries/utils');
 
 const ERROR = FunctionErrors.code;
 
 const remove = (index, arr) => arr.splice(index, 1)[0];
-// const setErrorInfo = (cell, error) => (cell ? cell.setCellInfo('error', error) : undefined);
-const setFunctionName = (fn) => (error) => {
-	const name = fn && fn.term && fn.term.name;
-	return name ? error.setFunctionName(name) : error;
-};
+const setErrorInfo = (cell, error) => (cell ? cell.setCellInfo('error', error) : undefined);
+// const setFunctionName = (fn) => (error) => {
+// 	const name = fn && fn.term && fn.term.name;
+// 	return name ? error.setFunctionName(name) : error;
+// };
 
 class ErrorHandler {
 	constructor() {
-		this._errorInfo = undefined;
-		this._errorCode = undefined;
+		this._error = undefined;
 		this._errorIndex = -1;
 		this._ignoreError = false;
 	}
 
-	get ignoreError() {
-		return this._ignoreError;
-	}
+	// get ignoreError() {
+	// 	return this._ignoreError;
+	// }
 	set ignoreError(doIt) {
 		this._ignoreError = doIt;
 	}
 
-	getError() {
-		if (this._errorInfo) {
-			return this._errorInfo;
+	getError(fnName) {
+		let error;
+		if (!this._ignoreError && this._error) {
+			error = this._error.isErrorInfo ? this._error : ErrorInfo.create(this._error);
+			if (fnName) error = error.setFunctionName(fnName);
+			if (this._errorIndex) error = error.setParamIndex(this._errorIndex);
 		}
-		const error = this._errorCode ? ErrorInfo.create(this._errorCode) : undefined;
-		return error && this._errorIndex >= 0 ? error.setParamIndex(this._errorIndex + 1) : error;
+		return error;
 	}
 
 	hasError() {
-		return (this._errorCode || this._errorInfo) && !this._ignoreError;
+		return this._error && !this._ignoreError;
 	}
 
-	updateORG(res, index) {
-		if (res && !this._errorCode) {
-			this._errorCode = FunctionErrors.isError(res);
-			this._errorIndex = index != null ? index : -1;
-		}
-	}
 	update(res, index) {
-		if (res && !this._errorCode) {
-			const error = FunctionErrors.isError(res);
-			if (error) {
-				if (error.isErrorInfo) {
-					this._errorInfo = error;
-				} else {
-					this._errorCode = FunctionErrors.isError(res);
-				}
-				this._errorIndex = index != null ? index : -1;
-			}
+		if (res && !this._error) {
+			this._error = FunctionErrors.isError(res);
+			this._errorIndex = index != null ? index : -1;
 		}
 	}
 }
 class Runner {
 	constructor(sheet, args, fn) {
 		this.sheet = sheet;
-		// this.cell = fn && fn.term ? fn.term.cell : undefined;
-		this.setFunctionName = setFunctionName(fn);
+		this.cell = fn && fn.term && fn.term.cell;
+		this.fnName = fn && fn.term && fn.term.name;
+		// this.setFunctionName = setFunctionName(fn);
 		// work on copy or not???
 		this.args = args ? args.slice(0) : [];
 		this.index = 0;
@@ -78,7 +68,7 @@ class Runner {
 		this.isEnabled = true;
 		this.defReturnValue = true;
 		this.mappedArgs = [];
-		this.errorHandler = new ErrorHandler(fn);
+		this.errorHandler = new ErrorHandler();
 		this.errorHandler.update(FunctionErrors.ifNot(sheet, ERROR.ARGS));
 	}
 
@@ -120,6 +110,8 @@ class Runner {
 	mapNextArg(fn) {
 		if (!this.errorHandler.hasError()) {
 			const term = this.args.shift();
+			// TODO: improve callback: pass (term.value, termIndex, ...mappedArgs?) 
+			// 	=> to check for error in term.value before trigger callback!!
 			const res = fn(term, ...this.mappedArgs);
 			this.errorHandler.update(res, this.index);
 			this.mappedArgs.push(res);
@@ -195,24 +187,22 @@ class Runner {
 	}
 
 	run(fn) {
-		const error = this.errorHandler.getError();
-		if (error && !this.errorHandler.ignoreError) {
-			return this.setFunctionName(error);
-			// setErrorInfo(this.cell, error);
-			// return error;
+		const error = this.errorHandler.getError(this.fnName);
+		if (error) {
+			setErrorInfo(this.cell, error);
+			return error.code;
 		}
-		if (this.isEnabled) {
-			const res = fn(...this.mappedArgs, error);
-			// fn returns an error?
-			// if (FunctionErrors.isError(res)) setErrorInfo(this.cell, ErrorInfo.create(res));
-			if (FunctionErrors.isError(res) && res.isErrorInfo) return this.setFunctionName(res);
+		if(this.isEnabled) {
+			const res = fn(...this.mappedArgs);
+			if (FunctionErrors.isError(res)) {
+				setErrorInfo(
+					this.cell,
+					res.isErrorInfo ? res : ErrorInfo.create(res, undefined, this.fnName)
+				);
+			}
 			return res;
 		}
 		return this.defReturnValue;
-		// if (this.errorHandler.hasError()) {
-		// 	return this.errorHandler.getError().code;
-		// }
-		// return this.isEnabled ? fn(...this.mappedArgs, error) : this.defReturnValue;
 	}
 }
 
