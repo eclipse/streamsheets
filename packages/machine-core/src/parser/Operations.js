@@ -22,54 +22,88 @@ const termValue = (term, defval) => {
 const calc = (left, right, op) => {
 	left = left != null ? Number(left) : 0;
 	right = right != null ? Number(right) : 0;
-	return isNaN(left) || isNaN(right) ? ERROR.VALUE : op(left, right);
+	return isNaN(left) || isNaN(right) ? ErrorInfo.create(ERROR.VALUE) : op(left, right);
 };
 
-const getError = (l, r) => {
-	if (FunctionErrors.isError(l)) return l; // .isErrorInfo ? l.setParamIndex('1') : l;
-	// return FunctionErrors.isError(r) ? r.isErrorInfo ? r.setParamIndex('2') : r : undefined;
-	return FunctionErrors.isError(r) ? r : undefined;
+const getParamIndex = (term) => {
+	return term.name || term.toString();
+	// const index = errorinfo.paramIndex;
+	// return index == null || typeof index !== 'string' ? errorinfo.setParamIndex(paramString(term)) : errorinfo;
 };
+const setErrorInfo = (code, term, parent) => {
+	const cell = parent && parent.cell;
+	if(cell) {
+		const error = ErrorInfo.create(code);
+		// TODO: improve index hint
+		cell.setCellInfo('error', error.setParamIndex(getParamIndex(term)));
+		// info.setParamIndex ? setParamIndex(info, term) : info;
+	}
+	return code;
+}
 
-
+class SheetBinaryOperator extends BinaryOperator {
+	calc(term1, term2, parent) {
+		const val1 = term1 && term1.value;
+		const val2 = term2 && term2.value;
+		if (FunctionErrors.isError(val1)) return setErrorInfo(val1, term1, parent);
+		if (FunctionErrors.isError(val2)) return setErrorInfo(val2, term2, parent);
+		return this.operation(val1, val2);
+	}
+}
+class SheetUnaryOperator extends UnaryOperator {
+	calc(term1, term2, parent) {
+		const value = term1 && term1.value;
+		if (FunctionErrors.isError(value)) return setErrorInfo(value, term1, parent);
+		return this.operation(value);
+	}
+}
+class SheetBoolOperator extends BoolOperator {
+	calc(term1, term2, parent) {
+		const val1 = this.isResolved(term1) ? term1.value : false;
+		const val2 = this.isResolved(term2) ? term2.value : false;
+		if (FunctionErrors.isError(val1)) return setErrorInfo(val1, term1, parent);
+		if (FunctionErrors.isError(val2)) return setErrorInfo(val2, term2, parent);
+		return this.operation(val1, val2);
+	}
+}
 // replace some basic operations to behave more excel like, including excel-like error values...
 module.exports.Operations = [
-	new BinaryOperator('+', (left, right) => getError(left, right) || calc(left, right, (l, r) => l + r)),
-	new BinaryOperator('-', (left, right) => getError(left, right) || calc(left, right, (l, r) => l - r)),
-	new BinaryOperator('*', (left, right) => getError(left, right) || calc(left, right, (l, r) => l * r)),
+	new SheetBinaryOperator('+', (left, right) => calc(left, right, (l, r) => l + r)),
+	new SheetBinaryOperator('-', (left, right) => calc(left, right, (l, r) => l - r)),
+	new SheetBinaryOperator('*', (left, right) => calc(left, right, (l, r) => l * r)),
 	// eslint-disable-next-line
-	new BinaryOperator('/', (left, right) => getError(left, right) || calc(left, right, (l, r) => (!r ? DIV0() : !l ? 0 : l / r))),
-	new UnaryOperator('-', (right) => getError(right) || calc(-1, right, (l, r) => l * r)),
+	new SheetBinaryOperator('/', (left, right) => calc(left, right, (l, r) => (!r ? DIV0() : !l ? 0 : l / r))),
+	new SheetUnaryOperator('-', (right) => calc(-1, right, (l, r) => l * r)),
 
 	// eslint-disable-next-line
-	new BoolOperator('!=', (left, right) => getError(left, right) || left != right),
+	new SheetBoolOperator('!=', (left, right) => left != right),
 	// eslint-disable-next-line
-	new BoolOperator('<>', (left, right) => getError(left, right) || left != right),
+	new SheetBoolOperator('<>', (left, right) => left != right),
 	// eslint-disable-next-line
-	new BoolOperator('=', (left, right) => getError(left, right) || left == right),
+	new SheetBoolOperator('=', (left, right) => left == right),
 	// eslint-disable-next-line
-	new BoolOperator('==', (left, right) => getError(left, right) || left == right),
-	new BoolOperator('>', (left, right) => getError(left, right) || left > right),
-	new BoolOperator('>=', (left, right) => getError(left, right) || left >= right),
-	new BoolOperator('<', (left, right) => getError(left, right) || left < right),
-	new BoolOperator('<=', (left, right) => getError(left, right) || left <= right),
-	new BoolOperator('|', (left, right) => getError(left, right) || (left || right))
+	new SheetBoolOperator('==', (left, right) => left == right),
+	new SheetBoolOperator('>', (left, right) => left > right),
+	new SheetBoolOperator('>=', (left, right) => left >= right),
+	new SheetBoolOperator('<', (left, right) => left < right),
+	new SheetBoolOperator('<=', (left, right) => left <= right),
+	new SheetBoolOperator('|', (left, right) => (left || right))
 ];
 
-module.exports.ConcatOperator = class ConcatOperator extends BinaryOperator {
+module.exports.ConcatOperator = class ConcatOperator extends SheetBinaryOperator {
 
 	constructor() {
 		super('&');
 	}
 
 	calc(left, right) {
-		return getError(left, right) ||  `${termValue(left, '')}${termValue(right, '')}`;
+		return `${termValue(left, '')}${termValue(right, '')}`;
 	}
 };
 
 // used by timequery's where clause
-module.exports.AndOperator = class AndOperator extends BoolOperator {
+module.exports.AndOperator = class AndOperator extends SheetBoolOperator {
 	constructor() {
-		super('&&', (left, right) => getError(left, right) || (left && right));
+		super('&&', (left, right) => left && right);
 	}
 };
