@@ -452,7 +452,9 @@ export default class CellEditor {
 					},
 					false
 				);
-
+				if (this.funcDiv) {
+					this.removeFunctionHelp();
+				}
 			}
 			return;
 		}
