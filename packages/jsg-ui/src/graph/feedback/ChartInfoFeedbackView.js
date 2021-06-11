@@ -72,7 +72,7 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.beginPath();
 			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
 				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
-				y = top.y;
+				y = this.point.y;
 
 				if (x - top.x > plotRect.width || x - top.x < 0) {
 					return;
@@ -84,7 +84,7 @@ export default class ChartInfoFeedbackView extends View {
 					graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
 				}
 			} else {
-				x = top.x;
+				x = this.point.x;
 				y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.height;
 
 				if (y - top.y > plotRect.height || y - top.y < 0) {
@@ -290,6 +290,7 @@ export default class ChartInfoFeedbackView extends View {
 			}
 
 			let xValue;
+			let cnt = 0;
 
 			values.forEach((value) => {
 				if (!xValue) {
@@ -298,6 +299,7 @@ export default class ChartInfoFeedbackView extends View {
 				}
 				if (value) {
 					width = Math.max(width, graphics.measureText(getLabel(value, false, circular)).width);
+					cnt += 1;
 				}
 			});
 
@@ -310,12 +312,14 @@ export default class ChartInfoFeedbackView extends View {
 				if (y < top.y + pieInfo.yc - plotRect.top) {
 					y -= (values.length + 1) * height + margin * 2;
 				}
+			} else if (y + margin * 2 + (cnt + 1) * height > plotRect.bottom) {
+				y = this.point.y - (space + margin * 2 + (cnt + 1) * height);
 			}
 
 			graphics.beginPath();
 			graphics.setFillColor('#FFFFFF');
 			graphics.setLineColor('#AAAAAA');
-			graphics.rect(x, y, width + margin * 2, margin * 2 + (values.length + 1) * height);
+			graphics.rect(x, y, width + margin * 2, margin * 2 + (cnt + 1) * height);
 			graphics.fill();
 			graphics.stroke();
 
@@ -325,7 +329,10 @@ export default class ChartInfoFeedbackView extends View {
 				graphics.fillText(xValue, x + margin, y + margin);
 			}
 
-			values.forEach((value, index) => {
+			cnt = 0;
+
+			for (let i = values.length - 1; i >= 0; i -= 1) {
+				const value = values[i];
 				if (value) {
 					const label = getLabel(value, false, circular);
 					if (circular) {
@@ -335,9 +342,12 @@ export default class ChartInfoFeedbackView extends View {
 							value.serie.format.lineColor || item.getTemplate().series.getLineForIndex(value.seriesIndex)
 						);
 					}
-					graphics.fillText(label, x + margin, y + height * (index + 1) + margin * 2);
+					if (label && label !== '') {
+						graphics.fillText(label, x + margin, y + height * (cnt + 1) + margin * 2);
+						cnt += 1;
+					}
 				}
-			});
+			}
 		}
 	}
 }

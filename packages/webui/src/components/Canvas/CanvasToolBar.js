@@ -209,6 +209,7 @@ export class CanvasToolBar extends Component {
 			return;
 		}
 
+		this.props.setJsgState({ cellSelected: true });
 		this.updateState({graphSelected: false});
 	}
 

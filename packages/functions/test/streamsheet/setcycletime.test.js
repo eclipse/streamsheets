@@ -24,29 +24,22 @@ const setup = (cycletime = 1000) => {
 };
 
 describe('setcycletime', () => {
-	it('should set machine cycletime to use', () => {
+	it('should set machine cycletime', async () => {
+		const cells = { A1: { formula: 'A1+1' }, B1: { formula: 'getcycletime()' } };
 		const { sheet, machine } = setup();
-		expect(SETCYCLETIME(sheet, Term.fromNumber(500))).toBe(true);
-		expect(machine.cycletime).toBe(500);
-		expect(SETCYCLETIME(sheet, Term.fromNumber(2500))).toBe(true);
-		expect(machine.cycletime).toBe(2500);
+		sheet.load({ cells });
+		await machine.step();
+		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
+		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(1000);
+		machine.cycletime = 50;
+		await machine.step();
+		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(3);
+		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(50);
 	});
 	it('should not be possible to set a cycletime < 1', () => {
 		const { sheet } = setup();
 		expect(SETCYCLETIME(sheet, Term.fromNumber(0))).toBe(ERROR.VALUE);
 		expect(SETCYCLETIME(sheet, Term.fromNumber(-1))).toBe(ERROR.VALUE);
-	});
-	it('should work inside a sheet', () => {
-		const cells = { A1: { formula: 'A1+1' }, B1: { formula: 'getcycletime()' } };
-		const { sheet, machine } = setup();
-		sheet.load({ cells });
-		sheet.streamsheet.process();
-		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(1000);
-		machine.cycletime = 50;
-		sheet.streamsheet.process();
-		expect(sheet.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(sheet.cellAt(SheetIndex.create('B1')).value).toBe(50);
 	});
 	it('should return error if no valid parameters are provided', () => {
 		const { sheet } = setup();

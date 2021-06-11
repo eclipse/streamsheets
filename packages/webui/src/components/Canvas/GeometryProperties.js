@@ -79,7 +79,11 @@ export class GeometryProperties extends Component {
 	}
 
 	getExpression(item, event) {
-		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+		try {
+			return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+		} catch (e) {
+			return undefined;
+		}
 	}
 
 	getAttributeHandler(label, item, name, round = 0) {
@@ -96,6 +100,7 @@ export class GeometryProperties extends Component {
 				InputProps={{
 					inputComponent: MyInputComponent,
 					inputProps: {
+						onlyReference: false,
 						component: CellRangeComponent,
 						sheetView,
 						range: this.getFormula(item.getAttributeAtPath(name).getExpression(), round)
@@ -132,9 +137,11 @@ export class GeometryProperties extends Component {
 
 	handleAttribute(event, item, name) {
 		const expr = this.getExpression(item, event);
-		const cmd = new JSG.SetAttributeAtPathCommand(item, name, expr.expression);
+		if (expr) {
+			const cmd = new JSG.SetAttributeAtPathCommand(item, name, expr.expression);
 
-		graphManager.synchronizedExecute(cmd);
+			graphManager.synchronizedExecute(cmd);
+		}
 	}
 
 	handleX = (event) => {

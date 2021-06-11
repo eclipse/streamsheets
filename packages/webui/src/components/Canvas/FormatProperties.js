@@ -179,6 +179,7 @@ export class FormatProperties extends Component {
 				) : null}
 				{this.getAttributeHandler("GraphItemProperties.LineCorner", item, JSG.FormatAttributes.LINECORNER)}
 				<Typography variant="subtitle1" style={{marginTop: '8px', marginBottom: '5px'}}>
+
 					<FormattedMessage id="GraphItemProperties.Fill" defaultMessage="Fill" />
 				</Typography>
 				{this.getAttributeHandler("GraphItemProperties.FillStyle", item, JSG.FormatAttributes.FILLSTYLE,[

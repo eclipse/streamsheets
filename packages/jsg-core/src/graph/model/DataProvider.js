@@ -750,6 +750,13 @@ module.exports = class DataProvider {
 					} /* , cell */
 				);
 				expr.correctFormula(sheet);
+				if (expr.resetToString) {
+					const formula = expr.getFormula();
+					if (formula !== undefined && formula !== '') {
+						expr.resetToString.set(formula);
+					}
+					expr.resetToString = undefined;
+				}
 			}
 			return true;
 		};
@@ -968,6 +975,13 @@ module.exports = class DataProvider {
 				});
 			}
 			expr.correctFormula(sheet, forceName);
+			if (expr.resetToString) {
+				const formula = expr.getFormula();
+				if (formula !== undefined && formula !== '') {
+					expr.resetToString.set(formula);
+				}
+				expr.resetToString = undefined;
+			}
 		};
 
 		const updateCell = (sheet, cell, xOff, yOff, absolute) => {

@@ -111,7 +111,8 @@ export default class SheetActivator extends InteractionActivator {
 				case WorksheetView.HitCode.ROWOUTLINE:
 				case WorksheetView.HitCode.ROWSIZE:
 				case WorksheetView.HitCode.ROWSIZEHIDDEN:
-				case WorksheetView.HitCode.DATAVIEW: {
+				case WorksheetView.HitCode.DATAVIEW:
+				case WorksheetView.HitCode.ERRORVIEW: {
 					const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
 					interaction._controller = this._controller;
 					interaction._hitCode = this._hitCode;

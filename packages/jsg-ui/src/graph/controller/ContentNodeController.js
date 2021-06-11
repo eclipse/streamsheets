@@ -236,7 +236,10 @@ class ContentNodeController extends NodeController {
 			const parent = this.getModel().getParent();
 			const myBBox = this.getModel().getBoundingBox();
 			const childBBox = controller.getModel().getTranslatedBoundingBox(parent);
-			return myBBox.doesIntersectWith(childBBox);
+			const rect1 = myBBox.getBoundingRectangle();
+			const rect2 = childBBox.getBoundingRectangle();
+			return rect1.intersect(rect2);
+			// return myBBox.doesIntersectWith(childBBox);
 		}
 		return selectable;
 	}

@@ -185,7 +185,17 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 		}
 
 		if (!controller) {
-			controller = this._getShapeControllerAt(event.location, viewer, dispatcher);
+			if (viewer.getSelectionProvider().hasSingleSelection()) {
+				const bbox = viewer.getSelectionView().getBoundingBox();
+				const rect = bbox.getBoundingRectangle();
+				if (rect.containsPoint(event.location)) {
+					controller = viewer.getSelectionProvider().getFirstSelection();
+				}
+			}
+
+			if (!controller) {
+				controller = this._getShapeControllerAt(event.location, viewer, dispatcher);
+			}
 		}
 		if (controller) {
 			if (controller.getModel().isProtected()) {
