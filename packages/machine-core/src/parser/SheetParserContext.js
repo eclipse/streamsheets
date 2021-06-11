@@ -31,9 +31,9 @@ const executor = (func) => function wrappedFunction(sheet, ...terms) {
 		result = func(sheet, ...terms);
 	} catch (err) {
 		logger.error('Error', err);
-		const { FUNC_EXEC } = FunctionErrors.code;
-		if (term.cell) term.cell.setCellInfo('error', ErrorInfo.create(FUNC_EXEC, err.message));
-		return FUNC_EXEC;
+		const error = ErrorInfo.create(FunctionErrors.code.FUNC_EXEC, err.message, term.name);
+		if (term.cell) term.cell.setCellInfo('error', error);
+		return error.code;
 	}
 	func.term = undefined;
 	func.context = undefined;
