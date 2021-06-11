@@ -251,6 +251,9 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 	}
 
 	getStreamSheetIdFromProcessSheet(processSheet) {
+		if (processSheet && processSheet.sourceSheet) {
+			processSheet = processSheet.sourceSheet;
+		}
 		const processSheetContainer = processSheet && processSheet.getStreamSheetContainer();
 		return (processSheetContainer) ?
 			processSheetContainer.getStreamSheetContainerAttributes().getSheetId().getValue() : undefined;

@@ -878,11 +878,13 @@ export default class WorksheetView extends ContentNodeView {
 			return WorksheetView.HitCode.NONE;
 		}
 
-		const bounds = this.getScrollView().getBounds();
+		const scrollView = this.getScrollView();
+		const bounds = scrollView.getBounds();
 		let point = location.copy();
-		const hScrollSize =
-			item.getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
-		const vScrollSize = item.getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const hScrollSize = scrollView.getHorizontalScrollbar().isVisible() ? ScrollBar.SIZE : 0;
+		const vScrollSize = scrollView.getVerticalScrollbar().isVisible() ? ScrollBar.SIZE : 0;
+			// item.getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		// const vScrollSize = item.getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point = this.translateToSheet(point, viewer);
 
