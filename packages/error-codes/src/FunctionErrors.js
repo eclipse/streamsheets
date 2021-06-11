@@ -75,7 +75,7 @@ class FunctionErrors {
 	}
 
 	isError(value) {
-		return value != null && (value.isErrorInfo || (errorValues.includes(value)) ? value : undefined);
+		return value != null && (value.isErrorInfo || errorValues.includes(value)) ? value : undefined;
 	}
 
 	containsError(values) {
@@ -88,14 +88,6 @@ class FunctionErrors {
 
 	ifTrue(condition, error) {
 		return condition ? error : undefined;
-	}
-	ifOneTrue(conditions, errors) {
-		let error;
-		conditions.some((cond, index) => {
-			error = this.ifTrue(cond, errors[index]);
-			return error != null;
-		});
-		return error;
 	}
 
 	localizeError(error, locale) {

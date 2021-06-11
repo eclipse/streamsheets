@@ -20,10 +20,14 @@ class ErrorInfo {
 		return TYPES;
 	}
 	static create(code, message, fnName) {
-		return new ErrorInfo({ type: TYPES.ERROR, code, message, fnName });
+		return code.isErrorInfo
+			? new ErrorInfo({ ...code })
+			: new ErrorInfo({ type: TYPES.ERROR, code, message, fnName });
 	}
 	static createWarning(code, message, fnName) {
-		return new ErrorInfo({ type: TYPES.WARNING, code, message, fnName });
+		return code.isErrorInfo
+			? new ErrorInfo({ ...code })
+			: new ErrorInfo({ type: TYPES.WARNING, code, message, fnName });
 	}
 
 	static localize(error, locale) {
@@ -41,7 +45,7 @@ class ErrorInfo {
 		localizedError[localize('message')] = error.message || '-';
 		return localizedError;
 	}
-	constructor({type, code, fnName, message, paramIndex, description } = {}) {
+	constructor({ type, code, fnName, message, paramIndex, description } = {}) {
 		this.type = type || ErrorInfo.TYPE.ERROR;
 		this.code = code;
 		this.fnName = fnName;
