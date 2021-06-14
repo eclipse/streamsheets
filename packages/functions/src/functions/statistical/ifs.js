@@ -39,8 +39,8 @@ const count = (sheet, runner) =>
 	runner
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))
 		.run((_criteria) => criteria.getValues(_criteria).length);
-const countif = (sheet, ...terms) => count(sheet, runFunction(sheet, terms).withArgCount(2));
-const countifs = (sheet, ...terms) => count(sheet, runFunction(sheet, terms).withMinArgs(2));
+const countif = (sheet, ...terms) => count(sheet, runFunction(sheet, terms, countif).withArgCount(2));
+const countifs = (sheet, ...terms) => count(sheet, runFunction(sheet, terms, countifs).withMinArgs(2));
 
 
 module.exports = {

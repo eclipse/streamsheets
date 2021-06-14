@@ -105,11 +105,12 @@ const int = (sheet, ...terms) =>
 		.run((nr) => Math.floor(nr));
 
 const log = (sheet, ...terms) =>
-	runFunction(sheet, terms, log).withMinArgs(1)
+	runFunction(sheet, terms, log)
+		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
-		.mapNextArg((base) => base ? toNumberOrError(base.value) : 10)
-		.run((nr, base) => nr !== 0 && base !== 0 ? Math.log(nr) / Math.log(base) : ERROR.VALUE);
+		.mapNextArg((base) => (base ? toNumberOrError(base.value) : 10))
+		.run((nr, base) => (nr !== 0 && base !== 0 ? Math.log(nr) / Math.log(base) : ERROR.VALUE));
 
 const mod = (sheet, ...terms) =>
 	runFunction(sheet, terms, mod)
