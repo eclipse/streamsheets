@@ -195,18 +195,16 @@ const mid = (sheet, ...terms) =>
 const replace = (sheet, ...terms) =>
 	runFunction(sheet, terms, replace)
 		.withArgCount(4)
-		.mapNextArg((str) => convert.toString(str.value, ''))
+		.mapNextArg((str) => (FunctionErrors.isError(str.value) ? str.value : convert.toString(str.value, '')))
 		.mapNextArg((start) => toMinInteger(start, 1, 1))
 		.mapNextArg((length) => toMinInteger(length, 0, 0))
 		.mapNextArg((replacement) => convert.toString(replacement.value, ''))
-		.run((str, start, length, replacement) =>
-			splice(str, start - 1, length, replacement)
-		);
+		.run((str, start, length, replacement) => splice(str, start - 1, length, replacement));
 
 const rept = (sheet, ...terms) =>
 	runFunction(sheet, terms, rept)
 		.withArgCount(2)
-		.mapNextArg((str) => convert.toString(str.value, ''))
+		.mapNextArg((str) => (FunctionErrors.isError(str.value) ? str.value : convert.toString(str.value, '')))
 		.mapNextArg((times) => toMinInteger(times, 0, 0))
 		.run((str, times) => str.repeat(times));
 

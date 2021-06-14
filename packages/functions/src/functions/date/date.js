@@ -77,7 +77,10 @@ const date = (sheet, ...terms) =>
 const datevalue = (sheet, ...terms) =>
 	runFunction(sheet, terms, datevalue)
 		.withArgCount(1)
-		.mapNextArg(datestr => convert.toString(datestr.value, ERROR.VALUE))
+		.mapNextArg((datestr) => {
+			const value = datestr.value;
+			return FunctionErrors.isError(value) ? value : convert.toString(value, ERROR.VALUE);
+		})
 		.run((datestr) => {
 			const localizer = locale.use({ locale: getLocale(sheet) });
 			return Math.round(ms2serial(localizer.parse(datestr)));

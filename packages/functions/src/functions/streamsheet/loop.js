@@ -14,7 +14,7 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 const ERROR = FunctionErrors.code;
 
 const loopcount = (sheet) =>
-	runFunction(sheet, loopcount)
+	runFunction(sheet, undefined, loopcount)
 		.withArgCount(0)
 		.addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
 		.run((streamsheet) => {
@@ -23,7 +23,7 @@ const loopcount = (sheet) =>
 		});
 
 const loopindex = (sheet) =>
-	runFunction(sheet, loopindex)
+	runFunction(sheet, undefined, loopindex)
 		.withArgCount(0)
 		.addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
 		// DL-1080: returned loop index should be based to 1
