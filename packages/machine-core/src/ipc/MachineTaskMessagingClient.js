@@ -59,6 +59,10 @@ const create = () => {
 			msgclient.client = client;
 		})
 		.catch(err => logger.error(err));
+	setInterval(() => {
+		const metrics = MetricsManager.getMetrics();
+		msgclient.publishMetrics(metrics);
+	}, process.env.STREAMSHEETS_METRICS_INTERVAL || 5000);
 	return msgclient;
 };
 module.exports = Object.freeze(create());
