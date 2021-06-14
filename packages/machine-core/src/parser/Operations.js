@@ -25,23 +25,26 @@ const calc = (left, right, op) => {
 	return isNaN(left) || isNaN(right) ? ErrorInfo.create(ERROR.VALUE) : op(left, right);
 };
 
-// TODO: set param hint!
-const createErrorInfo = (error) => error.isErrorInfo ? error : ErrorInfo.create(error);
+
+const createErrorInfo = (error, term) => {
+	const errorInfo = error.isErrorInfo ? error : ErrorInfo.create(error);
+	return errorInfo.paramIndex == null ? errorInfo.setParamIndex(term.toString()) : errorInfo;
+};
 
 
 class SheetBinaryOperator extends BinaryOperator {
 	calc(term1, term2) {
 		const val1 = term1 && term1.value;
 		const val2 = term2 && term2.value;
-		if (FunctionErrors.isError(val1)) return createErrorInfo(val1);
-		if (FunctionErrors.isError(val2)) return createErrorInfo(val2);
+		if (FunctionErrors.isError(val1)) return createErrorInfo(val1, term1);
+		if (FunctionErrors.isError(val2)) return createErrorInfo(val2, term2);
 		return this.operation(val1, val2);
 	}
 }
 class SheetUnaryOperator extends UnaryOperator {
 	calc(term) {
 		const value = term && term.value;
-		if (FunctionErrors.isError(value)) return createErrorInfo(value);
+		if (FunctionErrors.isError(value)) return createErrorInfo(value, term);
 		return this.operation(value);
 	}
 }
@@ -49,8 +52,8 @@ class SheetBoolOperator extends BoolOperator {
 	calc(term1, term2) {
 		const val1 = this.isResolved(term1) ? term1.value : false;
 		const val2 = this.isResolved(term2) ? term2.value : false;
-		if (FunctionErrors.isError(val1)) return createErrorInfo(val1);
-		if (FunctionErrors.isError(val2)) return createErrorInfo(val2);
+		if (FunctionErrors.isError(val1)) return createErrorInfo(val1, term1);
+		if (FunctionErrors.isError(val2)) return createErrorInfo(val2, term2);
 		return this.operation(val1, val2);
 	}
 }
