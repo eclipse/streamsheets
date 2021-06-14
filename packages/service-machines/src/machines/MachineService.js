@@ -155,6 +155,8 @@ module.exports = class MachineService extends MessagingService {
 						const errorObject = requestHandler.reject(message, errorMessage);
 						errorObject.error.reqType = message.type;
 						this.publishMessage(Topics.ERRORS_GLOBAL, errorObject);
+					} else {
+						this.publishMessage(Topics.SERVICES_MACHINES_OUTPUT, error);
 					}
 				}
 			} else if (isRequestMessage(message)) {
