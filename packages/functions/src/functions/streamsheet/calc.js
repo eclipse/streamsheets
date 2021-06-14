@@ -13,7 +13,7 @@ const { runFunction, sheet: sheetutils } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
-const calc = (sheet, ...terms) => runFunction(sheet, terms).withArgCount(0).run(() => {
+const calc = (sheet, ...terms) => runFunction(sheet, terms, calc).withArgCount(0).run(() => {
 	// should not be used directly in cell:
 	const cell = sheetutils.cellFromFunc(calc);
 	return cell ? ERROR.INVALID : sheet._startProcessing();
