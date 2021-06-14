@@ -10,7 +10,7 @@
  ********************************************************************************/
 const SheetIndex = require('../machine/SheetIndex');
 const SheetRange = require('../machine/SheetRange');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { ParserError, Reference } = require('@cedalo/parser');
 
 const ERROR = FunctionErrors.code;
@@ -30,7 +30,7 @@ class AbstractReference extends Reference {
 			const machine = sheet.machine || sheet;
 			if (machine && machine.getStreamSheet) {
 				const streamsheet = machine.getStreamSheet(this._streamsheetId);
-				sheet = streamsheet ? streamsheet.sheet : ERROR.REF;
+				sheet = streamsheet ? streamsheet.sheet : ErrorInfo.create(ERROR.REF);
 			}
 		}
 		return sheet;
@@ -81,7 +81,7 @@ class NamedCellReference extends AbstractReference {
 			cell.value = value;
 			return value;
 		}
-		return ERROR.REF;
+		return ErrorInfo.create(ERROR.REF);
 	}
 
 	get target() {
@@ -137,7 +137,7 @@ class CellReference extends AbstractReference {
 		const sheet = this.sheet;
 		const error =
 			FunctionErrors.isError(sheet) ||
-			(sheet && !isValidIndex(index, sheet) ? ERROR.REF : undefined);
+			(sheet && !isValidIndex(index, sheet) ? ErrorInfo.create(ERROR.REF) : undefined);
 		return error || sheet.cellAt(index);
 	}
 
@@ -207,7 +207,7 @@ class CellRangeReference extends AbstractReference {
 		const error =
 			FunctionErrors.isError(sheet) ||
 			(sheet && (!isValidIndex(range.start, sheet) || !isValidIndex(range.end, sheet))
-				? ERROR.REF
+				? ErrorInfo.create(ERROR.REF)
 				: null);
 		return error || range;
 	}
@@ -282,7 +282,7 @@ class MessageBoxReference extends AbstractReference {
 	get value() {
 		const sheet = this.sheet;
 		const messagebox = sheet && this._getMessageBox(this.sheet);
-		return messagebox ? this._getMessagePart(messagebox.peek()) : ERROR.REF;
+		return messagebox ? this._getMessagePart(messagebox.peek()) : ErrorInfo.create(ERROR.REF);
 	}
 
 	copy() {
