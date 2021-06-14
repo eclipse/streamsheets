@@ -9,10 +9,10 @@
  *
  ********************************************************************************/
 const Cell = require('../machine/Cell');
-const { ErrorTerm } = require('./Error');
+const ErrorTerm = require('./ErrorTerm');
 const SheetParserContext = require('./SheetParserContext');
 const { AndOperator, ConcatOperator, Operations } = require('./Operations');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
 
 class ObjectTerm extends Term {
@@ -79,10 +79,10 @@ const convertParserError = (error) => {
 			case ErrorCodes.MISSING_OPERAND:
 			case ErrorCodes.UNKNOWN_FUNCTION:
 			case ErrorCodes.UNKNOWN_IDENTIFIER:
-				err = FunctionErrors.code.NAME;
+				err = ErrorInfo.create(FunctionErrors.code.NAME);
 				break;
 			default:
-				err = FunctionErrors.code.ERR;
+				err = ErrorInfo.create(FunctionErrors.code.ERR);
 		}
 	}
 	return err;
