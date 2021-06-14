@@ -38,6 +38,13 @@ class MachineTaskMessagingClient extends MessagingClient {
 		this.client.publish(this.topic, message, opts);
 	}
 
+	publishMetric(metrics) {
+		metrics.machine = {
+			id: this.machine.id
+		}
+		this.client.publish(`${this.topic}/metrics`, metrics);
+	}
+
 	publishEvent(message, opts) {
 		// service task listener wrapped each event inside EventMessage, so:
 		this.publish(new EventMessage(message), opts);
