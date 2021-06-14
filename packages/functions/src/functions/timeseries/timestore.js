@@ -124,8 +124,8 @@ const store = (sheet, ...terms) =>
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);
 			const storeLimitReached = timestore.push(timestamp || localNow(), values);
-			const errorInfo = storeLimitReached ? ErrorInfo.createWarning(ERROR.LIMIT) : undefined;
-			setCellInfo('error', errorInfo, term);
+			const warning = storeLimitReached ? ErrorInfo.createWarning(ERROR.LIMIT) : undefined;
+			setCellInfo('error', warning, term);
 			// TODO: use context instead!!
 			stateListener.registerCallback(sheet, term, timestore.reset);
 			return true;

@@ -201,8 +201,8 @@ const timeQuery = (sheet, ...terms) =>
 				querystore.performQueryOnInterval(timestore);
 				querystore.write(term.cell, range, term);
 				const size = querystore.entries.length;
-				const errorInfo = size >= querystore.limit ? ErrorInfo.createWarning(ERROR.LIMIT) : undefined;
-				setCellInfo('error', errorInfo, term);
+				const warning = size >= querystore.limit ? ErrorInfo.createWarning(ERROR.LIMIT) : undefined;
+				setCellInfo('error', warning, term);
 				// eslint-disable-next-line no-nested-ternary
 				return size === 0 ? ERROR.NA : true;
 			}
