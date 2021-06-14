@@ -29,6 +29,7 @@ class MachineTaskMessagingClient extends MessagingClient {
 	}
 
 	register(machine) {
+		this.machine.id = machine.id;
 		this.machine.topic = `${Topics.SERVICES_MACHINES_EVENTS}/${machine.id}`;
 	}
 
