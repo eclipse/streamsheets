@@ -9,16 +9,10 @@
  *
  ********************************************************************************/
 const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
-const { setCellInfo } = require('../functions/timeseries/utils');
 
 const ERROR = FunctionErrors.code;
 
 const remove = (index, arr) => arr.splice(index, 1)[0];
-const setErrorInfo = (cell, error) => (cell ? cell.setCellInfo('error', error) : undefined);
-// const setFunctionName = (fn) => (error) => {
-// 	const name = fn && fn.term && fn.term.name;
-// 	return name ? error.setFunctionName(name) : error;
-// };
 
 class ErrorHandler {
 	constructor() {
@@ -27,9 +21,6 @@ class ErrorHandler {
 		this._ignoreError = false;
 	}
 
-	// get ignoreError() {
-	// 	return this._ignoreError;
-	// }
 	set ignoreError(doIt) {
 		this._ignoreError = doIt;
 	}
@@ -189,16 +180,12 @@ class Runner {
 	run(fn) {
 		const error = this.errorHandler.getError(this.fnName);
 		if (error) {
-			setErrorInfo(this.cell, error);
-			return error.code;
+			return error;
 		}
-		if(this.isEnabled) {
+		if (this.isEnabled) {
 			const res = fn(...this.mappedArgs);
 			if (FunctionErrors.isError(res)) {
-				setErrorInfo(
-					this.cell,
-					res.isErrorInfo ? res : ErrorInfo.create(res, undefined, this.fnName)
-				);
+				return res.isErrorInfo ? res : ErrorInfo.create(res, undefined, this.fnName);
 			}
 			return res;
 		}
