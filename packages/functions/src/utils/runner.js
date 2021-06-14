@@ -17,7 +17,7 @@ const remove = (index, arr) => arr.splice(index, 1)[0];
 class ErrorHandler {
 	constructor() {
 		this._error = undefined;
-		this._errorIndex = -1;
+		this._errorIndex = undefined;
 		this._ignoreError = false;
 	}
 
@@ -30,7 +30,7 @@ class ErrorHandler {
 		if (!this._ignoreError && this._error) {
 			error = this._error.isErrorInfo ? this._error : ErrorInfo.create(this._error);
 			if (fnName) error = error.setFunctionName(fnName);
-			if (this._errorIndex) error = error.setParamIndex(this._errorIndex);
+			if (this._errorIndex) error = error.setParamIndex(this._errorIndex + 1);
 		}
 		return error;
 	}
@@ -42,8 +42,9 @@ class ErrorHandler {
 	update(res, index) {
 		if (res && !this._error) {
 			this._error = FunctionErrors.isError(res);
-			this._errorIndex = index != null ? index : -1;
+			this._errorIndex = index;
 		}
+		return this._error != null;
 	}
 }
 class Runner {
