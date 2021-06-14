@@ -189,6 +189,7 @@ export class MainDrawer extends Component {
 						<MainDrawerExtensions.ImportSection isMachineDetailPage={isMachineDetailPage} />
 					</React.Fragment>
 				)}
+				<MainDrawerExtensions.StreamSection isMachineDetailPage={isMachineDetailPage} />
 				{isMachineDetailPage && this.props.canEditMachine ? (
 					<div>
 						<Divider />

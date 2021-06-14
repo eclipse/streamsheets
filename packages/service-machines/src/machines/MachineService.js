@@ -155,6 +155,8 @@ module.exports = class MachineService extends MessagingService {
 						const errorObject = requestHandler.reject(message, errorMessage);
 						errorObject.error.reqType = message.type;
 						this.publishMessage(Topics.ERRORS_GLOBAL, errorObject);
+					} else {
+						this.publishMessage(Topics.SERVICES_MACHINES_OUTPUT, error);
 					}
 				}
 			} else if (isRequestMessage(message)) {
@@ -283,6 +285,10 @@ module.exports = class MachineService extends MessagingService {
 			case MachineServerMessagingProtocol.EVENTS.MACHINE_OPCUA_EVENT:
 				logger.info(`PersistenceService: persist new machine opcua state: ${event.isOPCUA}`);
 				await RepositoryManager.machineRepository.updateMachineOPCUA(event.srcId, event.isOPCUA);
+				break;
+			case MachineServerMessagingProtocol.EVENTS.MACHINE_EXTENSION_SETTINGS_EVENT:
+				logger.info(`PersistenceService: persist new machine extension settings for extension "${event.extensionId}": ${event.settings}`);
+				await RepositoryManager.machineRepository.updateMachineExtensionSettings(event.srcId, event.extensionId, event.settings);
 				break;
 			case MachineServerMessagingProtocol.EVENTS.NAMED_CELLS_EVENT:
 				logger.info(`PersistenceService: persist new machine named cells: ${event.namedCells}`);
