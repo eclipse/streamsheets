@@ -226,13 +226,13 @@ describe('table.ordercolumn', () => {
 	});
 	it(`should return ${ERROR.ARGS} if called with too few or too many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('table.ordercolumn()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('table.ordercolumn(,,)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('table.ordercolumn()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('table.ordercolumn(,,)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUES} if no column range or reference range is given`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('table.ordercolumn(,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('table.ordercolumn(0,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('table.ordercolumn(A1:B1,"hello")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('table.ordercolumn(,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('table.ordercolumn(0,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('table.ordercolumn(A1:B1,"hello")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });

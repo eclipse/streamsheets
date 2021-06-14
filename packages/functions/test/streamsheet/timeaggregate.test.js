@@ -98,14 +98,14 @@ describe('timeaggregate', () => {
 		createCellAt('A1', 'hello', sheet);
 		createCellAt('A3', { formula: 'timeaggregate(A1, 8, 0, , 4)' }, sheet);
 		await machine.start();
-		expect(sheet.cellAt('A3').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.NA);
 		await doAfter(500, () => { createCellAt('A1', { formula: 'A1+1' }, sheet) });
 		await doAfter(500, () => { machine.stop(); });
 		expect(sheet.cellAt('A3').value).toBe(sheet.cellAt('A1').value);
 		// start again should reset
 		createCellAt('A1', 'hello', sheet);
 		await machine.start();
-		expect(sheet.cellAt('A3').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.NA);
 		await doAfter(500, () => { createCellAt('A1', { formula: 'A1+1' }, sheet) });
 		await doAfter(500, () => { machine.stop(); });
 		expect(sheet.cellAt('A3').value).toBe(sheet.cellAt('A1').value);
@@ -546,16 +546,17 @@ describe('timeaggregate', () => {
 			expect(sheet.cellAt('A3').value).toBe(sheet.cellAt('A1').value);
 		});
 	});
-	// DL-3578:
+	// DL-3578, DL-4691
 	describe.skip('limit parameter', () => {
-		it(`should return ${ERROR.LIMIT} if limit is reached`, async () => {
+		it(`should NOT return ${ERROR.LIMIT} if limit is reached`, async () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			createCellAt('A1', { formula: 'A1+1' }, sheet);
 			createCellAt('A3', { formula: 'timeaggregate(A1,5,9,,,,,2)' }, sheet);
 			await machine.start();
 			await doAfter(3500, () => { machine.stop(); });
 			expect(sheet.cellAt('A1').value).toBe(5);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.LIMIT);
+			expect(sheet.cellAt('A3').value).toBeGreaterThan(5);
+			expect(sheet.cellAt('A3').info.error.code).toBe(ERROR.LIMIT);
 		});
 		it('should limit number of stored values', async () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -566,8 +567,9 @@ describe('timeaggregate', () => {
 			expect(sheet.cellAt('A1').value).toBe(5);
 			// check cell values
 			const cell = sheet.cellAt('A3');
+			expect(cell.value).toBeGreaterThan(5);
 			expect(cell.info.values.value).toEqual([4, 5]);
-			expect(cell.value).toBe(ERROR.LIMIT);
+			expect(cell.info.error.code).toBe(ERROR.LIMIT);
 		});
 		it('should limit number of aggregated values', async () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -578,8 +580,9 @@ describe('timeaggregate', () => {
 			expect(sheet.cellAt('A1').value).toBe(5);
 			// check cell values
 			const cell = sheet.cellAt('A3');
+			expect(cell.value).toBe(5);
 			expect(cell.info.values.value).toEqual([4, 5]);
-			expect(cell.value).toBe(ERROR.LIMIT);
+			expect(cell.info.error.code).toBe(ERROR.LIMIT);
 		});
 		it(`should respect sort before applying limit`, async () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;
@@ -594,7 +597,7 @@ describe('timeaggregate', () => {
 			const cell = sheet.cellAt('A3');
 			expect(cell.info.values.time).toEqual([97, 98]);
 			expect(cell.info.values.value).toEqual([3, 2]);
-			expect(cell.value).toBe(ERROR.LIMIT);
+			expect(cell.info.error.code).toBe(ERROR.LIMIT);
 		});
 		it('should support optional limit parameter with 1000 as default', () => {
 			const sheet = machine.getStreamSheetByName('T1').sheet;

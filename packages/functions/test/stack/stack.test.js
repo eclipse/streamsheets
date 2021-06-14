@@ -27,10 +27,11 @@ beforeEach(() => {
 	sheet.load({ settings: { maxrow: 200 }, cells: STACKRANGE_SHEET });
 });
 
+const cellValue = (value) => FunctionErrors.isError(value) ? value.code : value;
 
 const insert = (index, formula, expected = true) => (_sheet) => {
 	createCellAt(index, { formula }, _sheet);
-	expect(_sheet.cellAt(index).value).toBe(expected);
+	expect(cellValue(_sheet.cellAt(index).value)).toBe(expected);
 	return _sheet;
 };
 const remove = (...indices) => (_sheet) => {
@@ -42,7 +43,7 @@ const step = (_sheet) => {
 	return _sheet;
 };
 const expectAt = (index, expected) => (_sheet) => {
-	expect(_sheet.cellAt(index).value).toBe(expected);
+	expect(cellValue(_sheet.cellAt(index).value)).toBe(expected);
 	return _sheet;
 };
 
@@ -254,11 +255,11 @@ describe('stack functions', () => {
 			});
 			// DL-2960
 			it(`should return ${ERROR.VALUE} if direction parameter is not a boolean`, () => {
-				expect(createTerm('stackadd(A10:C12, A1:C2, 0)', sheet).value).toBe(ERROR.VALUE);
-				expect(createTerm('stackadd(A10:C12, A1:C2, 1)', sheet).value).toBe(ERROR.VALUE);
-				expect(createTerm('stackadd(A10:C12, A1:C2, "")', sheet).value).toBe(ERROR.VALUE);
-				expect(createTerm('stackadd(A10:C12, A1:C2, "false")', sheet).value).toBe(ERROR.VALUE);
-				expect(createTerm('stackadd(A10:C12, A1:C2, "true")', sheet).value).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, 0)', sheet).value.code).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, 1)', sheet).value.code).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, "")', sheet).value.code).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, "false")', sheet).value.code).toBe(ERROR.VALUE);
+				expect(createTerm('stackadd(A10:C12, A1:C2, "true")', sheet).value.code).toBe(ERROR.VALUE);
 				// none given => default value
 				pipe(insert('K1', 'stackadd(A10:C12, A1:C2)'), step, expectAt('K1', true))(sheet);
 				pipe(insert('K1', 'stackadd(A10:C12, A1:C2, )'), step, expectAt('K1', true))(sheet);
@@ -644,7 +645,7 @@ describe('stack functions', () => {
 		});
 		// DL-1440
 		it('should return an error if defined target range is invalid', () => {
-			expect(createTerm('stackdrop(A10:C13, B16:C17, false)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackdrop(A10:C13, B16:C17, false)', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		// DL-2026
 		it('should not dispose moved cells', () => {
@@ -1542,20 +1543,20 @@ describe('stack functions', () => {
 	});
 	describe('stack upsert', () => {
 		it(`should return ${ERROR.ARGS}if called with to few or to many arguments`, () => {
-			expect(createTerm('stackupsert()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,true,A4:B4,true)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,,,,,true)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('stackupsert()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,true,A4:B4,true)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,,,,,true)', sheet).value.code).toBe(ERROR.ARGS);
 			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,,,,)', sheet).value).toBe(true);
 		});
 		it(`should return ${ERROR.VALUE}if called with wrong arguments`, () => {
-			expect(createTerm('stackupsert(,,)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stackupsert(42,A2:B2,A3:B3)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stackupsert(A1:B1,"hello",A3:B3)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stackupsert(A1:B1,A2:B2,"world")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,"world")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,"world")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,"world")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,true,"world")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(,,)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(42,A2:B2,A3:B3)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,"hello",A3:B3)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,"world")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,"world")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,"world")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,"world")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stackupsert(A1:B1,A2:B2,A3:B3,true,true,true,"world")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		it('should add values from source range to stack range if not exist', () => {
 			sheet.load({ cells: SHEET.STACKUPSERT });

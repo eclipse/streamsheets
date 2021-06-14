@@ -235,7 +235,7 @@ describe('requestinfo', () => {
 			await pendingRequest.reject(new Error('Error'));
 		} catch (err) {
 			await machine.step();
-			expect(cellAt('A1', sheet).value).toBe(ERROR.ERR);
+			expect(cellAt('A1', sheet).value.code).toBe(ERROR.ERR);
 			// because of requestinfo we cannot remove request, so
 			expect(sheet.getPendingRequests().length).toBe(1);
 		}

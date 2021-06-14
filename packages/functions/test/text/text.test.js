@@ -51,26 +51,26 @@ describe('char', () => {
 	});
 	it('should NOT support mac/roman as character set', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('char(33, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '!');
-		expect(createTerm('char(65, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'A');
-		expect(createTerm('char(126, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '~');
-		expect(createTerm('char(128, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'Ä');
-		expect(createTerm('char(138, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'ä');
-		expect(createTerm('char(219, "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // '€');
-		expect(createTerm('char(33, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '!');
-		expect(createTerm('char(65, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'A');
-		expect(createTerm('char(126, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '~');
-		expect(createTerm('char(128, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'Ä');
-		expect(createTerm('char(138, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 'ä');
-		expect(createTerm('char(219, "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // '€');
+		expect(createTerm('char(33, "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // '!');
+		expect(createTerm('char(65, "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 'A');
+		expect(createTerm('char(126, "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // '~');
+		expect(createTerm('char(128, "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 'Ä');
+		expect(createTerm('char(138, "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 'ä');
+		expect(createTerm('char(219, "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // '€');
+		expect(createTerm('char(33, "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // '!');
+		expect(createTerm('char(65, "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 'A');
+		expect(createTerm('char(126, "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // '~');
+		expect(createTerm('char(128, "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 'Ä');
+		expect(createTerm('char(138, "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 'ä');
+		expect(createTerm('char(219, "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // '€');
 	});
 	it(`return ${ERROR.VALUE} if given number is not between 1 and 255 or specified value is not a number`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('char()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('char(0)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('char(256)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('char("")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('char("hi")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('char()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('char(0)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('char(256)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('char("")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('char("hi")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });
 describe('clean', () => {
@@ -103,8 +103,8 @@ describe('clean', () => {
 	});
 	it(`return ${ERROR.ARGS} if too many or not enough parameters given`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('clean()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('clean("", true, A1)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('clean()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('clean("", true, A1)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
 describe('code', () => {
@@ -137,24 +137,24 @@ describe('code', () => {
 	});
 	it('should NOT support mac/roman as character set', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('code("!", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 33);
-		expect(createTerm('code("A", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 65);
-		expect(createTerm('code("~", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 126);
-		expect(createTerm('code("Ä", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 128);
-		expect(createTerm('code("ä", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 138);
-		expect(createTerm('code("€", "mac")', sheet).value).toBe(ERROR.INVALID_PARAM); // 219);
-		expect(createTerm('code("!", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 33);
-		expect(createTerm('code("A", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 65);
-		expect(createTerm('code("~", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 126);
-		expect(createTerm('code("Ä", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 128);
-		expect(createTerm('code("ä", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 138);
-		expect(createTerm('code("€", "roman")', sheet).value).toBe(ERROR.INVALID_PARAM); // 219);
+		expect(createTerm('code("!", "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 33);
+		expect(createTerm('code("A", "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 65);
+		expect(createTerm('code("~", "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 126);
+		expect(createTerm('code("Ä", "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 128);
+		expect(createTerm('code("ä", "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 138);
+		expect(createTerm('code("€", "mac")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 219);
+		expect(createTerm('code("!", "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 33);
+		expect(createTerm('code("A", "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 65);
+		expect(createTerm('code("~", "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 126);
+		expect(createTerm('code("Ä", "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 128);
+		expect(createTerm('code("ä", "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 138);
+		expect(createTerm('code("€", "roman")', sheet).value.code).toBe(ERROR.INVALID_PARAM); // 219);
 	});
 	it(`return ${ERROR.VALUE} if given string is empty or not a string`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('code("")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('code(A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('code()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('code("")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('code(A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('code()', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
 describe('concat', () => {
@@ -200,7 +200,7 @@ describe('concat', () => {
 			D2: 123
 		};
 		const sheet = new StreamSheet().sheet.load({ cells });
-		expect(createTerm('concat(-A1, B1, C1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('concat(-A1, B1, C1)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	// DL-2296:
 	it('should be possible to specify quotes', () => {
@@ -238,16 +238,16 @@ describe('find', () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Miriam McGovern' }
 		});
-		expect(createTerm('find("W", A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('find("Z", "Hello")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('find("e", "Hello", 4)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('find("W", A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('find("Z", "Hello")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('find("e", "Hello", 4)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it(`should return ${ERROR.VALUE} if start index is not greater zero`, () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Miriam McGovern' }
 		});
-		expect(createTerm('find("M", A1, 0)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('find("e", "Hello", -1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('find("M", A1, 0)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('find("e", "Hello", -1)', sheet).value.code).toBe(ERROR.VALUE);
 		expect(createTerm('find("H", "Hello", 1)', sheet).value).toBe(1);
 	});
 	it(`should return ${ERROR.VALUE} if start index is greater then text`, () => {
@@ -255,9 +255,9 @@ describe('find', () => {
 			cells: { A1: 'Miriam McGovern' }
 		});
 		expect(createTerm('find("n", A1, 15)', sheet).value).toBe(15);
-		expect(createTerm('find("n", A1, 16)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('find("n", A1, 16)', sheet).value.code).toBe(ERROR.VALUE);
 		expect(createTerm('find("o", "Hello", 5)', sheet).value).toBe(5);
-		expect(createTerm('find("o", "Hello", 6)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('find("o", "Hello", 6)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });
 describe('left', () => {
@@ -282,7 +282,7 @@ describe('left', () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Sale Price' }
 		});
-		expect(createTerm('left(A1, -1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('left(A1, -1)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should return empty string if no text is specified', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: undefined } });
@@ -305,7 +305,7 @@ describe('len', () => {
 	// DL-1327
 	it('should return error for invalid parameter', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 'hello' } });
-		expect(createTerm('len(_A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('len(_A1)', sheet).value.code).toBe(ERROR.NAME);
 	});
 });
 describe('lower', () => {
@@ -329,14 +329,14 @@ describe('lower', () => {
 	});
 	it(`should return ${ERROR.VALUE} or empty string if referenced cell returns no text`, () => {
 		const sheet = new StreamSheet().sheet.loadCells({ A1: null });;
-		expect(createTerm('lower(A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('lower(D3)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('lower(A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('lower(D3)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it(`should return ${ERROR.ARGS} if no text is given`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('lower()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('lower(,)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('lower(, "HELLO")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('lower()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('lower(,)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('lower(, "HELLO")', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
 describe('mid', () => {
@@ -359,9 +359,9 @@ describe('mid', () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Fluid Flow' }
 		});
-		expect(createTerm('mid(A1, 0, 4)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('mid(A1, -1, 5)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('mid(A1, 1, -1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('mid(A1, 0, 4)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('mid(A1, -1, 5)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('mid(A1, 1, -1)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });
 describe('replace', () => {
@@ -381,9 +381,9 @@ describe('replace', () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'hello', F2: { formula: 'JSON(A1:A1)' } }
 		});
-		expect(createTerm('replace(-A1,12,3,"later")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('replace(-F2,12,3,"later")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('replace(A1-,12,3,"later")', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('replace(-A1,12,3,"later")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('replace(-F2,12,3,"later")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('replace(A1-,12,3,"later")', sheet).value.code).toBe(ERROR.NAME);
 		expect(createTerm('replace(B1,12,3,"laterB20,1")', sheet).value).toBe('laterB20,1');
 	});
 });
@@ -400,15 +400,15 @@ describe('rept', () => {
 	// DL-1330
 	it(`should return ${ERROR.VALUE} or ${ERROR.NAME} for invalid parameter`, () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 'hello' } });
-		expect(createTerm('rept(-A1,3)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('rept(_A1,3)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('rept(|A1,3)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('rept(}A1,3)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('rept(]A1,3)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('rept(²A1,3)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('rept(³A1,3)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('rept(~A1,3)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('rept(°A1,3)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('rept(-A1,3)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('rept(_A1,3)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('rept(|A1,3)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('rept(}A1,3)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('rept(]A1,3)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('rept(²A1,3)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('rept(³A1,3)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('rept(~A1,3)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('rept(°A1,3)', sheet).value.code).toBe(ERROR.NAME);
 	});
 });
 describe('right', () => {
@@ -434,7 +434,7 @@ describe('right', () => {
 		const sheet = new StreamSheet().sheet.load({
 			cells: { A1: 'Sale Price' }
 		});
-		expect(createTerm('right(A1, -1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('right(A1, -1)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should return empty string if no text is specified', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: undefined } });
@@ -466,21 +466,21 @@ describe('search', () => {
 	});
 	it(`should return ${ERROR.VALUE} if text is not found`, () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 'Find me' } });
-		expect(createTerm('search("meet", A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('search("me", A1, 10)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('search("meet", A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('search("me", A1, 10)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	// DL-1331
 	it(`should return ${ERROR.VALUE} for invalid parameter`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('search("me", -A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('search("me", _A1)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('search("me", |A1)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('search("me", }A1)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('search("me", ]A1)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('search("me", ²A1)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('search("me", ³A1)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('search("me", ~A1)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('search("me", °A1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('search("me", -A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('search("me", _A1)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('search("me", |A1)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('search("me", }A1)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('search("me", ]A1)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('search("me", ²A1)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('search("me", ³A1)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('search("me", ~A1)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('search("me", °A1)', sheet).value.code).toBe(ERROR.NAME);
 	});
 });
 describe('substitute', () => {
@@ -524,10 +524,10 @@ describe('text', () => {
 		expect(createTerm('TEXT(3456, "#.##0,00", "DE")', sheet).value).toBe('3.456,00');
 		expect(createTerm('TEXT(3456,",##.00")', sheet).value).toBe(',3456.00');
 		expect(createTerm('TEXT(3456,".##,00", "DE")', sheet).value).toBe('.3456,00');
-		// expect(createTerm('TEXT(3456,"######.qwe")', sheet).value).toBe(ERROR.VALUE);
-		// expect(createTerm('TEXT(3456,"##.00qws")', sheet).value).toBe(ERROR.VALUE);
-		// expect(createTerm('TEXT(3456,"##.00s")', sheet).value).toBe(ERROR.VALUE);
-		// expect(createTerm('TEXT(3456,"^Hallo ##.00")', sheet).value).toBe(ERROR.VALUE);
+		// expect(createTerm('TEXT(3456,"######.qwe")', sheet).value.code).toBe(ERROR.VALUE);
+		// expect(createTerm('TEXT(3456,"##.00qws")', sheet).value.code).toBe(ERROR.VALUE);
+		// expect(createTerm('TEXT(3456,"##.00s")', sheet).value.code).toBe(ERROR.VALUE);
+		// expect(createTerm('TEXT(3456,"^Hallo ##.00")', sheet).value.code).toBe(ERROR.VALUE);
 		expect(createTerm('TEXT(E22,"##,00", "DE")', sheet).value).toBe(',00');
 		expect(createTerm('TEXT(0,"#")', sheet).value).toBe('');
 		expect(createTerm('TEXT(F10,"#")', sheet).value).toBe('');
@@ -561,7 +561,7 @@ describe('text', () => {
 	it('should return an error if no value, format are given', () => {
 		const sheet = new StreamSheet().sheet;
 		createCellAt('A1', 123456, sheet);
-		expect(createTerm('text(A1, )', sheet).value).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('text(A1, )', sheet).value.code).toBe(ERROR.INVALID_PARAM);
 	});
 	it('should convert a value to specified format in different locale', () => {
 		const machine = new Machine();
@@ -572,7 +572,7 @@ describe('text', () => {
 		machine.addStreamSheet(t1);
 		createCellAt('A1', 1234.5678, sheet);
 		expect(createTerm('text(A1, "##,00")', sheet).value).toBe('1234,57');
-		expect(createTerm('text(A1, "##.00")', sheet).value).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('text(A1, "##.00")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
 	});
 	// DL-1491
 	it('should support optional locale parameter to convert different locales', () => {
@@ -616,11 +616,11 @@ describe('unichar', () => {
 	});
 	it(`return ${ERROR.VALUE} if given number is not valid`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('unichar()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('unichar(0)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('unichar(655356)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('unichar("")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('unichar("hi")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('unichar()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('unichar(0)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('unichar(655356)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('unichar("")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('unichar("hi")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });
 describe('unicode', () => {
@@ -640,9 +640,9 @@ describe('unicode', () => {
 	});
 	it(`return ${ERROR.VALUE} if given string is empty or not a string`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('unicode("")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('unicode(A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('unicode()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('unicode("")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('unicode(A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('unicode()', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
 describe('upper', () => {
@@ -666,14 +666,14 @@ describe('upper', () => {
 	});
 	it(`should return ${ERROR.VALUE} or empty string if referenced cell returns no text`, () => {
 		const sheet = new StreamSheet().sheet.loadCells({ A1: null });;
-		expect(createTerm('upper(A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('upper(D3)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('upper(A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('upper(D3)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it(`should return ${ERROR.ARGS} if no text is given`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('upper()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('upper(,)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('upper(, "hello")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('upper()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('upper(,)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('upper(, "hello")', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
 describe('value', () => {
@@ -696,14 +696,14 @@ describe('value', () => {
 		expect(createTerm('value("0,0045")', sheet).value).toBe(0.0045);
 		expect(createTerm('value("-0,00123")', sheet).value).toBe(-0.00123);
 		// english input leads to an error:
-		expect(createTerm('value("12.34")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("12,345.67")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("12.34")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("12,345.67")', sheet).value.code).toBe(ERROR.VALUE);
 		// new streamsheet without added to machine => english is default!
 		sheet = new StreamSheet().sheet;
 		expect(createTerm('value("22,456.789")', sheet).value).toBe(22456.789);
-		expect(createTerm('value("12,34")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("22,45.678")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("12.345,67")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("12,34")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("22,45.678")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("12.345,67")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should support specifying different locales', () => {
 		// german
@@ -713,12 +713,12 @@ describe('value', () => {
 		machine.addStreamSheet(t1);
 		// no locale specified => defaults to machine locale
 		expect(createTerm('value("22,45")', t1.sheet).value).toBe(22.45);
-		expect(createTerm('value("22.45")', t1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("22.45")', t1.sheet).value.code).toBe(ERROR.VALUE);
 		// specify different locale on the fly:
-		expect(createTerm('value("22,45", "en")', t1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("22,45", "en")', t1.sheet).value.code).toBe(ERROR.VALUE);
 		expect(createTerm('value("22.45", "en")', t1.sheet).value).toBe(22.45);
 		expect(createTerm('value("22,45", "DE")', t1.sheet).value).toBe(22.45);
-		expect(createTerm('value("22.45", "dE")', t1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("22.45", "dE")', t1.sheet).value.code).toBe(ERROR.VALUE);
 		// locale is ignored if value is a number already:
 		expect(createTerm('value(22.45, "en")', t1.sheet).value).toBe(22.45);
 		expect(createTerm('value(-0.12345, "en")', t1.sheet).value).toBe(-0.12345);
@@ -755,16 +755,16 @@ describe('value', () => {
 		machine.addStreamSheet(s1);
 		expect(createTerm('value("1.234.567,8")', s1.sheet).value).toBe(1234567.8);
 		expect(createTerm('value("-1.234.567,8")', s1.sheet).value).toBe(-1234567.8);
-		expect(createTerm('value("2.34,56")', s1.sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("34,567,89")', s1.sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("1.234,567.89")', s1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("2.34,56")', s1.sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("34,567,89")', s1.sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("1.234,567.89")', s1.sheet).value.code).toBe(ERROR.VALUE);
 		// do same with english locale
 		machine.locale = 'en';
 		expect(createTerm('value("1,234,567.8")', s1.sheet).value).toBe(1234567.8);
 		expect(createTerm('value("-1,234,567.8")', s1.sheet).value).toBe(-1234567.8);
-		expect(createTerm('value("2,34.56")', s1.sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("34.567.89")', s1.sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("1,234.567,89")', s1.sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("2,34.56")', s1.sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("34.567.89")', s1.sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("1,234.567,89")', s1.sheet).value.code).toBe(ERROR.VALUE);
 		// check with locale setting:
 		expect(createTerm('value("1.234.567,8", "de")', s1.sheet).value).toBe(1234567.8);
 		expect(createTerm('value("12.315.613.132,00", "de")', s1.sheet).value).toBe(12315613132);
@@ -786,13 +786,13 @@ describe('value', () => {
 	});
 	it(`should return ${ERROR.VALUE} if text cannot be converted`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('value("22_45")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("22!")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("a22")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("22_45")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("22!")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("a22")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it(`should return ${ERROR.VALUE} if specified unknown locale`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('value("22_45", "sk")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('value("22_45", "us")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('value("22_45", "sk")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('value("22_45", "us")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });

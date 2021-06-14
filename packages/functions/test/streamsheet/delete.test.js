@@ -224,12 +224,12 @@ describe('delete', () => {
 		const sheet = setup({ streamsheetName: 'T1' });
 		const inbox = sheet.streamsheet.inbox;
 		expect(inbox.size).toBe(2);
-		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'unknown')))).toBe(ERROR.NO_MSG);
+		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'unknown'))).code).toBe(ERROR.NO_MSG);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'msg-simple')))).toBe(true);
 		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'msg-simple2')))).toBe(true);
 		expect(inbox.size).toBe(0);
 		// eslint-disable-next-line
-		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'msg-simple')))).toBe(ERROR.NO_MSG);
+		expect(DELETE(sheet, createFuncTerm(sheet, 'inbox', createParamTerms('T1', 'msg-simple'))).code).toBe(ERROR.NO_MSG);
 		expect(inbox.size).toBe(0);
 	});
 	it('should return #NO_MSG_DATA if deleting unknown message data or metadata', () => {
@@ -238,11 +238,11 @@ describe('delete', () => {
 		const outbox = sheet.streamsheet.machine.outbox;
 		outbox.put(createMessage(MESSAGES.SIMPLE, 'msg-simple'));
 		expect(inbox.size).toBe(2);
-		expect(DELETE(sheet, createFuncTerm(sheet, 'inboxdata', createParamTerms('T1', '', 'unknown'))))
+		expect(DELETE(sheet, createFuncTerm(sheet, 'inboxdata', createParamTerms('T1', '', 'unknown'))).code)
 			.toBe(ERROR.NO_MSG_DATA);
-		expect(DELETE(sheet, createFuncTerm(sheet, 'inboxmetadata', createParamTerms('T1', '', 'unknown'))))
+		expect(DELETE(sheet, createFuncTerm(sheet, 'inboxmetadata', createParamTerms('T1', '', 'unknown'))).code)
 			.toBe(ERROR.NO_MSG_DATA);
-		expect(DELETE(sheet, createFuncTerm(sheet, 'outboxmetadata', createParamTerms('msg-simple', 'unknown'))))
+		expect(DELETE(sheet, createFuncTerm(sheet, 'outboxmetadata', createParamTerms('msg-simple', 'unknown'))).code)
 			.toBe(ERROR.NO_MSG_DATA);
 	});
 });

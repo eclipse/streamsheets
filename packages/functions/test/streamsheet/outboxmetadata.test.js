@@ -19,11 +19,11 @@ describe('outboxmetadata', () => {
 	it(`should return ${ERROR.ARGS} if called with too few arguments`, () => {
 		const sheet = new StreamSheet().sheet;
 		// need at least message id...
-		expect(createTerm('outboxmetadata()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('outboxmetadata()', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.NO_MSG_ID} if called no message id is provided`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('outboxmetadata(,)', sheet).value).toBe(ERROR.NO_MSG_ID);
+		expect(createTerm('outboxmetadata(,)', sheet).value.code).toBe(ERROR.NO_MSG_ID);
 	});
 	it('should return path to referenced metatdata', () => {
 		const sheet = new StreamSheet().sheet;

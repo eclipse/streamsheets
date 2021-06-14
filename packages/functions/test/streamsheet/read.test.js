@@ -354,7 +354,7 @@ describe('read', () => {
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Anton');
 			expect(sheet.cellAt('A2').value).toBe('Vorname');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value.code).toBe(ERROR.NA);
 		});
 		// DL-966
 		it(`should set target cell to ${ERROR.NA} if requested message data is not available`, () => {
@@ -379,14 +379,14 @@ describe('read', () => {
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Max');
 			expect(sheet.cellAt('A2').value).toBe('Anrede');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('C3').value.code).toBe(ERROR.NA);
 			streamsheet.step();
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Anton');
 			expect(sheet.cellAt('A2').value).toBe('Anrede');
 			expect(sheet.cellAt('C2').value).toBe('Herr');
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C3').value.code).toBe(ERROR.NA);
 			// we are in endless mode, so we keep last message, but target value is not available...
 			streamsheet.step();
 			streamsheet.step();
@@ -394,8 +394,8 @@ describe('read', () => {
 			expect(sheet.cellAt('A1').value).toBe('Vorname');
 			expect(sheet.cellAt('C1').value).toBe('Anton');
 			expect(sheet.cellAt('A2').value).toBe('Anrede');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('C3').value.code).toBe(ERROR.NA);
 		});
 		// DL-966 & DL-578
 		// eslint-disable-next-line
@@ -479,7 +479,7 @@ describe('read', () => {
 			t1.inbox.put(msg1);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value.code).toBe(ERROR.NA);
 			t1.inbox.put(msg2);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('Herr');
@@ -487,7 +487,7 @@ describe('read', () => {
 			t1.inbox.put(msg1);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('Herr');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value.code).toBe(ERROR.NA);
 			t1.inbox.put(msg2);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('Herr');
@@ -495,7 +495,7 @@ describe('read', () => {
 			t1.inbox.put(msg1);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('Herr');
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value.code).toBe(ERROR.NA);
 		});
 	});
 	describe('return value', () => {
@@ -1025,12 +1025,12 @@ describe('read', () => {
 			expect(sheet.cellAt('D3').value).toBe(0);
 			// we should keep last read...
 			t1.step();
-			expect(sheet.cellAt('C1').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D1').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C1').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('D1').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('D2').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('C3').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('D3').value.code).toBe(ERROR.NA);
 			t1.step();
 			expect(sheet.cellAt('C1').value).toBe('dataType');
 			expect(sheet.cellAt('D1').value).toBe('Integer');
@@ -1041,12 +1041,12 @@ describe('read', () => {
 			t1.step();
 			t1.step();
 			t1.step();
-			expect(sheet.cellAt('C1').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D1').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D2').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('C3').value).toBe(ERROR.NA);
-			expect(sheet.cellAt('D3').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('C1').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('D1').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('C2').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('D2').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('C3').value.code).toBe(ERROR.NA);
+			expect(sheet.cellAt('D3').value.code).toBe(ERROR.NA);
 		});
 	});
 
@@ -1364,7 +1364,7 @@ describe('read', () => {
 			expect(
 				createTerm(`read(OUTBOXMETADATA("${METADATA.id}","unknown"),B2, "String",,true)`, sheet).value
 			).toBe('unknown');
-			expect(sheet.cellAt('B2').value).toBe(ERROR.NA);
+			expect(sheet.cellAt('B2').value.code).toBe(ERROR.NA);
 		});
 	});
 	describe('JIRA bugs :-)', () => {
