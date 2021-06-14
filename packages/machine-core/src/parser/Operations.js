@@ -25,44 +25,32 @@ const calc = (left, right, op) => {
 	return isNaN(left) || isNaN(right) ? ErrorInfo.create(ERROR.VALUE) : op(left, right);
 };
 
-const getParamIndex = (term) => {
-	return term.name || term.toString();
-	// const index = errorinfo.paramIndex;
-	// return index == null || typeof index !== 'string' ? errorinfo.setParamIndex(paramString(term)) : errorinfo;
-};
-const setErrorInfo = (code, term, parent) => {
-	const cell = parent && parent.cell;
-	if(cell) {
-		const error = ErrorInfo.create(code);
-		// TODO: improve index hint
-		cell.setCellInfo('error', error.setParamIndex(getParamIndex(term)));
-		// info.setParamIndex ? setParamIndex(info, term) : info;
-	}
-	return code;
-}
+// TODO: set param hint!
+const createErrorInfo = (error) => error.isErrorInfo ? error : ErrorInfo.create(error);
+
 
 class SheetBinaryOperator extends BinaryOperator {
-	calc(term1, term2, parent) {
+	calc(term1, term2) {
 		const val1 = term1 && term1.value;
 		const val2 = term2 && term2.value;
-		if (FunctionErrors.isError(val1)) return setErrorInfo(val1, term1, parent);
-		if (FunctionErrors.isError(val2)) return setErrorInfo(val2, term2, parent);
+		if (FunctionErrors.isError(val1)) return createErrorInfo(val1);
+		if (FunctionErrors.isError(val2)) return createErrorInfo(val2);
 		return this.operation(val1, val2);
 	}
 }
 class SheetUnaryOperator extends UnaryOperator {
-	calc(term1, term2, parent) {
-		const value = term1 && term1.value;
-		if (FunctionErrors.isError(value)) return setErrorInfo(value, term1, parent);
+	calc(term) {
+		const value = term && term.value;
+		if (FunctionErrors.isError(value)) return createErrorInfo(value);
 		return this.operation(value);
 	}
 }
 class SheetBoolOperator extends BoolOperator {
-	calc(term1, term2, parent) {
+	calc(term1, term2) {
 		const val1 = this.isResolved(term1) ? term1.value : false;
 		const val2 = this.isResolved(term2) ? term2.value : false;
-		if (FunctionErrors.isError(val1)) return setErrorInfo(val1, term1, parent);
-		if (FunctionErrors.isError(val2)) return setErrorInfo(val2, term2, parent);
+		if (FunctionErrors.isError(val1)) return createErrorInfo(val1);
+		if (FunctionErrors.isError(val2)) return createErrorInfo(val2);
 		return this.operation(val1, val2);
 	}
 }
