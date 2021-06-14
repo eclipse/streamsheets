@@ -46,7 +46,7 @@ const stdev = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(
 
 
 const correl = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, correl)
 		.withArgCount(2)
 		.mapNextArg((xValues) => toNumbers(sheet, xValues, onTerms.iterateTermValues))
 		.mapNextArg((yValues) => toNumbers(sheet, yValues, onTerms.iterateTermValues))
@@ -72,7 +72,7 @@ const correl = (sheet, ...terms) =>
 		});
 
 const forecast = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, forecast)
 		.withArgCount(3)
 		.mapNextArg((xTerm) => (xTerm ? convert.toNumberStrict(xTerm.value, ERROR.VALUE) : ERROR.VALUE))
 		.mapNextArg((yKnown) => toNumbers(sheet, yKnown, onTerms.iterateTermValues))

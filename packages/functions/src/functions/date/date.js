@@ -67,7 +67,7 @@ const parseTimeStr = (str) => {
 // };
 
 const date = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, date)
 		.withArgCount(3)
 		.mapNextArg(y => convert.toNumber(y.value, ERROR.VALUE))
 		.mapNextArg(m => convert.toNumber(m.value, ERROR.VALUE))
@@ -75,7 +75,7 @@ const date = (sheet, ...terms) =>
 		.run((y, m, d) => Math.round(ms2serial(Date.parse(`${y}-${m}-${d}`))));
 
 const datevalue = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, datevalue)
 		.withArgCount(1)
 		.mapNextArg(datestr => convert.toString(datestr.value, ERROR.VALUE))
 		.run((datestr) => {
@@ -84,7 +84,7 @@ const datevalue = (sheet, ...terms) =>
 		});
 
 const time = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, time)
 		.withArgCount(3)
 		.mapNextArg(hrs => convert.toNumber(hrs.value, ERROR.VALUE))
 		.mapNextArg(mins => convert.toNumber(mins.value, ERROR.VALUE))
@@ -92,13 +92,13 @@ const time = (sheet, ...terms) =>
 		.run((hrs, mins, secs) => timeToSerial(hrs, mins, secs));
 
 const timevalue = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, timevalue)
 		.withArgCount(1)
 		.mapNextArg(timestr => convert.toString(timestr.value) || ERROR.VALUE)
 		.run(timestr => parseTimeStr(timestr));
 
 const jsontime2excel = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, jsontime2excel)
 		.withArgCount(1)
 		.mapNextArg((str) => validateISOFormat(convert.toString(str.value)))
 		.run((str) => {
@@ -107,13 +107,13 @@ const jsontime2excel = (sheet, ...terms) =>
 		});
 
 const excel2jsontime = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, excel2jsontime)
 		.withArgCount(1)
 		.mapNextArg((serial) => convert.toNumber(serial.value, ERROR.VALUE))
 		.run((serial) => serial2date(serial).toJSON());
 
 const serialTo = (fn, maxArgs) => (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, serialTo)
 		.withMinArgs(1)
 		.withMaxArgs(maxArgs)
 		.mapNextArg((serial) => convert.toNumber(serial.value, ERROR.VALUE))
@@ -121,7 +121,7 @@ const serialTo = (fn, maxArgs) => (sheet, ...terms) =>
 		.run((serial, roundIt) => fn(serial, !roundIt));
 
 const serialNow = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, serialNow)
 		.withArgCount(0)
 		.run(() => now());
 

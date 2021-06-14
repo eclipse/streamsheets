@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -15,7 +15,7 @@ const { isType } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
-const runWith = (sheet, terms, logic) => 
+const runWith = (sheet, terms, logic) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.run(() => {
@@ -46,7 +46,7 @@ const getCondition = (term) => {
 	return FunctionErrors.isError(value) || (isType.object(value) ? ERROR.VALUE : !!value);
 };
 const condition = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, condition)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg((cond) => getCondition(cond))
@@ -55,7 +55,7 @@ const condition = (sheet, ...terms) =>
 		.run((cond, onTrue, onFalse) => cond ? onTrue() : onFalse());
 
 const not = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, not)
 		.withArgCount(1)
 		.run(() => {
 			const val = convert.toBoolean(terms[0].value, ERROR.VALUE);

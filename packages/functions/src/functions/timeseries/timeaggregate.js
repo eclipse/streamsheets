@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -81,6 +81,7 @@ class Store {
 	static of(filter, sorted, limitFilter) {
 		return new Store(filter, sorted, limitFilter);
 	}
+
 	constructor(filter, sorted, limitFilter) {
 		this.filter = filter;
 		this.entries = [];
@@ -109,6 +110,7 @@ class Aggregator {
 		const aggStore = Store.of(sizeFilter(size), sorted, limitFilter);
 		return new Aggregator(store, aggStore, settings);
 	}
+
 	constructor(valStore, aggStore, settings) {
 		this.valStore = valStore;
 		this.aggStore = aggStore;
@@ -129,6 +131,7 @@ class Aggregator {
 	isLimitReached() {
 		return this.valStore.entries.length >= this.settings.limit;
 	}
+
 	getAggregatedValues() {
 		return this._aggregatedValues;
 	}
@@ -155,6 +158,7 @@ class Aggregator {
 			this.nextAggregation = now + interval;
 		}
 	}
+
 	write(cell, range, term) {
 		const entries = this.settings.interval > 0 ? this.aggStore.entries : this.valStore.entries;
 		if (range) {
@@ -188,7 +192,7 @@ const getAggregator = (term, settings) => {
 
 
 const timeaggregate = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, timeaggregate)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(8)
@@ -200,8 +204,8 @@ const timeaggregate = (sheet, ...terms) =>
 		.mapNextArg(interval => convert.toNumberStrict(interval != null ? interval.value : null))
 		.mapNextArg(targetrange => getCellRangeFromTerm(targetrange, sheet))
 		.mapNextArg(doSort => doSort != null ? convert.toBoolean(doSort.value) : false)
-		.mapNextArg(limit => convert.toNumberStrict(limit != null ? limit.value || DEF_LIMIT: DEF_LIMIT, ERROR.VALUE))
-		.validate((v, p, m, t, interval) =>	((interval != null && interval < MIN_INTERVAL) ? ERROR.VALUE : undefined))
+		.mapNextArg(limit => convert.toNumberStrict(limit != null ? limit.value || DEF_LIMIT : DEF_LIMIT, ERROR.VALUE))
+		.validate((v, p, m, t, interval) => ((interval != null && interval < MIN_INTERVAL) ? ERROR.VALUE : undefined))
 		.beforeRun(() => setCellInfo('xvalue', 'time', timeaggregate.term))
 		.run((val, period, method, timestamp, interval, targetrange, sorted, limit) => {
 			period *= 1000; // in ms

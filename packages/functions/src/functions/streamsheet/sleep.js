@@ -10,7 +10,7 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const {	runFunction } = require('../../utils');
+const { runFunction } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -66,7 +66,7 @@ const initContext = (context, sheet) => {
 	}
 };
 const sleep = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, sleep)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((seconds) => convert.toNumberStrict(seconds.value, ERROR.VALUE))

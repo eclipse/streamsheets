@@ -74,8 +74,8 @@ const initContext = (sheet, context, waitCondition) => {
 	}
 };
 
-const runAwait = (waitCondition, context, sheet, terms) =>
-	runFunction(sheet, terms)
+const runAwait = (waitCondition, context, sheet, terms, waitfn) =>
+	runFunction(sheet, terms, waitfn)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.beforeRun(() => initContext(sheet, context, waitCondition))
@@ -90,10 +90,10 @@ const runAwait = (waitCondition, context, sheet, terms) =>
 			return error || true;
 		});
 
-const wait = (sheet, ...terms) => runAwait(isOnePending, wait.context, sheet, terms);
+const wait = (sheet, ...terms) => runAwait(isOnePending, wait.context, sheet, terms, wait);
 wait.displayName = true;
 
-const waitone = (sheet, ...terms) => runAwait(areAllPending, waitone.context, sheet, terms);
+const waitone = (sheet, ...terms) => runAwait(areAllPending, waitone.context, sheet, terms, waitone);
 waitone.displayName = true;
 
 module.exports = {

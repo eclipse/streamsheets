@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -17,7 +17,7 @@ const ERROR = FunctionErrors.code;
 const reachedEnd = (value, end, step) => (step < 0 ? value < end : value > end);
 
 const counter = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, counter)
 		.withMinArgs(2)
 		.withMaxArgs(4)
 		.mapNextArg(start => convert.toNumber(start.value, ERROR.ARGS))
@@ -38,33 +38,33 @@ const counter = (sheet, ...terms) =>
 		});
 
 const getcycle = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, getcycle)
 		.withArgCount(0)
 		.addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
 		.run((streamsheet) => streamsheet.stats.repeatsteps);
 
 const getcycletime = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, getcycletime)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.run(machine => machine.cycletime);
-	
+
 // return steps triggered on execute()
 const repeatindex = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, repeatindex)
 		.withArgCount(0)
 		.addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
 		.run((streamsheet) => streamsheet.stats.executesteps);
 
 // machine steps
 const getmachinestep = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, getmachinestep)
 		.withArgCount(0)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.run((machine) => machine.stats.steps);
 
 // streamsheet steps
 const getstep = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, getstep)
 		.withMaxArgs(1)
 		.mapNextArg((streamsheet) => {
 			const _streamsheet = streamsheet ? getStreamSheetByName(streamsheet.value, sheet) : sheet.streamsheet;
@@ -73,13 +73,13 @@ const getstep = (sheet, ...terms) =>
 		.run((streamsheet) => streamsheet.stats.steps);
 
 const getmachinestepspersecond = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, getmachinestepspersecond)
 		.withArgCount(0)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.run((machine) => machine.stats.cyclesPerSecond);
 
 const getclientcount = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, getclientcount)
 		.withArgCount(0)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.run((machine) => machine.getClientCount());

@@ -49,7 +49,7 @@ const resumeExecute = (context) => (retval) => {
 };
 
 const execute = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, execute)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)
@@ -79,8 +79,8 @@ const execute = (sheet, ...terms) =>
 			return sheet.isPaused
 				? ERROR.WAITING
 				: context.isResumed
-				? context.returnValue
-				: getDefaultReturnValue(calledStreamSheet);
+					? context.returnValue
+					: getDefaultReturnValue(calledStreamSheet);
 		});
 execute.displayName = true;
 

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -60,10 +60,10 @@ const subInStr = (str, replacestr, replacement, occurrence) => {
 		str = parts.reduce((res, curr, index) =>
 			res != null
 				? `${res}${
-						occurrence < 0 || index === occurrence
-							? replacement
-							: replacestr
-				  }${curr}`
+					occurrence < 0 || index === occurrence
+						? replacement
+						: replacestr
+				}${curr}`
 				: curr
 		);
 	}
@@ -82,14 +82,14 @@ const doFind = (regex, instr, atpos) => {
 	if (atpos > 0) {
 		regex.lastIndex = atpos - 1;
 		const matches = regex.exec(instr);
-		const index =  matches != null ? matches.index : -1;
+		const index = matches != null ? matches.index : -1;
 		return index < 0 ? ERROR.VALUE : index + 1;
 	}
 	return ERROR.VALUE;
 };
 
 const convertCase = (caseFn) => (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, convertCase)
 		.withArgCount(1)
 		.mapNextArg((txt) => convert.toString(txt.value))
 		.run((txt) => {
@@ -105,7 +105,7 @@ const CLEAN_REGEX_EXTENDED = /[\x00-\x1F|\x7F|\x81|\x8D|\x8F|\x90|\x9D]+/g
 
 
 const char = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, char)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((nr) => convert.toNumber(nr.value, ERROR.VALUE))
@@ -118,7 +118,7 @@ const char = (sheet, ...terms) =>
 		});
 
 const clean = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, clean)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -130,7 +130,7 @@ const clean = (sheet, ...terms) =>
 
 
 const code = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, code)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => convert.toString(str.value, ERROR.VALUE))
@@ -146,7 +146,7 @@ const code = (sheet, ...terms) =>
 		});
 
 const concat = (sheet, ...terms) =>
-	runFunction(sheet, terms).run(() => {
+	runFunction(sheet, terms, concat).run(() => {
 		let error;
 		let result = '';
 		onTerms.iterateAllTermsValues(sheet, terms, (value, err) => {
@@ -157,7 +157,7 @@ const concat = (sheet, ...terms) =>
 	});
 
 const find = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, find)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -169,7 +169,7 @@ const find = (sheet, ...terms) =>
 		});
 
 const left = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, left)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -177,7 +177,7 @@ const left = (sheet, ...terms) =>
 		.run((str, length) => str.substr(0, length));
 
 const len = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, len)
 		.withArgCount(1)
 		.mapNextArg((str) => convert.toString(str.value, ''))
 		.run((str) => str.length);
@@ -185,7 +185,7 @@ const len = (sheet, ...terms) =>
 const lower = convertCase(''.toLowerCase);
 
 const mid = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, mid)
 		.withArgCount(3)
 		.mapNextArg((str) => convert.toString(str.value, ''))
 		.mapNextArg((start) => toMinInteger(start, 1, 1))
@@ -193,7 +193,7 @@ const mid = (sheet, ...terms) =>
 		.run((str, start, length) => str.substr(start - 1, length));
 
 const replace = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, replace)
 		.withArgCount(4)
 		.mapNextArg((str) => convert.toString(str.value, ''))
 		.mapNextArg((start) => toMinInteger(start, 1, 1))
@@ -204,14 +204,14 @@ const replace = (sheet, ...terms) =>
 		);
 
 const rept = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, rept)
 		.withArgCount(2)
 		.mapNextArg((str) => convert.toString(str.value, ''))
 		.mapNextArg((times) => toMinInteger(times, 0, 0))
 		.run((str, times) => str.repeat(times));
 
 const right = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, right)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -219,7 +219,7 @@ const right = (sheet, ...terms) =>
 		.run((str, length) => str.substr(-length, length));
 
 const search = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, search)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg((str) => convert.toString(str.value, '').toLowerCase())
@@ -231,7 +231,7 @@ const search = (sheet, ...terms) =>
 		});
 
 const substitute = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, substitute)
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -243,7 +243,7 @@ const substitute = (sheet, ...terms) =>
 		);
 
 const text = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, text)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		// number can be anything, i.e. integer, float, date or string...
@@ -269,7 +269,7 @@ const text = (sheet, ...terms) =>
 		});
 
 const unichar = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, unichar)
 		.withArgCount(1)
 		.mapNextArg((nr) => convert.toNumber(nr.value, ERROR.VALUE))
 		.run((nr) => {
@@ -278,7 +278,7 @@ const unichar = (sheet, ...terms) =>
 		});
 
 const unicode = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, unicode)
 		.withArgCount(1)
 		.mapNextArg((str) => convert.toString(str.value, ERROR.VALUE))
 		.run((str) => {
@@ -289,11 +289,11 @@ const unicode = (sheet, ...terms) =>
 const upper = convertCase(''.toUpperCase);
 
 const value = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, value)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((number) => number.value)
-		.mapNextArg((locale) =>	getValueLocale(locale && convert.toString(locale.value)))
+		.mapNextArg((locale) => getValueLocale(locale && convert.toString(locale.value)))
 		.run((number, locale) => {
 			let nr = typeof number === 'number' ? number : null;
 			if (nr == null) {

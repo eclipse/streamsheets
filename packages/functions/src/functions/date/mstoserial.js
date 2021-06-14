@@ -16,7 +16,7 @@ const ERROR = FunctionErrors.code;
 
 
 const mstoserial = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, mstoserial)
 		.withArgCount(1)
 		.mapNextArg((ms) => convert.toNumber(ms.value, ERROR.INVALID_PARAM))
 		.run((ms) => ms2serial(ms));

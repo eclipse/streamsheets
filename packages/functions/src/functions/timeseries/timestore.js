@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,7 +11,7 @@
 const { convert, serialnumber: { serial2ms } } = require('@cedalo/commons');
 const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
-const {	date: { localNow }, runFunction, terms: { hasValue } } = require('../../utils');
+const { date: { localNow }, runFunction, terms: { hasValue } } = require('../../utils');
 const toJSON = require('../streamsheet/json');
 const stateListener = require('./stateListener');
 const { setCellInfo } = require('./utils');
@@ -40,6 +40,7 @@ const periodFilter = (period) => (entries) => {
 	const delta = entries[entries.length - 1].ts - entries[0].ts;
 	if (delta > period) entries.shift();
 };
+
 class TimeStore {
 	constructor(period, limit) {
 		this.id = IdGenerator.generateShortId();
@@ -65,6 +66,7 @@ class TimeStore {
 			return all;
 		}, []);
 	}
+
 	timestamps() {
 		return this.entries.reduce((all, entry) => {
 			all.push(entry.ts);
@@ -78,6 +80,7 @@ class TimeStore {
 		return this.limitBySize(this.entries);
 	}
 }
+
 const getTimeStore = (term, period, limit) => {
 	if (!term._timestore || term._timestore.period !== period || term._timestore.limit !== limit) {
 		term._timestore = new TimeStore(period, limit);
@@ -112,7 +115,7 @@ const getValues = (sheet, term) => {
 };
 
 const store = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, store)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)

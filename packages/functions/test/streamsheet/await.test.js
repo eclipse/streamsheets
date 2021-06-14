@@ -26,7 +26,7 @@ const ERROR = FunctionErrors.code;
 const noop = () => {};
 
 const testRequest = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, testRequest)
 		.onSheetCalculation()
 		.run(() =>
 			AsyncRequest.create(sheet, testRequest.context)

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -35,7 +35,7 @@ const getTargetRange = (term, sheet) =>
 	((term && term.value != null) ? (getCellRangeFromTerm(term, sheet) || ERROR.VALUE) : undefined);
 
 const add = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, add)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(4)
@@ -51,7 +51,7 @@ const add = (sheet, ...terms) =>
 		});
 
 const drop = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, drop)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(3)
@@ -66,7 +66,7 @@ const drop = (sheet, ...terms) =>
 		});
 
 const find = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, find)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(5)
@@ -83,7 +83,7 @@ const find = (sheet, ...terms) =>
 		});
 
 const rotate = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, rotate)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(3)
@@ -98,7 +98,7 @@ const rotate = (sheet, ...terms) =>
 		});
 
 const sort = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, sort)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.mapNextArg(stackrange => getCellRangeFromTerm(stackrange, sheet) || ERROR.NAME)
@@ -107,7 +107,7 @@ const sort = (sheet, ...terms) =>
 		.run((stackrange, sortrange) => StackHelper.sort(stackrange, sortrange));
 
 const upsert = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, upsert)
 		.onSheetCalculation()
 		.withMinArgs(3)
 		.withMaxArgs(7)

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -84,21 +84,21 @@ const testBinStr = test(isBin);
 const toBinStr = pipe(term2String, testLength, testBinStr);
 const _bin2dec = pipe(fromBin, testIsNr);
 const bin2dec = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, bin2dec)
 		.withArgCount(1)
 		.mapNextArg(binstr => toBinStr(binstr))
 		.run(binstr => _bin2dec(binstr));
 
 const toBitStr = pipe(term2String, testBitLength, testBinStr);
 const bin2float = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, bin2float)
 		.withArgCount(1)
 		.mapNextArg((binstr) => toBitStr(binstr))
 		.run((binstr) => binary2float(paddedBits(binstr)));
 
 const _bin2hex = pipe(fromBin, toHex, toUpper);
 const bin2hex = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, bin2hex)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(binstr => toBinStr(binstr))
@@ -107,7 +107,7 @@ const bin2hex = (sheet, ...terms) =>
 
 const _bin2oct = pipe(fromBin, toOct);
 const bin2oct = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, bin2oct)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(binstr => toBinStr(binstr))
@@ -118,7 +118,7 @@ const testDecStr = test(isDec);
 const toDecStr = pipe(term2String, testDecStr);
 const _dec2bin = pipe(fromDec, testIsNr, testIsInBinRange, toBin);
 const dec2bin = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, dec2bin)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(decstr => toDecStr(decstr))
@@ -127,7 +127,7 @@ const dec2bin = (sheet, ...terms) =>
 
 const _dec2hex = pipe(fromDec, testIsNr, testIsInHexRange, toHex, toUpper);
 const dec2hex = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, dec2hex)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(decstr => toDecStr(decstr))
@@ -136,7 +136,7 @@ const dec2hex = (sheet, ...terms) =>
 
 const _dec2oct = pipe(fromDec, testIsNr, testIsInOctRange, toOct);
 const dec2oct = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, dec2oct)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(decstr => toDecStr(decstr))
@@ -146,14 +146,14 @@ const dec2oct = (sheet, ...terms) =>
 
 const toFloat = pipe(term2Float, testIsNr);
 const float2bin = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, float2bin)
 		.withArgCount(1)
 		.mapNextArg((floatstr) => toFloat(floatstr))
 		.run((floatnr) => paddedBits(float2binary(floatnr)));
 
 const floatAsHex = pipe(float2hex, toUpper);
 const floatToHex = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, floatToHex)
 		.withArgCount(1)
 		.mapNextArg((floatstr) => toFloat(floatstr))
 		.run((floatnr) => floatAsHex(floatnr));
@@ -163,7 +163,7 @@ const testHex = test(isHex);
 const toHexStr = pipe(term2String, testLength, testHex);
 const _hex2bin = pipe(fromHex, testIsNr, testIsInBinRange, toBin);
 const hex2bin = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, hex2bin)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(hexstr => toHexStr(hexstr))
@@ -172,21 +172,21 @@ const hex2bin = (sheet, ...terms) =>
 
 const _hex2dec = pipe(fromHex, testIsNr);
 const hex2dec = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, hex2dec)
 		.withArgCount(1)
 		.mapNextArg(hexstr => toHexStr(hexstr))
 		.run(hexstr => _hex2dec(hexstr));
 
 // const _hex2bin = pipe(fromHex, testIsNr, toBin);
 const hexAsFloat = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, hexAsFloat)
 		.withArgCount(1)
 		.mapNextArg(hexstr => toHexStr(hexstr))
 		.run(hexstr => hex2float(hexstr));
 
 const _hex2oct = pipe(fromHex, testIsNr, testIsInOctRange, toOct);
 const hex2oct = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, hex2oct)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(hexstr => toHexStr(hexstr))
@@ -198,7 +198,7 @@ const testOct = test(isOct);
 const toOctStr = pipe(term2String, testLength, testOct);
 const _oct2bin = pipe(fromOct, testIsInBinRange, toBin);
 const oct2bin = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, oct2bin)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(octstr => toOctStr(octstr))
@@ -207,21 +207,21 @@ const oct2bin = (sheet, ...terms) =>
 
 const _oct2dec = pipe(fromOct, testIsNr);
 const oct2dec = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, oct2dec)
 		.withArgCount(1)
 		.mapNextArg(octstr => toOctStr(octstr))
 		.run(octstr => _oct2dec(octstr));
 
 const _oct2hex = pipe(fromOct, testIsNr, toHex, toUpper);
 const oct2hex = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, oct2hex)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(octstr => toOctStr(octstr))
 		.mapNextArg(places => getPlaces(places))
 		.run((octstr, places) => padded(places)(_oct2hex(octstr)));
 
-		
+
 module.exports = {
 	BIN2DEC: bin2dec,
 	BIN2FLOAT: bin2float,
@@ -240,8 +240,8 @@ module.exports = {
 	OCT2DEC: oct2dec,
 	OCT2HEX: oct2hex
 
-/* more to come...
-	complex.
-	convert,
-*/	
+	/* more to come...
+		complex.
+		convert,
+	*/
 };

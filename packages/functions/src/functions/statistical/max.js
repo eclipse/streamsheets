@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -19,7 +19,7 @@ const newMax = (termOrCell, oldmax) => {
 };
 
 const max = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, max)
 		.withMinArgs(1)
 		.run(() => {
 			let error;
@@ -30,10 +30,10 @@ const max = (sheet, ...terms) =>
 				valid = !error && (valid || !range);
 				currMax = range
 					? range.reduce((acc, cell) => {
-							const defined = cell && cell.isDefined;
-							valid = valid || defined;
-							return defined ? newMax(cell, acc) : acc;
-					  }, currMax)
+						const defined = cell && cell.isDefined;
+						valid = valid || defined;
+						return defined ? newMax(cell, acc) : acc;
+					}, currMax)
 					: newMax(term, currMax);
 				return currMax;
 			}, -Number.MAX_VALUE);
@@ -41,7 +41,7 @@ const max = (sheet, ...terms) =>
 		});
 
 const maxifs = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, maxifs)
 		.withMinArgs(3)
 		.mapNextArg((maxrange) => getCellRangeFromTerm(maxrange, sheet) || ERROR.INVALID_PARAM)
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))

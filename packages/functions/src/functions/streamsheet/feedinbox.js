@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -11,7 +11,7 @@
 const { jsonpath } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
-const {	runFunction, sheet: { createMessageFromValue, getMachine, getStreamSheetByName } } = require('../../utils');
+const { runFunction, sheet: { createMessageFromValue, getMachine, getStreamSheetByName } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -54,17 +54,17 @@ const createMessageFromTerm = (term, machine) => {
 		message = getMessage(path, funcname, machine);
 		if (funcname.endsWith('DATA')) {
 			const data = getMessageDataAt(path, message, funcname === 'INBOXMETADATA');
-			return data ?  new Message(data) : undefined;
+			return data ? new Message(data) : undefined;
 		}
 		// DL-1275: create new Message which contains passed message under its data property...
-		return message ?  new Message(message.toJSON()) : undefined;
+		return message ? new Message(message.toJSON()) : undefined;
 	}
 	return createMessageFromValue(value);
 };
 
 
 const feedinbox = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, feedinbox)
 		.onSheetCalculation()
 		.withArgCount(2)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)

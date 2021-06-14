@@ -15,7 +15,7 @@ const { runFunction, sheet: { getMachine } } = require('../../utils');
 const ERROR = FunctionErrors.code;
 
 const setcycletime = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, setcycletime)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((cycletime) => {

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
-const {	calculate, criteria, runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
+const { calculate, criteria, runFunction, terms: { getCellRangeFromTerm } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -20,14 +20,14 @@ const calcAvg = (avgrange, _criteria) => {
 	return numbers.length ? calculate.avg(numbers) : ERROR.DIV0;
 };
 const averageif = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, averageif)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapArgAt(2, mapRange(sheet))
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))
 		.run(calcAvg);
 const averageifs = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, averageifs)
 		.withMinArgs(3)
 		.mapNextArg(mapRange(sheet))
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))

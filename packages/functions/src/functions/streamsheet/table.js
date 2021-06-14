@@ -12,7 +12,7 @@ const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { Cell, SheetIndex } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
-const {	aggregations, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
+const { aggregations, runFunction, terms: { getCellRangeFromTerm, hasValue } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 const sharedidx = SheetIndex.create(1, 0);
@@ -241,7 +241,7 @@ const aggregateCellValue = (cell, value, aggregationType) => {
 };
 
 const tableupdate = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, tableupdate)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(7)
@@ -266,7 +266,7 @@ const tableupdate = (sheet, ...terms) =>
 		});
 
 const tableget = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, tableget)
 		.onSheetCalculation()
 		.withArgCount(3)
 		.mapNextArg((tablerange) => getCellRange(tablerange, sheet) || ERROR.VALUE)
@@ -320,7 +320,7 @@ const sortRows = (rows, refrange, nameIndices) => {
 	});
 };
 const tableordercolumn = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, tableordercolumn)
 		.onSheetCalculation()
 		.withArgCount(2)
 		.mapNextArg((colrange) => getCellRange(colrange, sheet) || ERROR.VALUE)

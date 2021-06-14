@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -45,7 +45,7 @@ const toBool = (term, defval) => {
 
 // cell-range to json array => to use for writejson, execute or publish...
 const array = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, array)
 		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg(range => getCellRangeFromTerm(range, sheet) || ERROR.INVALID_PARAM)

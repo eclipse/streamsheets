@@ -100,6 +100,7 @@ class QueryStore {
 		store.setQuery(queryjson);
 		return store.isValid() ? store : undefined;
 	}
+
 	constructor(interval, limit) {
 		this.limit = limit;
 		this.interval = interval;
@@ -138,6 +139,7 @@ class QueryStore {
 		const result = store.entries.reduceRight(xform, { ts: now, values: {} });
 		this.push(result, this.entries);
 	}
+
 	performQueryOnInterval(store, now = localNow()) {
 		if (this.nextQuery < 0 || now >= this.nextQuery) {
 			this.performQuery(store, now);
@@ -182,7 +184,7 @@ const getStoreTerm = (term) => {
 };
 
 const timeQuery = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, timeQuery)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(5)

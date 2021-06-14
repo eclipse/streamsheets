@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -57,38 +57,38 @@ const random = (min, max) => {
 // RAND
 
 const abs = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, abs)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.run((nr) => Math.abs(nr));
 
 const arccos = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, arccos)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.validate((nr) => (nr > 1 || nr < -1 ? ERROR.VALUE : undefined))
 		.run((nr) => Math.acos(nr));
 const arcsin = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, arcsin)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.validate((nr) => (nr > 1 || nr < -1 ? ERROR.VALUE : undefined))
 		.run((nr) => Math.asin(nr));
 
 const degrees = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, degrees)
 		.withArgCount(1)
 		.mapNextArg((angle) => toNumberOrError(angle.value))
 		.run((angle) => (angle / Math.PI) * 180);
 
 const even = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, even)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.run((nr) => roundToEvenOrOdd(nr, true));
 
 const frac = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, frac)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.run((nr) => {
@@ -99,41 +99,40 @@ const frac = (sheet, ...terms) =>
 		});
 
 const int = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, int)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.run((nr) => Math.floor(nr));
 
 const log = (sheet, ...terms) =>
-	runFunction(sheet, terms)
-		.withMinArgs(1)
+	runFunction(sheet, terms, log).withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.mapNextArg((base) => base ? toNumberOrError(base.value) : 10)
 		.run((nr, base) => nr !== 0 && base !== 0 ? Math.log(nr) / Math.log(base) : ERROR.VALUE);
 
 const mod = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, mod)
 		.withArgCount(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.mapNextArg((divisor) => toNumberOrError(divisor.value))
 		.run((nr, divisor) => divisor !== 0 ? nr - (divisor * Math.floor(nr / divisor)) : ERROR.DIV0);
-		// if we want to round result to a certain decimal to get e.g 0.2 instead of 0.199999996
-		// .run((nr, divisor) => {
-		// 	if (divisor === 0) return ERROR.DIV0;
-		// 	const decimals = Math.max(getDecimalsCount(nr), getDecimalsCount(divisor));
-		// 	return roundDecimaals(nr - divisor * Math.floor(nr / divisor), decimals);
-		// });
+// if we want to round result to a certain decimal to get e.g 0.2 instead of 0.199999996
+// .run((nr, divisor) => {
+// 	if (divisor === 0) return ERROR.DIV0;
+// 	const decimals = Math.max(getDecimalsCount(nr), getDecimalsCount(divisor));
+// 	return roundDecimaals(nr - divisor * Math.floor(nr / divisor), decimals);
+// });
 
 
 const odd = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, odd)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.run((nr) => roundToEvenOrOdd(nr, false));
 
 const power = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, power)
 		.withArgCount(2)
 		.mapNextArg((base) => toNumberOrError(base.value))
 		.mapNextArg((expo) => toNumberOrError(expo.value))
@@ -143,13 +142,13 @@ const power = (sheet, ...terms) =>
 		});
 
 const radians = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, radians)
 		.withArgCount(1)
 		.mapNextArg((angle) => toNumberOrError(angle.value))
 		.run((angle) => (angle / 180) * Math.PI);
 
 const randbetween = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, randbetween)
 		.withMinArgs(2)
 		.withMaxArgs(5)
 		.mapNextArg((min) => toNumberOrError(min.value))
@@ -193,27 +192,27 @@ const randbetween = (sheet, ...terms) =>
 		});
 
 const round = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, round)
 		.withArgCount(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.mapNextArg((digits) => toNumberOrError(digits.value))
 		.run((nr, digits) => roundNumber(nr, digits));
 
 const sign = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, sign)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.run((nr) => _sign(nr));
 
 const sqrt = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, sqrt)
 		.withArgCount(1)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.validate((nr) => (nr < 0 ? ERROR.NUM : nr))
 		.run((nr) => Math.sqrt(nr));
 
 const trunc = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, trunc)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))

@@ -16,7 +16,7 @@ const ERROR = FunctionErrors.code;
 const indexFromTerm = (term) => term.operand && term.operand.index;
 
 const continueAt = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, continueAt)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((term) => indexFromTerm(term) || ERROR.INVALID_PARAM)

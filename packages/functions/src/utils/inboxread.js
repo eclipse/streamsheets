@@ -60,7 +60,7 @@ const getMessageId = term => (term && term.value) || '';
 // new requirement: always return a string
 // we cannot return an array anymore to ease further processing...  :(
 const inboxread = (prefix, sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, inboxread)
 		.mapNextArg(() => sheetutils.getStreamSheet(terms.shift(), sheet) || ERROR.NO_STREAMSHEET)
 		.mapNextArg(() => getMessageId(terms.shift()))
 		.addMappedArg((streamsheet) => createJSONPath(prefix, streamsheet, terms))

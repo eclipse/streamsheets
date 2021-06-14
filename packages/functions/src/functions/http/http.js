@@ -19,7 +19,7 @@ const {
 } = require('../../utils');
 
 const request = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, request)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(6)
@@ -40,7 +40,7 @@ const request = (sheet, ...terms) =>
 request.displayName = true;
 
 const get = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, get)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)
@@ -57,7 +57,7 @@ const get = (sheet, ...terms) =>
 get.displayName = true;
 
 const head = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, head)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)
@@ -74,7 +74,7 @@ const head = (sheet, ...terms) =>
 head.displayName = true;
 
 const post = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, post)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(5)
@@ -92,7 +92,7 @@ const post = (sheet, ...terms) =>
 post.displayName = true;
 
 const put = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, put)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(5)
@@ -110,7 +110,7 @@ const put = (sheet, ...terms) =>
 put.displayName = true;
 
 const patch = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, patch)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(5)
@@ -128,7 +128,7 @@ const patch = (sheet, ...terms) =>
 patch.displayName = true;
 
 const deleteFunction = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, deleteFunction)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)
@@ -145,7 +145,7 @@ const deleteFunction = (sheet, ...terms) =>
 deleteFunction.displayName = true;
 
 const trace = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, trace)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)
@@ -165,7 +165,7 @@ const trace = (sheet, ...terms) =>
 trace.displayName = true;
 
 const options = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, options)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)

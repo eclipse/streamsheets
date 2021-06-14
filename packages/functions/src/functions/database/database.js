@@ -30,7 +30,7 @@ const columnIndex = (range, pivot) => {
 	return index;
 };
 const forEachMatchingRow = (sheet, terms, callback) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, forEachMatchingRow)
 		.withArgCount(3)
 		.mapNextArg((dbrange) => getCellRangeFromTerm(dbrange, sheet) || ERROR.VALUE)
 		.mapNextArg((pivot, dbrange) => {

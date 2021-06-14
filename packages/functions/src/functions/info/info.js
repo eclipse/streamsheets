@@ -1,14 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const {	runFunction, values: { isEven } } = require('../../utils');
+const { runFunction, values: { isEven } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { isType } = require('@cedalo/machine-core');
@@ -21,7 +21,7 @@ const valueOf = (term, defval) => {
 };
 
 const iferror = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, iferror)
 		.withArgCount(2)
 		.run(() => {
 			const value = valueOf(terms[0], '');
@@ -30,7 +30,7 @@ const iferror = (sheet, ...terms) =>
 		});
 
 const iserr = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, iserr)
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
@@ -38,7 +38,7 @@ const iserr = (sheet, ...terms) =>
 		});
 
 const iserror = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, iserror)
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
@@ -46,7 +46,7 @@ const iserror = (sheet, ...terms) =>
 		});
 
 const isna = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, isna)
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
@@ -54,25 +54,25 @@ const isna = (sheet, ...terms) =>
 		});
 
 const iseven = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, iseven)
 		.withArgCount(1)
 		.mapNextArg((term) => (term ? convert.toNumber(term.value, ERROR.VALUE) : ERROR.VALUE))
 		.run((value) => isEven(Math.floor(value)));
 
 const isobject = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, isobject)
 		.withArgCount(1)
 		.mapNextArg((term) => isType.object(term.value))
 		.run((value) => !isEven(Math.floor(value)));
 
 const isodd = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, isodd)
 		.withArgCount(1)
 		.mapNextArg((term) => (term ? convert.toNumber(term.value, ERROR.VALUE) : ERROR.VALUE))
 		.run((value) => !isEven(Math.floor(value)));
 
 
-const na = (sheet, ...terms) =>	runFunction(sheet, terms).withArgCount(0).run(() => ERROR.NA);
+const na = (sheet, ...terms) => runFunction(sheet, terms, na).withArgCount(0).run(() => ERROR.NA);
 
 module.exports = {
 	IFERROR: iferror,

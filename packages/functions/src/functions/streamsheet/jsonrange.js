@@ -33,10 +33,10 @@ const getRange = (term) => {
 };
 
 // handle empty strings like undefined!
-const setCellAt = (sheet, index, value) => setCellValue(sheet, index, value === '' ? null: value);
+const setCellAt = (sheet, index, value) => setCellValue(sheet, index, value === '' ? null : value);
 
 const jsonrange = (sheet, ...terms) =>
-	runFunction(sheet, terms)
+	runFunction(sheet, terms, jsonrange)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(4)
