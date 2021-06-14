@@ -17,7 +17,7 @@ const CELL_VALUE_REPLACEMENT = '{ JSON }';
 const isValueType = (term) => {
 	const type = term.operand.type;
 	// we treat unit terms as value types!
-	return term.isUnit || !!(type && type !== Operand.TYPE.UNDEF && type !== Operand.TYPE.REFERENCE);
+	return term.isUnit || term.isError || !!(type && type !== Operand.TYPE.UNDEF && type !== Operand.TYPE.REFERENCE);
 };
 
 const checkNaN = (value) => (typeof value === 'number' && Number.isNaN(value) ? 0 : value);
