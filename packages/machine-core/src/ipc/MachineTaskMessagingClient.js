@@ -13,6 +13,7 @@ const MessagingClient = require('../messaging/Client');
 const { Topics } = require('@cedalo/protocols');
 const { EventMessage } = require('@cedalo/messages');
 const { createAndConnect } = require('@cedalo/messaging-client');
+const { MetricsManager } = require('@cedalo/metrics');
 
 
 class MachineTaskMessagingClient extends MessagingClient {
