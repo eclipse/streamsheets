@@ -830,10 +830,15 @@ export default class CellEditor {
 			}
 		}
 
+		let index = 0;
 		refs = this.div.getElementsByTagName('span');
+
 		for (let i = 0; i < refs.length; i += 1) {
-			if (refs[i].id === 'range' && refs[i] === range.startContainer.parentNode) {
-				return i;
+			if (refs[i].id === 'range') {
+				if (refs[i] === range.startContainer.parentNode) {
+					return index;
+				}
+				index += 1;
 			}
 		}
 		return undefined;
