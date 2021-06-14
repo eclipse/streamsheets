@@ -25,6 +25,8 @@ class ErrorInfo {
 			: new ErrorInfo({ type: TYPES.ERROR, code, message, fnName });
 	}
 	static createWarning(code, message, fnName) {
+		// THINK: for warning type may allow cellValue property, so that this is returned by cell
+		// => no need to set cell info outside cell itself!
 		return code.isErrorInfo
 			? new ErrorInfo({ ...code })
 			: new ErrorInfo({ type: TYPES.WARNING, code, message, fnName });
