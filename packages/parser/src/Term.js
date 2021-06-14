@@ -63,7 +63,7 @@ class Term {
 
 	get value() {
 		return this.operator
-			? this.operator.calc(this.left, this.right, this)
+			? this.operator.calc(this.left, this.right)
 			: this.operand.value;
 	}
 
@@ -274,7 +274,7 @@ class CondTerm extends Term {
 	}
 
 	get value() {
-		return this.operator.calc(this.condition, this.left, this.right, this);
+		return this.operator.calc(this.condition, this.left, this.right);
 	}
 
 	get isInvalid() {
