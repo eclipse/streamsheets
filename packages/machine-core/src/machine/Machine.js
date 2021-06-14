@@ -43,6 +43,7 @@ const DEF_CONF = {
 		lastModified: Date.now(),
 		lastModifiedBy: 'unknown'
 	},
+	extensionSettings: {},
 	settings: {
 		view: {
 			maximize: '',
@@ -84,6 +85,7 @@ class Machine {
 		this._isManualStep = false;
 		this.metadata = { ...DEF_CONF.metadata };
 		this._settings = { ...DEF_CONF.settings };
+		this._extensionSettings = { ...DEF_CONF.extensionSettings };
 		this.titleImage = undefined;
 		this.previewImage = undefined;
 		// read only properties...
@@ -118,7 +120,8 @@ class Machine {
 			state: this.state,
 			metadata: { ...this.metadata },
 			streamsheets: this.streamsheets.map((streamsheet) => streamsheet.toJSON()),
-			settings: {...this.settings, view: this.view},
+			settings: { ...this.settings, view: this.view },
+			extensionSettings: { ...this.extensionSettings },
 			className: this.className,
 			scope: this.scope,
 			namedCells: this.namedCells.getDescriptors(),
@@ -130,13 +133,14 @@ class Machine {
 	async load(definition = {}, functionDefinitions = [], currentStreams = []) {
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
-		const { settings = {}, metadata } = definition;
+		const { settings = {}, metadata, extensionSettings = {} } = definition;
 		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
 		this._name = def.isTemplate ? defaultMachineName() : def.name;
 		this._scope = def.scope;
 		this.metadata = { ...this.metadata, ...metadata };
 		this._settings = { ...this.settings, ...settings };
+		this._extensionSettings = {...this.extensionSettings, ...extensionSettings};
 		// handle nested view object, which might be null, but shouldn't!!
 		this._settings.view = { ...this.settings.view, ...settings.view };
 		this.titleImage = definition.titleImage;
@@ -296,6 +300,23 @@ class Machine {
 	set view(newView) {
 		this.settings.view = newView;
 		this._emitter.emit('update', 'view');
+	}
+
+	get extensionSettings() {
+		return this._extensionSettings;
+	}
+
+	set extensionSettings(extensionSettings) {
+		this._extensionSettings = extensionSettings;;
+	}
+
+	setExtensionSettings({ extensionId, settings } = {}) {
+		this.extensionSettings[extensionId] = settings;
+		this._emitter.emit('update', 'extensions', [extensionId, this.getExtensionSettings(extensionId)]);
+	}
+
+	getExtensionSettings(extensionId) {
+		return this.extensionSettings[extensionId];
 	}
 
 	// name, cycletime, locale...

@@ -13,12 +13,13 @@ import { Topics } from '@cedalo/protocols';
 import { MessagingRequestHelper } from '@cedalo/service-core';
 import {
 	AddInboxMessageRequest,
+	DeleteMachineRequest,
 	ID,
 	LoadMachineRequest,
+	MachineUpdateExtensionSettingsRequest,
 	PauseMachineRequest,
 	StartMachineRequest,
-	UnloadMachineRequest,
-	DeleteMachineRequest
+	UnloadMachineRequest
 } from '../streamsheets';
 
 const { SERVICES_MACHINES_INPUT, SERVICES_MACHINES_OUTPUT } = Topics;
@@ -98,4 +99,16 @@ export class MachineServiceProxy {
 		return result;
 	}
 
+	async updateExtensionSettings(id: ID, extensionId: string, settings: object) {
+		const message: MachineUpdateExtensionSettingsRequest = {
+			type: 'machine_update_extension_settings',
+			requestId: Math.random(),
+			machineId: id,
+			extensionId,
+			settings
+		};
+
+		const result = await this.requestHelper.doRequestMessage({ message, topic: SERVICES_MACHINES_INPUT });
+		return result;
+	}
 }

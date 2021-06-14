@@ -203,6 +203,13 @@ export interface MachineUpdateRequest extends IWSRequest {
 	type: 'machine_update_settings';
 	machineId: string;
 }
+
+export interface MachineUpdateExtensionSettingsRequest extends IWSRequest {
+	type: 'machine_update_extension_settings';
+	machineId: string;
+	extensionId: string;
+	settings: object;
+}
 export interface MetaInformationRequest extends IWSRequest {
 	type: 'meta_information';
 }

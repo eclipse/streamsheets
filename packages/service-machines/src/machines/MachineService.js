@@ -284,6 +284,10 @@ module.exports = class MachineService extends MessagingService {
 				logger.info(`PersistenceService: persist new machine opcua state: ${event.isOPCUA}`);
 				await RepositoryManager.machineRepository.updateMachineOPCUA(event.srcId, event.isOPCUA);
 				break;
+			case MachineServerMessagingProtocol.EVENTS.MACHINE_EXTENSION_SETTINGS_EVENT:
+				logger.info(`PersistenceService: persist new machine extension settings for extension "${event.extensionId}": ${event.settings}`);
+				await RepositoryManager.machineRepository.updateMachineExtensionSettings(event.srcId, event.extensionId, event.settings);
+				break;
 			case MachineServerMessagingProtocol.EVENTS.NAMED_CELLS_EVENT:
 				logger.info(`PersistenceService: persist new machine named cells: ${event.namedCells}`);
 				await RepositoryManager.machineRepository.updateMachineNamedCells(event.srcId, event.namedCells);

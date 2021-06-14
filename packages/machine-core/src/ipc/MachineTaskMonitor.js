@@ -190,6 +190,11 @@ class MachineTaskMonitor {
 					this.streamsheetMonitors.delete(data.id);
 				}
 				break;
+			case 'extensions': {
+				const [extensionId, extensionSettings] = data;
+				event = updateEvent(MachineEvents.MACHINE_EXTENSION_SETTINGS_EVENT, machine, { extensionId, settings: extensionSettings });
+				break;
+			}
 			default:
 				logger.info(`Ignore update event "${type}" for machine ${this.machine.name}{${this.machine.id}}!!`);
 		}
