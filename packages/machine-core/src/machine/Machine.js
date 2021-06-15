@@ -324,7 +324,7 @@ class Machine {
 		this.name = props.name || this.name;
 		this.locale = props.locale || this.locale;
 		this.cycletime = props.cycletime || this.cycletime;
-		this.view = props.view || this.view;
+		if (props.view) this.view = props.view;
 		this.titleImage = props.titleImage || this.titleImage;
 		this.previewImage = props.previewImage || this.previewImage;
 		if (props.isOPCUA != null) this.isOPCUA = props.isOPCUA;

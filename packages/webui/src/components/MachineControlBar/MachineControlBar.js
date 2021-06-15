@@ -79,8 +79,6 @@ class MachineControlBar extends React.Component {
 	}
 
 	onStart = async () => {
-		const cycleTime = this.state.speed;
-		await this.props.setCycleTime(this.props.machineId, cycleTime);
 		this.props.start(this.props.machineId);
 	};
 
