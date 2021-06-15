@@ -890,45 +890,20 @@ export default class CellsView extends NodeView {
 			default:
 				break;
 			}
-
-		// 	const values = data.values;
-		// 	if (values) {
-		// 		graphics.setFillColor('#fdbf01');
-
-		// 		const pts = [
-		// 			{x: columnInfo.x + columnInfo.width - 200, y: rowInfo.y},
-		// 			{x: columnInfo.x + columnInfo.width, y: rowInfo.y},
-		// 			{x: columnInfo.x + columnInfo.width, y: rowInfo.y + 200}
-		// 		];
-
-		// 		graphics.fillPolyline(pts, true);
-		// 		graphics.setFillColor('#000000');
-		// 	}
-		// 	// draw error 
-		// 	if (data.error) {
-		// 		graphics.setFillColor('#FF0000');
-		// 		const pts = [
-		// 			{x: columnInfo.x, y: rowInfo.y},
-		// 			{x: columnInfo.x + 200, y: rowInfo.y},
-		// 			{x: columnInfo.x, y: rowInfo.y + 200}
-		// 		];
-		// 		graphics.fillPolyline(pts, true);
-		// 		graphics.setFillColor('#000000');
-		// 	}
 		}
 	}
 	drawInfoMarkers(graphics, data, columnInfo, rowInfo) {
-		const values = data.values;
-		if (values) {
+		if (data.values) {
 			drawMarker(graphics, '#fdbf01', [
 				{ x: columnInfo.x + columnInfo.width - 200, y: rowInfo.y },
 				{ x: columnInfo.x + columnInfo.width, y: rowInfo.y },
 				{ x: columnInfo.x + columnInfo.width, y: rowInfo.y + 200 }
 			]);
 		}
-		// draw error 
-		if (data.error) {
-			drawMarker(graphics, '#FF0000', [
+		// draw error marker
+		if (data.errorInfo) {
+			const markerColor = data.hasErrorValue ? '#1976d2': '#FF0000';
+			drawMarker(graphics, markerColor, [
 				{ x: columnInfo.x, y: rowInfo.y },
 				{ x: columnInfo.x + 200, y: rowInfo.y },
 				{ x: columnInfo.x, y: rowInfo.y + 200 }
