@@ -18,11 +18,8 @@ const { addParseResultToInbox } = require('./utils');
 const asString = (value) => (value ? convert.toString(value, ERROR.VALUE) : '');
 
 const createDefaultCallback = (sheet) => (context, parseResult, error) => {
-	const term = context.term;
 	const inbox = sheet.streamsheet.inbox;
 	addParseResultToInbox(context, inbox, parseResult, error);
-	if (term && !term.isDisposed) term.cellValue = error ? ERROR.RESPONSE : undefined;
-	return error ? AsyncRequest.STATE.REJECTED : undefined;
 };
 
 

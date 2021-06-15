@@ -85,15 +85,10 @@ const createRequestCallback = (sheet, target, extractErrorData, extractResultDat
 	const createErrorResult = createResult(extractErrorData || getErrorData);
 	const createResponseResult = createResult(extractResultData || getResultData);
 	return (context, response, error) => {
-		const term = context.term;
 		const reqId = context._reqId;
 		const resobj = error ? createErrorResult(reqId, error) : createResponseResult(reqId, response);
 		resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
 		if (target) addResultToTarget(sheet, target, resobj);
-		if (term && !term.isDisposed) {
-			term.cellValue = error ? ERROR.RESPONSE : undefined;
-		}
-		return error ? RequestState.REJECTED : undefined;
 	};
 };
 
