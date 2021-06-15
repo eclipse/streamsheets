@@ -12,7 +12,7 @@ const { runFunction } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 
 const bar = (sheet, ...terms) =>
-	runFunction(sheet, terms, bar)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.run(() => {
 			let result = '';

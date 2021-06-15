@@ -20,14 +20,14 @@ const calcAvg = (avgrange, _criteria) => {
 	return numbers.length ? calculate.avg(numbers) : ERROR.DIV0;
 };
 const averageif = (sheet, ...terms) =>
-	runFunction(sheet, terms, averageif)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapArgAt(2, mapRange(sheet))
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))
 		.run(calcAvg);
 const averageifs = (sheet, ...terms) =>
-	runFunction(sheet, terms, averageifs)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.mapNextArg(mapRange(sheet))
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))
@@ -39,8 +39,8 @@ const count = (sheet, runner) =>
 	runner
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))
 		.run((_criteria) => criteria.getValues(_criteria).length);
-const countif = (sheet, ...terms) => count(sheet, runFunction(sheet, terms, countif).withArgCount(2));
-const countifs = (sheet, ...terms) => count(sheet, runFunction(sheet, terms, countifs).withMinArgs(2));
+const countif = (sheet, ...terms) => count(sheet, runFunction(sheet, terms).withArgCount(2));
+const countifs = (sheet, ...terms) => count(sheet, runFunction(sheet, terms).withMinArgs(2));
 
 
 module.exports = {

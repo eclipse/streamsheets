@@ -34,7 +34,7 @@ const getIdRegEx = (context, idFilter) => {
 };
 
 const outboxgetids = (sheet, ...terms) =>
-	runFunction(sheet, terms, outboxgetids)
+	runFunction(sheet, terms)
 		.withMaxArgs(1)
 		.mapNextArg((idFilter) => getIdRegEx(outboxgetids.context, idFilter))
 		.run((idRegEx) => {

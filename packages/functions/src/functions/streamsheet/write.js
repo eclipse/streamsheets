@@ -73,7 +73,7 @@ const getTTL = (seconds) => {
 const isMeta = (term) => term.func && term.name && term.name.toUpperCase().endsWith('METADATA');
 
 const write = (sheet, ...terms) =>
-	runFunction(sheet, terms, write)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(4)

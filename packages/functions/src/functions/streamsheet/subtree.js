@@ -30,7 +30,7 @@ const getMessageInfoOrError = (sheet, term) => {
 	return msginfo.message ? msginfo : ERROR.NO_MSG;
 };
 const subtree = (sheet, ...terms) =>
-	runFunction(sheet, terms, subtree)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((message) => getMessageInfoOrError(sheet, message))

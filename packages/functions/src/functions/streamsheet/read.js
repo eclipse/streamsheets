@@ -73,7 +73,7 @@ const getType = (term) => {
 	return value == null ? 'json' : TYPES.includes(value) ? value : undefined;
 };
 const read = (sheet, ...terms) =>
-	runFunction(sheet, terms, read)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(5)
 		.mapNextArg((msgTerm) => messages.getMessageInfo(sheet, msgTerm))

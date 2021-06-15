@@ -46,7 +46,7 @@ const getCondition = (term) => {
 	return FunctionErrors.isError(value) || (isType.object(value) ? ERROR.VALUE : !!value);
 };
 const condition = (sheet, ...terms) =>
-	runFunction(sheet, terms, condition)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg((cond) => getCondition(cond))
@@ -55,7 +55,7 @@ const condition = (sheet, ...terms) =>
 		.run((cond, onTrue, onFalse) => cond ? onTrue() : onFalse());
 
 const not = (sheet, ...terms) =>
-	runFunction(sheet, terms, not)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.run(() => {
 			const val = convert.toBoolean(terms[0].value, ERROR.VALUE);

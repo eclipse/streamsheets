@@ -241,7 +241,7 @@ const aggregateCellValue = (cell, value, aggregationType) => {
 };
 
 const tableupdate = (sheet, ...terms) =>
-	runFunction(sheet, terms, tableupdate)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(7)
@@ -266,7 +266,7 @@ const tableupdate = (sheet, ...terms) =>
 		});
 
 const tableget = (sheet, ...terms) =>
-	runFunction(sheet, terms, tableget)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(3)
 		.mapNextArg((tablerange) => getCellRange(tablerange, sheet) || ERROR.VALUE)
@@ -320,7 +320,7 @@ const sortRows = (rows, refrange, nameIndices) => {
 	});
 };
 const tableordercolumn = (sheet, ...terms) =>
-	runFunction(sheet, terms, tableordercolumn)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
 		.mapNextArg((colrange) => getCellRange(colrange, sheet) || ERROR.VALUE)

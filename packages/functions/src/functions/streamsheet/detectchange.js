@@ -59,7 +59,7 @@ const signalIfChanged = (period, delay, term) => {
 
 /** @deprecated */
 const detectchange = (sheet, ...terms) =>
-	runFunction(sheet, terms, detectchange)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(4)
 		.withMaxArgs(5)
@@ -78,7 +78,7 @@ const detectchange = (sheet, ...terms) =>
 		});
 
 const edgeDetect = (sheet, ...terms) =>
-	runFunction(sheet, terms, edgeDetect)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(3)

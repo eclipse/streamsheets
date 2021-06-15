@@ -89,7 +89,7 @@ const doFind = (regex, instr, atpos) => {
 };
 
 const convertCase = (caseFn) => (sheet, ...terms) =>
-	runFunction(sheet, terms, convertCase)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((txt) => convert.toString(txt.value))
 		.run((txt) => {
@@ -105,7 +105,7 @@ const CLEAN_REGEX_EXTENDED = /[\x00-\x1F|\x7F|\x81|\x8D|\x8F|\x90|\x9D]+/g
 
 
 const char = (sheet, ...terms) =>
-	runFunction(sheet, terms, char)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((nr) => convert.toNumber(nr.value, ERROR.VALUE))
@@ -118,7 +118,7 @@ const char = (sheet, ...terms) =>
 		});
 
 const clean = (sheet, ...terms) =>
-	runFunction(sheet, terms, clean)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -130,7 +130,7 @@ const clean = (sheet, ...terms) =>
 
 
 const code = (sheet, ...terms) =>
-	runFunction(sheet, terms, code)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => convert.toString(str.value, ERROR.VALUE))
@@ -146,7 +146,7 @@ const code = (sheet, ...terms) =>
 		});
 
 const concat = (sheet, ...terms) =>
-	runFunction(sheet, terms, concat).run(() => {
+	runFunction(sheet, terms).run(() => {
 		let error;
 		let result = '';
 		onTerms.iterateAllTermsValues(sheet, terms, (value, err) => {
@@ -157,7 +157,7 @@ const concat = (sheet, ...terms) =>
 	});
 
 const find = (sheet, ...terms) =>
-	runFunction(sheet, terms, find)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -169,7 +169,7 @@ const find = (sheet, ...terms) =>
 		});
 
 const left = (sheet, ...terms) =>
-	runFunction(sheet, terms, left)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -177,7 +177,7 @@ const left = (sheet, ...terms) =>
 		.run((str, length) => str.substr(0, length));
 
 const len = (sheet, ...terms) =>
-	runFunction(sheet, terms, len)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((str) => convert.toString(str.value, ''))
 		.run((str) => str.length);
@@ -185,7 +185,7 @@ const len = (sheet, ...terms) =>
 const lower = convertCase(''.toLowerCase);
 
 const mid = (sheet, ...terms) =>
-	runFunction(sheet, terms, mid)
+	runFunction(sheet, terms)
 		.withArgCount(3)
 		.mapNextArg((str) => convert.toString(str.value, ''))
 		.mapNextArg((start) => toMinInteger(start, 1, 1))
@@ -193,7 +193,7 @@ const mid = (sheet, ...terms) =>
 		.run((str, start, length) => str.substr(start - 1, length));
 
 const replace = (sheet, ...terms) =>
-	runFunction(sheet, terms, replace)
+	runFunction(sheet, terms)
 		.withArgCount(4)
 		.mapNextArg((str) => (FunctionErrors.isError(str.value) ? str.value : convert.toString(str.value, '')))
 		.mapNextArg((start) => toMinInteger(start, 1, 1))
@@ -202,14 +202,14 @@ const replace = (sheet, ...terms) =>
 		.run((str, start, length, replacement) => splice(str, start - 1, length, replacement));
 
 const rept = (sheet, ...terms) =>
-	runFunction(sheet, terms, rept)
+	runFunction(sheet, terms)
 		.withArgCount(2)
 		.mapNextArg((str) => (FunctionErrors.isError(str.value) ? str.value : convert.toString(str.value, '')))
 		.mapNextArg((times) => toMinInteger(times, 0, 0))
 		.run((str, times) => str.repeat(times));
 
 const right = (sheet, ...terms) =>
-	runFunction(sheet, terms, right)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -217,7 +217,7 @@ const right = (sheet, ...terms) =>
 		.run((str, length) => str.substr(-length, length));
 
 const search = (sheet, ...terms) =>
-	runFunction(sheet, terms, search)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg((str) => convert.toString(str.value, '').toLowerCase())
@@ -229,7 +229,7 @@ const search = (sheet, ...terms) =>
 		});
 
 const substitute = (sheet, ...terms) =>
-	runFunction(sheet, terms, substitute)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg((str) => convert.toString(str.value, ''))
@@ -241,7 +241,7 @@ const substitute = (sheet, ...terms) =>
 		);
 
 const text = (sheet, ...terms) =>
-	runFunction(sheet, terms, text)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		// number can be anything, i.e. integer, float, date or string...
@@ -267,7 +267,7 @@ const text = (sheet, ...terms) =>
 		});
 
 const unichar = (sheet, ...terms) =>
-	runFunction(sheet, terms, unichar)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((nr) => convert.toNumber(nr.value, ERROR.VALUE))
 		.run((nr) => {
@@ -276,7 +276,7 @@ const unichar = (sheet, ...terms) =>
 		});
 
 const unicode = (sheet, ...terms) =>
-	runFunction(sheet, terms, unicode)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((str) => convert.toString(str.value, ERROR.VALUE))
 		.run((str) => {
@@ -287,7 +287,7 @@ const unicode = (sheet, ...terms) =>
 const upper = convertCase(''.toUpperCase);
 
 const value = (sheet, ...terms) =>
-	runFunction(sheet, terms, value)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((number) => number.value)

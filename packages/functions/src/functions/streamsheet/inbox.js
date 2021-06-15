@@ -14,7 +14,7 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 const ERROR = FunctionErrors.code;
 
 const inbox = (sheet, ...terms) =>
-	runFunction(sheet, terms, inbox)
+	runFunction(sheet, terms)
 		.withMaxArgs(2)
 		.mapNextArg((term) => getStreamSheet(term, sheet) || ERROR.NO_STREAMSHEET)
 		.mapNextArg((msgid) => (msgid ? msgid.value || '' : ''))

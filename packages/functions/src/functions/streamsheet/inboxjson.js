@@ -16,7 +16,7 @@ const ERROR = FunctionErrors.code;
 
 /** @deprecated ?? */
 const inboxjson = (sheet, ...terms) =>
-	runFunction(sheet, terms, inboxjson)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(streamsheet => getStreamSheetByName(streamsheet.value, sheet) || ERROR.INVALID_PARAM)

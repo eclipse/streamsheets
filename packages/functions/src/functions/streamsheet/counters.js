@@ -17,7 +17,7 @@ const ERROR = FunctionErrors.code;
 const reachedEnd = (value, end, step) => (step < 0 ? value < end : value > end);
 
 const counter = (sheet, ...terms) =>
-	runFunction(sheet, terms, counter)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(4)
 		.mapNextArg(start => convert.toNumber(start.value, ERROR.ARGS))
@@ -38,33 +38,33 @@ const counter = (sheet, ...terms) =>
 		});
 
 const getcycle = (sheet, ...terms) =>
-	runFunction(sheet, terms, getcycle)
+	runFunction(sheet, terms)
 		.withArgCount(0)
 		.addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
 		.run((streamsheet) => streamsheet.stats.repeatsteps);
 
 const getcycletime = (sheet, ...terms) =>
-	runFunction(sheet, terms, getcycletime)
+	runFunction(sheet, terms)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.run(machine => machine.cycletime);
 
 // return steps triggered on execute()
 const repeatindex = (sheet, ...terms) =>
-	runFunction(sheet, terms, repeatindex)
+	runFunction(sheet, terms)
 		.withArgCount(0)
 		.addMappedArg(() => sheet.streamsheet || ERROR.NO_STREAMSHEET)
 		.run((streamsheet) => streamsheet.stats.executesteps);
 
 // machine steps
 const getmachinestep = (sheet, ...terms) =>
-	runFunction(sheet, terms, getmachinestep)
+	runFunction(sheet, terms)
 		.withArgCount(0)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.run((machine) => machine.stats.steps);
 
 // streamsheet steps
 const getstep = (sheet, ...terms) =>
-	runFunction(sheet, terms, getstep)
+	runFunction(sheet, terms)
 		.withMaxArgs(1)
 		.mapNextArg((streamsheet) => {
 			const _streamsheet = streamsheet ? getStreamSheetByName(streamsheet.value, sheet) : sheet.streamsheet;
@@ -73,13 +73,13 @@ const getstep = (sheet, ...terms) =>
 		.run((streamsheet) => streamsheet.stats.steps);
 
 const getmachinestepspersecond = (sheet, ...terms) =>
-	runFunction(sheet, terms, getmachinestepspersecond)
+	runFunction(sheet, terms)
 		.withArgCount(0)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.run((machine) => machine.stats.cyclesPerSecond);
 
 const getclientcount = (sheet, ...terms) =>
-	runFunction(sheet, terms, getclientcount)
+	runFunction(sheet, terms)
 		.withArgCount(0)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)
 		.run((machine) => machine.getClientCount());

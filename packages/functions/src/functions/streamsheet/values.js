@@ -97,7 +97,7 @@ const copyCellValue = (sourceterm, targetrange) => {
 };
 
 const copyvalues = (sheet, ...terms) =>
-	runFunction(sheet, terms, copyvalues)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
 		.mapNextArg(source => getCellRangeFromTerm(source, sheet))
@@ -108,7 +108,7 @@ const copyvalues = (sheet, ...terms) =>
 			|| ERROR.RANGE);
 
 const movevalues = (sheet, ...terms) =>
-	runFunction(sheet, terms, movevalues)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
 		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.RANGE)
@@ -121,7 +121,7 @@ const movevalues = (sheet, ...terms) =>
 		});
 
 const setvalue = (sheet, ...terms) =>
-	runFunction(sheet, terms, setvalue)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg(condition => !!condition.value)
@@ -131,7 +131,7 @@ const setvalue = (sheet, ...terms) =>
 		.run((condition, val, cellrefs, overwrite) => condition && setCells(val, cellrefs, overwrite) || true);
 
 const swapvalues = (sheet, ...terms) =>
-	runFunction(sheet, terms, swapvalues)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
 		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.RANGE)

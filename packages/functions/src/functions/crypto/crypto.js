@@ -25,7 +25,7 @@ const getAlgorithm = (str) => {
 };
 
 const hash = (sheet, ...terms) =>
-	runFunction(sheet, terms, hash)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((text) => convert.toString(text.value, ERROR.VALUE))
@@ -36,7 +36,7 @@ const hash = (sheet, ...terms) =>
 		});
 
 const hmac = (sheet, ...terms) =>
-	runFunction(sheet, terms, hmac)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg((text) => convert.toString(text.value, ERROR.VALUE))

@@ -115,7 +115,7 @@ const getValues = (sheet, term) => {
 };
 
 const store = (sheet, ...terms) =>
-	runFunction(sheet, terms, store)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)

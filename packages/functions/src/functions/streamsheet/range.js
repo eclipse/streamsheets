@@ -27,7 +27,7 @@ const toArray = (range) => {
 };
 
 const range = (sheet, ...terms) =>
-	runFunction(sheet, terms, range)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((cellrange) => getCellRangeFromTerm(cellrange, sheet) || ERROR.INVALID_PARAM)
 		.run((cellrange) => toArray(cellrange));

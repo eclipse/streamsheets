@@ -192,7 +192,7 @@ const getAggregator = (term, settings) => {
 
 
 const timeaggregate = (sheet, ...terms) =>
-	runFunction(sheet, terms, timeaggregate)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(8)

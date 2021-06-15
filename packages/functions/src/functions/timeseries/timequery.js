@@ -184,7 +184,7 @@ const getStoreTerm = (term) => {
 };
 
 const timeQuery = (sheet, ...terms) =>
-	runFunction(sheet, terms, timeQuery)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(5)

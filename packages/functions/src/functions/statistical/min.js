@@ -20,7 +20,7 @@ const newMin = (termOrCell, oldmin) => {
 };
 
 const min = (sheet, ...terms) =>
-	runFunction(sheet, terms, min)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.run(() => {
 			let error;
@@ -42,7 +42,7 @@ const min = (sheet, ...terms) =>
 		});
 
 const minifs = (sheet, ...terms) =>
-	runFunction(sheet, terms, minifs)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.mapNextArg((minrange) => getCellRangeFromTerm(minrange, sheet) || ERROR.INVALID_PARAM)
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))

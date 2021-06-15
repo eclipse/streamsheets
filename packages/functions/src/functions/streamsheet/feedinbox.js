@@ -64,7 +64,7 @@ const createMessageFromTerm = (term, machine) => {
 
 
 const feedinbox = (sheet, ...terms) =>
-	runFunction(sheet, terms, feedinbox)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
 		.addMappedArg(() => getMachine(sheet) || ERROR.NO_MACHINE)

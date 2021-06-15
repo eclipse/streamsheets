@@ -101,7 +101,7 @@ const message2json = (term, sheet) => {
 };
 
 const json = (sheet, ...terms) =>
-	runFunction(sheet, terms, json)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((str) => (isType.string(str.value) ? str2json(str.value) : undefined))

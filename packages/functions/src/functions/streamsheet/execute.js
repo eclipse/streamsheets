@@ -49,7 +49,7 @@ const resumeExecute = (context) => (retval) => {
 };
 
 const execute = (sheet, ...terms) =>
-	runFunction(sheet, terms, execute)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(1)
 		.withMaxArgs(4)

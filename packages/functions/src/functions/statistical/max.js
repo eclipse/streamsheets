@@ -19,7 +19,7 @@ const newMax = (termOrCell, oldmax) => {
 };
 
 const max = (sheet, ...terms) =>
-	runFunction(sheet, terms, max)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.run(() => {
 			let error;
@@ -41,7 +41,7 @@ const max = (sheet, ...terms) =>
 		});
 
 const maxifs = (sheet, ...terms) =>
-	runFunction(sheet, terms, maxifs)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.mapNextArg((maxrange) => getCellRangeFromTerm(maxrange, sheet) || ERROR.INVALID_PARAM)
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))

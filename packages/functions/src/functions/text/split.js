@@ -15,7 +15,7 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 const ERROR = FunctionErrors.code;
 
 const split = (sheet, ...terms) =>
-	runFunction(sheet, terms, split)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg(str => convert.toString(str.value, ERROR.INVALID_PARAM))

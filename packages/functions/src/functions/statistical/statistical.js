@@ -30,23 +30,23 @@ const doIfNoError = (fn) => (values) => FunctionErrors.isError(values) ? values 
 const runWith = (fn, sheet, terms) => fn(toNumbers(sheet, terms, onTerms.iterateAllTermsValues));
 
 const avg = pipe(testValues(0, ERROR.DIV0), doIfNoError(calculate.avg));
-const average = (sheet, ...terms) => runFunction(sheet, terms, average).withMinArgs(1).run(() => runWith(avg, sheet, terms));
+const average = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(() => runWith(avg, sheet, terms));
 
 const cnt = pipe(doIfNoError((numbers) => numbers.length));
-const count = (sheet, ...terms) => runFunction(sheet, terms, count).withMinArgs(1).run(() => runWith(cnt, sheet, terms));
+const count = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(() => runWith(cnt, sheet, terms));
 
 const mx = pipe(doIfNoError(calculate.max));
-const max = (sheet, ...terms) => runFunction(sheet, terms, max).run(() => runWith(mx, sheet, terms));
+const max = (sheet, ...terms) => runFunction(sheet, terms).run(() => runWith(mx, sheet, terms));
 
 const mn = pipe(doIfNoError(calculate.min));
-const min = (sheet, ...terms) => runFunction(sheet, terms, min).run(() => runWith(mn, sheet, terms));
+const min = (sheet, ...terms) => runFunction(sheet, terms).run(() => runWith(mn, sheet, terms));
 
 const stdDev = pipe(testValues(1, ERROR.DIV0), doIfNoError(calculate.standardDerivation));
-const stdev = (sheet, ...terms) => runFunction(sheet, terms, stdev).withMinArgs(1).run(() => runWith(stdDev, sheet, terms));
+const stdev = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(() => runWith(stdDev, sheet, terms));
 
 
 const correl = (sheet, ...terms) =>
-	runFunction(sheet, terms, correl)
+	runFunction(sheet, terms)
 		.withArgCount(2)
 		.mapNextArg((xValues) => toNumbers(sheet, xValues, onTerms.iterateTermValues))
 		.mapNextArg((yValues) => toNumbers(sheet, yValues, onTerms.iterateTermValues))
@@ -72,7 +72,7 @@ const correl = (sheet, ...terms) =>
 		});
 
 const forecast = (sheet, ...terms) =>
-	runFunction(sheet, terms, forecast)
+	runFunction(sheet, terms)
 		.withArgCount(3)
 		.mapNextArg((xTerm) => (xTerm ? convert.toNumberStrict(xTerm.value, ERROR.VALUE) : ERROR.VALUE))
 		.mapNextArg((yKnown) => toNumbers(sheet, yKnown, onTerms.iterateTermValues))

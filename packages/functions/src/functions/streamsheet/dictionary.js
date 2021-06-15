@@ -45,7 +45,7 @@ const createDictionaries = (range, byrow) => {
 
 // cell-range to json object => to use for writejson, execute or publish...
 const dictionary = (sheet, ...terms) =>
-	runFunction(sheet, terms, dictionary)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(cellrange => getCellRangeFromTerm(cellrange, sheet) || ERROR.INVALID_PARAM)

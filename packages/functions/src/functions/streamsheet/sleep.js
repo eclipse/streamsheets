@@ -66,7 +66,7 @@ const initContext = (context, sheet) => {
 	}
 };
 const sleep = (sheet, ...terms) =>
-	runFunction(sheet, terms, sleep)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((seconds) => convert.toNumberStrict(seconds.value, ERROR.VALUE))

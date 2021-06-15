@@ -338,7 +338,7 @@ const transform = {
 };
 
 const convertcolor = (sheet, ...terms) =>
-	runFunction(sheet, terms, convertcolor)
+	runFunction(sheet, terms)
 		.withArgCount(3)
 		.mapNextArg((valTerm) => convert.toString(valTerm.value, ERROR.ARGS))
 		.mapNextArg((fromTerm) => convert.toString(fromTerm.value, ERROR.ARGS))

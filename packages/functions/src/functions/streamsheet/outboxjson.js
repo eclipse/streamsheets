@@ -21,7 +21,7 @@ const getOutbox = (sheet) => {
 
 
 const outboxjson = (sheet, ...terms) =>
-	runFunction(sheet, terms, outboxjson)
+	runFunction(sheet, terms)
 		.withMaxArgs(1)
 		.addMappedArg(() => getOutbox(sheet) || ERROR.INVALID_PARAM)
 		.mapNextArg(inclMetaData => convert.toBoolean(inclMetaData && inclMetaData.value, false))

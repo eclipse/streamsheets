@@ -14,7 +14,7 @@ const { FunctionErrors } = require('@cedalo/error-codes');
 const ERROR = FunctionErrors.code;
 
 const refresh = (sheet, ...terms) =>
-	runFunction(sheet, terms, refresh)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.run(() => ERROR.NA);
 

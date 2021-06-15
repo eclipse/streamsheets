@@ -31,7 +31,7 @@ const allSequentialRequests = new Map();
 const LIMIT_QUEUE = new AsyncRequest.Queue(2);
 
 const testRequest = (sheet, ...terms) =>
-	runFunction(sheet, terms, testRequest)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.run(() =>
 			AsyncRequest
@@ -48,7 +48,7 @@ const testRequest = (sheet, ...terms) =>
 				.reqId()
 		);
 const testRequestFailing = (sheet, ...terms) =>
-	runFunction(sheet, terms, testRequestFailing)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.run(() =>
 			AsyncRequest.create(sheet, testRequestFailing.context)
@@ -57,7 +57,7 @@ const testRequestFailing = (sheet, ...terms) =>
 				.reqId()
 		);
 const testRequestResponseFailing = (sheet, ...terms) =>
-	runFunction(sheet, terms, testRequestResponseFailing)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.run(() =>
 			AsyncRequest.create(sheet, testRequestResponseFailing.context)
@@ -70,7 +70,7 @@ const testRequestResponseFailing = (sheet, ...terms) =>
 				.reqId()
 		);
 const sequentialRequest = (sheet, ...terms) =>
-	runFunction(sheet, terms, sequentialRequest)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.run(() => {
 			const cell = sequentialRequest.context.term.cell;
@@ -88,7 +88,7 @@ const sequentialRequest = (sheet, ...terms) =>
 			return request.reqId();
 		});
 const noRequest = (sheet, ...terms) =>
-	runFunction(sheet, terms, noRequest)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.run(() => AsyncRequest.create(sheet, noRequest.context).reqId());
 SheetParser.context.functions['TEST.REQUEST'] = testRequest;

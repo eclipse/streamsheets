@@ -29,8 +29,8 @@ const columnIndex = (range, pivot) => {
 	}
 	return index;
 };
-const forEachMatchingRow = (fn, sheet, terms, callback) =>
-	runFunction(sheet, terms, fn)
+const forEachMatchingRow = (sheet, terms, callback) =>
+	runFunction(sheet, terms)
 		.withArgCount(3)
 		.mapNextArg((dbrange) => getCellRangeFromTerm(dbrange, sheet) || ERROR.VALUE)
 		.mapNextArg((pivot, dbrange) => {
@@ -51,7 +51,7 @@ const forEachMatchingRow = (fn, sheet, terms, callback) =>
 const daverage = (sheet, ...terms) => {
 	let total = 0;
 	let count = 0;
-	const error = forEachMatchingRow(daverage, sheet, terms, (nr) => {
+	const error = forEachMatchingRow(sheet, terms, (nr) => {
 		count += 1;
 		total += nr;
 	});
@@ -60,7 +60,7 @@ const daverage = (sheet, ...terms) => {
 
 const dcount = (sheet, ...terms) => {
 	let count = 0;
-	const error = forEachMatchingRow(dcount, sheet, terms, () => {
+	const error = forEachMatchingRow(sheet, terms, () => {
 		count += 1;
 	});
 	return error || count;
@@ -68,7 +68,7 @@ const dcount = (sheet, ...terms) => {
 
 const dmax = (sheet, ...terms) => {
 	let max;
-	const error = forEachMatchingRow(dmax, sheet, terms, (nr) => {
+	const error = forEachMatchingRow(sheet, terms, (nr) => {
 		if (max == null || nr > max) max = nr;
 	});
 	return error || (max != null ? max : 0);
@@ -76,7 +76,7 @@ const dmax = (sheet, ...terms) => {
 
 const dmin = (sheet, ...terms) => {
 	let min;
-	const error = forEachMatchingRow(dmin, sheet, terms, (nr) => {
+	const error = forEachMatchingRow(sheet, terms, (nr) => {
 		if (min == null || nr < min) min = nr;
 	});
 	return error || (min != null ? min : ERROR.VALUE);
@@ -84,7 +84,7 @@ const dmin = (sheet, ...terms) => {
 
 const dsum = (sheet, ...terms) => {
 	let sum = 0;
-	const error = forEachMatchingRow(dsum, sheet, terms, (nr) => {
+	const error = forEachMatchingRow(sheet, terms, (nr) => {
 		sum += nr;
 	});
 	return error || sum;

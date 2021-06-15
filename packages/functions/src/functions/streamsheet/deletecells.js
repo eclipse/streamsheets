@@ -21,7 +21,7 @@ const deleteRange = (cellrange) => {
 	}
 };
 const deletecells = (sheet, ...terms) =>
-	runFunction(sheet, terms, deletecells)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.run(() => {
 			let error;

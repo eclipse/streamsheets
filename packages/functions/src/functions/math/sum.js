@@ -41,11 +41,11 @@ const sumOf = (sheet, terms) => {
 	}, 0);
 };
 
-const sum = (sheet, ...terms) => runFunction(sheet, terms, sum).withMinArgs(1).run(() => sumOf(sheet, terms));
+const sum = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(() => sumOf(sheet, terms));
 
 
 const sumif = (sheet, ...terms) =>
-	runFunction(sheet, terms, sumif)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapArgAt(2, (sumrange) => sumrange && (getCellRangeFromTerm(sumrange, sheet) || ERROR.INVALID_PARAM))
@@ -53,7 +53,7 @@ const sumif = (sheet, ...terms) =>
 		.run((sumrange, _criteria) => calculate.sum(criteria.getNumbers(_criteria, sumrange || _criteria[0][0])));
 
 const sumifs = (sheet, ...terms) =>
-	runFunction(sheet, terms, sumifs)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.mapNextArg((sumrange) => getCellRangeFromTerm(sumrange, sheet) || ERROR.INVALID_PARAM)
 		.mapRemaingingArgs((remainingTerms) => criteria.createFromTerms(remainingTerms, sheet))

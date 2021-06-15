@@ -36,7 +36,7 @@ const getRange = (term) => {
 const setCellAt = (sheet, index, value) => setCellValue(sheet, index, value === '' ? null : value);
 
 const jsonrange = (sheet, ...terms) =>
-	runFunction(sheet, terms, jsonrange)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(2)
 		.withMaxArgs(4)

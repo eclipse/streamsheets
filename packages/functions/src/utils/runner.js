@@ -25,11 +25,10 @@ class ErrorHandler {
 		this._ignoreError = doIt;
 	}
 
-	getError(fnName) {
+	getError() {
 		let error;
 		if (!this._ignoreError && this._error) {
 			error = this._error.isErrorInfo ? this._error : ErrorInfo.create(this._error);
-			if (fnName) error = error.setFunctionName(fnName);
 			if (this._errorIndex) error = error.setParamIndex(this._errorIndex + 1);
 		}
 		return error;
@@ -48,10 +47,10 @@ class ErrorHandler {
 	}
 }
 class Runner {
-	constructor(sheet, args, fn) {
+	constructor(sheet, args) {
 		this.sheet = sheet;
-		this.cell = fn && fn.term && fn.term.cell;
-		this.fnName = fn && fn.term && fn.term.name;
+		// this.cell = fn && fn.term && fn.term.cell;
+		// this.fnName = fn && fn.term && fn.term.name;
 		// this.setFunctionName = setFunctionName(fn);
 		// work on copy or not???
 		this.args = args ? args.slice(0) : [];
@@ -179,14 +178,14 @@ class Runner {
 	}
 
 	run(fn) {
-		const error = this.errorHandler.getError(this.fnName);
+		const error = this.errorHandler.getError();
 		if (error) {
 			return error;
 		}
 		if (this.isEnabled) {
 			const res = fn(...this.mappedArgs);
 			if (FunctionErrors.isError(res)) {
-				return res.isErrorInfo ? res : ErrorInfo.create(res, undefined, this.fnName);
+				return res.isErrorInfo ? res : ErrorInfo.create(res);
 			}
 			return res;
 		}

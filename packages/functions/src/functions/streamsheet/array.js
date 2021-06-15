@@ -45,7 +45,7 @@ const toBool = (term, defval) => {
 
 // cell-range to json array => to use for writejson, execute or publish...
 const array = (sheet, ...terms) =>
-	runFunction(sheet, terms, array)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg(range => getCellRangeFromTerm(range, sheet) || ERROR.INVALID_PARAM)

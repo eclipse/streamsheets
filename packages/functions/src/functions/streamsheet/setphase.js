@@ -23,7 +23,7 @@ const createCell = (sheet, term) => {
 };
 
 const setphase = (sheet, ...terms) =>
-	runFunction(sheet, terms, setphase)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withMinArgs(3)
 		.withMaxArgs(4)

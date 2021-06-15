@@ -40,7 +40,7 @@ const toOffset = (value) => FunctionErrors.isError(value) || convert.toNumber(va
 // == CHOOSE ==
 //
 const choose = (sheet, ...terms) =>
-	runFunction(sheet, terms, choose)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.mapNextArg((nrTerm) => {
 			const nr = term2number(nrTerm, 0);
@@ -52,7 +52,7 @@ const choose = (sheet, ...terms) =>
 		});
 
 const column = (sheet, ...terms) =>
-	runFunction(sheet, terms, column)
+	runFunction(sheet, terms)
 		.withMaxArgs(1)
 		.mapNextArg(ref => ref ? indexFromOperand(ref.operand) || ERROR.NAME : undefined)
 		.run((idx) => {
@@ -64,7 +64,7 @@ const column = (sheet, ...terms) =>
 // == INDEX ==
 //
 const index = (sheet, ...terms) =>
-	runFunction(sheet, terms, index)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg((ranges) => {
@@ -104,7 +104,7 @@ const convertRC = (str) => {
 };
 const refStrFromRC = (rcstr) => rcstr.split(':').map(convertRC).join(':');
 const indirect = (sheet, ...terms) =>
-	runFunction(sheet, terms, indirect)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg(ref => ref)
@@ -187,7 +187,7 @@ const findFirstEqual = (range, pivot) => {
 };
 const isCellRangeFlat = (range) => range.width > 1 ? range.height === 1 : range.height >= 1;
 const match = (sheet, ...terms) =>
-	runFunction(sheet, terms, match)
+	runFunction(sheet, terms)
 		.withMinArgs(2)
 		.withMaxArgs(3)
 		.mapNextArg(pivot => pivot.value)
@@ -209,7 +209,7 @@ const match = (sheet, ...terms) =>
 // == OFFSET ==
 //
 const offset = (sheet, ...terms) =>
-	runFunction(sheet, terms, offset)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.mapNextArg(range => getCellRangeFromTerm(range, sheet) || ERROR.NAME)
 		.mapNextArg(row => term2number(row, ERROR.VALUE))
@@ -246,7 +246,7 @@ const offset = (sheet, ...terms) =>
 		});
 
 const row = (sheet, ...terms) =>
-	runFunction(sheet, terms, row)
+	runFunction(sheet, terms)
 		.withMaxArgs(1)
 		.mapNextArg(ref => ref ? indexFromOperand(ref.operand) || ERROR.NAME : undefined)
 		.run((idx) => {
@@ -287,7 +287,7 @@ const doLookup = (search, range, exactly) => {
 	return lastIndex
 };
 const vlookup = (sheet, ...terms) =>
-	runFunction(sheet, terms, vlookup)
+	runFunction(sheet, terms)
 		.withMinArgs(3)
 		.withMaxArgs(4)
 		.mapNextArg(lookup => lookup.value)

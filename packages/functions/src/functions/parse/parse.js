@@ -27,7 +27,7 @@ const createDefaultCallback = (sheet) => (context, parseResult, error) => {
 
 
 const css = (sheet, ...terms) =>
-	runFunction(sheet, terms, css)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((string) => asString(string.value))
@@ -40,7 +40,7 @@ const css = (sheet, ...terms) =>
 css.displayName = true;
 
 const csv = (sheet, ...terms) =>
-	runFunction(sheet, terms, csv)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((string) => asString(string.value))
@@ -53,7 +53,7 @@ const csv = (sheet, ...terms) =>
 csv.displayName = true;
 
 const javascript = (sheet, ...terms) =>
-	runFunction(sheet, terms, javascript)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((string) => asString(string.value))
@@ -66,7 +66,7 @@ const javascript = (sheet, ...terms) =>
 javascript.displayName = true;
 
 const markdown = (sheet, ...terms) =>
-	runFunction(sheet, terms, markdown)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((string) => asString(string.value))
@@ -79,7 +79,7 @@ const markdown = (sheet, ...terms) =>
 markdown.displayName = true;
 
 const svg = (sheet, ...terms) =>
-	runFunction(sheet, terms, svg)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((string) => asString(string.value))
@@ -92,7 +92,7 @@ const svg = (sheet, ...terms) =>
 svg.displayName = true;
 
 const xml = (sheet, ...terms) =>
-	runFunction(sheet, terms, xml)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((string) => asString(string.value))
@@ -105,7 +105,7 @@ const xml = (sheet, ...terms) =>
 xml.displayName = true;
 
 const yaml = (sheet, ...terms) =>
-	runFunction(sheet, terms, yaml)
+	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(1)
 		.mapNextArg((string) => asString(string.value))

@@ -21,7 +21,7 @@ const valueOf = (term, defval) => {
 };
 
 const iferror = (sheet, ...terms) =>
-	runFunction(sheet, terms, iferror)
+	runFunction(sheet, terms)
 		.withArgCount(2)
 		.run(() => {
 			const value = valueOf(terms[0], '');
@@ -30,7 +30,7 @@ const iferror = (sheet, ...terms) =>
 		});
 
 const iserr = (sheet, ...terms) =>
-	runFunction(sheet, terms, iserr)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
@@ -38,7 +38,7 @@ const iserr = (sheet, ...terms) =>
 		});
 
 const iserror = (sheet, ...terms) =>
-	runFunction(sheet, terms, iserror)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
@@ -46,7 +46,7 @@ const iserror = (sheet, ...terms) =>
 		});
 
 const isna = (sheet, ...terms) =>
-	runFunction(sheet, terms, isna)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
@@ -54,25 +54,25 @@ const isna = (sheet, ...terms) =>
 		});
 
 const iseven = (sheet, ...terms) =>
-	runFunction(sheet, terms, iseven)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((term) => (term ? convert.toNumber(term.value, ERROR.VALUE) : ERROR.VALUE))
 		.run((value) => isEven(Math.floor(value)));
 
 const isobject = (sheet, ...terms) =>
-	runFunction(sheet, terms, isobject)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((term) => isType.object(term.value))
 		.run((value) => !isEven(Math.floor(value)));
 
 const isodd = (sheet, ...terms) =>
-	runFunction(sheet, terms, isodd)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg((term) => (term ? convert.toNumber(term.value, ERROR.VALUE) : ERROR.VALUE))
 		.run((value) => !isEven(Math.floor(value)));
 
 
-const na = (sheet, ...terms) => runFunction(sheet, terms, na).withArgCount(0).run(() => ERROR.NA);
+const na = (sheet, ...terms) => runFunction(sheet, terms).withArgCount(0).run(() => ERROR.NA);
 
 module.exports = {
 	IFERROR: iferror,

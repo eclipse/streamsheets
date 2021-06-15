@@ -41,7 +41,7 @@ const getFuncName = (term) => term.name ? term.name.toUpperCase() : '';
 
 // we require INBOXDATA, INBOXMETADATA or OUTBOXDATA
 const _delete = (sheet, ...terms) =>
-	runFunction(sheet, terms, _delete)
+	runFunction(sheet, terms)
 		.withArgCount(1)
 		.mapNextArg(pathstr => pathstr.value)
 		.reduce(pathstr => [jsonpath.parse(pathstr)])

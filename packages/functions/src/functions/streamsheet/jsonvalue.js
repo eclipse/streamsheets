@@ -15,7 +15,7 @@ const { runFunction, terms: { getJSONFromTerm } } = require('../../utils');
 const ERROR = FunctionErrors.code;
 
 const jsonvalue = (sheet, ...terms) =>
-	runFunction(sheet, terms, jsonvalue)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.mapNextArg((json) => getJSONFromTerm(json) || ERROR.VALUE)
 		.mapRemaingingArgs((remainingTerms) => remainingTerms.map((term) => term.value))

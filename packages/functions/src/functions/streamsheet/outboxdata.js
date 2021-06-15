@@ -33,14 +33,14 @@ const idstr = (value) => (value != null ? `${value}` : '');
 // new requirement: always return a string
 // we cannot return an array anymore to ease further processing...  :(
 const outboxdata = (sheet, ...terms) =>
-	runFunction(sheet, terms, outboxdata)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.addMappedArg(() => idstr(terms.shift().value) || ERROR.ARG_NUM)
 		.addMappedArg(() => createJSONPath(sheet, terms))
 		.run((messageId, jsonpath) => `[${messageId}]${jsonpath}`);
 
 const outboxmetadata = (sheet, ...terms) =>
-	runFunction(sheet, terms, outboxmetadata)
+	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.addMappedArg(() => idstr(terms.shift().value) || ERROR.ARG_NUM)
 		.addMappedArg(() => createJSONPath(sheet, terms))
