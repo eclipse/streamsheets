@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const logger = require('@cedalo/logger').create({ name: 'AsyncRequest' });
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
 const { RequestState } = require('@cedalo/machine-core');
 
@@ -18,13 +19,33 @@ const setStatus = (sheet, reqId, state) => {
 	if (!sheet.setRequestState(reqId, state)) sheet.registerRequest(reqId, state);
 };
 
+const setCellError = (context, error) => {
+	const term = context.term;
+	const cell = term && !term.isDisposed && term.cell;
+	if (cell) {
+		const resError = error ? ErrorInfo.create(FunctionErrors.code.RESPONSE, error.message) : undefined;
+		cell.setCellInfo('error', resError);
+		term.cellValue = resError ? resError.code : undefined;
+	}
+};
 const resolve = async (request) => {
 	const { context, error, result, sheet } = request;
 	try {
 		if (sheet.isPendingRequest(request.reqId())) {
-			// callback can optionally adjust request state:
-			const newstate = await request.onResponse(context, result, error);
-			if (newstate) sheet.setRequestState(request.reqId(), newstate);
+			let cellerror = error;
+			// callback can optionally return new request state or new error:
+			const newresp = await request.onResponse(context, result, error);
+			if (newresp === RequestState.RESOLVED) {
+				cellerror = undefined;
+				request.state = newresp;
+			} else if (newresp === RequestState.REJECTED) {
+				cellerror = error || ErrorInfo.create(FunctionErrors.code.RESPONSE);
+				request.state = newresp;
+			} else if (newresp != null) {
+				cellerror = newresp;
+				request.state = RequestState.REJECTED;
+			}
+			setCellError(context, cellerror);
 		}
 	} catch (err) {
 		/* ignore */
