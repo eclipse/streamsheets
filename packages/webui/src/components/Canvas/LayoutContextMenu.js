@@ -200,6 +200,12 @@ class LayoutContextComponent extends Component {
 			.getInteractionHandler().execute(cmd);
 	};
 
+	isMultiSelection() {
+		const viewer = graphManager.getGraphViewer();
+		const selection = viewer.getSelection();
+		return selection.length > 1;
+	}
+
 	getNodeInfo() {
 		const viewer = graphManager.getGraphViewer();
 		const selection = viewer.getSelection();
@@ -217,10 +223,23 @@ class LayoutContextComponent extends Component {
 		return {
 			item,
 			layoutNode,
+			index,
 			row: Math.floor(index / layoutNode.columns),
 			column: index % layoutNode.columns
 		}
 	}
+
+	onMergeCells = () => {
+		const viewer = graphManager.getGraphViewer();
+		const selection = viewer.getSelection();
+		const info = this.getNodeInfo();
+		let minIndex = 	info.index;
+
+		selection.forEach(item => {
+			const index = info.layoutNode.getItems().indexOf(item);
+			minIndex = Math.min(minIndex, index);
+		});
+	};
 
 	onRowProperties = (popupState) => {
 		popupState.close();
@@ -300,15 +319,17 @@ class LayoutContextComponent extends Component {
 								{...bindHover(popupState)}
 								{...bindMenu(popupState)}
 							>
-								<MenuItem onClick={this.onShowChartProperties} dense>
-									<ListItemIcon>
-										<SettingsIcon style={styles.menuItem} />
-									</ListItemIcon>
-									<ListItemText
-											primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
-									/>
-								</MenuItem>
-								<Divider />
+								{this.isMultiSelection() ? (
+									<MenuItem onClick={this.onMergeCells} dense>
+										<ListItemIcon>
+											<SettingsIcon style={styles.menuItem} />
+										</ListItemIcon>
+										<ListItemText
+												primary={<FormattedMessage id='MergeLayoutCells' defaultMessage='Merge Cells' />}
+										/>
+									</MenuItem>) : null}
+								{this.isMultiSelection() ? (
+									<Divider /> ) : null}
 								<MenuItem onClick={this.onDelete} dense>
 									<ListItemIcon>
 										<DeleteIcon style={styles.menuItem} />
