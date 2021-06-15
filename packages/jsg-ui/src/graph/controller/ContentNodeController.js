@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -232,7 +232,10 @@ class ContentNodeController extends NodeController {
 			const parent = this.getModel().getParent();
 			const myBBox = this.getModel().getBoundingBox();
 			const childBBox = controller.getModel().getTranslatedBoundingBox(parent);
-			return myBBox.doesIntersectWith(childBBox);
+			const rect1 = myBBox.getBoundingRectangle();
+			const rect2 = childBBox.getBoundingRectangle();
+			return rect1.intersect(rect2);
+			// return myBBox.doesIntersectWith(childBBox);
 		}
 		return selectable;
 	}

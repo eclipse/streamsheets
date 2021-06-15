@@ -104,11 +104,15 @@ module.exports = class Cell {
 			return '';
 		}
 
-		// DL-1592: if expression has a formula but not term => there was an error while parsing, so simply use formula
-		let value =
-			expr.hasFormula() && !expr.hasTerm()
-				? `=${expr.getFormula()}`
-				: expr.toLocaleString(JSG.getParserLocaleSettings(), { item: forItem, useName: true });
+		let value;
+		if (expr.hasFormula()) {
+			// DL-1592: if expression has a formula but not term => there was an error while parsing, so simply use formula
+			value = expr.hasTerm() ?
+				expr.toLocaleString(JSG.getParserLocaleSettings(), { item: forItem, useName: true }) :
+				`=${expr.getFormula()}`;
+		} else {
+			value = this.getValue();
+		}
 
 		if (encode) {
 			value = Strings.encodeXML(String(value));

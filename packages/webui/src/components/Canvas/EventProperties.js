@@ -67,11 +67,12 @@ export class EventProperties extends Component {
 	getFormula(name) {
 		const item = this.props.view.getItem();
 		const attr = item.getEvents().getAttribute(name);
+		const val = attr.getValue();
+		if (val === '') {
+			return '';
+		}
+
 		return `=${attr.getValue()}`;
-		// return attr.getExpression().toLocaleString(JSG.getParserLocaleSettings(), {
-		// 	item: this.getSheet(item),
-		// 	useName: true,
-		// });
 	}
 
 	getExpression(item, event) {
@@ -79,7 +80,6 @@ export class EventProperties extends Component {
 		const asText = formula.charAt(0) === "=";
 		if (asText) formula = formula.substring(1);
 		return new JSG.StringExpression(formula);
-		// return this.getSheet(item).textToExpression(String(event.target.textContent), item);
 	}
 
 	getAttributeHandler(label, item, name) {

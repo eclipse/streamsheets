@@ -3858,10 +3858,25 @@ class GraphItem extends Model {
 			if (!(attr instanceof JSG.AttributeList)) {
 				add(attr.getExpression());
 			}
-		})
+		});
 		this.getFormat().iterate(attr => {
 			add(attr.getExpression());
-		})
+		});
+		this.getTextFormat().iterate(attr => {
+			add(attr.getExpression());
+		});
+		this.getItemAttributes().iterate(attr => {
+			add(attr.getExpression());
+		});
+		this.getEvents().iterate(attr => {
+			// events shall not be evaluated, because they may contain actions, that should only be executed after event
+			// that is why they are saved as text for now
+			const expr = attr.getExpression();
+			const expr2 = new Expression(0, expr.getValue());
+			expr2.resetToString = expr;
+			expr2.evaluate(this);
+			add(expr2);
+		});
 
 		return exprs;
 	}
