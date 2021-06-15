@@ -28,7 +28,9 @@ const calc = (left, right, op) => {
 
 const createErrorInfo = (error, term) => {
 	const errorInfo = error.isErrorInfo ? error : ErrorInfo.create(error);
-	return errorInfo.paramIndex == null ? errorInfo.setParamIndex(term.toString()) : errorInfo;
+	if (errorInfo.paramIndex == null) return errorInfo.setParamIndex(term.toString());
+	if (term.name) return errorInfo.setFunctionName(term.name);
+	return errorInfo;
 };
 
 
