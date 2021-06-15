@@ -1879,7 +1879,7 @@ export default class WorksheetView extends ContentNodeView {
 	isErrorView(point, cellPos) {
 		const data = this.getItem().getDataProvider();
 		const cell = data.get(cellPos);
-		const cellRect = cell && cell.error ? this.getCellRect(cellPos) : undefined;
+		const cellRect = cell && cell.errorInfo ? this.getCellRect(cellPos) : undefined;
 		return cellRect && 
 			point.x > cellRect.x &&
 			point.x < cellRect.x + 300 &&

@@ -192,7 +192,7 @@ class ErrorInfoView extends CellInfoView {
 	}
 
 	getInfo(cell) {
-		return cell.error;
+		return cell.errorInfo;
 	};
 
 	createInfoHTML(error, bounds) {
