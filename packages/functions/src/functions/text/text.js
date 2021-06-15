@@ -12,7 +12,7 @@ const logger = require('../../logger').create({ name: 'TEXT()' });
 const { getCodePage } = require('../../codepages');
 const { runFunction, terms: onTerms } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { locale: Locales } = require('@cedalo/machine-core');
 const { NumberFormatter } = require('@cedalo/number-format');
 const { wildcards } = require('../../utils');
@@ -254,7 +254,7 @@ const text = (sheet, ...terms) =>
 			(locale) => getValueLocale(locale && convert.toString(locale.value)) || getMachineLocale(sheet) || ERROR.VALUE
 		)
 		.run((number, format, locale) => {
-			let res = ERROR.INVALID_PARAM;
+			let res;
 			try {
 				// const locale = getMachineLocale(sheet);
 				format = Locales.convert.nrFormatString(format, locale);
@@ -262,6 +262,7 @@ const text = (sheet, ...terms) =>
 			} catch (ex) {
 				/* ignore, will return error code */
 				logger.error(ex.message); // tmp. print out error message, we might change return error code too
+				res = ErrorInfo.create(ERROR.INVALID_PARAM, ex.message);
 			}
 			return res;
 		});

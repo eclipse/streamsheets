@@ -10,7 +10,7 @@
  ********************************************************************************/
 const publishinternal = require('../../utils/publishinternal');
 const { runFunction, sheet: { messageFromBoxOrValue, getMachine } } = require('../../utils');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
 
@@ -25,7 +25,7 @@ const produce = (sheet, ...terms) =>
 				try {
 					return JSON.parse(message);
 				} catch (e) {
-					return ERROR.INVALID_PARAM;
+					return ErrorInfo.create(ERROR.INVALID_PARAM, e.message);
 				}
 			}
 			return message;
