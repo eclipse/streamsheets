@@ -9,10 +9,10 @@
  *
  ********************************************************************************/
 /* eslint-disable no-console */
+const { proc, moduleResolver: { resolve } } = require('@cedalo/commons');
 const { LoggerFactory } = require('@cedalo/logger');
 const GatewayService = require('./src/services/gateway/GatewayService');
 const initializer = require('./src/initializer');
-const { resolve } = require('@cedalo/commons').moduleResolver;
 // eslint-disable-next-line
 const metadata = require('../meta.json');
 // eslint-disable-next-line
@@ -28,6 +28,9 @@ metadata.version = packageJSON.version;
 process.on('unhandledRejection', error => {
 	console.log('unhandledRejection', error.message);
 });
+// change process title:
+proc.setProcessTitle(`Gateway_${metadata.version}`);
+
 
 const resolvePlugins = async () => {
 	const moduleDir = path.resolve(process.env.PLUGINS_MODULE_DIR || 'plugins');
