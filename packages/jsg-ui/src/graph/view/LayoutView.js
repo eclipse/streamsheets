@@ -27,25 +27,31 @@ export default class LayoutView extends NodeView {
 		const columnData = item.columnData;
 		let y = 0;
 		let x = 0;
+		let node;
 
 		graphics.setLineStyle(3);
 		graphics.setLineColor('#BBBBBB');
 		graphics.applyLineDash();
 		graphics.beginPath();
 
-		rowData.forEach(row => {
+		rowData.forEach((row, rowIndex) => {
 			graphics.moveTo(0, y);
 			graphics.lineTo(rect.width, y);
 
+			columnData.forEach((column, columnIndex) => {
+
+				node = item.getItemAt(rowIndex * columnData.length + columnIndex);
+				if (node && node._merged === false) {
+					graphics.moveTo(x, y);
+					graphics.lineTo(x, y + row.layoutSize);
+				}
+				x += column.layoutSize;
+			});
+
+			x = 0;
 			y += row.layoutSize;
 		});
 
-		columnData.forEach(column => {
-			graphics.moveTo(x, 0);
-			graphics.lineTo(x, rect.height);
-
-			x += column.layoutSize;
-		});
 
 		graphics.stroke();
 		graphics.clearLineDash();

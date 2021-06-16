@@ -86,6 +86,11 @@ const createDefault = () => {
 				MuiIconButton: {
 					root: {},
 				},
+				MuiListItemIcon: {
+					root: {
+						minWidth: '40px',
+					},
+				},
 				MuiDialogTitle: {
 					root: {
 						// background: Colors.blue[800],
@@ -188,6 +193,11 @@ const createDark = () => {
 				},
 				MuiIconButton: {
 					root: {},
+				},
+				MuiListItemIcon: {
+					root: {
+						minWidth: '40px',
+					},
 				},
 				MuiDialogTitle: {
 					root: {

@@ -253,6 +253,21 @@ class LayoutContextComponent extends Component {
 		viewer.getInteractionHandler().execute(cmd);
 	};
 
+	isMergeRightAllowed() {
+		const viewer = graphManager.getGraphViewer();
+		const selection = viewer.getSelection();
+		if (selection.length > 1) {
+			return false;
+		}
+		const info = this.getNodeInfo();
+		if (!info) {
+			return false;
+		}
+		const val = info.item.getAttributeValueAtPath('mergecount');
+
+		return info.column + val + 1 < info.layoutNode.columns;
+	}
+
 	onRemoveMerge = () => {
 		const viewer = graphManager.getGraphViewer();
 		const info = this.getNodeInfo();
@@ -343,26 +358,29 @@ class LayoutContextComponent extends Component {
 								{...bindHover(popupState)}
 								{...bindMenu(popupState)}
 							>
-								{!this.isMultiSelection() ? (
+								{this.isMerged() ? (
 									<MenuItem onClick={this.onRemoveMerge} dense>
 										<ListItemText
 											primary={<FormattedMessage id='MergeRemove' defaultMessage='Remove Merge' />}
 										/>
 									</MenuItem>
 									) : null}
-								{!this.isMultiSelection() ? [
+								{this.isMergeRightAllowed() ? (
 									<MenuItem onClick={this.onMergeLeft} dense>
 										<ListItemText
-												primary={<FormattedMessage id='MergeLeft' defaultMessage='Merge with Left Cell' />}
+											primary={<FormattedMessage id='MergeLeft'
+																	   defaultMessage='Merge with Left Cell' />}
 										/>
-									</MenuItem>,
+									</MenuItem>) : null
+								}
+								{this.isMergeRightAllowed() ? (
 									<MenuItem onClick={this.onMergeRight} dense>
 										<ListItemText
 												primary={<FormattedMessage id='MergeRight' defaultMessage='Merge with Right Cell' />}
 										/>
-									</MenuItem>,
-									<Divider />
-								] : null}
+									</MenuItem>) : null
+								}
+								<Divider />
 								<MenuItem onClick={this.onDelete} dense>
 									<ListItemIcon>
 										<DeleteIcon style={styles.menuItem} />
