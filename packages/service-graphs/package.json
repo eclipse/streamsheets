@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/service-graphs",
   "dependencies": {
+    "@cedalo/commons": "2.3.0",
     "@cedalo/error-codes": "2.3.0",
     "@cedalo/functions": "2.3.0",
     "@cedalo/id-generator": "2.3.0",

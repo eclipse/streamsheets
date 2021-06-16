@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { proc } = require('@cedalo/commons');
 const MachineService = require('./src/machines/MachineService');
 const metadata = require('./meta.json');
 const packageJSON = require('./package.json');
@@ -21,6 +22,9 @@ process.on('unhandledRejection', (error) => {
 	logger.error('unhandledRejection', error);
 	logger.error(error);
 });
+
+// change process title:
+proc.setProcessTitle(`MachineService_${metadata.version}`);
 
 const service = new MachineService(metadata);
 service
