@@ -15,13 +15,15 @@ import { default as JSG, MathUtils, Numbers } from '@cedalo/jsg-core';
 
 const getTableElement = () => {
 	let scrollTop = 0;
-	const table = document.getElementById('dataviewtable');
 	return {
 		storeScrollTop() {
+			const table = document.getElementById('dataviewtable');
 			scrollTop = table ? table.scrollTop : 0;
 		},
 		restoreScrollTop() {
-			if (scrollTop && table) table.scrollTop = scrollTop;
+			// might have been replaced
+			const table = document.getElementById('dataviewtable');
+			if (scrollTop && table) table.scrollTop = Math.floor(scrollTop);
 		}
 	};
 };

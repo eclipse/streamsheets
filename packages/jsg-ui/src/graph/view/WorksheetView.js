@@ -1930,6 +1930,7 @@ export default class WorksheetView extends ContentNodeView {
 	handleDataView(sheet, dataCell, targetRange, viewer) {
 		this.handleInfoView(HitCode.DATAVIEW, sheet, dataCell, targetRange, viewer);
 	}
+
 	handleInfoView(infoType, sheet, dataCell, targetRange, viewer) {
 		if (targetRange != null) {
 			const data = sheet.getDataProvider();
