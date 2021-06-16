@@ -13,6 +13,7 @@ const convert = require('./src/convert');
 const jsonpath = require('./src/jsonpath');
 const functions = require('./src/functions');
 const memoize = require('./src/memoize');
+const proc = require('./src/proc');
 const requireFile = require('./src/requireFile');
 const serialnumber = require('./src/serialnumber');
 const sleep = require('./src/sleep');
@@ -24,6 +25,7 @@ module.exports = {
 	jsonpath,
 	functions,
 	memoize,
+	proc,
 	requireFile,
 	serialnumber,
 	sleep,

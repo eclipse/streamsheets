@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const EventEmitter = require('events');
-const { convert } = require('@cedalo/commons');
+const { convert, proc } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 const logger = require('../logger').create({ name: 'Machine' });
 const State = require('../State');
@@ -20,7 +20,6 @@ const locale = require('../locale');
 const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
 const TaskQueue = require('./TaskQueue');
-const { setProcessTitle } = require('../utils');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -34,7 +33,7 @@ const defaultStreamSheetName = (streamsheet) => {
 
 const defaultMachineName = () => `Machine${new Date().getUTCMilliseconds()}`;
 const changeProcessTitle = (machine, name) => {
-	setProcessTitle(`Machine[${machine.id}](${name})`);
+	proc.setProcessTitle(`Machine[${machine.id}](${name})`);
 	return name;
 };
 
@@ -312,7 +311,7 @@ class Machine {
 	}
 
 	set extensionSettings(extensionSettings) {
-		this._extensionSettings = extensionSettings;;
+		this._extensionSettings = extensionSettings;
 	}
 
 	setExtensionSettings({ extensionId, settings } = {}) {

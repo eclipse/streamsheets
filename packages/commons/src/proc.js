@@ -2,13 +2,8 @@
 // const path = require('path');
 // const getScript = () => path.relative(process.cwd(), process.argv[1]);
 
-const collect = (arr, start = 0) => {
-	const args = [];
-	for (let i = start; i < arr.length; i += 1) args.push(arr[i]);
-	return args.join(' ');
-};
-const getScriptArgs = () => collect(process.argv, 2);
-const getProcessArgs = () => collect(process.execArgv);
+const getScriptArgs = () => process.argv.slice(2).join(' ');
+const getProcessArgs = () => process.execArgv.join(' ');
 
 const setProcessTitle = (title, includeArgs = true) => {
 	title = title || process.args[0];
