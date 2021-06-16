@@ -459,14 +459,34 @@ module.exports = class LayoutNode extends Node {
 		this._rowData.forEach((row, rowIndex) => {
 			this._columnData.forEach((column, columnIndex) => {
 				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+				node._merged = false;
+			});
+			this._columnData.forEach((column, columnIndex) => {
+				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
 				if (node) {
 					node.setOrigin(x, y);
-					node.setSize(column.layoutSize, row.layoutSize);
+					let width = column.layoutSize;
+					if (node._merged === false) {
+						const mergeCount = node.getAttributeValueAtPath('mergecount');
+						node.getItemAttributes().setVisible(true);
+						for (let i = columnIndex + 1; i <= columnIndex + mergeCount; i += 1) {
+							if (i < this._columnData.length) {
+								width += this._columnData[i].layoutSize;
+								const mergeNode = this.getItemAt(rowIndex * this._columnData.length + i);
+								if (mergeNode && mergeNode.isItemVisible()) {
+									mergeNode.getItemAttributes().setVisible(false);
+								}
+								mergeNode._merged = true;
+							}
+						}
+					}
+					node.setSize(width, row.layoutSize);
 					node.getFormat().setLineStyle(0);
+					// node.addAttribute(new NumberAttribute('mergecount', 0));
 					let yInner = 0;
 					node.getItems().forEach(subItem => {
 						const height = subItem.getHeight().getValue();
-						subItem.setSize(column.layoutSize - margin * 2, height);
+						subItem.setSize(width - margin * 2, height);
 						subItem.setOrigin(margin, yInner + margin);
 						yInner += height + margin;
 					});

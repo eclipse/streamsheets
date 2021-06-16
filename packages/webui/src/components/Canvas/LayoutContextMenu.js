@@ -206,6 +206,14 @@ class LayoutContextComponent extends Component {
 		return selection.length > 1;
 	}
 
+	isMerged() {
+		const info = this.getNodeInfo();
+		if (!info) {
+			return false;
+		}
+		return !!info.item.getAttributeValueAtPath('mergecount');
+	}
+
 	getNodeInfo() {
 		const viewer = graphManager.getGraphViewer();
 		const selection = viewer.getSelection();
@@ -231,14 +239,26 @@ class LayoutContextComponent extends Component {
 
 	onMergeRight = () => {
 		const viewer = graphManager.getGraphViewer();
-		// const selection = viewer.getSelection();
 		const info = this.getNodeInfo();
-
 		let val = info.item.getAttributeValueAtPath('mergecount');
-		val += 1;
+		let nextMergeCount = 0;
+
+		if (info.column + val < info.layoutNode.columns) {
+			nextMergeCount = info.layoutNode.getItems()[info.index + val + 1].getAttributeValueAtPath(
+				'mergecount');
+		}
+
+		val += 1 + nextMergeCount;
 		const cmd = new JSG.SetAttributeAtPathCommand(info.item, 'mergecount', val);
 		viewer.getInteractionHandler().execute(cmd);
+	};
 
+	onRemoveMerge = () => {
+		const viewer = graphManager.getGraphViewer();
+		const info = this.getNodeInfo();
+
+		const cmd = new JSG.SetAttributeAtPathCommand(info.item, 'mergecount', new JSG.NumberExpression(0));
+		viewer.getInteractionHandler().execute(cmd);
 	};
 
 	onMergeLeft = () => {
@@ -323,6 +343,13 @@ class LayoutContextComponent extends Component {
 								{...bindHover(popupState)}
 								{...bindMenu(popupState)}
 							>
+								{!this.isMultiSelection() ? (
+									<MenuItem onClick={this.onRemoveMerge} dense>
+										<ListItemText
+											primary={<FormattedMessage id='MergeRemove' defaultMessage='Remove Merge' />}
+										/>
+									</MenuItem>
+									) : null}
 								{!this.isMultiSelection() ? [
 									<MenuItem onClick={this.onMergeLeft} dense>
 										<ListItemText
