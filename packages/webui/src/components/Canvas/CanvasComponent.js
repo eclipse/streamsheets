@@ -159,6 +159,7 @@ export class CanvasComponent extends Component {
 
 	onCloseViewMode = () => {
 		this.props.setAppState({ showViewMode: false });
+		this.props.setJsgState({ cellSelected: false });
 	}
 
 	onViewModeProperties = () => {
