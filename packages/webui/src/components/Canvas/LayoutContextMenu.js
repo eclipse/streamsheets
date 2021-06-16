@@ -27,7 +27,7 @@ import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 import DeleteIcon from '@material-ui/icons/Delete';
-import SettingsIcon from '@material-ui/icons/Settings';
+// import SettingsIcon from '@material-ui/icons/Settings';
 import withStyles from '@material-ui/core/styles/withStyles';
 import PopupState, { bindHover, bindMenu } from 'material-ui-popup-state';
 
@@ -229,16 +229,20 @@ class LayoutContextComponent extends Component {
 		}
 	}
 
-	onMergeCells = () => {
+	onMergeRight = () => {
 		const viewer = graphManager.getGraphViewer();
-		const selection = viewer.getSelection();
+		// const selection = viewer.getSelection();
 		const info = this.getNodeInfo();
-		let minIndex = 	info.index;
 
-		selection.forEach(item => {
-			const index = info.layoutNode.getItems().indexOf(item);
-			minIndex = Math.min(minIndex, index);
-		});
+		let val = info.item.getAttributeValueAtPath('mergecount');
+		val += 1;
+		const cmd = new JSG.SetAttributeAtPathCommand(info.item, 'mergecount', val);
+		viewer.getInteractionHandler().execute(cmd);
+
+	};
+
+	onMergeLeft = () => {
+
 	};
 
 	onRowProperties = (popupState) => {
@@ -319,17 +323,19 @@ class LayoutContextComponent extends Component {
 								{...bindHover(popupState)}
 								{...bindMenu(popupState)}
 							>
-								{this.isMultiSelection() ? (
-									<MenuItem onClick={this.onMergeCells} dense>
-										<ListItemIcon>
-											<SettingsIcon style={styles.menuItem} />
-										</ListItemIcon>
+								{!this.isMultiSelection() ? [
+									<MenuItem onClick={this.onMergeLeft} dense>
 										<ListItemText
-												primary={<FormattedMessage id='MergeLayoutCells' defaultMessage='Merge Cells' />}
+												primary={<FormattedMessage id='MergeLeft' defaultMessage='Merge with Left Cell' />}
 										/>
-									</MenuItem>) : null}
-								{this.isMultiSelection() ? (
-									<Divider /> ) : null}
+									</MenuItem>,
+									<MenuItem onClick={this.onMergeRight} dense>
+										<ListItemText
+												primary={<FormattedMessage id='MergeRight' defaultMessage='Merge with Right Cell' />}
+										/>
+									</MenuItem>,
+									<Divider />
+								] : null}
 								<MenuItem onClick={this.onDelete} dense>
 									<ListItemIcon>
 										<DeleteIcon style={styles.menuItem} />
