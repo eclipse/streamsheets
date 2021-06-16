@@ -25,6 +25,7 @@
     "@cedalo/error-codes": "2.3.0",
     "@cedalo/id-generator": "2.3.0",
     "@cedalo/logger": "2.3.0",
+    "@cedalo/metrics": "2.3.0",
     "@cedalo/messages": "2.3.0",
     "@cedalo/messaging-client": "2.3.0",
     "@cedalo/protocols": "2.3.0",
