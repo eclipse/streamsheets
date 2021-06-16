@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const EventEmitter = require('events');
-const { convert } = require('@cedalo/commons');
+const { convert, proc } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 const logger = require('../logger').create({ name: 'Machine' });
 const State = require('../State');
@@ -32,6 +32,10 @@ const defaultStreamSheetName = (streamsheet) => {
 };
 
 const defaultMachineName = () => `Machine${new Date().getUTCMilliseconds()}`;
+const changeProcessTitle = (machine, name) => {
+	proc.setProcessTitle(`Machine[${machine.id}](${name})`);
+	return name;
+};
 
 const FILE_VERSION = '2.0.0';
 
@@ -43,6 +47,7 @@ const DEF_CONF = {
 		lastModified: Date.now(),
 		lastModifiedBy: 'unknown'
 	},
+	extensionSettings: {},
 	settings: {
 		view: {
 			maximize: '',
@@ -74,7 +79,7 @@ class Machine {
 		this._id = IdGenerator.generate();
 		this.namedCells = new NamedCells();
 		this._initialLoadTime = Date.now();
-		this._name = DEF_CONF.name;
+		this._name = changeProcessTitle(this, DEF_CONF.name);
 		this._state = DEF_CONF.state;
 		// a Map keeps its insertion order
 		this._streamsheets = new Map();
@@ -84,6 +89,7 @@ class Machine {
 		this._isManualStep = false;
 		this.metadata = { ...DEF_CONF.metadata };
 		this._settings = { ...DEF_CONF.settings };
+		this._extensionSettings = { ...DEF_CONF.extensionSettings };
 		this.titleImage = undefined;
 		this.previewImage = undefined;
 		// read only properties...
@@ -118,7 +124,8 @@ class Machine {
 			state: this.state,
 			metadata: { ...this.metadata },
 			streamsheets: this.streamsheets.map((streamsheet) => streamsheet.toJSON()),
-			settings: {...this.settings, view: this.view},
+			settings: { ...this.settings, view: this.view },
+			extensionSettings: { ...this.extensionSettings },
 			className: this.className,
 			scope: this.scope,
 			namedCells: this.namedCells.getDescriptors(),
@@ -130,13 +137,14 @@ class Machine {
 	async load(definition = {}, functionDefinitions = [], currentStreams = []) {
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
-		const { settings = {}, metadata } = definition;
+		const { settings = {}, metadata, extensionSettings = {} } = definition;
 		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
-		this._name = def.isTemplate ? defaultMachineName() : def.name;
+		this._name = changeProcessTitle(this, def.isTemplate ? defaultMachineName() : def.name);
 		this._scope = def.scope;
 		this.metadata = { ...this.metadata, ...metadata };
 		this._settings = { ...this.settings, ...settings };
+		this._extensionSettings = {...this.extensionSettings, ...extensionSettings};
 		// handle nested view object, which might be null, but shouldn't!!
 		this._settings.view = { ...this.settings.view, ...settings.view };
 		this.titleImage = definition.titleImage;
@@ -221,7 +229,7 @@ class Machine {
 
 	set name(name) {
 		if (this.name !== name) {
-			this._name = name;
+			this._name = changeProcessTitle(this, name);
 			this._emitter.emit('update', 'name');
 		}
 	}
@@ -298,12 +306,29 @@ class Machine {
 		this._emitter.emit('update', 'view');
 	}
 
+	get extensionSettings() {
+		return this._extensionSettings;
+	}
+
+	set extensionSettings(extensionSettings) {
+		this._extensionSettings = extensionSettings;
+	}
+
+	setExtensionSettings({ extensionId, settings } = {}) {
+		this.extensionSettings[extensionId] = settings;
+		this._emitter.emit('update', 'extensions', [extensionId, this.getExtensionSettings(extensionId)]);
+	}
+
+	getExtensionSettings(extensionId) {
+		return this.extensionSettings[extensionId];
+	}
+
 	// name, cycletime, locale...
 	update(props = {}) {
 		this.name = props.name || this.name;
 		this.locale = props.locale || this.locale;
 		this.cycletime = props.cycletime || this.cycletime;
-		this.view = props.view || this.view;
+		if (props.view) this.view = props.view;
 		this.titleImage = props.titleImage || this.titleImage;
 		this.previewImage = props.previewImage || this.previewImage;
 		if (props.isOPCUA != null) this.isOPCUA = props.isOPCUA;

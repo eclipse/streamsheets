@@ -102,6 +102,7 @@ declare module '@cedalo/protocols' {
 			UNLOAD_MACHINE_MESSAGE_TYPE: 'machine_unload';
 			LOAD_SHEET_CELLS: 'load_sheet_cells';
 			MACHINE_UPDATE_SETTINGS: 'machine_update_settings';
+			MACHINE_UPDATE_EXTENSION_SETTINGS: 'machine_update_extension_settings';
 			META_INFORMATION_MESSAGE_TYPE: 'meta_information';
 			OPEN_MACHINE_MESSAGE_TYPE: 'machine_open';
 			PAUSE_MACHINE_MESSAGE_TYPE: 'machine_pause';
@@ -136,6 +137,7 @@ declare module '@cedalo/protocols' {
 			MACHINE_LOCALE_EVENT: 'machine_locale';
 			MACHINE_VIEW_SETTINGS_EVENT: 'machine_view_settings';
 			MACHINE_OPCUA_EVENT: 'machine_opcua';
+			MACHINE_EXTENSION_SETTINGS_EVENT: 'machine_extension_settings';
 			MACHINE_RENAME_EVENT: 'machine_rename';
 			MACHINE_FUNCTIONS_EVENT: 'machine_functions';
 			MACHINE_REMOVE_EVENT: 'machine_remove';

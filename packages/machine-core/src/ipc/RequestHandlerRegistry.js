@@ -956,6 +956,15 @@ class Update extends ARequestHandler {
 		return Promise.resolve({ machine: { cycletime, id, isOPCUA, locale, name, state, view } });
 	}
 }
+
+class ExtensionUpdate extends ARequestHandler {
+	handle(msg) {
+		this.machine.setExtensionSettings(msg.props);
+		const { extensionId } = msg.props;
+		const settings = this.machine.getExtensionSettings(extensionId);
+		return Promise.resolve({ [extensionId]: settings });
+	}
+}
 class UpdateMachine extends ARequestHandler {
 	handle(msg) {
 		setGlobalNamedCells(this.machine, toMapObject(msg.names.filter(({ name }) => !name.startsWith('|'))));
@@ -1046,6 +1055,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('subscribe', new Subscribe(machine, monitor));
 		registry.handlers.set('unsubscribe', new Unsubscribe(machine, monitor));
 		registry.handlers.set('update', new Update(machine, monitor));
+		registry.handlers.set('extensionUpdate', new ExtensionUpdate(machine, monitor));
 		registry.handlers.set('updateMachine', new UpdateMachine(machine, monitor));
 		registry.handlers.set('updateMachineMonitor', new UpdateMachineMonitor(machine, monitor));
 		registry.handlers.set('updateStreamSheet', new UpdateStreamSheet(machine, monitor));

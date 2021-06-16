@@ -26,6 +26,7 @@ export const MACHINE_STREAM_IMPORT = 'machine_stream_import';
 export const MACHINE_DELETE = 'machine_delete';
 export const MACHINE_LOAD = 'machine_load';
 export const MACHINE_UPDATE_SETTINGS = 'machine_update_settings';
+export const MACHINE_UPDATE_EXTENSION_SETTINGS = 'machine_update_extension_settings';
 export const REDO = 'redo';
 export const UNDO = 'undo';
 export const STREAMS_RELOAD = 'streams_reload';

@@ -113,7 +113,7 @@ export default class EditCellInteraction extends EditTextInteraction {
 		if (controller) {
 			const view = controller.getView();
 			const hitCode = view.getHitCode(event.location, viewer);
-			view.setCursor(hitCode, this);
+			view.setCursor(hitCode, this, event, viewer);
 		} else {
 			this.setCursor(Cursor.Style.AUTO);
 		}

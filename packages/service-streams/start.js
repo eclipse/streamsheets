@@ -8,10 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { proc } = require('@cedalo/commons');
+const { LoggerFactory } = require('@cedalo/logger');
 const StreamsService = require('./src/StreamsService');
 const metadata = require('./meta.json');
 const packageJSON = require('./package.json');
-const { LoggerFactory } = require('@cedalo/logger');
 
 const logger = LoggerFactory.createLogger(
 	'Stream Service',
@@ -29,6 +30,9 @@ process.on('uncaughtException', (err) => {
 	logger.error('uncaughtException');
 	logger.error(err);
 });
+// change process title:
+proc.setProcessTitle(`StreamService_${metadata.version}`);
+
 
 const start = async () => {
 	const service = new StreamsService(metadata);
