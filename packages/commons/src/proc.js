@@ -7,7 +7,7 @@ const getProcessArgs = () => process.execArgv.join(' ');
 
 const setProcessTitle = (title, includeArgs = true) => {
 	title = title || process.args[0];
-	process.title = includeArgs ? `${title} ${getProcessArgs()} ${getScriptArgs()}` : `${title}`;
+	process.title = includeArgs ? `Cedalo/${title} ${getProcessArgs()} ${getScriptArgs()}` : `${title}`;
 };
 
 module.exports = {
