@@ -27,6 +27,7 @@
     "@cedalo/logger": "2.3.0",
     "@cedalo/messages": "2.3.0",
     "@cedalo/messaging-client": "2.3.0",
+    "@cedalo/metrics": "2.3.0",
     "@cedalo/protocols": "2.3.0",
     "@cedalo/number-format": "2.3.0",
     "@cedalo/parser": "2.3.0",
