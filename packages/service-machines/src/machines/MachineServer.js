@@ -189,8 +189,7 @@ module.exports = class MachineServer {
 						definition,
 						this._functionDefinitions
 					);
-					runner.onDispose = () =>
-						this.machinerunners.delete(runner.id);
+					runner.onDispose = () => this.machinerunners.delete(runner.id);
 					this.machinerunners.set(runner.id, runner);
 					// additionally pass template ID if machine was newly created...
 					result.templateId =
