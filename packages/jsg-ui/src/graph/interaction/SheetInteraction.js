@@ -1124,7 +1124,7 @@ export default class SheetInteraction extends Interaction {
 		if (this.isInside(viewer, event.location, false)) {
 			const view = this._controller.getView();
 			this._hitCode = view.getHitCode(event.location, viewer);
-			view.setCursor(this._hitCode, this);
+			view.setCursor(this._hitCode, this, event, viewer);
 		} else {
 			this.setCursor(Cursor.Style.AUTO);
 			this.cancelInteraction(event, viewer);
