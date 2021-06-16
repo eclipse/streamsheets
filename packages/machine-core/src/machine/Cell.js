@@ -40,7 +40,7 @@ const evaluate = (cell, newValue) => {
 		if (cell._value != null && cell._value.isErrorInfo) {
 			cell.setCellInfo('error', cell._value);
 			cell._cellValue = cell._cellValue || cell._value.code;
-		}
+		} else cell.setCellInfo('error', undefined);
 	}
 	// DL-4088: treat error as false for if columns => should we generally return only true/false for IF
 	if (cell.col === -1 && FunctionErrors.isError(cell._value)) cell._value = false;
