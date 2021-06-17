@@ -610,21 +610,28 @@ class SetCellsCommandRequestHandler {
 		}
 		return all;
 	}
-
-	async updateCells(descriptors, runner, streamsheetId, userId) {
+	adjustCellDescriptors(descriptors) {
 		const deleteCells = descriptors.reduce(this.toReferences, []);
 		const updateCells = filterRequestCellDescriptors(descriptors);
-		const cells = descriptorsToCellDescriptorsObject(updateCells);
+		const cellDescriptors = descriptorsToCellDescriptorsObject(updateCells);
 		deleteCells.forEach((reference) => {
-			cells[reference] = null;
+			cellDescriptors[reference] = null;
 		});
-		return runner.request('setCells', userId, { cells, streamsheetId });
+		return cellDescriptors;
 	}
 
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
 		const cellDescriptors = undo ? command.undo.cellDescriptors : command.cells;
-		await this.deleteCells(cellDescriptors, runner, streamsheetId, userId);
-		return this.updateCells(cellDescriptors, runner, streamsheetId, userId);
+		const cells = this.adjustCellDescriptors(cellDescriptors);
+		return runner.request('setCells', userId, { cells, streamsheetId });
+	}
+
+	getInfo(command) {
+		return {
+			type: 'setCells',
+			cells: command.cells ? this.adjustCellDescriptors(command.cells) : {},
+			streamsheetId: command.streamsheetId
+		};
 	}
 }
 
@@ -670,6 +677,17 @@ class SetCellLevelsCommandRequestHandler {
 }
 
 class DeleteCellContentCommandRequestHandler {
+	getCellRanges(reference) {
+		let cellranges;
+		if (reference) {
+			const ranges = reference.split(';');
+			// pop last cell, which refers to the active cell...
+			ranges.pop();
+			// range might be a single cell, so...
+			ranges.map((range) => fixCellRange(range));
+		}
+		return cellranges;
+	}
 	async handleCommand(command, runner, streamsheetId, userId, undo) {
 		let result;
 		if (undo) {
@@ -678,15 +696,18 @@ class DeleteCellContentCommandRequestHandler {
 			result = await runner.request('setCells', userId, { cells, streamsheetId });
 		} else if (command.reference && (command.action === 'all' || command.action === 'values')) {
 			// reference might contain several ranges, separated by ';'...
-			const ranges = command.reference.split(';');
-			// pop last cell, which refers to the active cell...
-			ranges.pop();
-			// range might be a single cell, so...
-			const cellranges = ranges.map((range) => fixCellRange(range));
+			const ranges = this.getCellRanges(command.reference);
 			// result contains array of deleted cells...
-			result = await runner.request('deleteCells', userId, { ranges: cellranges, streamsheetId });
+			result = await runner.request('deleteCells', userId, { ranges, streamsheetId });
 		}
 		return result || {};
+	}
+	getInfo(command) {
+		return {
+			type: 'deleteCells',
+			ranges: this.getCellRanges(command.reference),
+			streamsheetId: command.streamsheetId
+		};
 	}
 }
 
@@ -718,6 +739,13 @@ class MarkCellValuesCommandRequestHandler {
 			streamsheetId
 		});
 	}
+	getInfo(command) {
+		return {
+			type: 'markRequests',
+			markers: command.markers,
+			streamsheetId: command.streamsheetId
+		};
+	}
 }
 class ZoomChartCommandRequestHandler {
 	constructor(allHandlers) {
@@ -730,23 +758,17 @@ class ZoomChartCommandRequestHandler {
 		if (cmd2.name === 'command.MarkCellValuesCommand') return 1;
 		return 0;
 	}
-
-	async runCommand(cmd, runner, userId, defStreamsheetId) {
-		try {
-			const { name, streamsheetId = defStreamsheetId } = cmd;
-			const handler = this.handlers.get(name);
-			if (handler) return await handler.handleCommand(cmd, runner, streamsheetId, userId);
-			throw new Error(`No handler for command: ${cmd.name}`);
-		} catch (err) {
-			return err;
-		}
+	requestReducer(all, cmd) {
+		const handler = this.handlers.get(cmd.name);
+		if (handler && handler.getInfo) all.push(handler.getInfo(cmd));
+		return all;
 	}
 	async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
-		command.commands.sort(this.sortCommands);
-		const results = await Promise.all(
-			command.commands.map((cmd) => this.runCommand(cmd, runner, userId, streamsheetId))
-		);
-		return results;
+		const commands = command.commands.sort(this.sortCommands);
+		const requests = commands.reduce(this.requestReducer, []);
+		return requests.length === commands.length
+			? runner.request('bulkRequests', userId, { requests, streamsheetId })
+			: Promise.resolve({ error: 'ZoomChartCommand contains unsupported commands!' });
 	}
 }
 
