@@ -684,7 +684,7 @@ class DeleteCellContentCommandRequestHandler {
 			// pop last cell, which refers to the active cell...
 			ranges.pop();
 			// range might be a single cell, so...
-			ranges.map((range) => fixCellRange(range));
+			cellranges = ranges.map((range) => fixCellRange(range));
 		}
 		return cellranges;
 	}
@@ -750,6 +750,7 @@ class MarkCellValuesCommandRequestHandler {
 class ZoomChartCommandRequestHandler {
 	constructor(allHandlers) {
 		this.handlers = allHandlers;
+		this.requestReducer = this.requestReducer.bind(this);
 	}
 
 	sortCommands(cmd1, cmd2) {
