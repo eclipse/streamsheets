@@ -274,10 +274,11 @@ class BulkRequests extends ARequestHandler {
 	}
 
 	handle({ requests, streamsheetId }) {
-		const handlers = this.registry.handlers;
+		const registry = this.registry;
 		const allRequests = requests.filter((request) => {
-			const handler = handlers.get(request.type);
-			return handler ? handler({ streamsheetId, ...request.properties }) : undefined;
+			const { type, ...args } = request;
+			const handler = registry.get(type);
+			return handler ? handler.handle({ streamsheetId, ...args }) : Promise.resolve();
 		});
 		return Promise.all(allRequests);
 	}
@@ -602,7 +603,7 @@ class MarkRequests extends ARequestHandler {
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
 			markers.forEach(({ reference, marker }) => {
-				const { cell, sheet: cellsheet }  = getCellFromReference(reference, sheet);
+				const { cell, sheet: cellsheet } = getCellFromReference(reference, sheet);
 				if (cell) {
 					const term = cell.term;
 					const reqId = term._pendingRequestId;
@@ -1020,7 +1021,7 @@ class RequestHandlerRegistry {
 		const registry = new RequestHandlerRegistry();
 		registry.handlers.set('addInboxMessage', new AddInboxMessage(machine, monitor));
 		registry.handlers.set('applyMigrations', new ApplyMigrations(machine, monitor));
-		registry.handlers.set('bulkRequests', new BulkRequests(machine, monitor, this));
+		registry.handlers.set('bulkRequests', new BulkRequests(machine, monitor, registry));
 		registry.handlers.set('createStreamSheet', new CreateStreamSheet(machine, monitor));
 		registry.handlers.set('executeFunction', new ExecuteFunction(machine, monitor));
 		registry.handlers.set('definition', new Definition(machine, monitor));
