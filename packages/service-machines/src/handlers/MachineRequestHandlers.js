@@ -611,21 +611,13 @@ class SetCellsCommandRequestHandler {
 		return all;
 	}
 
-	async deleteCells(descriptors = [], runner, streamsheetId, userId) {
-		const deleteCells = descriptors.reduce(this.toReferences, []);
-		if (deleteCells.length) {
-			try {
-				return runner.request('deleteCells', userId, { indices: deleteCells, streamsheetId });
-			} catch (ex) {
-				/* ignore any failure on delete */
-			}
-		}
-		return undefined;
-	}
-
 	async updateCells(descriptors, runner, streamsheetId, userId) {
+		const deleteCells = descriptors.reduce(this.toReferences, []);
 		const updateCells = filterRequestCellDescriptors(descriptors);
 		const cells = descriptorsToCellDescriptorsObject(updateCells);
+		deleteCells.forEach((reference) => {
+			cells[reference] = null;
+		});
 		return runner.request('setCells', userId, { cells, streamsheetId });
 	}
 
@@ -731,6 +723,7 @@ class ZoomChartCommandRequestHandler {
 	constructor(allHandlers) {
 		this.handlers = allHandlers;
 	}
+
 	sortCommands(cmd1, cmd2) {
 		// command.MarkCellValuesCommand always first
 		if (cmd1.name === 'command.MarkCellValuesCommand') return -1;
