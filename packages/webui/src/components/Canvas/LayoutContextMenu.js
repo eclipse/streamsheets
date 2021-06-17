@@ -268,16 +268,57 @@ class LayoutContextComponent extends Component {
 		return info.column + val + 1 < info.layoutNode.columns;
 	}
 
+	isMergeLeftAllowed() {
+		const viewer = graphManager.getGraphViewer();
+		const selection = viewer.getSelection();
+		if (selection.length > 1) {
+			return false;
+		}
+		const info = this.getNodeInfo();
+
+		return info && info.column;
+	}
+
 	onRemoveMerge = () => {
 		const viewer = graphManager.getGraphViewer();
 		const info = this.getNodeInfo();
+		if (!info) {
+			return;
+		}
 
 		const cmd = new JSG.SetAttributeAtPathCommand(info.item, 'mergecount', new JSG.NumberExpression(0));
 		viewer.getInteractionHandler().execute(cmd);
 	};
 
 	onMergeLeft = () => {
+		const viewer = graphManager.getGraphViewer();
+		const info = this.getNodeInfo();
+		if (!info) {
+			return;
+		}
 
+		let mergeCount = info.item.getAttributeValueAtPath('mergecount');
+		let startIndex = info.index - 1;
+		let node;
+
+		do {
+			node = info.layoutNode.getItems()[startIndex];
+			startIndex -= 1;
+		} while (startIndex > 0 && node._merged);
+
+		mergeCount += node.getAttributeValueAtPath('mergecount') + 1;
+
+		const cmd = new JSG.SetAttributeAtPathCommand(node, 'mergecount', mergeCount);
+		viewer.getInteractionHandler().execute(cmd);
+
+		viewer.getSelectionProvider().clearSelection();
+		const graphController = viewer.getGraphController();
+		const controller = graphController.getControllerByModelId(node.getId());
+
+		if (controller) {
+			viewer.getSelectionProvider().select(controller);
+			viewer.getInteractionHandler().repaint();
+		}
 	};
 
 	onRowProperties = (popupState) => {
@@ -360,13 +401,29 @@ class LayoutContextComponent extends Component {
 							>
 								{this.isMerged() ? (
 									<MenuItem onClick={this.onRemoveMerge} dense>
+										<ListItemIcon>
+											<SvgIcon>
+												<path
+													// eslint-disable-next-line max-len
+													d="M5,10H3V4H11V6H5V10M19,18H13V20H21V14H19V18M5,18V14H3V20H11V18H5M21,4H13V6H19V10H21V4"
+												/>
+											</SvgIcon>
+										</ListItemIcon>
 										<ListItemText
 											primary={<FormattedMessage id='MergeRemove' defaultMessage='Remove Merge' />}
 										/>
 									</MenuItem>
 									) : null}
-								{this.isMergeRightAllowed() ? (
+								{this.isMergeLeftAllowed() ? (
 									<MenuItem onClick={this.onMergeLeft} dense>
+										<ListItemIcon>
+											<SvgIcon>
+												<path
+													// eslint-disable-next-line max-len
+													d="M5,10H3V4H11V6H5V10M19,18H13V20H21V14H19V18M5,18V14H3V20H11V18H5M21,4H13V6H19V10H21V4M8,13V15L11,12L8,9V11H3V13H8Z"
+												/>
+											</SvgIcon>
+										</ListItemIcon>
 										<ListItemText
 											primary={<FormattedMessage id='MergeLeft'
 																	   defaultMessage='Merge with Left Cell' />}
@@ -375,6 +432,14 @@ class LayoutContextComponent extends Component {
 								}
 								{this.isMergeRightAllowed() ? (
 									<MenuItem onClick={this.onMergeRight} dense>
+										<ListItemIcon>
+											<SvgIcon>
+												<path
+													// eslint-disable-next-line max-len
+													d="M5,10H3V4H11V6H5V10M19,18H13V20H21V14H19V18M5,18V14H3V20H11V18H5M21,4H13V6H19V10H21V4M16,11V9L13,12L16,15V13H21V11H16Z"
+												/>
+											</SvgIcon>
+										</ListItemIcon>
 										<ListItemText
 												primary={<FormattedMessage id='MergeRight' defaultMessage='Merge with Right Cell' />}
 										/>
