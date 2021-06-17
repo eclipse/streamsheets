@@ -358,9 +358,9 @@ class Delete extends ARequestHandler {
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
+			const updateHandler = disableSheetUpdate(sheet);
 			try {
 				const cellrange = SheetRange.fromRangeStr(range);
-				const updateHandler = disableSheetUpdate(sheet);
 				switch (type) {
 				case 'rows':
 					sheet.deleteRowsAt(cellrange.start.row, cellrange.height);
@@ -373,10 +373,11 @@ class Delete extends ARequestHandler {
 				}
 				// return complete machine! => insert might affected multiple sheets, named-cells etc...
 				this.machine.notifyUpdate('descriptor', createMachineDescriptor(this.machine));
-				enableSheetUpdate(sheet, updateHandler);
 				return Promise.resolve();
 			} catch (err) {
 				error = err;
+			} finally {
+				enableSheetUpdate(sheet, updateHandler);
 			}
 		}
 		error = error || new Error(`Unknown streamsheet id: ${streamsheetId}`);
@@ -523,9 +524,9 @@ class Insert extends ARequestHandler {
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
+			const updateHandler = disableSheetUpdate(sheet);
 			try {
 				const cellrange = SheetRange.fromRangeStr(range);
-				const updateHandler = disableSheetUpdate(sheet);
 				const properties = sheet.properties;
 				switch (type) {
 				case 'rows':
@@ -554,10 +555,11 @@ class Insert extends ARequestHandler {
 				});
 				// return complete machine! => insert might affected multiple sheets, named-cells etc...
 				this.machine.notifyUpdate('descriptor', createMachineDescriptor(this.machine));
-				enableSheetUpdate(sheet, updateHandler);
 				return Promise.resolve();
 			} catch (err) {
 				error = err;
+			} finally {
+				enableSheetUpdate(sheet, updateHandler);
 			}
 		}
 		error = error || new Error(`Unknown streamsheet id: ${streamsheetId}`);
@@ -752,13 +754,15 @@ class SetCellAt extends ARequestHandler {
 		const streamsheet = this.machine.getStreamSheet(msg.streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
+			let cell;
+			let index;
+			let didUpdate = false;
+			const updateHandler = disableSheetUpdate(sheet);
 			try {
-				const cell = SheetParser.createCell(msg.celldescr, sheet);
-				const index = SheetIndex.create(msg.index);
-				const updateHandler = disableSheetUpdate(sheet);
-				const didUpdate = sheet.setCellAt(index, cell);
+				cell = SheetParser.createCell(msg.celldescr, sheet);
+				index = SheetIndex.create(msg.index);
+				didUpdate = sheet.setCellAt(index, cell);
 				sheet.getShapes().evaluate();
-				enableSheetUpdate(sheet, updateHandler, didUpdate, cell, index);
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
 					// to update all cells in DB
@@ -766,6 +770,8 @@ class SetCellAt extends ARequestHandler {
 				});
 			} catch (err) {
 				error = err;
+			} finally {
+				enableSheetUpdate(sheet, updateHandler, didUpdate, cell, index);
 			}
 		}
 		error = error || new Error(`Unknown streamsheet id: ${msg.streamsheetId}`);
