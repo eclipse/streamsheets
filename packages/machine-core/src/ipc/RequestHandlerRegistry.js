@@ -46,11 +46,13 @@ const disableSheetUpdate = (sheet) => {
 	return updateHandler;
 };
 const enableSheetUpdate = (sheet, updateHandler, notify, cell, index) => {
-	sheet.onUpdate = updateHandler;
 	// no updateHandler means still disabled, occurs if dis- & enableSheetUpdate were nested...
-	if (notify && updateHandler) {
-		sheet._notifyUpdate();
-		sendSheetUpdateOnSlowMachine(sheet, cell, index);
+	if (updateHandler) {
+		sheet.onUpdate = updateHandler;
+		if (notify) {
+			sheet._notifyUpdate();
+			sendSheetUpdateOnSlowMachine(sheet, cell, index);
+		}
 	}
 };
 
@@ -283,7 +285,7 @@ class BulkRequests extends ARequestHandler {
 		return sheet ? disableSheetUpdate(sheet) : undefined;
 	}
 	enableUpdates(updateHandlers) {
-		Object.entries(updateHandlers).forEach((id, handler) => {
+		Object.entries(updateHandlers).forEach(([id, handler]) => {
 			const sheet = this.getSheet(id);
 			if (sheet) enableSheetUpdate(sheet, handler, true);
 		});
@@ -291,7 +293,7 @@ class BulkRequests extends ARequestHandler {
 	handle({ requests, streamsheetId }) {
 		const registry = this.registry;
 		const updateHandlers = {};
-		const allRequests = requests.filter((request) => {
+		const allRequests = requests.map((request) => {
 			const { type, ...args } = request;
 			const handler = registry.get(type);
 			if (handler) {
