@@ -47,7 +47,8 @@ const disableSheetUpdate = (sheet) => {
 };
 const enableSheetUpdate = (sheet, updateHandler, notify, cell, index) => {
 	sheet.onUpdate = updateHandler;
-	if (notify) {
+	// no updateHandler means still disabled, occurs if dis- & enableSheetUpdate were nested...
+	if (notify && updateHandler) {
 		sheet._notifyUpdate();
 		sendSheetUpdateOnSlowMachine(sheet, cell, index);
 	}
@@ -271,16 +272,37 @@ class BulkRequests extends ARequestHandler {
 	constructor(machine, monitor, registry) {
 		super(machine, monitor);
 		this.registry = registry;
+		this.enableUpdates = this.enableUpdates.bind(this);
 	}
-
+	getSheet(streamsheetId) {
+		const streamsheet = this.machine.getStreamSheet(streamsheetId);
+		return streamsheet && streamsheet.sheet;
+	}
+	disableUpdate(streamsheetId) {
+		const sheet = this.getSheet(streamsheetId);
+		return sheet ? disableSheetUpdate(sheet) : undefined;
+	}
+	enableUpdates(updateHandlers) {
+		Object.entries(updateHandlers).forEach((id, handler) => {
+			const sheet = this.getSheet(id);
+			if (sheet) enableSheetUpdate(sheet, handler, true);
+		});
+	}
 	handle({ requests, streamsheetId }) {
 		const registry = this.registry;
+		const updateHandlers = {};
 		const allRequests = requests.filter((request) => {
 			const { type, ...args } = request;
 			const handler = registry.get(type);
-			return handler ? handler.handle({ streamsheetId, ...args }) : Promise.resolve();
+			if (handler) {
+				const sheetId = args.streamsheetId || streamsheetId;
+				const updateHandler = this.disableUpdate(sheetId);
+				if (updateHandler) updateHandlers[sheetId] = updateHandler;
+				return handler.handle({ streamsheetId, ...args });
+			}
+			return Promise.resolve();
 		});
-		return Promise.all(allRequests);
+		return Promise.all(allRequests).finally(() => this.enableUpdates(updateHandlers));
 	}
 }
 
