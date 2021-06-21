@@ -523,7 +523,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			const final = item.getAxisEnd(axis);
 			const thresholds = item.hasLegendRange() ? legendData : undefined;
 			let last;
-			let first = true;
+			const first = true;
 			let width = 0;
 			let pos;
 			let plot;
