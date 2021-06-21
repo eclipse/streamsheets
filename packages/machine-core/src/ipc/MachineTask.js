@@ -45,7 +45,7 @@ const shutdown = async (deleted) => {
 	} catch (err) {
 		logger.error('Error while shutting down machine!', err);
 	} finally {
-		channel.exit();
+		channel.exit(1);
 	}
 };
 

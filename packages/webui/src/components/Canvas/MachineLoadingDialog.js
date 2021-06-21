@@ -41,7 +41,7 @@ function MachineLoadingDialog(props) {
 	};
 
 	return (
-		<Dialog fullWidth mode="indeterminate" size={50} open={open}>
+		<Dialog fullWidth transitionDuration={0} size={50} open={open}>
 			<DialogContent style={{ textAlign: 'center' }}>
 				<CircularProgress />
 				<DialogContentText>
