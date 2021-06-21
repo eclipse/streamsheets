@@ -903,7 +903,7 @@ export default class CellsView extends NodeView {
 		}
 		// draw error marker
 		if (data.errorInfo) {
-			const markerColor = data.hasErrorValue ? '#F4BB38': '#FF0000';
+			const markerColor = data.displayFunctionName && data.hasErrorValue ? '#F4BB38': '#FF0000';
 			drawMarker(graphics, markerColor, [
 				{ x: columnInfo.x, y: rowInfo.y },
 				{ x: columnInfo.x + 300, y: rowInfo.y },
