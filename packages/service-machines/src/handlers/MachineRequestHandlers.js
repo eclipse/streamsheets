@@ -761,7 +761,7 @@
 	 }
 	 requestReducer(all, cmd) {
 		 const handler = this.handlers.get(cmd.name);
-		 if (handler && handler.getInfo) all.push(handler.getRequest(cmd));
+		 if (handler && handler.getRequest) all.push(handler.getRequest(cmd));
 		 return all;
 	 }
 	 async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
