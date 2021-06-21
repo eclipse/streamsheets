@@ -34,13 +34,15 @@ const evaluate = (cell, newValue) => {
 		cell._cellValue = undefined;
 	} else {
 		const term = cell._term;
+		// remove any previous error
+		cell.setCellInfo('error', undefined);
 		cell._value = term ? checkTermValue(term) : checkNaN(cell._value);
 		cell._cellValue = term && term.cellValue != null ? checkNaN(term.cellValue) : undefined;
 		// error handling
 		if (cell._value != null && cell._value.isErrorInfo) {
 			cell.setCellInfo('error', cell._value);
 			cell._cellValue = cell._cellValue || cell._value.code;
-		} else cell.setCellInfo('error', undefined);
+		} 
 	}
 	// DL-4088: treat error as false for if columns => should we generally return only true/false for IF
 	if (cell.col === -1 && FunctionErrors.isError(cell._value)) cell._value = false;
