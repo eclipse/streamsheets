@@ -20,7 +20,7 @@ const locale = require('../locale');
 const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
 const TaskQueue = require('./TaskQueue');
-const autounload = require('../utils/autounload');
+const autoexit = require('../utils/autoexit');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -492,7 +492,7 @@ class Machine {
 		this.stats.cyclesPerSecond = 0;
 		// we have no listener for this one -> remove
 		this._emitter.emit('didStop', this);
-		autounload.update(this);
+		autoexit.update(this);
 	}
 
 	async pause() {
@@ -589,11 +589,11 @@ class Machine {
 
 	subscribe(clientId) {
 		if (clientId) this._subscriptions.add(clientId);
-		autounload.update(this);
+		autoexit.update(this);
 	}
 	unsubscribe(clientId) {
 		this._subscriptions.delete(clientId);
-		autounload.update(this);
+		autoexit.update(this);
 	}
 	getClientCount() {
 		return this._subscriptions.size;
