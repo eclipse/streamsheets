@@ -80,7 +80,7 @@ export class GeometryProperties extends Component {
 
 	getExpression(item, event) {
 		try {
-			return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+			return this.getSheet(item).textToExpression(String(event.target.textContent));
 		} catch (e) {
 			return undefined;
 		}

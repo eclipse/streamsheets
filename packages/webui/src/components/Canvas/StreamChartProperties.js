@@ -203,7 +203,7 @@ export class StreamChartProperties extends Component {
 	}
 
 	getExpression(item, value) {
-		return this.getSheet(item).textToExpression(String(value), item);
+		return this.getSheet(item).textToExpression(String(value));
 	}
 
 	finishCommand(cmd, key, notify = false) {

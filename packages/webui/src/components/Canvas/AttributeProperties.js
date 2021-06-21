@@ -81,7 +81,7 @@ export class AttributeProperties extends Component {
 	}
 
 	getExpression(item, event) {
-		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+		return this.getSheet(item).textToExpression(String(event.target.textContent));
 	}
 
 	getAttributeHandler(label, item, name, options) {

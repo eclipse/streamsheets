@@ -1122,11 +1122,24 @@ class EditTextInteraction extends AbstractInteraction {
 			p[i].parentNode.removeChild(p[i]);
 		}
 
+		if (this.div.childNodes.length === 1 && this.div.childNodes[0].tagName === 'P') {
+			return this.div.innerText;
+		}
+
 		return this.div.innerHTML;
 	}
 
 	createSetTextCommand(item) {
-		const newText = this._getNewText();
+		let newText = this._getNewText();
+		const view = this.isWorksheetView();
+		const sheet = view.getItem();
+
+		try {
+			newText = sheet.textToExpression(newText).expression;
+			// eslint-disable-next-line no-empty
+		} catch (e) {
+		}
+
 		return new SetTextCommand(item, this._undoText, newText);
 	}
 

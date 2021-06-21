@@ -89,7 +89,7 @@ export class TextFormatProperties extends Component {
 	}
 
 	getExpression(item, event) {
-		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+		return this.getSheet(item).textToExpression(String(event.target.textContent));
 	}
 
 	getAttributeHandler(label, item, name, itemAttribute, options) {

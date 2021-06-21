@@ -81,7 +81,7 @@ export class FormatProperties extends Component {
 	}
 
 	getExpression(item, value) {
-		return this.getSheet(item).textToExpression(String(value), item);
+		return this.getSheet(item).textToExpression(String(value));
 	}
 
 	getAttributeHandler(label, item, name, options = 'none') {
