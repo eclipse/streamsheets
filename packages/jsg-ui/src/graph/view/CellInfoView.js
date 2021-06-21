@@ -21,13 +21,15 @@ const localizeError = (error) => {
 
 const getTableElement = () => {
 	let scrollTop = 0;
-	const table = document.getElementById('dataviewtable');
 	return {
 		storeScrollTop() {
+			const table = document.getElementById('dataviewtable');
 			scrollTop = table ? table.scrollTop : 0;
 		},
 		restoreScrollTop() {
-			if (scrollTop && table) table.scrollTop = scrollTop;
+			// might have been replaced
+			const table = document.getElementById('dataviewtable');
+			if (scrollTop && table) table.scrollTop = Math.floor(scrollTop);
 		}
 	};
 };
@@ -113,8 +115,12 @@ class CellInfoView {
 			tableEl.storeScrollTop();
 			this.setDivBounds(divView, bounds);
 			this.appendDiv(divView);
-			this.registerView(divView, cell, cellRange);
+			const rightBorderOverlap = (divView.offsetLeft + divView.offsetWidth) - (divView.parentNode.offsetLeft + divView.parentNode.offsetWidth);
+			if (rightBorderOverlap > 0) {
+				divView.style.left = `${divView.offsetLeft - rightBorderOverlap}px`;
+			}
 			tableEl.restoreScrollTop();
+			this.registerView(divView, cell, cellRange);
 		}
 	}
 	removeInfoView() {

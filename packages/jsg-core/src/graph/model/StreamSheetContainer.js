@@ -412,8 +412,8 @@ module.exports = class StreamSheetContainer extends Node {
 		const settings = this.viewSettings;
 		if (settings.active === true) {
 			hideButtons = true;
-			captions = false;
-			heightCaption = 0;
+			captions = settings.showInbox;
+			heightCaption = captions ? 650 : 0;
 			inbox = settings.showInbox;
 		} else {
 			inbox = this.getStreamSheetContainerAttributes().getInboxVisible().getValue();

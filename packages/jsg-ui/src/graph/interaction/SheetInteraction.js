@@ -255,8 +255,9 @@ export default class SheetInteraction extends Interaction {
 						return;
 					}
 				}
-				this.handleUIFunction(sheet, event, viewer);
-				this._doSelect(event, viewer, false, false);
+				if (!this.handleUIFunction(sheet, event, viewer)) {
+					this._doSelect(event, viewer, false, false);
+				}
 				break;
 			}
 			default:
@@ -266,7 +267,7 @@ export default class SheetInteraction extends Interaction {
 
 	handleUIFunction(sheet, event, viewer) {
 		if (this._startCell === undefined) {
-			return;
+			return false;
 		}
 
 		const data = sheet.getDataProvider();
@@ -388,9 +389,13 @@ export default class SheetInteraction extends Interaction {
 					event.keepFocus = true;
 
 					selectList.addEventListener('blur', blurListener, false);
+					const viewSettings = sheet.getParent().viewSettings;
+
+					return viewSettings && viewSettings.active;
 				}
 			}
 		}
+		return false;
 	}
 
 	_doExceedThreshold(event, viewer) {
@@ -1088,9 +1093,9 @@ export default class SheetInteraction extends Interaction {
 			case WorksheetView.HitCode.SHEET:
 			case WorksheetView.HitCode.ROW:
 			case WorksheetView.HitCode.COLUMN: {
-				const sheet = view.getItem();
+				// const sheet = view.getItem();
 				view.notifySelectionChange(viewer);
-				this.handleUIFunction(sheet, event, viewer);
+				// this.handleUIFunction(sheet, event, viewer);
 				break;
 			}
 			default:
@@ -1119,7 +1124,7 @@ export default class SheetInteraction extends Interaction {
 		if (this.isInside(viewer, event.location, false)) {
 			const view = this._controller.getView();
 			this._hitCode = view.getHitCode(event.location, viewer);
-			view.setCursor(this._hitCode, this);
+			view.setCursor(this._hitCode, this, event, viewer);
 		} else {
 			this.setCursor(Cursor.Style.AUTO);
 			this.cancelInteraction(event, viewer);

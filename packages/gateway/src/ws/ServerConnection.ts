@@ -138,7 +138,7 @@ export default class ServerConnection {
 				}
 				// publish to inform machine-service
 				if (this.context.machineRouter) this.context.machineRouter.handleMachineServiceInputMessage(message);
-				this.messagingClient.unsubscribe(`${Topics.SERVICES_MACHINES_EVENTS}/${message.machineId}`);
+				this.messagingClient.unsubscribe(`${Topics.SERVICES_MACHINES_EVENTS}/${message.machineId}/#`);
 				break;
 			case 'graph_unsubscribe':
 				this.messagingClient.unsubscribe(`${Topics.SERVICES_GRAPHS_EVENTS}/${message.machineId}`);
@@ -155,7 +155,7 @@ export default class ServerConnection {
 			case 'machine_subscribe':
 			case 'machine_load_subscribe':
 				this._redisConnection?.subscribe(message.response.machine.id, this.stepEventHandler);
-				this.messagingClient.subscribe(`${Topics.SERVICES_MACHINES_EVENTS}/${message.response.machine.id}`);
+				this.messagingClient.subscribe(`${Topics.SERVICES_MACHINES_EVENTS}/${message.response.machine.id}/#`);
 				break;
 			case 'graph_load_subscribe':
 			case 'graph_subscribe':

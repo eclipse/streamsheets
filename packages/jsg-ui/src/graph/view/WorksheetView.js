@@ -1070,12 +1070,34 @@ export default class WorksheetView extends ContentNodeView {
 		return point;
 	}
 
-	setCursor(hitCode, interaction) {
+	setCursor(hitCode, interaction, event, viewer) {
 		switch (hitCode) {
-			case WorksheetHitCode.SHEET:
 			case WorksheetHitCode.CORNER:
 				interaction.setCursor(Cursor.Style.SHEET);
 				break;
+			case WorksheetHitCode.SHEET: {
+				const item = this.getItem();
+				const viewSettings = item.getParent().viewSettings;
+				if (viewSettings.active) {
+					const pos = this.getCellInside(event, viewer);
+					if (pos !== undefined) {
+						const data = item.getDataProvider();
+						const cell = data.get(pos);
+						if (cell !== undefined) {
+							const expr = cell.getExpression();
+							if (expr !== undefined) {
+								const termFunc = expr.getTerm();
+								if (termFunc && termFunc instanceof FuncTerm && termFunc.getFuncId() === 'SELECT') {
+									interaction.setCursor(Cursor.Style.AUTO);
+									return;
+								}
+							}
+						}
+					}
+				}
+				interaction.setCursor(Cursor.Style.SHEET);
+				break;
+			}
 			case WorksheetHitCode.ROW:
 				interaction.setCursor(Cursor.Style.SHEETROW);
 				break;
@@ -1760,7 +1782,7 @@ export default class WorksheetView extends ContentNodeView {
 					);
 					if (formattingResult.formattedValue !== undefined) {
 						const metrics = GraphUtils.getFontMetrics(textFormat);
-						const textHeight = metrics.lineheight + 100;
+						const textHeight = metrics.lineheight + Math.max(metrics.lineheight * 0.15, 100);
 						height = Math.max(textHeight, height);
 					}
 				}
@@ -1889,6 +1911,7 @@ export default class WorksheetView extends ContentNodeView {
 	handleDataView(sheet, dataCell, targetRange, viewer) {
 		this.handleInfoView(WorksheetHitCode.DATAVIEW, sheet, dataCell, targetRange, viewer);
 	}
+
 	handleInfoView(infoType, sheet, dataCell, targetRange, viewer) {
 		if (targetRange != null) {
 			const data = sheet.getDataProvider();

@@ -272,17 +272,18 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			}
 
 			this.drawRect(graphics, legend.position, item, legend.format, 'legend');
-			item.setFont(graphics, legend.format, 'legend', 'middle', TextFormatAttributes.TextAlignment.LEFT);
+			item.setFont(graphics, legend.format, 'legend', 'top', TextFormatAttributes.TextAlignment.LEFT);
 			const textSize = item.measureText(graphics, graphics.getCoordinateSystem(), legend.format, 'legend', 'X');
 			let x = legend.position.left + margin;
 			let y = legend.position.top + margin;
 			let textPos = margin * 4;
+			let maxHeight = 0;
 			let type = 'bar';
 			let fill = true;
 			let line = true;
+			let column = 0;
 			const template = item.getTemplate();
 			const horzChart = item.isHorizontalChart();
-			let column = 0;
 
 			if (item.isMap()) {
 			} else {
@@ -421,28 +422,28 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					}
 
 					const fontColor = legend.format.fontColor || template.legend.format.fontColor || template.font.color;
+					const size = item.measureText(graphics, cs, legend.format, 'legend', String(entry.name));
 
 					graphics.setFillColor(fontColor);
-					graphics.fillText(entry.name, x + textPos, y + (textSize.height * 1.1) / 2);
+					graphics.fillMultiLineText(entry.name, x + textPos, y + (size.height * 1.1) / 2, textSize.height);
 
+					maxHeight = Math.max(maxHeight, size.height);
 					if (
 						legend.align === 'right' ||
 						legend.align === 'middleright' ||
 						legend.align === 'left' ||
 						legend.align === 'middleleft'
 					) {
-						y += textSize.height * 1.3;
+						y += size.height + textSize.height * 0.5;
+					} else if (item.legend.columns === undefined) {
+						x += size.width + margin * 2 + textPos;
+					} else if (column === item.legend.columns - 1) {
+						x = legend.position.left + margin;
+						y += maxHeight + textSize.height * 0.5;
+						column = -1;
+						maxHeight = 0;
 					} else {
-						const size = item.measureText(graphics, cs, legend.format, 'legend', String(entry.name));
-						if (item.legend.columns === undefined) {
-							x += size.width + margin * 2 + textPos;
-						} else if (column === item.legend.columns - 1) {
-							x = legend.position.left + margin;
-							y += textSize.height * 1.3;
-							column = -1;
-						} else {
-							x += item.legend.maxTextWidth;
-						}
+						x += item.legend.maxTextWidth;
 					}
 					column += 1;
 				});
@@ -473,102 +474,41 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			}
 
 			let fi;
-			let xLabelOffset = 0;
-			let yLabelOffset = 0;
 			const labelAngle =
 				axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 			const gaugeInfo =
 				axis.align === 'radialoutside' || axis.align === 'radialinside' ? item.getGaugeInfo(plotRect) : null;
+			const cs = graphics.getCoordinateSystem();
 
 			graphics.beginPath();
 			if (grid) {
 				fi = this.setFormat(graphics, item, axis.formatGrid, 'axisgrid');
 			} else {
-				let hAlign = TextFormatAttributes.TextAlignment.CENTER;
-				let vAlign = 'middle';
-				let textSize;
 				// draw axis line
 				fi = this.setFormat(graphics, item, axis.format, 'axis');
+				item.setFont(
+					graphics,
+					axis.format,
+					'axis',
+					'top',
+					JSG.TextFormatAttributes.TextAlignment.CENTER
+				);
 				switch (axis.align) {
-				case 'radialoutside':
-				case 'radialinside':
-					hAlign = TextFormatAttributes.TextAlignment.CENTER;
-					item.setFont(graphics, axis.format, 'axis', 'middle', hAlign);
-					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
-					break;
 				case 'left':
 					graphics.moveTo(axis.position.right, axis.position.top);
 					graphics.lineTo(axis.position.right, axis.position.bottom);
-
-					if (labelAngle > 0) {
-						vAlign = 'bottom';
-					} else if (labelAngle < 0) {
-						vAlign = 'top';
-					}
-					item.setFont(
-						graphics,
-						axis.format,
-						'axis',
-						vAlign,
-						Math.abs(labelAngle) === Math.PI_2
-							? TextFormatAttributes.TextAlignment.CENTER
-							: TextFormatAttributes.TextAlignment.RIGHT
-					);
-					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
-					if (labelAngle > 0) {
-						yLabelOffset = (Math.cos(labelAngle) * textSize.height) / 2;
-					} else if (labelAngle < 0) {
-						yLabelOffset = (-Math.cos(labelAngle) * textSize.height) / 2;
-					}
 					break;
 				case 'right':
 					graphics.moveTo(axis.position.left, axis.position.top);
 					graphics.lineTo(axis.position.left, axis.position.bottom);
-
-					if (labelAngle > 0) {
-						vAlign = 'top';
-					} else if (labelAngle < 0) {
-						vAlign = 'bottom';
-					}
-					item.setFont(
-						graphics,
-						axis.format,
-						'axis',
-						vAlign,
-						Math.abs(labelAngle) === Math.PI_2
-							? TextFormatAttributes.TextAlignment.CENTER
-							: TextFormatAttributes.TextAlignment.LEFT
-					);
-					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
-					if (labelAngle > 0) {
-						yLabelOffset = (-Math.cos(labelAngle) * textSize.height) / 2;
-					} else if (labelAngle < 0) {
-						yLabelOffset = (Math.cos(labelAngle) * textSize.height) / 2;
-					}
 					break;
 				case 'top':
 					graphics.moveTo(axis.position.left, axis.position.bottom);
 					graphics.lineTo(axis.position.right, axis.position.bottom);
-					if (labelAngle > 0) {
-						hAlign = TextFormatAttributes.TextAlignment.LEFT;
-					} else if (labelAngle < 0) {
-						hAlign = TextFormatAttributes.TextAlignment.RIGHT;
-					}
-					item.setFont(graphics, axis.format, 'axis', 'bottom', hAlign);
-					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
-					xLabelOffset = (-Math.sin(labelAngle) * textSize.height) / 2;
 					break;
 				case 'bottom':
 					graphics.moveTo(axis.position.left, axis.position.top);
 					graphics.lineTo(axis.position.right, axis.position.top);
-					if (labelAngle > 0) {
-						hAlign = TextFormatAttributes.TextAlignment.RIGHT;
-					} else if (labelAngle < 0) {
-						hAlign = TextFormatAttributes.TextAlignment.LEFT;
-					}
-					item.setFont(graphics, axis.format, 'axis', 'top', hAlign);
-					textSize = item.measureText(graphics, graphics.getCoordinateSystem(), axis.format, 'axis', 'X');
-					xLabelOffset = (Math.sin(labelAngle) * textSize.height) / 2;
 					break;
 				default:
 					break;
@@ -581,15 +521,16 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			const refLabel = item.getDataSourceInfoAxis(axis);
 			let current = item.getAxisStart(refLabel, axis);
 			const final = item.getAxisEnd(axis);
-			const cs = graphics.getCoordinateSystem();
 			const thresholds = item.hasLegendRange() ? legendData : undefined;
 			let last;
-			// eslint-disable-next-line prefer-const
-			let first = true;
+			const first = true;
 			let width = 0;
 			let pos;
 			let plot;
 			let text;
+			let size;
+			const space = axis.size ? axis.size.space : undefined;
+			const lineSize = item.measureText(graphics, cs, axis.format, 'axis', 'X', true);
 
 			while (current.value <= final) {
 				if (
@@ -609,12 +550,12 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						} else {
 							text = item.getLabel(refLabel, axis, index);
 						}
-					} else if (axis.format && axis.format.numberFormat) {
+					} else if (axis.format && axis.format.numberFormat && !axis.format.linkNumberFormat) {
 						text = item.formatNumber(current.value, axis.format);
 					} else {
 						text = item.formatNumber(
 							current.value,
-							axis.scale.format
+							axis.scale.format && !axis.format.linkNumberFormat
 								? axis.scale.format
 								: {
 									numberFormat: axis.format.linkedNumberFormat,
@@ -622,152 +563,63 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 								}
 						);
 					}
+					if (space) {
+						text = item.wrapText(graphics, cs, axis.format, 'axis', text, space);
+					}
+					size = item.measureText(graphics, cs, axis.format, 'axis', text, false, space);
+					width = 0;
+					switch (axis.align) {
+					case 'left':
+					case 'right':
+						if (Math.abs(Math.abs(labelAngle) - Math.PI_2) < Math.PI / 20) {
+							width = size.width * Math.sin(labelAngle);
+						}
+						break;
+					case 'top':
+					case 'bottom':
+						if (Math.abs(labelAngle) < Math.PI / 20) {
+							width = size.width * Math.cos(labelAngle);
+						}
+						break;
+					default:
+						break;
+					}
 				}
 
-				width = 0;
 				switch (axis.align) {
 				case 'left':
 				case 'right':
-					if (Math.abs(Math.abs(labelAngle) - Math.PI_2) < Math.PI / 20) {
-						width = Math.abs(
-							cs.deviceToLogX(graphics.measureText(text).width, true) * Math.sin(labelAngle)
-						);
+					plot = plotRect.bottom - pos * plotRect.height;
+					if (grid) {
+						graphics.moveTo(plotRect.left, plot);
+						graphics.lineTo(plotRect.right, plot);
+					} else {
+						const check = axis.invert ?
+							last === undefined || plot - width / 2 + 100 > last :
+							last === undefined || plot + width / 2 + 100 < last;
+						if (check) {
+							const x = axis.align === 'left' ? axis.position.right - axis.labelDistance - size.width / 2 :
+								axis.position.left + axis.labelDistance + size.width / 2;
+							this.drawRotatedText(graphics, `${text}`, x, plot, labelAngle, lineSize.height);
+							last = axis.invert ? plot + width / 2 : plot - width / 2;
+						}
 					}
 					break;
 				case 'top':
 				case 'bottom':
-					if (Math.abs(labelAngle) < Math.PI / 20) {
-						width = cs.deviceToLogX(graphics.measureText(text).width, true) * Math.cos(labelAngle);
-					}
-					break;
-				default:
-					break;
-				}
-
-				switch (axis.align) {
-				case 'left':
-					plot = plotRect.bottom - pos * plotRect.height;
-					if (grid) {
-						graphics.moveTo(plotRect.left, plot);
-						graphics.lineTo(plotRect.right, plot);
-					} else if (axis.invert) {
-						if (last === undefined || plot - width / 2 + 100 > last) {
-							this.drawRotatedText(
-								graphics,
-								`${text}`,
-								axis.position.right - axis.labelDistance,
-								plot,
-								labelAngle,
-								xLabelOffset,
-								yLabelOffset
-							);
-							last = plot + width / 2;
-						}
-					} else if (last === undefined || plot + width / 2 + 100 < last) {
-						this.drawRotatedText(
-							graphics,
-							`${text}`,
-							axis.position.right - axis.labelDistance,
-							plot,
-							labelAngle,
-							xLabelOffset,
-							yLabelOffset
-						);
-						last = plot - width / 2;
-					}
-					break;
-				case 'right':
-					plot = plotRect.bottom - pos * plotRect.height;
-					if (grid) {
-						graphics.moveTo(plotRect.left, plot);
-						graphics.lineTo(plotRect.right, plot);
-					} else if (axis.invert) {
-						if (last === undefined || plot - width / 2 + 100 > last) {
-							this.drawRotatedText(
-								graphics,
-								`${text}`,
-								axis.position.left + axis.labelDistance,
-								plot,
-								labelAngle,
-								xLabelOffset,
-								yLabelOffset
-							);
-							last = plot + width / 2;
-						}
-					} else if (last === undefined || plot + width / 2 + 100 < last) {
-						this.drawRotatedText(
-							graphics,
-							`${text}`,
-							axis.position.left + axis.labelDistance,
-							plot,
-							labelAngle,
-							xLabelOffset,
-							yLabelOffset
-						);
-						last = plot - width / 2;
-					}
-					break;
-				case 'top':
 					plot = plotRect.left + pos * plotRect.width;
 					if (grid) {
 						graphics.moveTo(plot, plotRect.top);
 						graphics.lineTo(plot, plotRect.bottom);
-					} else if (axis.invert) {
-						if (last === undefined || plot + width / 2 + 100 < last) {
-							this.drawRotatedText(
-								graphics,
-								`${text}`,
-								plot,
-								axis.position.bottom - axis.labelDistance,
-								labelAngle,
-								xLabelOffset,
-								yLabelOffset
-							);
-							last = plot - width / 2;
-						}
-					} else if (last === undefined || plot - width / 2 - 100 > last) {
-						this.drawRotatedText(
-							graphics,
-							`${text}`,
-							plot,
-							axis.position.bottom - axis.labelDistance,
-							labelAngle,
-							xLabelOffset,
-							yLabelOffset
-						);
-						last = plot + width / 2;
-					}
-					break;
-				case 'bottom':
-					plot = plotRect.left + pos * plotRect.width;
-					if (plot >= plotRect.left && plot <= plotRect.right) {
-						if (grid) {
-							graphics.moveTo(plot, plotRect.top);
-							graphics.lineTo(plot, plotRect.bottom);
-						} else if (axis.invert) {
-							if (last === undefined || plot + width / 2 + 100 < last) {
-								this.drawRotatedText(
-									graphics,
-									`${text}`,
-									plot,
-									axis.position.top + axis.labelDistance,
-									labelAngle,
-									xLabelOffset,
-									yLabelOffset
-								);
-								last = plot - width / 2;
-							}
-						} else if (last === undefined || plot - width / 2 - 100 > last) {
-							this.drawRotatedText(
-								graphics,
-								`${text}`,
-								plot,
-								axis.position.top + axis.labelDistance,
-								labelAngle,
-								xLabelOffset,
-								yLabelOffset
-							);
-							last = plot + width / 2;
+					} else {
+						const check = axis.invert ?
+							last === undefined || plot + width / 2 + 100 < last :
+							last === undefined || plot - width / 2 - 100 > last;
+						if (check) {
+							const y = axis.align === 'bottom' ? axis.position.top + axis.labelDistance + size.height / 2 :
+								axis.position.bottom - axis.labelDistance - size.height / 2;
+							this.drawRotatedText(graphics, `${text}`, plot, y, labelAngle, lineSize.height);
+							last = axis.invert ? plot - width / 2 : plot + width / 2;
 						}
 					}
 					break;
@@ -876,13 +728,17 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			});
 		}
 
-		drawRotatedText(graphics, text, x, y, angle, xOffset, yOffset) {
+		drawRotatedText(graphics, text, x, y, angle, lineHeight) {
 			if (angle) {
-				graphics.translate(x - xOffset, y + yOffset);
+				graphics.save();
+				graphics.startGroup();
+				graphics.translate(x, y);
 				graphics.rotate(-angle);
-				graphics.fillText(text, 0, 0);
-				graphics.rotate(angle);
-				graphics.translate(-x + xOffset, -y - yOffset);
+				graphics.fillMultiLineText(text, 0, 0, lineHeight);
+				graphics.endGroup();
+				graphics.restore();
+			} else if (lineHeight) {
+				graphics.fillMultiLineText(text, x, y, lineHeight);
 			} else {
 				graphics.fillText(text, x, y);
 			}
@@ -1190,7 +1046,8 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 											const pointFormat = serie.points[index].format;
 											fillColor = pointFormat.fillColor || serie.format.fillColor;
 										} else {
-											fillColor = serie.format.fillColor;
+											fillColor = serie.format.fillColor ||
+												useFormat.tmpl.getFillForIndex(item.chart.varyByCategories ? index : seriesIndex);
 										}
 										graphics.setGradientLinear(
 											fillRect,
@@ -1202,6 +1059,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 										if (useFormat.fill) {
 											this.fill(graphics, useFormat.transparency);
 										}
+										graphics.setFillColor(fillColor);
 									}
 								}
 							}
@@ -1651,7 +1509,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 					graphics,
 					serie.dataLabel.format,
 					'serieslabel',
-					'middle',
+					'top',
 					TextFormatAttributes.TextAlignment.CENTER
 				);
 			}
@@ -1664,7 +1522,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			if (text instanceof Array) {
 				let yLabel = labelRect.top + 75 + lineHeight / 2;
 				text.forEach((part, pi) => {
-					yLabel = center.y - ((text.length - 1) * lineHeight) / 2 + pi * lineHeight;
+					yLabel = center.y - ((text.length - 1) * lineHeight) / 2 + pi * (lineHeight + 50);
 					const p = MathUtils.getRotatedPoint(
 						{
 							x: center.x,
@@ -1673,10 +1531,10 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 						center,
 						-labelAngle
 					);
-					this.drawRotatedText(graphics, part, p.x, p.y, labelAngle, 0, 0);
+					this.drawRotatedText(graphics, part, p.x, p.y, labelAngle, lineHeight);
 				});
 			} else {
-				this.drawRotatedText(graphics, `${text}`, center.x, center.y, labelAngle, 0, 0);
+				this.drawRotatedText(graphics, `${text}`, center.x, center.y, labelAngle, lineHeight);
 			}
 		}
 
@@ -1713,7 +1571,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				graphics,
 				serie.dataLabel.format,
 				'serieslabel',
-				'middle',
+				'top',
 				TextFormatAttributes.TextAlignment.CENTER
 			);
 			const params = {
@@ -1732,15 +1590,8 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 				currentAngle: pieInfo ? pieInfo.startAngle : 0,
 				valueSum: 0
 			};
-			const name =
-				serie.dataLabel.format.fontName ||
-				item.getTemplate().serieslabel.format.fontName ||
-				item.getTemplate().font.name;
-			const size =
-				serie.dataLabel.format.fontSize ||
-				item.getTemplate().serieslabel.format.fontSize ||
-				item.getTemplate().font.size;
-			const lineHeight = GraphUtils.getFontMetricsEx(name, size).lineheight + 50;
+			const textSize = item.measureText(graphics, graphics.getCoordinateSystem(), serie.dataLabel.format, 'serieslabel', 'X');
+			const lineHeight = textSize.height;
 			const horizontalChart = item.isHorizontalChart();
 			let valueSum = 0;
 

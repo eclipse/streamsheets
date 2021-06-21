@@ -159,6 +159,7 @@ export class CanvasComponent extends Component {
 
 	onCloseViewMode = () => {
 		this.props.setAppState({ showViewMode: false });
+		this.props.setJsgState({ cellSelected: false });
 	}
 
 	onViewModeProperties = () => {
@@ -393,52 +394,71 @@ export class CanvasComponent extends Component {
 						</Fab>
 					</Tooltip>
 				] : null}
+				<div
+					style={{
+						visibility: this.props.showTools ? 'visible' : 'hidden',
+						position: 'absolute',
+						zIndex: 1200,
+						left: `30px`,
+						bottom: '26px',
+					}}
+				>
 				{sheets.map((sheet, index) => (
 					<div
 						key={index.toString()}
 						style={{
 							visibility: this.props.showTools ? 'visible' : 'hidden',
-							position: 'absolute',
+							display: 'inline-flex',
 							zIndex: 1200,
-							left: `${30 + index * 50}px`,
-							bottom: '26px',
 						}}
 					>
-						<Button
-							aria-label="show"
-							mini
-							style={{
-								backgroundColor: Colors.blue[800],
-								minWidth: '40px',
-								padding: '0px',
-							}}
-							onClick={() => this.onShowSheet(sheet)}
-						>
-							<SvgIcon>
-								<path
-									fill="#FFFFFF"
-									// eslint-disable-next-line max-len
-									d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10,13H7V11H10V13M14,13H11V11H14V13M10,16H7V14H10V16M14,16H11V14H14V16M10,19H7V17H10V19M14,19H11V17H14V19Z"
-								/>
-							</SvgIcon>
-						</Button>
 						<div
 							style={{
-								width: '40px',
-								textAlign: 'center',
-								fontSize: '10px',
-								marginTop: '5px',
+								display: 'block',
+								justifyContent: 'center',
+								marginRight: '15px',
 							}}
 						>
-							<Typography>
-								{sheet
-									.getStreamSheet()
-									.getName()
-									.getValue()}
-							</Typography>
+							<Button
+								aria-label="show"
+								mini
+								style={{
+									backgroundColor: Colors.blue[800],
+									minWidth: '40px',
+									padding: '5px',
+									margin: 'auto',
+									display: 'block',
+								}}
+								onClick={() => this.onShowSheet(sheet)}
+							>
+								<SvgIcon>
+									<path
+										fill="#FFFFFF"
+										// eslint-disable-next-line max-len
+										d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10,13H7V11H10V13M14,13H11V11H14V13M10,16H7V14H10V16M14,16H11V14H14V16M10,19H7V17H10V19M14,19H11V17H14V19Z"
+									/>
+								</SvgIcon>
+							</Button>
+							<div
+								style={{
+									// width: '40px',
+									textAlign: 'center',
+									fontSize: '10px',
+									marginTop: '5px',
+									display: 'block',
+								}}
+							>
+								<Typography>
+									{sheet
+										.getStreamSheet()
+										.getName()
+										.getValue()}
+								</Typography>
+							</div>
 						</div>
 					</div>
 				))}
+				</div>
 			</div>
 		);
 	}

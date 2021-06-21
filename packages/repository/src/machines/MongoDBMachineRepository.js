@@ -222,6 +222,10 @@ module.exports = class MongoDBMachineRepository extends mix(
 		return this.updateDocument(this.collection, id, { 'settings.isOPCUA': isOPCUA });
 	}
 
+	updateMachineExtensionSettings(id, extensionId, settings) {
+		return this.updateDocument(this.collection, id, { [`extensionSettings.${extensionId}`]: settings });
+	}
+
 	updateMachinePreviewImage(id, previewImage) {
 		return this.updateDocument(this.collection, id, { previewImage });
 	}

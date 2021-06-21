@@ -26,6 +26,7 @@
 		"i18n:check": "node ./scripts/i18n.js --en ./packages/webui/src/languages/en.json --de ./packages/webui/src/languages/de.json",
 		"start-gateway:watch": "nodemon --delay 2.5 --watch packages/gateway/out",
 		"functions": "yarn workspace @cedalo/functions",
+		"gateway": "yarn workspace @cedalo/gateway",
 		"jsg-core": "yarn workspace @cedalo/jsg-core",
 		"machine-core": "yarn workspace @cedalo/machine-core",
 		"parser": "yarn workspace @cedalo/parser",

@@ -321,7 +321,7 @@
 	"ViewModeProperties.DisplaySheet": "Streamsheet",
 	"ViewModeProperties.Header": "Zeilen-/Spaltenköpfe anzeigen",
 	"ViewModeProperties.Grid": "Gitternetz anzeigen",
-	"ViewModeProperties.Inbox": "Eingang anzeigen",
+	"ViewModeProperties.Inbox": "Eingang und Titel anzeigen",
 	"ViewModeProperties.ShowOutbox": "Outbox anzeigen",
 	"ViewModeProperties.Scrollbars": "Scrollen erlauben",
 	"ViewModeProperties.Zoom": "Zoomen erlauben",

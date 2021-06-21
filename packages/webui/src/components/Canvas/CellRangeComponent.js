@@ -162,6 +162,8 @@ class CellRangeComponent extends React.Component {
 		if (event.relatedTarget) {
 			const cancel = event.relatedTarget.id === 'RefCancel';
 			event.target.innerHTML = cancel ? this.state.oldValue : event.target.textContent;
+		} else if (event.type === 'keydown' && event.key === 'Enter') {
+			event.target.innerHTML = event.target.textContent;
 		}
 
 		if (event.type === 'keydown') {
@@ -240,14 +242,20 @@ class CellRangeComponent extends React.Component {
 				cellEditor.activateReferenceMode();
 				if (index !== undefined) {
 					cellEditor.setActiveRangeIndex(index);
-					cellEditor.updateReference(
-						event,
-						view,
-					);
+					cellEditor.updateReference(event, view,);
 				}
 			}
 			break;
 		}
+		default:
+			break;
+		}
+
+		if (cellEditor.isReferenceChar(event.key)) {
+			cellEditor.oldContent = undefined;
+		}
+
+		switch (event.key) {
 		case 'Shift':
 		case 'Control':
 			break;

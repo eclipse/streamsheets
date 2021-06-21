@@ -270,6 +270,23 @@ class SetMachineLocaleRequestHandler extends RequestHandler {
 		});
 	}
 }
+
+class MachineUpdateExtensionSettingsRequestHandler extends RequestHandler {
+	constructor() {
+		super(MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_UPDATE_EXTENSION_SETTINGS);
+	}
+
+	async handle(request, machineserver) {
+		const { extensionId, settings } = request;
+		return handleRequest(this, machineserver, request, 'extensionUpdate', {
+			props: {
+				extensionId,
+				settings
+			}
+		});
+	}
+}
+
 class MachineUpdateSettingsRequestHandler extends RequestHandler {
 	constructor() {
 		super(MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_UPDATE_SETTINGS);
@@ -884,6 +901,7 @@ module.exports = {
 	LoadSheetCellsRequestHandler,
 	MachineActionRequestHandler,
 	MachineUpdateSettingsRequestHandler,
+	MachineUpdateExtensionSettingsRequestHandler,
 	MetaInformationRequestHandler,
 	OpenMachineRequestHandler,
 	PauseMachineRequestHandler,
