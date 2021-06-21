@@ -29,7 +29,7 @@ class ErrorHandler {
 		let error;
 		if (!this._ignoreError && this._error) {
 			error = this._error.isErrorInfo ? this._error : ErrorInfo.create(this._error);
-			if (this._errorIndex) error = error.setParamIndex(this._errorIndex + 1);
+			if (this._errorIndex != null) error = error.setParamIndex(this._errorIndex + 1);
 		}
 		return error;
 	}
