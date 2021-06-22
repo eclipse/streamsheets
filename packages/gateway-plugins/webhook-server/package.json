@@ -1,0 +1,25 @@
+{
+	"name": "@cedalo/webhook-server",
+	"version": "2.3.0",
+	"main": "index.js",
+	"description": "Webhook Server Plugin",
+	"author": "Cedalo AG",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cedalo/streamsheets-pro-features.git"
+	},
+	"bugs": {
+		"url": "https://github.com/cedalo/streamsheets-pro-features/issues"
+	},
+	"dependencies": {
+		"http-errors": "1.6.1"
+	},
+	"peerDependencies": {
+		"@cedalo/id-generator": "2.4.0",
+		"@cedalo/sdk-streams": "2.4.0",
+		"@cedalo/gateway": "2.4.0",
+		"@cedalo/logger": "2.4.0",
+		"apollo-server-express": "2.9.16",
+		"express": "4.17.1"
+	}
+}
