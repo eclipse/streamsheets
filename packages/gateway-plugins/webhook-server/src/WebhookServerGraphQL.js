@@ -1,4 +1,6 @@
+
 const { gql } = require('apollo-server-express');
+// eslint-disable-next-line
 const { InternalError } = require('@cedalo/gateway/out/src/errors');
 const { getWebhookServer, getWebhookPath } = require('./WebhookServer');
 
