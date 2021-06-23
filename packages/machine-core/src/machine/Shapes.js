@@ -120,6 +120,10 @@ class Shape {
 	}
 	get VALUE() {
 		// modelattributes available?
+		if (this.shapejson.itemType === 'text') {
+			return getValue(this.shapejson.text, '');
+		}
+
 		return this.shapejson.modelattributes ? getValue(this.shapejson.modelattributes.value, 0) : 0;
 	}
 }

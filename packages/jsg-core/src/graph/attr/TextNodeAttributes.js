@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -145,6 +145,19 @@ class TextNodeAttributes extends ItemAttributes {
 		);
 	}
 
+	getType() {
+		return this.getAttribute(
+			TextNodeAttributes.TYPE
+		);
+	}
+
+	setType(type) {
+		this.setAttribute(
+			TextNodeAttributes.TYPE,
+			type
+		);
+	}
+
 	doSaveParentRef() {
 		return (
 			this._parent &&
@@ -202,6 +215,10 @@ class TextNodeAttributes extends ItemAttributes {
 		return 'associated';
 	}
 
+	static get TYPE() {
+		return 'type';
+	}
+
 	static get TemplateID() {
 		return TemplateID;
 	}
@@ -241,10 +258,17 @@ class TextNodeAttributes extends ItemAttributes {
 		);
 		addAttribute(new NumberAttribute(TXT_ATTR.MINIMUMHEIGHT), 0);
 		addAttribute(new NumberAttribute(TXT_ATTR.MAXIMUMHEIGHT), 0);
+		addAttribute(new NumberAttribute(TXT_ATTR.TYPE), TXT_ATTR.Type.VIEW);
 
 		return attributes.toTemplate(TextNodeAttributes.TemplateID);
 	}
 }
+
+TextNodeAttributes.Type = {
+	VIEW: 0,
+	EDIT: 1,
+	SELECT: 2,
+};
 
 /**
  * Size mode definitions.</br>

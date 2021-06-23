@@ -219,6 +219,7 @@ module.exports = class LayoutNode extends Node {
 		node.getItemAttributes().setMoveable(false);
 		node.getItemAttributes().setSizeable(false);
 		node.getItemAttributes().setDeleteable(false);
+		node.getItemAttributes().setEditMask(ItemAttributes.EditMask.ADDLABEL);
 		node.addAttribute(new NumberAttribute('mergecount', 0));
 		this.addItem(node, rowIndex * this._columnData.length + columnIndex);
 

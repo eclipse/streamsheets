@@ -313,6 +313,9 @@ class EditTextInteraction extends AbstractInteraction {
 
 		div.style.whiteSpace = 'normal';
 
+		if (this._item.getFormat().getLineStyle().getValue() !== FormatAttributes.LineStyle.NONE) {
+			div.style.outline = '0px solid transparent';
+		}
 		// css settings due to TextNode Format
 		div.style.background =
 			this._item
@@ -618,7 +621,7 @@ class EditTextInteraction extends AbstractInteraction {
 	getEditText(item) {
 		const view = this.isWorksheetView();
 		const expr = item.getText();
-		if (view && expr.hasFormula()) {
+		if (view && expr.hasFormula() && item.getItemAttributes().getType().getValue() === 0) {
 			return !expr.hasTerm() ?
 				`=${expr.getFormula()}`
 				: expr.toLocaleString(JSG.getParserLocaleSettings(), { item: view.getItem(), useName: true });
@@ -756,6 +759,11 @@ class EditTextInteraction extends AbstractInteraction {
 		const cs = viewer.getCoordinateSystem();
 		const canvas = viewer.getCanvas();
 		const center = this._item.getPinPoint();
+		const label = this._item.getExtraLabel();
+		if (label) {
+			center.y += 100;
+		}
+
 		const size = item.getSizeAsPoint();
 		const maxHeight = item
 			.getItemAttributes()

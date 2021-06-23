@@ -86,7 +86,7 @@ export class GeometryProperties extends Component {
 		}
 	}
 
-	getAttributeHandler(label, item, name, round = 0) {
+	getAttributeHandler(label, item, name, round = 0, options) {
 		const sheetView = this.getSheetView();
 
 		return (
@@ -102,6 +102,8 @@ export class GeometryProperties extends Component {
 					inputProps: {
 						onlyReference: false,
 						component: CellRangeComponent,
+						inputEditorType: options instanceof Array ? 'string' : options,
+						inputEditorOptions: options instanceof Array ? options : undefined,
 						sheetView,
 						range: this.getFormula(item.getAttributeAtPath(name).getExpression(), round)
 					}
@@ -335,6 +337,13 @@ export class GeometryProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	handleType = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.SetTextCommand(item, item.getText(), expr.expression);
+		graphManager.synchronizedExecute(cmd);
+	}
+
 	getX() {
 		const item = this.props.view.getItem();
 		const type = item.getShape().getType();
@@ -501,9 +510,14 @@ export class GeometryProperties extends Component {
 				{item.getShape() instanceof JSG.PolygonShape ? (
 					this.getPropertyHandler("GraphItemProperties.PointRange", this.handlePointRange, item.getShape().getSource())
 				) : null}
-				{item instanceof JSG.TextNode ? (
-					this.getPropertyHandler("GraphItemProperties.Text", this.handleText, item.getText())
-				) : null}
+				{item instanceof JSG.TextNode ? [
+					this.getPropertyHandler("GraphItemProperties.Text", this.handleText, item.getText()),
+					this.getAttributeHandler("GraphItemProperties.Type", item, 'GRAPHITEM:type', 0, [
+						{ value: '0', label: 'GraphItemProperties.View'},
+						{ value: '1', label: 'GraphItemProperties.Edit'},
+						{ value: '2', label: 'GraphItemProperties.Select'},
+					]),
+				] : null}
 				{(item instanceof JSG.SheetButtonNode) ||
 				(item instanceof JSG.SheetSliderNode) ||
 				(item instanceof JSG.SheetKnobNode) ||

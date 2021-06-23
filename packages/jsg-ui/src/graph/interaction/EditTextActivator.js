@@ -8,11 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, TextNode, AddItemCommand, GraphUtils, ItemAttributes } from '@cedalo/jsg-core';
+import { default as JSG, TextNode, AddItemCommand, GraphUtils, ItemAttributes, Shape } from '@cedalo/jsg-core';
 import InteractionActivator from './InteractionActivator';
 import EditTextInteraction from './EditTextInteraction';
 import GraphController from '../controller/GraphController';
 import ActionHandle from "./ActionHandle";
+import Cursor from '../../ui/Cursor';
 
 /**
  * An InteractionActivator used to activate a {{#crossLink "EditTextInteraction"}}{{/crossLink}}.
@@ -53,15 +54,38 @@ class EditTextActivator extends InteractionActivator {
 	 *     activator is registered.
 	 */
 	onMouseDown(event, viewer, dispatcher) {
-		if (this.isDisposed === false) {
-			const activeHandle = dispatcher.getActiveHandle();
-			const handleType = activeHandle !== undefined ? activeHandle.getType() : undefined;
-
-			if (handleType === ActionHandle.TYPE.EDIT) {
-				this._startEditTextInteraction(event, viewer, dispatcher, activeHandle.getController());
-			}
+		const controller = this.getEditController(event, viewer);
+		if (controller) {
+			this._startEditTextInteraction(event, viewer, dispatcher, controller);
+			event.keepFocus = true;
+			event.isConsumed = true;
+			event.hasActivated = true;
 		}
 	}
+
+	onMouseMove(event, viewer, dispatcher) {
+
+		const controller = this.getEditController(event, viewer);
+		if (controller) {
+			dispatcher.setCursor(Cursor.Style.TEXT);
+			event.isConsumed = true;
+			event.hasActivated = true;
+		}
+	}
+
+	getEditController(event, viewer) {
+		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+			return undefined;
+		}
+		return viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => {
+			const item = cont.getModel();
+			if ((item instanceof TextNode) && item.isVisible()) {
+				return item.getItemAttributes().getType().getValue() === 1;
+			}
+			return false;
+		});
+	}
+
 
 	/**
 	 * Implemented to be notified about mouse double click events.</br>
