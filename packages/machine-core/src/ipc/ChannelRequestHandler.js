@@ -11,8 +11,10 @@
 const RequestHandler = require('../messaging/RequestHandler');
 
 
+const IPC_TIMEOUT = parseInt(process.env.IPC_TIMEOUT, 10) || 5 * 60 * 1000;
+
 const DEF_OPTS = {
-	timeout: 20000
+	timeout: IPC_TIMEOUT
 };
 
 class ChannelRequestHandler {
