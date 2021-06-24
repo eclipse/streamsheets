@@ -158,6 +158,19 @@ class TextNodeAttributes extends ItemAttributes {
 		);
 	}
 
+	getReturnAction() {
+		return this.getAttribute(
+			TextNodeAttributes.RETURNACTION
+		);
+	}
+
+	setReturnAction(action) {
+		this.setAttribute(
+			TextNodeAttributes.RETURNACTION,
+			action
+		);
+	}
+
 	doSaveParentRef() {
 		return (
 			this._parent &&
@@ -219,6 +232,10 @@ class TextNodeAttributes extends ItemAttributes {
 		return 'type';
 	}
 
+	static get RETURNACTION() {
+		return 'returnaction';
+	}
+
 	static get TemplateID() {
 		return TemplateID;
 	}
@@ -259,6 +276,7 @@ class TextNodeAttributes extends ItemAttributes {
 		addAttribute(new NumberAttribute(TXT_ATTR.MINIMUMHEIGHT), 0);
 		addAttribute(new NumberAttribute(TXT_ATTR.MAXIMUMHEIGHT), 0);
 		addAttribute(new NumberAttribute(TXT_ATTR.TYPE), TXT_ATTR.Type.VIEW);
+		addAttribute(new NumberAttribute(TXT_ATTR.RETURNACTION), 0);
 
 		return attributes.toTemplate(TextNodeAttributes.TemplateID);
 	}

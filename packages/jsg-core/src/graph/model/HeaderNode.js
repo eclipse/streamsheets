@@ -82,10 +82,12 @@ module.exports = class HeaderNode extends Node {
 				const attr = sheet.getAttributeAtPath('range');
 				if (attr) {
 					const rangeString = attr.getValue();
-					const range = CellRange.parse(rangeString, sheet);
-					if (range) {
-						range.shiftFromSheet();
-						return range;
+					if (rangeString !== undefined) {
+						const range = CellRange.parse(rangeString, sheet);
+						if (range) {
+							range.shiftFromSheet();
+							return range;
+						}
 					}
 				}
 			}

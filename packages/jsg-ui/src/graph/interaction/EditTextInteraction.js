@@ -11,6 +11,7 @@
 /* global window document */
 
 import {
+	CellRange,
 	CompoundCommand,
 	default as JSG,
 	Dictionary,
@@ -23,7 +24,7 @@ import {
 	Notification,
 	NotificationCenter,
 	Point,
-	SetTextCommand,
+	SetTextCommand, SheetCommandFactory,
 	TextFormatAttributes,
 	TextNodeAttributes
 } from '@cedalo/jsg-core';
@@ -532,21 +533,28 @@ class EditTextInteraction extends AbstractInteraction {
 	 * @return {Boolean} Event return
 	 */
 	handleKeyDown(ev) {
-		switch (ev.keyCode) {
-			case 9:
-				// tab
+		switch (ev.key) {
+			case 'Tab':
 				ev.preventDefault();
 				break;
-			case 32:
-				// Space
+			case 'Space':
 				if (ev.altKey) {
 					ev.preventDefault();
 					ev.stopPropagation();
 					return false;
 				}
 				break;
-			case 27: {
-				// ESC
+			case 'Enter':
+				if (this._item.getItemAttributes().getReturnAction().getValue() === 1) {
+					const viewer = this.getViewer();
+					const canvas = viewer.getGraphicSystem().getCanvas();
+					const keyEvent = KeyEvent.fromEvent(canvas, ev, KeyEvent.KeyEventType.DOWN);
+					this.finishInteraction(keyEvent, viewer);
+					ev.preventDefault();
+					ev.stopPropagation();
+				}
+				break;
+			case 'Escape': {
 				const viewer = this.getViewer();
 				const canvas = viewer.getGraphicSystem().getCanvas();
 				const keyEvent = KeyEvent.fromEvent(canvas, ev, KeyEvent.KeyEventType.DOWN);
@@ -1139,16 +1147,38 @@ class EditTextInteraction extends AbstractInteraction {
 
 	createSetTextCommand(item) {
 		let newText = this._getNewText();
+		let cmd;
 		const view = this.isWorksheetView();
 		const sheet = view.getItem();
 
-		try {
-			newText = sheet.textToExpression(newText).expression;
-			// eslint-disable-next-line no-empty
-		} catch (e) {
+		const expr = item.getText();
+		if (expr._cellref) {
+			const range = CellRange.parse(expr._cellref, sheet);
+			if (range) {
+				range.shiftFromSheet();
+				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
+				if (cell) {
+					range.shiftToSheet();
+					const cellData = [{
+						reference: range.toString(),
+						value: newText
+					}];
+					expr.setTermValue(newText);
+					cell.setValue(newText);
+					cell.setTargetValue(newText);
+					cmd = SheetCommandFactory.create('command.SetCellsCommand', range.getSheet(), cellData, false);
+				}
+			}
+		} else {
+			try {
+				newText = sheet.textToExpression(newText).expression;
+				cmd = new SetTextCommand(item, this._undoText, newText);
+				// eslint-disable-next-line no-empty
+			} catch (e) {
+			}
 		}
 
-		return new SetTextCommand(item, this._undoText, newText);
+		return cmd;
 	}
 
 	willFinish(event, viewer) {
@@ -1165,7 +1195,7 @@ class EditTextInteraction extends AbstractInteraction {
 		if (doApply) {
 			// this is necessary as text change does not trigger an GRPAHITEM_CHANGED event and stream eventhandler does get informed
 			// about the text change, but the visible change. But then the text content must be set to update the formula
-			this._item.setText(this._getNewText());
+			// this._item.setText(this._getNewText());
 			const notification = new Notification(GraphItemController.ITEM_CHANGED_NOTIFICATION, this);
 			const notEvent = new Event(Event.CUSTOM, 0);
 			notEvent.source = this._item;
@@ -1193,13 +1223,6 @@ class EditTextInteraction extends AbstractInteraction {
 				interactionHandler.execute(cmd);
 			}
 		}
-
-		// const notification = new Notification(GraphItemController.ITEM_CHANGED_NOTIFICATION, this);
-		// const notEvent = new Event(Event.CUSTOM, 0);
-		// notEvent.source = this._item;
-		// notification.event = notEvent;
-		// notification.viewer = viewer;
-		// NotificationCenter.getInstance().send(notification);
 
 		return doApply;
 	}

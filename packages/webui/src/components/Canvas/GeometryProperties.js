@@ -517,6 +517,10 @@ export class GeometryProperties extends Component {
 						{ value: '1', label: 'GraphItemProperties.Edit'},
 						{ value: '2', label: 'GraphItemProperties.Select'},
 					]),
+					this.getAttributeHandler("GraphItemProperties.Type", item, 'GRAPHITEM:returnaction', 0, [
+						{ value: '0', label: 'GraphItemProperties.New Line'},
+						{ value: '1', label: 'GraphItemProperties.Accept Value'},
+					]),
 				] : null}
 				{(item instanceof JSG.SheetButtonNode) ||
 				(item instanceof JSG.SheetSliderNode) ||

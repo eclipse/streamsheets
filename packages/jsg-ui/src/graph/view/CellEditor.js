@@ -246,10 +246,15 @@ export default class CellEditor {
 		if (info.identifier) {
 			const fnName = info.identifier;
 			if (fnName.length) {
-				const functions = funcInfos.filter((entry) => entry[0].startsWith(fnName));
-				if (functions.length) {
-					this.replaceInfo = { start: info.start, length: fnName.length };
-					return functions;
+				// check for dot notation
+				if (text[info.start] === '.') {
+					return undefined;
+				} else {
+					const functions = funcInfos.filter((entry) => entry[0].startsWith(fnName));
+					if (functions.length) {
+						this.replaceInfo = { start: info.start, length: fnName.length };
+						return functions;
+					}
 				}
 			}
 		}

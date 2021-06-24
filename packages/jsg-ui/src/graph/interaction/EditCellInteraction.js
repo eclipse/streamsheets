@@ -198,7 +198,7 @@ export default class EditCellInteraction extends EditTextInteraction {
 				if (cont) {
 					const view = cont.getView().getWorksheetView();
 					const cell = view.getCellInside(event, viewer);
-					if (cell.x === -1 || cell.y === -1) {
+					if (cell && (cell.x === -1 || cell.y === -1)) {
 						controller = cont;
 					} else {
 						cont = undefined;

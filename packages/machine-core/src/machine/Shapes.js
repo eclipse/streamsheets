@@ -47,10 +47,8 @@ const updateValue = (obj) => {
 	if (obj.sv instanceof SheetRange) {
 		obj.sv = obj.sv.toReferenceString();
 	}
-	if (obj.term && obj.term.hasOperandOfType('CellReference')) {
-		obj.ref = obj.term.operand.toString();
-	}
-	if (obj.term && obj.term.info) {
+	if (obj.term) {
+		obj.ref = obj.term.hasOperandOfType('CellReference') ? obj.term.operand.toString() : undefined;
 		obj.info = obj.term.info;
 	}
 };
@@ -113,6 +111,18 @@ class Shape {
 	}
 	get NAME() {
 		return getValue(this.shapejson.name, '');
+	}
+	get X() {
+		return Math.round(getValue(this.shapejson.x, ''));
+	}
+	get Y() {
+		return Math.round(getValue(this.shapejson.y, ''));
+	}
+	get W() {
+		return Math.round(getValue(this.shapejson.width, ''));
+	}
+	get H() {
+		return Math.round(getValue(this.shapejson.height, ''));
 	}
 	get VISIBLE() {
 		// attributes available?
