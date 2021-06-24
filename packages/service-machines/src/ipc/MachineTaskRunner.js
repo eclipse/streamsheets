@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const fork = require('child_process').fork;
+const zlib = require('zlib');
 const {
 	Channel,
 	ChannelRequestHandler,
@@ -90,7 +91,12 @@ class MachineTaskRunner {
 	}
 
 	async getDefinition() {
-		return this.requestHandler.request({ request: 'definition' });
+		// return this.requestHandler.request({ request: 'definition' });
+		const zipped = await this.requestHandler.request({ request: 'definition' });
+		const zippedBuffer = Buffer.from(zipped.data);
+		return new Promise((resolve, reject) => {
+			zlib.unzip(zippedBuffer, (err, buf) => err ? reject(err) : resolve(JSON.parse(buf.toString('utf8'))));
+		});
 	}
 
 	async start() {
