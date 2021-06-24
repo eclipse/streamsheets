@@ -21,6 +21,9 @@ const MachineTaskObserver = require('./MachineTaskObserver');
 const FunctionModulesResolver = require('../utils/FunctionModulesResolver');
 const logger = require('../utils/logger').create({ name: 'MachineTaskRunner' });
 
+// 
+const IPC_TIMEOUT = parseInt(process.env.IPC_TIMEOUT, 10) || 5 * 60 * 1000;
+
 // REVIEW: check if port is unused...
 let PORT = 9228;
 const port = () => {
@@ -38,6 +41,7 @@ const forkArgs = (options) => {
 	return args;
 };
 const forkOptions = (options) => ({
+	timeout: IPC_TIMEOUT,
 	execArgv: options.debug ? [`--inspect=${port()}`] : undefined
 });
 
