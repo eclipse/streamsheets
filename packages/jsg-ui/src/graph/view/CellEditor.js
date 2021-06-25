@@ -228,7 +228,7 @@ export default class CellEditor {
 
 		for (let child = this.div.firstChild; child !== null; child = child.nextSibling) {
 			if (child.nodeName.toUpperCase() === 'SPAN' && child.id.startsWith('pos§')) {
-				const id = Number(child.id.slice(3));
+				const id = Number(child.id.slice(4));
 				if (info && info.brackets && id - 1 === info.brackets.open) {
 					child.style.fontWeight = 'bold';
 				} else if (info && info.brackets && id - 1 === info.brackets.close) {
