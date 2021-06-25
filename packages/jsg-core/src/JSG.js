@@ -361,6 +361,8 @@ JSG.theme = {
 	chart: 'basic',
 	graph: '#DDDDDD',
 	tool: '#EEEEEE',
+	listback: '#FFFFFF',
+	listborder: '#333333',
 	caption: '#1565c0',
 	captiontext: '#FFFFFF',
 	frame: '#AAAAAA',

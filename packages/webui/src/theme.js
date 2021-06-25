@@ -239,6 +239,8 @@ const createByName = () => {
 			theme: name,
 			graph: '#333333',
 			tool: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
+			listback: '#333333',
+			listborder: '#777777',
 			caption: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
 			captiontext: '#FFFFFF',
 			frame: '#FFFFFF',
