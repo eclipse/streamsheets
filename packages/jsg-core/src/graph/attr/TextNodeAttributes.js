@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const Attribute = require('./Attribute');
 const ItemAttributes = require('./ItemAttributes');
 const BooleanAttribute = require('./BooleanAttribute');
 const NumberAttribute = require('./NumberAttribute');
@@ -171,6 +172,19 @@ class TextNodeAttributes extends ItemAttributes {
 		);
 	}
 
+	getOptionsRange() {
+		return this.getAttribute(
+			TextNodeAttributes.OPTIONSRANGE
+		);
+	}
+
+	setOptionsRange(action) {
+		this.setAttribute(
+			TextNodeAttributes.OPTIONSRANGE,
+			action
+		);
+	}
+
 	doSaveParentRef() {
 		return (
 			this._parent &&
@@ -236,6 +250,10 @@ class TextNodeAttributes extends ItemAttributes {
 		return 'returnaction';
 	}
 
+	static get OPTIONSRANGE() {
+		return 'optionsrange';
+	}
+
 	static get TemplateID() {
 		return TemplateID;
 	}
@@ -277,6 +295,7 @@ class TextNodeAttributes extends ItemAttributes {
 		addAttribute(new NumberAttribute(TXT_ATTR.MAXIMUMHEIGHT), 0);
 		addAttribute(new NumberAttribute(TXT_ATTR.TYPE), TXT_ATTR.Type.VIEW);
 		addAttribute(new NumberAttribute(TXT_ATTR.RETURNACTION), 0);
+		addAttribute(new Attribute(TXT_ATTR.OPTIONSRANGE), 0);
 
 		return attributes.toTemplate(TextNodeAttributes.TemplateID);
 	}

@@ -16,12 +16,13 @@ class SetLayoutSectionCommand extends AbstractItemCommand {
 		let cmd;
 		const item = graph.getItemById(data.itemId);
 		if (item) {
-			cmd = new SetLayoutSectionCommand(item, data.index, data.row, data.size, data.minSize, data.sizeMode).initWithObject(data);
+			cmd = new SetLayoutSectionCommand(item, data.index, data.row, data.size, data.minSize,
+				data.sizeMode, data.expandable, data.expanded).initWithObject(data);
 		}
 		return cmd;
 	}
 
-	constructor(item, index, row, size, minSize, sizeMode) {
+	constructor(item, index, row, size, minSize, sizeMode, expandable, expanded) {
 		super(item);
 
 		this._index = index;
@@ -29,6 +30,9 @@ class SetLayoutSectionCommand extends AbstractItemCommand {
 		this._size = size;
 		this._sizeMode = sizeMode;
 		this._minSize = minSize;
+		this._minSize = minSize;
+		this._expandable = expandable;
+		this._expanded = expanded;
 	}
 
 	execute() {
@@ -37,6 +41,8 @@ class SetLayoutSectionCommand extends AbstractItemCommand {
 		section.minSize = this._minSize;
 		section.size = this._size;
 		section.sizeMode = this._sizeMode;
+		section.expandable = this._expandable;
+		section.expanded = this._expanded;
 
 		this.getItem().getGraph().markDirty();
 	}
@@ -55,6 +61,8 @@ class SetLayoutSectionCommand extends AbstractItemCommand {
 		data.size = this._size;
 		data.sizeMode = this._sizeMode;
 		data.minSize = this._minSize;
+		data.expandable = this._expandable;
+		data.expanded = this._expanded;
 
 		return data;
 	}

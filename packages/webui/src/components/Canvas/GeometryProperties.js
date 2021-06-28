@@ -521,6 +521,7 @@ export class GeometryProperties extends Component {
 						{ value: '0', label: 'GraphItemProperties.New Line'},
 						{ value: '1', label: 'GraphItemProperties.Accept Value'},
 					]),
+					this.getAttributeHandler("GraphItemProperties.OptionsRange", item, 'GRAPHITEM:optionsrange'),
 				] : null}
 				{(item instanceof JSG.SheetButtonNode) ||
 				(item instanceof JSG.SheetSliderNode) ||

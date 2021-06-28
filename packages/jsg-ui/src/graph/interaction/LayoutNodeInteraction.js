@@ -81,7 +81,9 @@ export default class LayoutNodeInteraction extends Interaction {
 			this.row,
 			data.size,
 			data.minSize,
-			data.sizeMode);
+			data.sizeMode,
+			data.expandable,
+			data.expanded);
 
 		viewer.getInteractionHandler().execute(cmd);
 

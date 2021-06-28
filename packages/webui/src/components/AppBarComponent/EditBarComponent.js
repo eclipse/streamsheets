@@ -88,6 +88,7 @@ export class EditBarComponent extends Component {
 		const info = document.getElementById('editbarreference');
 		const selection = graphManager.getGraphViewer().getSelection();
 		let formulaText = '';
+		let infoText = '';
 		const jsgState = {};
 		const appState = {};
 
@@ -122,6 +123,7 @@ export class EditBarComponent extends Component {
 						// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION));
 					}
 				}
+				infoText = item.getName().getValue();
 			}
 
 			const view = getProcessContainerView(selection[0]);
@@ -134,7 +136,7 @@ export class EditBarComponent extends Component {
 		}
 
 		formula.innerHTML = Strings.encodeXML(formulaText);
-		info.innerHTML = '';
+		info.innerHTML = infoText;
 
 		if (this.props.cellSelected === true) {
 			jsgState.cellSelected = false;

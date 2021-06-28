@@ -30,6 +30,8 @@ import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
 import { FormattedMessage } from 'react-intl';
 import MenuItem from '@material-ui/core/MenuItem';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 // import {intl} from "../../helper/IntlGlobalProvider";
 
 
@@ -63,6 +65,8 @@ export class LayoutSectionProperties extends Component {
 		minSize: 1000,
 		size: 1000,
 		sizeMode: 'auto',
+		expanded: true,
+		expandable: false,
 	};
 
 	componentDidMount() {
@@ -95,7 +99,9 @@ export class LayoutSectionProperties extends Component {
 			this.setState({
 				minSize: data.minSize,
 				size: data.size,
-				sizeMode: data.sizeMode
+				sizeMode: data.sizeMode,
+				expanded: data.expanded,
+				expandable: data.expandable
 			});
 		} else {
 			this.props.setAppState({showLayoutSectionProperties: false});
@@ -161,7 +167,9 @@ export class LayoutSectionProperties extends Component {
 				row,
 				data.size,
 				data.minSize,
-				data.sizeMode);
+				data.sizeMode,
+				data.expandable,
+				data.expanded);
 			graphManager.synchronizedExecute(cmd);
 		}
 	}
@@ -180,6 +188,22 @@ export class LayoutSectionProperties extends Component {
 		const data = this.getSection();
 		data.sizeMode = event.target.value;
 		this.setState({sizeMode: event.target.value});
+		this.execute(data);
+
+	};
+
+	handleExpandableChange = (event) => {
+		const data = this.getSection();
+		data.expandable = event.target.checked;
+		this.setState({expandable: event.target.checked});
+		this.execute(data);
+
+	};
+
+	handleExpandedChange = (event) => {
+		const data = this.getSection();
+		data.expanded = event.target.checked;
+		this.setState({expanded: event.target.checked});
 		this.execute(data);
 
 	};
@@ -293,6 +317,34 @@ export class LayoutSectionProperties extends Component {
 							onBlur={event => this.handleMinimumSizeBlur(event)}
 							label={
 								<FormattedMessage id="GraphItemProperties.MinimumSize" defaultMessage="Minimum Size" />}
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={this.state.expandable}
+									onChange={event => this.handleExpandableChange(event)}
+								/>
+							}
+							label={
+								<FormattedMessage
+									id="GraphItemProperties.Expandable"
+									defaultMessage="Expandable"
+								/>
+							}
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={this.state.expanded}
+									onChange={(event => this.handleExpandedChange(event))}
+								/>
+							}
+							label={
+								<FormattedMessage
+									id="GraphItemProperties.Expanded"
+									defaultMessage="Expanded"
+								/>
+							}
 						/>
 					</div>
 				</Paper>

@@ -88,18 +88,18 @@ export default class SheetSliderView extends NodeView {
 					frange.shiftFromSheet();
 					for (let i = frange.getY1(); i <= frange.getY2(); i += 1) {
 						const def = {};
-						let cell = sheet.getDataProvider().getRC(frange.getX1(), i);
+						let cell = frange._worksheet.getDataProvider().getRC(frange.getX1(), i);
 						if (cell && cell.getValue() !== undefined) {
 							def.start = Number(cell.getValue());
 						}
 						if (frange.getWidth() > 1) {
-							cell = sheet.getDataProvider().getRC(frange.getX1() + 1, i);
+							cell = frange._worksheet.getDataProvider().getRC(frange.getX1() + 1, i);
 							if (cell && cell.getValue()) {
 								def.label = String(cell.getValue());
 							}
 						}
 						if (frange.getWidth() > 2) {
-							cell = sheet.getDataProvider().getRC(frange.getX1() + 2, i);
+							cell = frange._worksheet.getDataProvider().getRC(frange.getX1() + 2, i);
 							if (cell && cell.getValue()) {
 								def.color = String(cell.getValue());
 							}

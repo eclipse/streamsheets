@@ -16,6 +16,8 @@ module.exports = class LayoutSection {
 		this._size = size === undefined ? 4000 : size;
 		this._minSize = 1000;
 		this._sizeMode = 'absolute';
+		this._expandable = false;
+		this._expanded = true;
 		this._paddingBefore = 300;
 		this._paddingAfter = 300;
 		this._marginBefore = 300;
@@ -26,6 +28,8 @@ module.exports = class LayoutSection {
 		const copy = new LayoutSection(this._size);
 		copy._minSize = this._minSize;
 		copy._sizeMode = this._sizeMode;
+		copy._expandable = this._expandable;
+		copy._expanded = this._expanded;
 		copy._paddingBefore = this._paddingBefore;
 		copy._paddingAfter = this._paddingAfter;
 		copy._marginBefore = this._marginBefore;
@@ -59,10 +63,28 @@ module.exports = class LayoutSection {
 		this._sizeMode = mode;
 	}
 
+	get expanded() {
+		return this._expanded;
+	}
+
+	set expanded(mode) {
+		this._expanded = mode;
+	}
+
+	get expandable() {
+		return this._expandable;
+	}
+
+	set expandable(mode) {
+		this._expandable = mode;
+	}
+
 	fromJSON(json) {
 		this._size = json.size;
 		this._minSize = json.minSize;
 		this._sizeMode = json.sizeMode;
+		this._expanded = json.expanded;
+		this._expandable = json.expandable;
 
 		if (this._sizeMode === 'metric') {
 			this._sizeMode = 'absolute';
@@ -75,6 +97,8 @@ module.exports = class LayoutSection {
 		ret.size = this._size;
 		ret.minSize = this._minSize;
 		ret.sizeMode = this._sizeMode;
+		ret.expanded = this._expanded;
+		ret.expandable = this._expandable;
 
 		return ret;
 	}

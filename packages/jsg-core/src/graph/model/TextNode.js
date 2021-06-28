@@ -57,7 +57,7 @@ class TextNode extends Node {
 		format.setLineStyle(FormatAttributes.LineStyle.NONE);
 		format.setFillStyle(FormatAttributes.FillStyle.NONE);
 
-		this._text = new StringExpression(txt || 'Text');
+		this._text = new Expression(txt || 'Text');
 
 		this.invalidateSize();
 

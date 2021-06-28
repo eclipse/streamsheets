@@ -683,7 +683,11 @@ class Expression {
 			ret.f = Strings.encode(this._formula);
 		}
 		if (this._value !== undefined) {
-			ret.v = Strings.encode(this.getValue().toString())
+			if (this.getValue() !== undefined) {
+				ret.v = Strings.encode(this.getValue().toString())
+			} else {
+				ret.v = 0;
+			}
 		}
 		const type = typeof this.getValue();
 

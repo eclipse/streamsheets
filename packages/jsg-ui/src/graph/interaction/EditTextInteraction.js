@@ -361,24 +361,6 @@ class EditTextInteraction extends AbstractInteraction {
 		document.execCommand('defaultParagraphSeparator', null, 'p');
 		canvas.parentNode.appendChild(div);
 
-		if (this._select) {
-			this.selectBtn = document.createElement('div');
-			this.selectBtn.id = 'jsgTextSelect';
-			this.selectBtn.tabIndex = '6';
-			this.selectBtn.zIndex = 101;
-			this.selectBtn.style.position = 'absolute';
-			this.selectBtn.style.height = `${this._selectSize}px`;
-			this.selectBtn.style.width = `${this._selectSize}px`;
-			this.selectBtn.style.display = 'inline-block';
-			this.selectBtn.style.backgroundImage = `url(lib/res/svg/arrowdown.svg)`;
-			this.selectBtn.style.backgroundPosition = 'center';
-			this.selectBtn.style.backgroundRepeat = 'no-repeat';
-			this.selectBtn.style.cursor = 'pointer';
-			this.selectBtn.addEventListener('mousedown', (ev) => this.handleOptionsMouseDown(canvas, ev), false);
-
-			canvas.parentNode.appendChild(this.selectBtn);
-		}
-
 		div.innerHTML = this.getEditText(this._item);
 
 		// forces FF and IE to recalc size
@@ -392,6 +374,25 @@ class EditTextInteraction extends AbstractInteraction {
 
 		// place div and scroll div into view, if necessary
 		this.updateTextArea(viewer, false, true);
+
+		if (this._select) {
+			this.selectBtn = document.createElement('div');
+			this.selectBtn.id = 'jsgTextSelect';
+			this.selectBtn.tabIndex = '6';
+			this.selectBtn.zIndex = 101;
+			this.selectBtn.style.position = 'absolute';
+			this.selectBtn.style.height = `${this._selectSize}px`;
+			this.selectBtn.style.width = `${this._selectSize}px`;
+			this.selectBtn.style.display = 'inline-block';
+			this.selectBtn.style.backgroundImage = `url(lib/res/svg/arrowdown.svg)`;
+			this.selectBtn.style.backgroundPosition = 'center';
+			this.selectBtn.style.backgroundRepeat = 'no-repeat';
+			this.selectBtn.style.cursor = 'pointer';
+			this.selectBtn.addEventListener('mousedown', (ev) => this.handleOptionsMouseDown(canvas), false);
+
+			canvas.parentNode.appendChild(this.selectBtn);
+			this.handleOptionsMouseDown(canvas);
+		}
 
 		// select complete text
 		if (window.getSelection) {
@@ -435,31 +436,50 @@ class EditTextInteraction extends AbstractInteraction {
 		this._startText = this._getNewText();
 	}
 
-	generateOptionsHTML(options) {
+	generateOptionsHTML() {
 		let html = '';
+		const item = this._item;
 
-		options.forEach((option, index) => {
-				// if (index === this.funcIndex) {
-				// 	html = `<div id="func${index}" style="padding: 3px;background-color: #DDDDDD">`;
-				// 	html += `<p style="">${info[0]}</p>`;
-				// 	html += `<p style="">${info[1][JSG.locale].description}</p>`;
-				// } else {
-					html += `<div id="option${index}" style="padding: 3px;background-color: ${JSG.theme.fill}">`;
-					html += `<p style="">${option}</p>`;
-				// }
-				html += '</div>';
-			});
+		const formatRange = item.getItemAttributes().getOptionsRange().getValue();
+		if (formatRange) {
+			const view = this.isWorksheetView();
+			const sheet = view.getItem();
+			if (sheet && typeof formatRange === 'string') {
+				const frange = CellRange.parse(formatRange, sheet);
+				if (frange) {
+					frange.shiftFromSheet();
+					for (let i = frange.getY1(); i <= frange.getY2(); i += 1) {
+						const cell = frange._worksheet.getDataProvider().getRC(frange.getX1(), i);
+						if (cell && cell.getValue() !== undefined) {
+							html += `<div id="option${i}" style="padding: 3px;background-color: ${JSG.theme.fill}">`;
+							html += `<p style="">${cell.getValue()}</p>`;
+							// }
+							html += '</div>';
+						}
+					}
+				}
+			}
+		}
 
+
+		// options.forEach((option, index) => {
+		// 		// if (index === this.funcIndex) {
+		// 		// 	html = `<div id="func${index}" style="padding: 3px;background-color: #DDDDDD">`;
+		// 		// 	html += `<p style="">${info[0]}</p>`;
+		// 		// 	html += `<p style="">${info[1][JSG.locale].description}</p>`;
+		// 		// } else {
+		// 			html += `<div id="option${index}" style="padding: 3px;background-color: ${JSG.theme.fill}">`;
+		// 			html += `<p style="">${option}</p>`;
+		// 		// }
+		// 		html += '</div>';
+		// 	});
+		//
 		return html;
 	}
 
 
-	handleOptionsMouseDown(canvas, event) {
-		const html = this.generateOptionsHTML([
-			'option1',
-			'option2',
-			'option3',
-		])
+	handleOptionsMouseDown(canvas) {
+		const html = this.generateOptionsHTML();
 
 		if (this.optionsDiv === undefined) {
 			const y = this.div.offsetTop + this.div.clientHeight + 5;
@@ -484,12 +504,17 @@ class EditTextInteraction extends AbstractInteraction {
 		this.optionsDiv.innerHTML = html;
 		const children = [...this.optionsDiv.childNodes];
 		children.forEach((child) => {
-			child.addEventListener('mousedown', (ev) => this.handleOptionListMouseDown(ev), false);
+			child.addEventListener('mouseup', (ev) => this.handleOptionListMouseDown(ev), false);
 		});
 	};
 
 	handleOptionListMouseDown(event) {
 		const index = Number(event.currentTarget.id.substr(4));
+		this.div.innerHTML = event.currentTarget.textContent;
+		this.finishInteraction(undefined, this.getViewer());
+
+		// canvas.parentNode.removeChild(this.optionsDiv);
+		// this.optionsDiv = undefined;
 		// if (this.insertFunctionFromList()) {
 		// 	event.preventDefault();
 		// 	event.stopPropagation();

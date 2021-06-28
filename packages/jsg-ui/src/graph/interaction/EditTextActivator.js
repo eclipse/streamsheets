@@ -67,7 +67,8 @@ class EditTextActivator extends InteractionActivator {
 
 		const controller = this.getEditController(event, viewer);
 		if (controller) {
-			dispatcher.setCursor(Cursor.Style.TEXT);
+			const type = controller.getModel().getItemAttributes().getType().getValue();
+			dispatcher.setCursor(type === 1 ? Cursor.Style.TEXT : Cursor.Style.EXECUTE);
 			event.isConsumed = true;
 			event.hasActivated = true;
 		}
@@ -80,7 +81,9 @@ class EditTextActivator extends InteractionActivator {
 		return viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => {
 			const item = cont.getModel();
 			if ((item instanceof TextNode) && item.isVisible()) {
-				return item.getItemAttributes().getType().getValue() === 1;
+				if (item.getItemAttributes().getType().getValue()) {
+					return true;
+				}
 			}
 			return false;
 		});
