@@ -50,8 +50,8 @@ class OnMessageTrigger extends BaseTrigger {
 	constructor(config = {}) {
 		super(Object.assign({}, config, { type: OnMessageTrigger.TYPE }));
 		this.activeCycle = new ManualOnMessageCycle(this);
+		this._trigger = this._trigger.bind(this);
 		this._onMessagePut = this._onMessagePut.bind(this);
-		this._triggerRun = this._triggerRun.bind(this);
 		this._timeoutId = undefined;
 	}
 
@@ -67,8 +67,14 @@ class OnMessageTrigger extends BaseTrigger {
 		if (streamsheet && !streamsheet.inbox.isEmpty() && !this.isMachineStopped) this.start();
 	}
 
+	_clearTimeout() {
+		if (this._timeoutId != null) {
+			clearTimeout(this._timeoutId);
+			this._timeoutId = null;
+		}
+	}
 	_trigger() {
-		this._timeoutId = null;
+		this._clearTimeout();
 		this.activeCycle.run();
 	}
 	_onMessagePut() {
@@ -78,6 +84,7 @@ class OnMessageTrigger extends BaseTrigger {
 
 	dispose() {
 		unsubscribe(this.streamsheet, this);
+		this._clearTimeout();
 		super.dispose();
 	}
 
