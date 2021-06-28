@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const logger = require('../logger').create({ name: 'RequestHandlerRegistry' });
+const zlib = require('zlib');
 const {
 	cellDescriptor,
 	collectMachineStats,
@@ -369,7 +370,15 @@ class Definition extends ARequestHandler {
 	}
 	handle(/* msg */) {
 		try {
-			return Promise.resolve(getDefinition(this.machine));
+			// return Promise.resolve(getDefinition(this.machine));
+			const buffer = Buffer.from(JSON.stringify(getDefinition(this.machine)), 'utf8');
+			return new Promise((resolve, reject) => {
+				// better compression, but slower and overall no improvement since process.send() is bottleneck
+				// zlib.brotliCompress(buffer, (err, res) =>
+				zlib.gzip(buffer, { level: zlib.constants.Z_BEST_COMPRESSION }, (err, res) =>
+					err ? reject(err) : resolve(res)
+				);
+			});
 		} catch (err) {
 			return Promise.reject(err);
 		}
