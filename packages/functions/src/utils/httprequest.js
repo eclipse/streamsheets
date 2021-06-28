@@ -63,7 +63,6 @@ const addResultToTarget = (sheet, target, resobj) => {
 	}
 };
 
-const DATA = ['data'];
 const ERRORDATA = ['code', 'message'];
 const METADATA = ['headers', 'status', 'statusText'];
 const REQUESTDATA = ['data', 'headers', 'method', 'url'];

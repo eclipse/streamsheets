@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+// const os = require('os');
 const Channel = require('./Channel');
 const Machine = require('../machine/Machine');
 const MachineTaskMonitor = require('./MachineTaskMonitor');
@@ -66,3 +67,10 @@ process.on('message', (msg) => {
 		handleCommand(msg);
 	}
 });
+// PROCESS PRIORITY:
+// try {
+// 	logger.info('change process priority to -20');
+// 	os.setPriority(-20);
+// } catch (err) {
+// 	logger.error('failed to change process priority', err);
+// }

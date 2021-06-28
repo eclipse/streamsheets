@@ -69,7 +69,7 @@ class Queue {
 	async _run(request) {
 		this.running += 1;
 		try {
-			request.result = await request.requestFn();
+			request.result = await request.requestFn(request.context);
 			request.state = RequestState.RESOLVED;
 		} catch (err) {
 			logger.error(`Request failed ${request.reqId()}`, err);
