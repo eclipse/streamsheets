@@ -28,6 +28,7 @@ ENV SWAGGER_SPEC_PATH=streamsheets/packages/gateway/src/public/swagger-spec/v1.0
 	STREAMSHEETS_STREAMS_SERVICE_LOG_LEVEL=info \
 	NODE_ENV=production \
 	PLUGINS_MODULE_DIR=/streamsheets/packages/gateway-plugins \
+	STREAMSHEETS_START_RETRIES=3 \
 	STREAMS_SERVICE_START_DELAY=5000
 RUN apt-get update && apt-get install -y wget gnupg
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - && \
