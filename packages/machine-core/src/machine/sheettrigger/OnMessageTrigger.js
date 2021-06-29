@@ -78,8 +78,8 @@ class OnMessageTrigger extends BaseTrigger {
 		this.activeCycle.run();
 	}
 	_onMessagePut() {
-		// if (!this.isMachineStopped) this.activeCycle.run();
-		if (!this.isMachineStopped && this._timeoutId == null) this._timeoutId = setTimeout(this._trigger, 1);
+		if (!this.isMachineStopped) this.activeCycle.run();
+		// if (!this.isMachineStopped && this._timeoutId == null) this._timeoutId = setTimeout(this._trigger, 1);
 	}
 
 	dispose() {
