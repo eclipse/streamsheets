@@ -15,7 +15,19 @@ const system = require('systeminformation');
 
 module.exports = class MetricsManager {
 	static async getMetrics() {
-		const currentLoad = await system.currentLoad();
+		const systeminformation = {
+			currentLoad: await system.currentLoad(),
+			cpuCurrentSpeed: await system.cpuCurrentSpeed(),
+			memory: await system.mem(),
+			fullLoad: await system.fullLoad(),
+			processes: await system.processes(),
+			// processLoad: await system.processLoad(),
+			// dockerInfo: await system.dockerInfo(),
+		}
+
+		systeminformation.process = systeminformation.processes.list.find(processObject => processObject.pid === process.pid);
+		delete systeminformation.processes;
+		
 		const { pid, title, versions } = process;
 		const memory = process.memoryUsage();
 		const cpu = process.cpuUsage();
@@ -28,7 +40,7 @@ module.exports = class MetricsManager {
 		const heapSpaceStatistics = v8.getHeapSpaceStatistics();
 
 		const result = {
-			currentLoad,
+			systeminformation,
 			title,
 			pid,
 			versions,
