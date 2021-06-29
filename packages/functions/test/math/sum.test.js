@@ -87,7 +87,7 @@ describe('sum', () => {
 		expect(createTerm('sum(true)', sheet).value).toBe(1);
 		expect(createTerm('sum(false)', sheet).value).toBe(0);
 		expect(createTerm('sum("123")', sheet).value).toBe(123);
-		expect(createTerm('sum("asd","Asd")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('sum("asd","Asd")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });
 
@@ -173,12 +173,12 @@ describe('sumif', () => {
 
 	it(`should return ${ERROR.ARGS} or ${ERROR.INVALID_PARAM} error if not enough or too many parameters given`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('sumif()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('sumif(,)', sheet).value).toBe(ERROR.INVALID_PARAM);
-		expect(createTerm('sumif(,,)', sheet).value).toBe(ERROR.INVALID_PARAM);
-		expect(createTerm('sumif(,,,)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('sumif(A2:A4)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('sumif(A2:A4, "*", A2:A3, "*")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('sumif()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('sumif(,)', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('sumif(,,)', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('sumif(,,,)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('sumif(A2:A4)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('sumif(A2:A4, "*", A2:A3, "*")', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
 describe('sumifs', () => {
@@ -204,8 +204,8 @@ describe('sumifs', () => {
 			A5: 1,	B5: 2, C5: 3, D5: 4,
 			A6: 1,	B6: 2, C6: 3, D6: 4
 		});
-		expect(createTerm('sumifs(A2:A4, C2:C5, ">0")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('sumifs(A2:B3, C2:D6, ">0")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('sumifs(A2:B3, C2:C2, ">0")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('sumifs(A2:A4, C2:C5, ">0")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('sumifs(A2:B3, C2:D6, ">0")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('sumifs(A2:B3, C2:C2, ">0")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });

@@ -44,7 +44,7 @@ describe('getcycletime', () => {
 	});
 	it('should return error if no sheet or no machine available', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(GETCYCLETIME()).toBe(ERROR.ARGS);
-		expect(GETCYCLETIME(sheet)).toBe(ERROR.NO_MACHINE);
+		expect(GETCYCLETIME().code).toBe(ERROR.ARGS);
+		expect(GETCYCLETIME(sheet).code).toBe(ERROR.NO_MACHINE);
 	});
 });

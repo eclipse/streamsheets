@@ -43,9 +43,9 @@ describe('split', () => {
 	// DL-1332
 	it('should return error code for invalid or missing parameters', () => {
 		const sheet = new Sheet();
-		expect(createTerm('split()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('split("topic1/topic2/topic3")', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('split("topic1/topic2/topic3", "/", 3, 45, 56)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('split("topic1/topic2/topic3", "/", 1B1)', sheet).value).toBe(ERROR.NAME);
+		expect(createTerm('split()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('split("topic1/topic2/topic3")', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('split("topic1/topic2/topic3", "/", 3, 45, 56)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('split("topic1/topic2/topic3", "/", 1B1)', sheet).value.code).toBe(ERROR.NAME);
 	});
 });

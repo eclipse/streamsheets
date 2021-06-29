@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { FunctionErrors } = require('@cedalo/error-codes');
-const { ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
 const Cell = require('../machine/Cell');
-const { ErrorTerm } = require('./Error');
+const ErrorTerm = require('./ErrorTerm');
 const SheetParserContext = require('./SheetParserContext');
 const { AndOperator, ConcatOperator, DotReference, Operations } = require('./Operations');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
+const { ErrorCodes, Operation, Parser, Term, Operand } = require('@cedalo/parser');
 
 class ObjectTerm extends Term {
 	constructor(value) {

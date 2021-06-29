@@ -33,14 +33,28 @@ const DEF_SHEET_PROPS = require('../../defproperties.json');
 let machineLoaded = false;
 const currentStreams = new Map();
 
+// TODO: change with refactoring of message/communication!! was added to solve DL-4254
+const isSlowRunningMachine = (machine) => machine && machine.state === State.RUNNING && machine.cycletime > 1500;
+const sendSheetUpdateOnSlowMachine = (sheet, cell, index) => {
+	if (isSlowRunningMachine(sheet.machine)) {
+		sheet.streamsheet.notifySheetUpdate(cell, index);
+	}
+};
+
 const disableSheetUpdate = (sheet) => {
 	const updateHandler = sheet.onUpdate;
 	sheet.onUpdate = undefined;
 	return updateHandler;
 };
-const enableSheetUpdate = (sheet, updateHandler, notify) => {
-	sheet.onUpdate = updateHandler;
-	if (notify) sheet._notifyUpdate();
+const enableSheetUpdate = (sheet, updateHandler, notify, cell, index) => {
+	// no updateHandler means still disabled, occurs if dis- & enableSheetUpdate were nested...
+	if (updateHandler) {
+		sheet.onUpdate = updateHandler;
+		if (notify) {
+			sheet._notifyUpdate();
+			sendSheetUpdateOnSlowMachine(sheet, cell, index);
+		}
+	}
 };
 
 const addMachineStats = (data) => (machine) => {
@@ -222,14 +236,6 @@ const updateCurrentStream = (stream) => {
 	}
 };
 
-// TODO: change with refactoring of message/communication!! was added to solve DL-4254
-const isSlowRunningMachine = (machine) => machine && machine.state === State.RUNNING && machine.cycletime > 1500;
-const sendSheetUpdateOnSlowMachine = (streamsheet, cell, index) => {
-	if (isSlowRunningMachine(streamsheet.machine)) {
-		streamsheet.notifySheetUpdate(cell, index);
-	}
-};
-
 // express as typescript abstract class
 class ARequestHandler {
 	constructor(machine, monitor) {
@@ -269,15 +275,37 @@ class BulkRequests extends ARequestHandler {
 	constructor(machine, monitor, registry) {
 		super(machine, monitor);
 		this.registry = registry;
+		this.enableUpdates = this.enableUpdates.bind(this);
 	}
-
-	handle({ requests, streamsheetId }) {
-		const handlers = this.registry.handlers;
-		const allRequests = requests.filter((request) => {
-			const handler = handlers.get(request.type);
-			return handler ? handler({ streamsheetId, ...request.properties }) : undefined;
+	getSheet(streamsheetId) {
+		const streamsheet = this.machine.getStreamSheet(streamsheetId);
+		return streamsheet && streamsheet.sheet;
+	}
+	disableUpdate(streamsheetId) {
+		const sheet = this.getSheet(streamsheetId);
+		return sheet ? disableSheetUpdate(sheet) : undefined;
+	}
+	enableUpdates(updateHandlers) {
+		Object.entries(updateHandlers).forEach(([id, handler]) => {
+			const sheet = this.getSheet(id);
+			if (sheet) enableSheetUpdate(sheet, handler, true);
 		});
-		return Promise.all(allRequests);
+	}
+	handle({ requests, streamsheetId }) {
+		const registry = this.registry;
+		const updateHandlers = {};
+		const allRequests = requests.map((request) => {
+			const { type, ...args } = request;
+			const handler = registry.get(type);
+			if (handler) {
+				const sheetId = args.streamsheetId || streamsheetId;
+				const updateHandler = this.disableUpdate(sheetId);
+				if (updateHandler) updateHandlers[sheetId] = updateHandler;
+				return handler.handle({ streamsheetId, ...args });
+			}
+			return Promise.resolve();
+		});
+		return Promise.all(allRequests).finally(() => this.enableUpdates(updateHandlers));
 	}
 }
 
@@ -363,9 +391,9 @@ class Delete extends ARequestHandler {
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
+			const updateHandler = disableSheetUpdate(sheet);
 			try {
 				const cellrange = SheetRange.fromRangeStr(range);
-				const updateHandler = disableSheetUpdate(sheet);
 				switch (type) {
 				case 'rows':
 					sheet.deleteRowsAt(cellrange.start.row, cellrange.height);
@@ -378,10 +406,11 @@ class Delete extends ARequestHandler {
 				}
 				// return complete machine! => insert might affected multiple sheets, named-cells etc...
 				this.machine.notifyUpdate('descriptor', createMachineDescriptor(this.machine));
-				enableSheetUpdate(sheet, updateHandler);
 				return Promise.resolve();
 			} catch (err) {
 				error = err;
+			} finally {
+				enableSheetUpdate(sheet, updateHandler);
 			}
 		}
 		error = error || new Error(`Unknown streamsheet id: ${streamsheetId}`);
@@ -528,9 +557,9 @@ class Insert extends ARequestHandler {
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
+			const updateHandler = disableSheetUpdate(sheet);
 			try {
 				const cellrange = SheetRange.fromRangeStr(range);
-				const updateHandler = disableSheetUpdate(sheet);
 				const properties = sheet.properties;
 				switch (type) {
 				case 'rows':
@@ -559,10 +588,11 @@ class Insert extends ARequestHandler {
 				});
 				// return complete machine! => insert might affected multiple sheets, named-cells etc...
 				this.machine.notifyUpdate('descriptor', createMachineDescriptor(this.machine));
-				enableSheetUpdate(sheet, updateHandler);
 				return Promise.resolve();
 			} catch (err) {
 				error = err;
+			} finally {
+				enableSheetUpdate(sheet, updateHandler);
 			}
 		}
 		error = error || new Error(`Unknown streamsheet id: ${streamsheetId}`);
@@ -608,7 +638,7 @@ class MarkRequests extends ARequestHandler {
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
 			markers.forEach(({ reference, marker }) => {
-				const { cell, sheet: cellsheet }  = getCellFromReference(reference, sheet);
+				const { cell, sheet: cellsheet } = getCellFromReference(reference, sheet);
 				if (cell) {
 					const term = cell.term;
 					const reqId = term._pendingRequestId;
@@ -660,9 +690,11 @@ class PasteCells extends ARequestHandler {
 			if (trgtrange) {
 				trgtrange.sheet = trgtsheet;
 				// action =  'all' || 'values' || 'formulas' || 'formats'
+				const updateHandler = disableSheetUpdate(sheet);
+				const trgtUpdateHandler = disableSheetUpdate(trgtsheet);
 				const result = sheet.pasteCells(cells, trgtrange, { action, extend });
-				if (result.cellsCut.length) sheet._notifyUpdate();
-				if (result.cellsReplaced.length) trgtsheet._notifyUpdate();
+				enableSheetUpdate(sheet, updateHandler, result.cellsCut.length);
+				enableSheetUpdate(trgtsheet, trgtUpdateHandler, result.cellsReplaced.length);
 				return Promise.resolve(result);
 			}
 			errmsg = `Invalid target sheet range: ${targetrange}`
@@ -755,19 +787,15 @@ class SetCellAt extends ARequestHandler {
 		const streamsheet = this.machine.getStreamSheet(msg.streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
+			let cell;
+			let index;
+			let didUpdate = false;
+			const updateHandler = disableSheetUpdate(sheet);
 			try {
-				const cell = SheetParser.createCell(msg.celldescr, sheet);
-				const index = SheetIndex.create(msg.index);
-
-				// postpone update to update shapes before updating
-				const sheetOnUpdate = sheet.onUpdate;
-				sheet.onUpdate = null;
-				const didUpdate = sheet.setCellAt(index, cell);
+				cell = SheetParser.createCell(msg.celldescr, sheet);
+				index = SheetIndex.create(msg.index);
+				didUpdate = sheet.setCellAt(index, cell);
 				sheet.getShapes().evaluate();
-				sheet.onUpdate = sheetOnUpdate;
-				if (didUpdate) sheet._notifyUpdate();
-				sendSheetUpdateOnSlowMachine(streamsheet, cell, index);
-
 				return Promise.resolve({
 					cell: cellDescriptor(cell, index),
 					// to update all cells in DB
@@ -775,6 +803,8 @@ class SetCellAt extends ARequestHandler {
 				});
 			} catch (err) {
 				error = err;
+			} finally {
+				enableSheetUpdate(sheet, updateHandler, didUpdate, cell, index);
 			}
 		}
 		error = error || new Error(`Unknown streamsheet id: ${msg.streamsheetId}`);
@@ -787,8 +817,9 @@ class SetCells extends ARequestHandler {
 		const streamsheet = this.machine.getStreamSheet(streamsheetId);
 		const sheet = streamsheet && streamsheet.sheet;
 		if (sheet) {
+			const updateHandler = disableSheetUpdate(sheet);
 			sheet.setCells(cells);
-			sendSheetUpdateOnSlowMachine(streamsheet);
+			enableSheetUpdate(sheet, updateHandler, true);
 			return Promise.resolve({ cells: getSheetCellsAsObject(sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
@@ -845,12 +876,13 @@ class SetCellsLevel extends ARequestHandler {
 		const sheet = streamsheet && streamsheet.sheet;
 		const cellLevels = msg.levels;
 		if (sheet && cellLevels) {
+			const updateHandler = disableSheetUpdate(sheet);
 			Object.keys(cellLevels).forEach((ref) => {
 				const index = SheetIndex.create(ref);
 				const cell = sheet.cellAt(index, true);
 				cell.level = cellLevels[ref];
 			});
-			sendSheetUpdateOnSlowMachine(streamsheet);
+			enableSheetUpdate(sheet, updateHandler, true);
 			return Promise.resolve({ cells: getSheetCellsAsObject(streamsheet.sheet) });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
@@ -863,11 +895,12 @@ class SetCellsLevelProperty extends ARequestHandler {
 		const properties = sheet && sheet.properties;
 		const cellLevels = msg.levels;
 		if (sheet && cellLevels) {
+			const updateHandler = disableSheetUpdate(sheet);
 			Object.entries(cellLevels).forEach(([ref, level])=> {
 				const index = SheetIndex.create(ref);
 				if (index) properties.setCellAttribute(index.row, index.col, 'level', level);
 			});
-			sendSheetUpdateOnSlowMachine(streamsheet);
+			enableSheetUpdate(sheet, updateHandler, true);
 			return Promise.resolve({ properties: properties.toJSON() });
 		}
 		return Promise.reject(new Error(`Unknown streamsheet id: ${msg.streamsheetId}`));
@@ -1027,7 +1060,7 @@ class RequestHandlerRegistry {
 		const registry = new RequestHandlerRegistry();
 		registry.handlers.set('addInboxMessage', new AddInboxMessage(machine, monitor));
 		registry.handlers.set('applyMigrations', new ApplyMigrations(machine, monitor));
-		registry.handlers.set('bulkRequests', new BulkRequests(machine, monitor, this));
+		registry.handlers.set('bulkRequests', new BulkRequests(machine, monitor, registry));
 		registry.handlers.set('createStreamSheet', new CreateStreamSheet(machine, monitor));
 		registry.handlers.set('executeFunction', new ExecuteFunction(machine, monitor));
 		registry.handlers.set('definition', new Definition(machine, monitor));

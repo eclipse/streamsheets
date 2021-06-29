@@ -141,11 +141,11 @@ describe('outbox.getids', () => {
 	it(`should return ${ERROR.ARGS} if called with to many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
 		createCellAt('A1', { formula: 'outbox.getids("*",12)' }, sheet);
-		expect(sheet.cellAt('A1').value).toBe(ERROR.ARGS);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if first parameter is no string`, () => {
 		const sheet = new StreamSheet().sheet;
 		createCellAt('A1', { formula: 'outbox.getids(A2)' }, sheet);
-		expect(sheet.cellAt('A1').value).toBe(ERROR.VALUE);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.VALUE);
 	});
 });

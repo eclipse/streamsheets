@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
 
@@ -16,8 +16,8 @@ const remove = (index, arr) => arr.splice(index, 1)[0];
 
 class ErrorHandler {
 	constructor() {
-		this._errorCode = undefined;
-		this._errorIndex = -1;
+		this._error = undefined;
+		this._errorIndex = undefined;
 		this._ignoreError = false;
 	}
 
@@ -26,23 +26,32 @@ class ErrorHandler {
 	}
 
 	getError() {
-		return this._errorCode ? { code: this._errorCode, index: this._errorIndex } : undefined;
+		let error;
+		if (!this._ignoreError && this._error) {
+			error = this._error.isErrorInfo ? this._error : ErrorInfo.create(this._error);
+			if (this._errorIndex != null) error = error.setParamIndex(this._errorIndex + 1);
+		}
+		return error;
 	}
 
 	hasError() {
-		return this._errorCode && !this._ignoreError;
+		return this._error && !this._ignoreError;
 	}
 
 	update(res, index) {
-		if (res && !this._errorCode) {
-			this._errorCode = FunctionErrors.isError(res);
-			this._errorIndex = index != null ? index : -1;
+		if (res && !this._error) {
+			this._error = FunctionErrors.isError(res);
+			this._errorIndex = index;
 		}
+		return this._error != null;
 	}
 }
 class Runner {
 	constructor(sheet, args) {
 		this.sheet = sheet;
+		// this.cell = fn && fn.term && fn.term.cell;
+		// this.fnName = fn && fn.term && fn.term.name;
+		// this.setFunctionName = setFunctionName(fn);
 		// work on copy or not???
 		this.args = args ? args.slice(0) : [];
 		this.index = 0;
@@ -92,6 +101,8 @@ class Runner {
 	mapNextArg(fn) {
 		if (!this.errorHandler.hasError()) {
 			const term = this.args.shift();
+			// TODO: improve callback: pass (term.value, termIndex, ...mappedArgs?) 
+			// 	=> to check for error in term.value before trigger callback!!
 			const res = fn(term, ...this.mappedArgs);
 			this.errorHandler.update(res, this.index);
 			this.mappedArgs.push(res);
@@ -167,12 +178,20 @@ class Runner {
 	}
 
 	run(fn) {
-		if (this.errorHandler.hasError()) {
-			return this.errorHandler.getError().code;
+		const error = this.errorHandler.getError();
+		if (error) {
+			return error;
 		}
-		return this.isEnabled ? fn(...this.mappedArgs, this.errorHandler.getError()) : this.defReturnValue;
+		if (this.isEnabled) {
+			const res = fn(...this.mappedArgs);
+			if (FunctionErrors.isError(res)) {
+				return res.isErrorInfo ? res : ErrorInfo.create(res);
+			}
+			return res;
+		}
+		return this.defReturnValue;
 	}
 }
 
 
-module.exports = (sheet, terms) => new Runner(sheet, terms);
+module.exports = (sheet, terms, fn) => new Runner(sheet, terms, fn);

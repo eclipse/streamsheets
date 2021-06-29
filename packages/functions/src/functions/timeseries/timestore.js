@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,11 +9,12 @@
  *
  ********************************************************************************/
 const { convert, serialnumber: { serial2ms } } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
-const {	date: { localNow }, runFunction, terms: { hasValue } } = require('../../utils');
+const { date: { localNow }, runFunction, terms: { hasValue } } = require('../../utils');
 const toJSON = require('../streamsheet/json');
 const stateListener = require('./stateListener');
+const { setCellInfo } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 1000;
@@ -34,17 +35,12 @@ const insert = (entry, entries) => {
 	entries.splice(right, 0, entry);
 	return entries;
 };
-const sizeFilter = (size) => (entries) => {
-	if (entries.length > size) {
-		entries.shift();
-		return ERROR.LIMIT;
-	}
-	return true;
-};
+const sizeFilter = (size) => (entries) => entries.length > size ? entries.shift() : undefined;
 const periodFilter = (period) => (entries) => {
 	const delta = entries[entries.length - 1].ts - entries[0].ts;
 	if (delta > period) entries.shift();
 };
+
 class TimeStore {
 	constructor(period, limit) {
 		this.id = IdGenerator.generateShortId();
@@ -70,6 +66,7 @@ class TimeStore {
 			return all;
 		}, []);
 	}
+
 	timestamps() {
 		return this.entries.reduce((all, entry) => {
 			all.push(entry.ts);
@@ -83,6 +80,7 @@ class TimeStore {
 		return this.limitBySize(this.entries);
 	}
 }
+
 const getTimeStore = (term, period, limit) => {
 	if (!term._timestore || term._timestore.period !== period || term._timestore.limit !== limit) {
 		term._timestore = new TimeStore(period, limit);
@@ -128,8 +126,12 @@ const store = (sheet, ...terms) =>
 		.run((values, period, timestamp, limit) => {
 			const term = store.term;
 			const timestore = getTimeStore(term, period, limit);
+			const storeLimitReached = timestore.push(timestamp || localNow(), values);
+			const warning = storeLimitReached ? ErrorInfo.createWarning(ERROR.LIMIT) : undefined;
+			setCellInfo('error', warning, term);
+			// TODO: use context instead!!
 			stateListener.registerCallback(sheet, term, timestore.reset);
-			return timestore.push(timestamp || localNow(), values);
+			return true;
 		});
 store.displayName = true;
 

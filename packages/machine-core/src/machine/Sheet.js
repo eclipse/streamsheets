@@ -248,16 +248,15 @@ class Sheet {
 	}
 
 	setCells(cells = {}) {
-		const keys = Object.keys(cells);
-		if (keys.length) {
+		const entries = Object.entries(cells);
+		if (entries.length) {
 			const cellindex = SheetIndex.create(1, 0);
 			const onUpdate = disableNotifyUpdate(this);
-			keys.forEach((key) => {
+			entries.forEach(([key, descr]) => {
 				cellindex.set(key);
-				const cell = SheetParser.createCell(cells[key], this);
-				if (cell && cell.isDefined) {
-					this._doSetCellAt(cellindex, cell);
-				}
+				const cell = descr != null ? SheetParser.createCell(cells[key], this) : undefined;
+				if (!cell) this._doSetCellAt(cellindex, undefined);
+				else if (cell.isDefined) this._doSetCellAt(cellindex, cell);
 			});
 			enableNotifyUpdate(this, onUpdate, true);
 		}
@@ -334,7 +333,7 @@ class Sheet {
 	getShapes() {
 		return this.shapes;
 	}
-};
+}
 
 // module.exports = SheetRequests(Sheet);
 module.exports = compose(

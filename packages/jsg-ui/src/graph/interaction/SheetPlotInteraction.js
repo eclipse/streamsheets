@@ -270,7 +270,7 @@ export default class SheetPlotInteraction extends Interaction {
 						}
 					}
 					const cmds = vitem.setParamValues(viewer, vitem.xAxes[0].formula, values, item);
-					if (cmds.length) {
+					if (cmds && cmds.length) {
 						cmds.forEach(cmd => zoomcmds.push(cmd));
 					}
 				});

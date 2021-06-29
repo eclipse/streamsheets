@@ -241,27 +241,27 @@ describe('colors', () => {
 	describe('error handling', () => {
 		it(`should return ${ERROR.ARGS} error if called with to few or to many arguments`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('color.convert()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('color.convert(,)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('color.convert(,,)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('color.convert("#FFFFF")', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('color.convert("#FFFFF",)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('color.convert("#FFFFF","hex")', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('color.convert("#FFFFF","hex",)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('color.convert()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('color.convert(,)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('color.convert(,,)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('color.convert("#FFFFF")', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('color.convert("#FFFFF",)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('color.convert("#FFFFF","hex")', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('color.convert("#FFFFF","hex",)', sheet).value.code).toBe(ERROR.ARGS);
 		});
 		// DL-2355
 		it(`should return ${ERROR.VALUE} for unsupported color values`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('color.convert("red","rgb","hsl")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('color.convert("#FFFFFF","rgb","hsl")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('color.convert("red","rgb","hsl")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('color.convert("#FFFFFF","rgb","hsl")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		it('should return an error for unknown from-color', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('color.convert("#FFFFFF","hey","hsl")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('color.convert("#FFFFFF","hey","hsl")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		it('should return an error for unknown to-color', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('color.convert("#FFFFFF","hex","fck")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('color.convert("#FFFFFF","hex","fck")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 });

@@ -104,8 +104,8 @@ describe('averageif', () => {
 			A7: 20, B7: false,
 			A8: 30, B8: 2
 		});
-		expect(createTerm('averageif(A2:A5, "<95000")', sheet).value).toBe(ERROR.DIV0);
-		expect(createTerm('averageif(A6:A8, "<30", B6:B8)', sheet).value).toBe(ERROR.DIV0);
+		expect(createTerm('averageif(A2:A5, "<95000")', sheet).value.code).toBe(ERROR.DIV0);
+		expect(createTerm('averageif(A6:A8, "<30", B6:B8)', sheet).value.code).toBe(ERROR.DIV0);
 	});
 	it(`should return ${ERROR.DIV0} error if a cell in range is blank or has a text value`, () => {
 		const sheet = new StreamSheet().sheet.loadCells({
@@ -113,18 +113,18 @@ describe('averageif', () => {
 			A3: "West", B3: "Hello",
 			A4: "North", B4: "42"
 		});
-		expect(createTerm('averageif(A2:A4, "East", B2:B4)', sheet).value).toBe(ERROR.DIV0);
-		expect(createTerm('averageif(A2:A4, "West", B2:B4)', sheet).value).toBe(ERROR.DIV0);
-		expect(createTerm('averageif(A2:A4, "<>*st", B2:B4)', sheet).value).toBe(ERROR.DIV0);
+		expect(createTerm('averageif(A2:A4, "East", B2:B4)', sheet).value.code).toBe(ERROR.DIV0);
+		expect(createTerm('averageif(A2:A4, "West", B2:B4)', sheet).value.code).toBe(ERROR.DIV0);
+		expect(createTerm('averageif(A2:A4, "<>*st", B2:B4)', sheet).value.code).toBe(ERROR.DIV0);
 	});
 	it('should return an error if not enough or too many parameters given', () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('averageif()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('averageif(,)', sheet).value).toBe(ERROR.INVALID_PARAM);
-		expect(createTerm('averageif(,,)', sheet).value).toBe(ERROR.DIV0);
-		expect(createTerm('averageif(,,,)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('averageif(A2:A4)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('averageif(A2:A4, "*", A2:A3, "*")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('averageif()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('averageif(,)', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('averageif(,,)', sheet).value.code).toBe(ERROR.DIV0);
+		expect(createTerm('averageif(,,,)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('averageif(A2:A4)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('averageif(A2:A4, "*", A2:A3, "*")', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
 describe('averageifs', () => {
@@ -152,9 +152,9 @@ describe('averageifs', () => {
 	});
 	it(`should return ${ERROR.DIV0} if average_range is empty or a text value`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('averageifs(, C2:C5, ">95")', sheet).value).toBe(ERROR.DIV0);
-		expect(createTerm('averageifs("", C2:C5, ">95")', sheet).value).toBe(ERROR.DIV0);
-		expect(createTerm('averageifs("A2:A5", C2:C5, ">95")', sheet).value).toBe(ERROR.DIV0);
+		expect(createTerm('averageifs(, C2:C5, ">95")', sheet).value.code).toBe(ERROR.DIV0);
+		expect(createTerm('averageifs("", C2:C5, ">95")', sheet).value.code).toBe(ERROR.DIV0);
+		expect(createTerm('averageifs("A2:A5", C2:C5, ">95")', sheet).value.code).toBe(ERROR.DIV0);
 	});
 	it(`should return ${ERROR.DIV0} if no cell match given criteria`, () => {
 		const sheet = new StreamSheet().sheet.loadCells({
@@ -165,7 +165,7 @@ describe('averageifs', () => {
 			A6: 'Hans', B6: 86, C6: 93, D6: 'Incomplete',
 			A7: 'Frederique', B7: 'Incomplete', C7: 75, D7: 75,
 		});
-		expect(createTerm('averageifs(C2:C5, C2:C5, ">95")', sheet).value).toBe(ERROR.DIV0);
+		expect(createTerm('averageifs(C2:C5, C2:C5, ">95")', sheet).value.code).toBe(ERROR.DIV0);
 	});
 	it(`should return ${ERROR.VALUE} error if a criteria range differs in size or shape from average_range`, () => {
 		const sheet = new StreamSheet().sheet.loadCells({
@@ -175,9 +175,9 @@ describe('averageifs', () => {
 			A5: 1,	B5: 2, C5: 3, D5: 4,
 			A6: 1,	B6: 2, C6: 3, D6: 4
 		});
-		expect(createTerm('averageifs(A2:A4, C2:C5, ">0")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('averageifs(A2:B3, C2:D6, ">0")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('averageifs(A2:B3, C2:C2, ">0")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('averageifs(A2:A4, C2:C5, ">0")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('averageifs(A2:B3, C2:D6, ">0")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('averageifs(A2:B3, C2:C2, ">0")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it(`should ignore cells which cannot be converted to number`, () => {
 		const sheet = new StreamSheet().sheet.loadCells({
@@ -196,7 +196,7 @@ describe('averageifs', () => {
 	// 		A4: 'hello', B4: 2,
 	// 		A5: 23, B5: 2
 	// 	});
-	// 	expect(createTerm('averageifs(A2:A5, B2:B5, ">0")', sheet).value).toBe(ERROR.DIV0);
+	// 	expect(createTerm('averageifs(A2:A5, B2:B5, ">0")', sheet).value.code).toBe(ERROR.DIV0);
 	// });
 	// it(`should handle TRUE as 1 and FALSE as 0 in average_range`, () => {
 	// 	const sheet = new StreamSheet().sheet.loadCells({
@@ -206,9 +206,9 @@ describe('averageifs', () => {
 	// 		A5: 1,	B5: 2, C5: 3, D5: 4,
 	// 		A6: 1,	B6: 2, C6: 3, D6: 4
 	// 	});
-	// 	expect(createTerm('averageifs(A2:A4, C2:C5, ">0")', sheet).value).toBe(ERROR.INVALID_PARAM);
-	// 	expect(createTerm('averageifs(A2:B3, C2:D6, ">0")', sheet).value).toBe(ERROR.INVALID_PARAM);
-	// 	expect(createTerm('averageifs(A2:B3, C2:C2, ">0")', sheet).value).toBe(ERROR.INVALID_PARAM);
+	// 	expect(createTerm('averageifs(A2:A4, C2:C5, ">0")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+	// 	expect(createTerm('averageifs(A2:B3, C2:D6, ">0")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+	// 	expect(createTerm('averageifs(A2:B3, C2:C2, ">0")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
 	// });
 });
 describe('countif', () => {
@@ -301,18 +301,18 @@ describe('countif', () => {
 	});
 	it(`should return ${ERROR.ARGS} error if not enough or too many parameters given`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('countif()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('countif(,,)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('countif(A2:A5)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('countif(A2:A5, "*", "?")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('countif()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('countif(,,)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('countif(A2:A5)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('countif(A2:A5, "*", "?")', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.INVALID_PARAM} or ${ERROR.NAME} error if first parameter is not a range`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('countif(,)', sheet).value).toBe(ERROR.INVALID_PARAM);
-		expect(createTerm('countif(XYZ200,"*")', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('countif(,"*")', sheet).value).toBe(ERROR.INVALID_PARAM);
-		expect(createTerm('countif(A2:A5:A3)', sheet).value).toBe(ERROR.NAME);
-		expect(createTerm('countif("", "*")', sheet).value).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('countif(,)', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('countif(XYZ200,"*")', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('countif(,"*")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+		expect(createTerm('countif(A2:A5:A3)', sheet).value.code).toBe(ERROR.NAME);
+		expect(createTerm('countif("", "*")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
 	});
 });
 describe('countifs', () => {

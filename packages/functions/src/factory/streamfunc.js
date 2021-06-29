@@ -11,7 +11,7 @@
 const { termAsType, checkConstraints, asType } = require('../utils/types');
 const { messageFromBox, getMachine } = require('../utils/sheet');
 const { isBoxFuncTerm } = require('../utils/terms');
-const {	FunctionErrors } = require('@cedalo/error-codes');
+const {	FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
 
 
@@ -72,14 +72,16 @@ const handleParameters = (sheet, parameters, args, errorOffset = 0) => {
 	const internalJson = {};
 	// eslint-disable-next-line
 	for (let [index, paramConfig] of parameters.entries()) {
-		const result = handleParam(args[index], paramConfig, sheet);
+		let result = handleParam(args[index], paramConfig, sheet);
 		if (FunctionErrors.isError(result)) {
 			if (result === FunctionErrors.code.INVALID_PARAM) {
-				return `${result}_${index + errorOffset}`;
+				return ErrorInfo.create(result).setParamIndex(index + errorOffset);
 			}
 			if (sheet.isProcessing || result !== FunctionErrors.code.NO_MSG) {
-				return result;
+				return ErrorInfo.create(result);
 			}
+			// no return => convert error:
+			result = ErrorInfo.create(result);
 		}
 		if (!paramConfig.internal || paramConfig.forward) {
 			streamJson[paramConfig.id] = result;

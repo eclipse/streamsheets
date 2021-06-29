@@ -18,17 +18,17 @@ const ERROR = FunctionErrors.code;
 describe('sleep', () => {
 	it(`should return ${ERROR.ARGS} error if called with to few or to many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('sleep()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('sleep(,)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('sleep(23,45)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('sleep()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('sleep(,)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('sleep(23,45)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if called with non number`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('sleep("")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('sleep("hello")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('sleep(A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('sleep(true)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('sleep(false)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('sleep("")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('sleep("hello")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('sleep(A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('sleep(true)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('sleep(false)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should pause sheet processing for specified amount of time', async () => {
 		const machine = new Machine();

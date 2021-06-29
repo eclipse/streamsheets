@@ -1295,7 +1295,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		});
 
 		// eslint-disable-next-line consistent-return
-		return zoomcmd;
+		return zoomcmd ? [zoomcmd] : [];
 	}
 
 	getParamFormat(term, index) {

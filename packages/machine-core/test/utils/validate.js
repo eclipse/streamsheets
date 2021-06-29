@@ -52,6 +52,10 @@ class TermValidator extends Validator {
 		expect(this.obj.operand.isTypeOf(type)).toBe(true);
 		return this;
 	}
+	hasError(value) {
+		expect(this.obj.value.code).toBe(value);
+		return this;		
+	}
 	hasValue(value) {
 		expect(this.obj.value).toEqual(value);
 		return this;

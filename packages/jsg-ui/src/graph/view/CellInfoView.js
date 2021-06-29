@@ -12,6 +12,12 @@
 
 import { default as JSG, MathUtils, Numbers } from '@cedalo/jsg-core';
 // import WorksheetView from './WorksheetView';
+import WorksheetHitCode from './WorksheetHitCode';
+
+const localizeError = (error) => {
+	const Localizer = JSG.appLocalizer;
+	return Localizer && Localizer.localizeError ? Localizer.localizeError(error) : error;
+};
 
 const getTableElement = () => {
 	let scrollTop = 0;
@@ -30,32 +36,28 @@ const getTableElement = () => {
 
 class CellInfoView {
 	static of(type, viewer, worksheetView) {
-		// eslint-disable-next-line no-use-before-define
-		return type === 16 ? new ErrorInfoView(viewer, worksheetView) : new DataInfoView(viewer, worksheetView);
+		return type === WorksheetHitCode.ERRORVIEW
+			// eslint-disable-next-line no-use-before-define
+			? new ErrorInfoView(viewer, worksheetView)
+			// eslint-disable-next-line no-use-before-define
+			: new DataInfoView(viewer, worksheetView);
 	}
 	// private
 	constructor(viewer, worksheetView) {
 		this.viewer = viewer;
 		this.wsView = worksheetView;
-		this.removeView = this.removeView.bind(this);
+		this.removeInfoView = this.removeInfoView.bind(this);
 	}
 
 	addCloseListener() {
-		document.getElementById('closeFunc').addEventListener('mousedown', this.removeView, false);
+		document.getElementById('closeFunc').addEventListener('mousedown', this.removeInfoView, false);
 	}
 
-	removeView() {
-		const dataView = this.wsView.getFromGraph();
-		if (dataView) {
-			this.viewer.getCanvas().parentNode.removeChild(dataView.div);
-			this.wsView.deRegisterAtGraph();
-		}
-	}
-	registerView(div, cell, cellRange) {
-		this.wsView.registerAtGraph(this.viewer, cell, cellRange, div);
+	registerView(div, cell, targetRange) {
+		this.wsView.registerAtGraph({ type: this.type, viewer: this.viewer, cell, targetRange, div });
 	}
 
-	getBounds(cellRange) {
+	getCellBounds(cellRange) {
 		const cs = this.viewer.getCoordinateSystem();
 		const cellRect = this.wsView.getRangeRect(cellRange);
 		const pos = this.wsView.getDevCellPosition(this.viewer, { x: cellRange._x1, y: cellRange._y1 });
@@ -96,28 +98,55 @@ class CellInfoView {
 		div.focus();
 	}
 
-	showInfo(cell, cellRange) {
-		const bounds = this.getBounds(cellRange);
-		const content = this.createContentHTML(cell, bounds);
-		const divView = this.createDiv(content);
-		const tableEl = getTableElement();
-		tableEl.storeScrollTop();
-		// remove previous view
-		this.removeView();
-		this.setDivBounds(divView, bounds);
-		this.appendDiv(divView);
-		const rightBorderOverlap = (divView.offsetLeft + divView.offsetWidth) - (divView.parentNode.offsetLeft + divView.parentNode.offsetWidth);
-		if (rightBorderOverlap > 0) {
-			divView.style.left = `${divView.offsetLeft - rightBorderOverlap}px`;
+	createInfoHTML(info, bounds) {
+		throw new Error('Must be implemented by subclass');
+	};
+	getInfo(cell) {
+		throw new Error('Must be implemented by subclass');
+	};
+
+	addInfoView(cell, cellRange) {
+		const info = this.getInfo(cell);
+		if (info) {
+			const bounds = this.getCellBounds(cellRange);
+			const content = this.createInfoHTML(info, bounds);
+			const divView = this.createDiv(content);
+			const tableEl = getTableElement();
+			tableEl.storeScrollTop();
+			this.setDivBounds(divView, bounds);
+			this.appendDiv(divView);
+			const rightBorderOverlap = (divView.offsetLeft + divView.offsetWidth) - (divView.parentNode.offsetLeft + divView.parentNode.offsetWidth);
+			if (rightBorderOverlap > 0) {
+				divView.style.left = `${divView.offsetLeft - rightBorderOverlap}px`;
+			}
+			tableEl.restoreScrollTop();
+			this.registerView(divView, cell, cellRange);
 		}
-		tableEl.restoreScrollTop();
-		this.registerView(divView, cell, cellRange);
+	}
+	removeInfoView() {
+		const infoView = this.wsView.getFromGraph();
+		if (infoView) {
+			this.viewer.getCanvas().parentNode.removeChild(infoView.div);
+			this.wsView.deRegisterAtGraph();
+		}
+	}
+	showInfo(cell, cellRange) {
+		// remove previous view before adding new one
+		this.removeInfoView();
+		this.addInfoView(cell, cellRange);
 	}
 }
 
 class DataInfoView extends CellInfoView {
-	createContentHTML(cell, bounds) {
-		const values = cell.values;
+	get type() {
+		return WorksheetHitCode.DATAVIEW;
+	}
+
+	getInfo(cell) {
+		return cell.values;
+	};
+
+	createInfoHTML(values, bounds) {
 		const fields = values ? Object.entries(values) : [];
 		const rowCount =
 			fields.length && fields[0].length !== undefined && fields[0][1].length !== undefined
@@ -164,34 +193,47 @@ class DataInfoView extends CellInfoView {
 }
 
 class ErrorInfoView extends CellInfoView {
-	createContentHTML(cell, bounds) {
-		const fields = cell.error ? Object.entries(cell.error) : [];
+	get type() {
+		return WorksheetHitCode.ERRORVIEW;
+	}
+
+	getInfo(cell) {
+		return cell.errorInfo;
+	};
+
+	createInfoHTML(error, bounds) {
+		const locError = localizeError(error);
+		const fields = Object.entries(locError);
+
+		// title:
 		let html = `<p style="color: ${
 			JSG.theme.text
-		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Error</p>`;
+		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">${locError.type}</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
+
+		// table:
 		html += `<div id="dataviewtable" style="overflow-y: auto; max-height: ${bounds.maxHeight - 25}px">`;
-		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${
-			bounds.width ? '100%' : 'inherit'
-		}"><thead><tr>`;
+		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${bounds.width ? '100%' : 'inherit'}">`;
 
-		// header:
-		fields.forEach(([key, entry]) => {
-			html += `<th style="padding: 5px;" ></th>`;
-		});
+		// table header:
+		html += '<thead><tr>';
+		html += '<th style="padding: 5px;" ></th><th style="padding: 5px;" ></th>';
 		html += '</tr></thead>';
+
+		// table body
 		html += '<tbody>';
-
-		// body
 		fields.forEach(([key, val]) => {
-			html += '<tr>';
-			html += `<td style="padding: 5px;font-weight: bold;text-align: left}">${
-				key === null || key === undefined ? '' : key
-			}:</td>`;
-			html += `<td style="padding: 5px;text-align: left}">${val === null || val === undefined ? '' : val}</td>`;
-			html += '</tr>';
+			if (key !== 'type') {
+				html += '<tr>';
+				html += `<td style="padding: 5px;font-weight: bold;text-align: left}">${
+					key === null || key === undefined ? '' : key
+				}:</td>`;
+				html += `<td style="padding: 5px;text-align: left}">${
+					val === null || val === undefined ? '' : val
+				}</td>`;
+				html += '</tr>';
+			}
 		});
-
 		html += '</tbody>';
 		html += '</table></div>';
 		return html;

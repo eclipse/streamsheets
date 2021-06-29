@@ -8,11 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { createCellAt, createTerm, validate } = require('../utils');
+const { createTerm, validate } = require('../utils');
 const { Machine, Message, referenceFromString, StreamSheet, Sheet, SheetIndex } = require('../..');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
+const ERROR_REF = ErrorInfo.create(ERROR.REF);
+const ERROR_NAME = ErrorInfo.create(ERROR.NAME);
 
 const createMachine = () => {
 	const machine = new Machine();
@@ -143,15 +145,15 @@ describe('CellReference', () => {
 			validate.term(createTerm('IF1', sheet)).hasValue(undefined);
 			validate.term(createTerm('A1', sheet)).hasValue(23);
 			validate.term(createTerm('B1', sheet)).hasValue(17);
-			validate.term(createTerm('C1', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('IF2', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('A2', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('C2', sheet)).hasValue(ERROR.NAME);
+			validate.term(createTerm('C1', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('IF2', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('A2', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('C2', sheet)).hasValue(ERROR_NAME);
 			sheet.updateSettings({ maxrow: 1, maxcol: 0, mincol: 0 });
-			validate.term(createTerm('B1', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('IF1', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('IF2', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('A2', sheet)).hasValue(ERROR.NAME);
+			validate.term(createTerm('B1', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('IF1', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('IF2', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('A2', sheet)).hasValue(ERROR_NAME);
 		});
 		it(`should return ${ERROR.REF} if cell reference becomes invalid on usage`, () => {
 			const sheet = new Sheet().load({ cells: { A1: 23, B1: 17, A2: 42, B2: 9 } });
@@ -166,15 +168,15 @@ describe('CellReference', () => {
 			cellrefs.forEach((cellref, index) => validate.term(cellref).hasValue(results[index]));
 			// update sheet
 			sheet.updateSettings({ maxrow: 1, maxcol: 0 });
-			results = [23, ERROR.REF, ERROR.REF, ERROR.REF];
+			results = [23, ERROR_REF, ERROR_REF, ERROR_REF];
 			cellrefs.forEach((cellref, index) => validate.term(cellref).hasValue(results[index]));
 		});
 		it(`should return ${ERROR.REF} if referenced stream-sheet is invalid`, () => {
 			const machine = createMachine();
 			const [s1] = machine.streamsheets;
-			validate.term(createTerm('S4!A1', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('S3!A1', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('s2!A1', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S4!A1', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('S3!A1', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('s2!A1', s1.sheet)).hasValue(ERROR_REF);
 		});
 		it(`should return ${ERROR.REF} if referenced stream-sheet becomes invalid`, () => {
 			const machine = createMachine();
@@ -182,7 +184,7 @@ describe('CellReference', () => {
 			s2.sheet.load({ cells: { A2: 'hello' } });
 			validate.term(createTerm('S2!A2', s1.sheet)).hasValue('hello');
 			machine.removeStreamSheet(s2);
-			validate.term(createTerm('S2!A2', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S2!A2', s1.sheet)).hasValue(ERROR_REF);
 		});
 	});
 });
@@ -356,16 +358,17 @@ describe('CellRangeReference', () => {
 			validate.term(createTerm('IF1:IF1', sheet)).validate('operand.range').expect(rangeValues, []);
 			validate.term(createTerm('A1:A1', sheet)).validate('operand.range').expect(rangeValues, [23]);
 			validate.term(createTerm('IF1:B1', sheet)).validate('operand.range').expect(rangeValues, [23, 17]);
-			validate.term(createTerm('IF1:C1', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('IF2:B1', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('IF2:A2', sheet)).hasValue(ERROR.NAME);
+			validate.term(createTerm('IF1:C1', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('IF2:B1', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('IF2:A2', sheet)).hasValue(ERROR_NAME);
 			// IF1 & B1 become invalid too
 			sheet.updateSettings({ maxrow: 1, maxcol: 0, mincol: 0 });
-			validate.term(createTerm('IF1:IF1', sheet)).hasValue(ERROR.NAME);
-			validate.term(createTerm('IF1:B1', sheet)).hasValue(ERROR.NAME);
+			validate.term(createTerm('IF1:IF1', sheet)).hasValue(ERROR_NAME);
+			validate.term(createTerm('IF1:B1', sheet)).hasValue(ERROR_NAME);
 			validate.term(createTerm('A1:A1', sheet)).validate('operand.range').expect(rangeValues, [23]);
 		});
 		it(`should return ${ERROR.REF} if cell reference becomes invalid on usage`, () => {
+			const ERROR_REF = ErrorInfo.create(ERROR.REF);
 			const sheet = new Sheet().load({ cells: { A1: 23, B1: 17, A2: 42, B2: 9 } });
 			sheet.updateSettings({ maxrow: 2, maxcol: 1 });
 			const cellrefs = [
@@ -390,16 +393,16 @@ describe('CellRangeReference', () => {
 				validate.term(cellref).validate('operand.range').expect(rangeValues, results[index]));
 			// update sheet
 			sheet.updateSettings({ maxrow: 1, maxcol: 0 });
-			results = [ERROR.REF, results[1], ERROR.REF, results[1], ERROR.REF, results[1], ERROR.REF];
+			results = [ERROR_REF, results[1], ERROR_REF, results[1], ERROR_REF, results[1], ERROR_REF];
 			cellrefs.forEach((cellref, index) => 
 				validate.term(cellref).validate('operand.range').expect(rangeValues, results[index]));
 		});
 		it(`should return ${ERROR.REF} if referenced stream-sheet is invalid`, () => {
 			const machine = createMachine();
 			const [s1] = machine.streamsheets;
-			validate.term(createTerm('S4!A1:A1', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('S3!A1:A1', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('s2!A1:A1', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S4!A1:A1', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('S3!A1:A1', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('s2!A1:A1', s1.sheet)).hasValue(ERROR_REF);
 		});
 		it(`should return ${ERROR.REF} if referenced stream-sheet becomes invalid`, () => {
 			const machine = createMachine();
@@ -407,7 +410,7 @@ describe('CellRangeReference', () => {
 			s2.sheet.load({ cells: { A2: 'hello' } });
 			validate.term(createTerm('S2!A2:A2', s1.sheet)).validate('operand.range').expect(rangeValues, ['hello']);
 			machine.removeStreamSheet(s2);
-			validate.term(createTerm('S2!A2:A2', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S2!A2:A2', s1.sheet)).hasValue(ERROR_REF);
 		});
 	});
 });
@@ -602,12 +605,12 @@ describe('MessageBoxReference', () => {
 			const message = new Message();
 			const [s1] = machine.streamsheets;
 			s1.inbox.put(message);
-			validate.term(createTerm('S4!INBOX', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('S4!INBOXDATA', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('S4!INBOXMETADATA', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('S4!OUTBOX', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('S4!OUTBOXDATA', s1.sheet)).hasValue(ERROR.REF);
-			validate.term(createTerm('S4!OUTBOXMETADATA', s1.sheet)).hasValue(ERROR.REF);
+			validate.term(createTerm('S4!INBOX', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('S4!INBOXDATA', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('S4!INBOXMETADATA', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('S4!OUTBOX', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('S4!OUTBOXDATA', s1.sheet)).hasValue(ERROR_REF);
+			validate.term(createTerm('S4!OUTBOXMETADATA', s1.sheet)).hasValue(ERROR_REF);
 		});
 	});
 });

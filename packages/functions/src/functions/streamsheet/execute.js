@@ -79,8 +79,8 @@ const execute = (sheet, ...terms) =>
 			return sheet.isPaused
 				? ERROR.WAITING
 				: context.isResumed
-				? context.returnValue
-				: getDefaultReturnValue(calledStreamSheet);
+					? context.returnValue
+					: getDefaultReturnValue(calledStreamSheet);
 		});
 execute.displayName = true;
 

@@ -8,51 +8,50 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const logger = require('../logger').create({ name: 'SheetParserContext' });
-const { FunctionErrors } = require('@cedalo/error-codes');
+const FunctionRegistry = require('../FunctionRegistry');
+const ErrorTerm = require('./ErrorTerm');
 const { IdentifierOperand, ParserContext, Term } = require('@cedalo/parser');
 const DotReferenceOperator = require('./DotReferenceOperator');
-const FunctionRegistry = require('../FunctionRegistry');
 const { referenceFromNode } = require('./References');
 
 // DL-1431
 const EXCLUDE_FUNCTIONS = ['ACOS', 'ASIN', 'ATAN', 'ATAN2'];
-const filter = (functions) =>
-	Object.entries(functions).reduce((acc, [name, func]) => {
+const filter = (functions) => Object.entries(functions).reduce((acc, [name, func]) => {
 		if (!EXCLUDE_FUNCTIONS.includes(name)) acc[name] = func;
 		return acc;
 	}, {});
 
-const executor = (func) =>
-	function wrappedFunction(sheet, ...terms) {
-		let result;
-		const term = wrappedFunction.term;
-		func.term = term; // deprecated
-		func.context = term.context;
-		wrappedFunction.displayName = func.displayName;
-		try {
-			result = func(sheet, ...terms);
-		} catch (err) {
-			logger.error('Error', err);
-			return FunctionErrors.code.FUNC_EXEC;
-		}
-		func.term = undefined;
-		func.context = undefined;
-		return result;
-	};
+const executor = (func) => function wrappedFunction(sheet, ...terms) {
+	let result;
+	const term = wrappedFunction.term;
+	func.term = term; // deprecated
+	func.context = term.context;
+	wrappedFunction.displayName = func.displayName;
+	try {
+		result = func(sheet, ...terms);
+	} catch (err) {
+		logger.error('Error', err);
+		return ErrorInfo.create(FunctionErrors.code.FUNC_EXEC, err.message, term.name);
+	}
+	func.term = undefined;
+	func.context = undefined;
+	return result;
+};
 
-// DL-1253: an identifier can contain an error code. we ignore this and simply use a string term for it
+// DL-1253: an identifier can contain an error code, so create an ErrorTerm for it
 const createErrorTermFromNode = (node) =>
-	node.type === 'identifier' && FunctionErrors.isError(node.value) ? Term.fromString(node.value) : undefined;
+	node.type === 'identifier' && FunctionErrors.isError(node.value) ? ErrorTerm.fromError(node.value) : undefined;
 
 const referenceTerm = (node, context) => {
-	const operand = referenceFromNode(node, context) || createErrorTermFromNode(node);
+	const operand = referenceFromNode(node, context);
 	if (operand) {
 		const term = new Term();
 		term.operand = operand;
 		return term;
 	}
-	return undefined;
+	return createErrorTermFromNode(node);
 };
 
 // for internally use only => to ease parsing

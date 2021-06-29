@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { convert, serialnumber: { ms2serial } } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { Cell } = require('@cedalo/machine-core');
 const { Term } = require('@cedalo/parser');
 const {
@@ -20,7 +20,7 @@ const {
 const aggregations = require('./aggregations');
 const stateListener = require('./stateListener');
 const transform = require('./transform');
-
+const { setCellInfo } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 const DEF_LIMIT = 1000;
@@ -100,6 +100,7 @@ class QueryStore {
 		store.setQuery(queryjson);
 		return store.isValid() ? store : undefined;
 	}
+
 	constructor(interval, limit) {
 		this.limit = limit;
 		this.interval = interval;
@@ -138,6 +139,7 @@ class QueryStore {
 		const result = store.entries.reduceRight(xform, { ts: now, values: {} });
 		this.push(result, this.entries);
 	}
+
 	performQueryOnInterval(store, now = localNow()) {
 		if (this.nextQuery < 0 || now >= this.nextQuery) {
 			this.performQuery(store, now);
@@ -180,10 +182,6 @@ const getStoreTerm = (term) => {
 	term = getTargetTerm(term);
 	return term.name && term.name.toLowerCase() === 'timestore' ? term : undefined;
 };
-const setXValue = (term) => {
-	const cell = term && term.cell;
-	if (cell) cell.setCellInfo('xvalue', 'time');
-};
 
 const timeQuery = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -195,7 +193,7 @@ const timeQuery = (sheet, ...terms) =>
 		.mapNextArg((interval) => getInterval(interval))
 		.mapNextArg((range) => getRange(range))
 		.mapNextArg((limit) => getLimit(limit))
-		.beforeRun(() => setXValue(timeQuery.term))
+		.beforeRun(() => setCellInfo('xvalue', 'time', timeQuery.term))
 		.run((storeterm, queryjson, interval, range, limit) => {
 			const term = timeQuery.term;
 			const timestore = storeterm._timestore;
@@ -205,8 +203,10 @@ const timeQuery = (sheet, ...terms) =>
 				querystore.performQueryOnInterval(timestore);
 				querystore.write(term.cell, range, term);
 				const size = querystore.entries.length;
+				const warning = size >= querystore.limit ? ErrorInfo.createWarning(ERROR.LIMIT) : undefined;
+				setCellInfo('error', warning, term);
 				// eslint-disable-next-line no-nested-ternary
-				return size === 0 ? ERROR.NA : size < querystore.limit ? true : ERROR.LIMIT;
+				return size === 0 ? ERROR.NA : true;
 			}
 			// failed to create store...
 			return ERROR.VALUE;

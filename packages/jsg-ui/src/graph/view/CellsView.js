@@ -39,6 +39,13 @@ import ContentNodeView from './ContentNodeView';
 
 const defaultCellErrorValue = '#####';
 
+const drawMarker = (graphics, color, pts) => {
+	graphics.setFillColor(color);
+	graphics.fillPolyline(pts, true);
+	graphics.setFillColor('#000000');
+};
+
+
 /**
  * This view is for a {{#crossLink "CellsNode"}}{{/crossLink}} model. Although it
  * can be instantiated directly the recommended way to create thi s view is by calling
@@ -182,6 +189,7 @@ export default class CellsView extends NodeView {
 					const styleProperties = this.getStyleProperties(data, columnInfo, rowInfo, cellProperties);
 					this.drawValue(graphics, dataProvider, data, columnInfo, rowInfo, visibleColumnsInfo, styleProperties, cellProperties);
 					this.drawSpecialFunction(graphics, data, columnInfo, rowInfo, visibleColumnsInfo, visibleRowsInfo);
+					this.drawInfoMarkers(graphics, data, columnInfo, rowInfo);
 				}
 			});
 			if (rowInfo.rightCellInfo) {
@@ -937,31 +945,24 @@ export default class CellsView extends NodeView {
 			default:
 				break;
 			}
-
-			const values = data.values;
-			if (values) {
-				graphics.setFillColor('#fdbf01');
-
-				const pts = [
-					{x: columnInfo.x + columnInfo.width - 200, y: rowInfo.y},
-					{x: columnInfo.x + columnInfo.width, y: rowInfo.y},
-					{x: columnInfo.x + columnInfo.width, y: rowInfo.y + 200}
-				];
-
-				graphics.fillPolyline(pts, true);
-				graphics.setFillColor('#000000');
-			}
-			// draw error
-			if (data.error) {
-				graphics.setFillColor('#FF0000');
-				const pts = [
-					{x: columnInfo.x, y: rowInfo.y},
-					{x: columnInfo.x + 200, y: rowInfo.y},
-					{x: columnInfo.x, y: rowInfo.y + 200}
-				];
-				graphics.fillPolyline(pts, true);
-				graphics.setFillColor('#000000');
-			}
+		}
+	}
+	drawInfoMarkers(graphics, data, columnInfo, rowInfo) {
+		if (data.values) {
+			drawMarker(graphics, '#fdbf01', [
+				{ x: columnInfo.x + columnInfo.width - 200, y: rowInfo.y },
+				{ x: columnInfo.x + columnInfo.width, y: rowInfo.y },
+				{ x: columnInfo.x + columnInfo.width, y: rowInfo.y + 200 }
+			]);
+		}
+		// draw error marker
+		if (data.errorInfo) {
+			const markerColor = data.displayFunctionName && data.hasErrorValue ? '#F4BB38': '#FF0000';
+			drawMarker(graphics, markerColor, [
+				{ x: columnInfo.x, y: rowInfo.y },
+				{ x: columnInfo.x + 300, y: rowInfo.y },
+				{ x: columnInfo.x, y: rowInfo.y + 300 }
+			]);
 		}
 	}
 

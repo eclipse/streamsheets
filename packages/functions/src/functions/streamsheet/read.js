@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -36,8 +36,8 @@ const getLastValue = (context, path, value, type) => {
 	// return lastValue != null && lastValuePath === path ? lastValue : defValue(value, type);
 };
 const setLastValue = (context, path, value) => {
-	context.lastValue = value; 
-	context.lastValuePath = path; 
+	context.lastValue = value;
+	context.lastValuePath = path;
 };
 
 // DL-2144: if cell has a formula only set its value, otherwise its term

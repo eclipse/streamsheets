@@ -48,21 +48,21 @@ const rangeValues = (range) =>
 describe('table.update', () => {
 	it(`should return ${ERROR.ARGS} error if called without any or too many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('table.update()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('table.update(,,,,,,,,)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('table.update()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('table.update(,,,,,,,,)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if passed values are invalid`, async () => {
 		const sheet = new StreamSheet().sheet;
 		// first param must be a cell range, so:
-		expect(createTerm('table.update(A1,42)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('table.update(A1,42)', sheet).value.code).toBe(ERROR.VALUE);
 		// row index must be text or empty
-		expect(createTerm('table.update(A1:B1,,42)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('table.update(A1:B1,,42)', sheet).value.code).toBe(ERROR.VALUE);
 		// column index must be text or empty
-		expect(createTerm('table.update(A1:B1,,,42)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('table.update(A1:B1,,,42)', sheet).value.code).toBe(ERROR.VALUE);
 		// push row must be a number or empty
-		expect(createTerm('table.update(A1:B1,,,,"hello")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('table.update(A1:B1,,,,"hello")', sheet).value.code).toBe(ERROR.VALUE);
 		// push column must be a number or empty
-		expect(createTerm('table.update(A1:B1,,,,,"hello")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('table.update(A1:B1,,,,,"hello")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should update a cell range with given value at specified row and column index', async () => {
 		const machine = new Machine();
@@ -928,7 +928,7 @@ describe('table.update', () => {
 			createCellAt('A1', 2, sheet);
 			createCellAt('A2', { formula: 'table.update(A3:E8, A1, 1594993370, "Turbine 1",,,8)'}, sheet);
 			await machine.step();
-			expect(sheet.cellAt('A2').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A2').value.code).toBe(ERROR.VALUE);
 		});
 		test('sum', async () => {
 			const machine = new Machine();

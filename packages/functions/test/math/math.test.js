@@ -26,31 +26,31 @@ describe('log', () => {
 	});
 	it(`should return ${ERROR.ARGS} if called with to less or to many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('log()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('log(10,23,45)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('log()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('log(10,23,45)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if called with to wrong parameter values`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('log(,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('log(0)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('log(10,0)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('log(,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('log(0)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('log(10,0)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });
 describe('randbetween', () => {
 	it(`should return ${ERROR.ARGS} if called with to less or to many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('randbetween(10)', sheet).value).toBe(ERROR.ARGS);
-		// expect(createTerm('randbetween(10,23,45)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('randbetween(10,23,5,56,67,34)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('randbetween(10)', sheet).value.code).toBe(ERROR.ARGS);
+		// expect(createTerm('randbetween(10,23,45)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('randbetween(10,23,5,56,67,34)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if called with to wrong parameter values`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('randbetween(10,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('randbetween(45,23)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('randbetween(5,"23hi")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('randbetween(10,23,45,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('randbetween(10,23,45,12)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('randbetween(10,23,12,45,"da")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('randbetween(10,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('randbetween(45,23)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('randbetween(5,"23hi")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('randbetween(10,23,45,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('randbetween(10,23,45,12)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('randbetween(10,23,12,45,"da")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should return an integer within given bounds', () => {
 		const sheet = new StreamSheet().sheet;

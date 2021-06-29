@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -12,7 +12,7 @@ const logger = require('../../logger').create({ name: 'TEXT()' });
 const { getCodePage } = require('../../codepages');
 const { runFunction, terms: onTerms } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { locale: Locales } = require('@cedalo/machine-core');
 const { NumberFormatter } = require('@cedalo/number-format');
 const { wildcards } = require('../../utils');
@@ -60,10 +60,10 @@ const subInStr = (str, replacestr, replacement, occurrence) => {
 		str = parts.reduce((res, curr, index) =>
 			res != null
 				? `${res}${
-						occurrence < 0 || index === occurrence
-							? replacement
-							: replacestr
-				  }${curr}`
+					occurrence < 0 || index === occurrence
+						? replacement
+						: replacestr
+				}${curr}`
 				: curr
 		);
 	}
@@ -82,7 +82,7 @@ const doFind = (regex, instr, atpos) => {
 	if (atpos > 0) {
 		regex.lastIndex = atpos - 1;
 		const matches = regex.exec(instr);
-		const index =  matches != null ? matches.index : -1;
+		const index = matches != null ? matches.index : -1;
 		return index < 0 ? ERROR.VALUE : index + 1;
 	}
 	return ERROR.VALUE;
@@ -195,18 +195,16 @@ const mid = (sheet, ...terms) =>
 const replace = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(4)
-		.mapNextArg((str) => convert.toString(str.value, ''))
+		.mapNextArg((str) => (FunctionErrors.isError(str.value) ? str.value : convert.toString(str.value, '')))
 		.mapNextArg((start) => toMinInteger(start, 1, 1))
 		.mapNextArg((length) => toMinInteger(length, 0, 0))
 		.mapNextArg((replacement) => convert.toString(replacement.value, ''))
-		.run((str, start, length, replacement) =>
-			splice(str, start - 1, length, replacement)
-		);
+		.run((str, start, length, replacement) => splice(str, start - 1, length, replacement));
 
 const rept = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(2)
-		.mapNextArg((str) => convert.toString(str.value, ''))
+		.mapNextArg((str) => (FunctionErrors.isError(str.value) ? str.value : convert.toString(str.value, '')))
 		.mapNextArg((times) => toMinInteger(times, 0, 0))
 		.run((str, times) => str.repeat(times));
 
@@ -256,7 +254,7 @@ const text = (sheet, ...terms) =>
 			(locale) => getValueLocale(locale && convert.toString(locale.value)) || getMachineLocale(sheet) || ERROR.VALUE
 		)
 		.run((number, format, locale) => {
-			let res = ERROR.INVALID_PARAM;
+			let res;
 			try {
 				// const locale = getMachineLocale(sheet);
 				format = Locales.convert.nrFormatString(format, locale);
@@ -264,6 +262,7 @@ const text = (sheet, ...terms) =>
 			} catch (ex) {
 				/* ignore, will return error code */
 				logger.error(ex.message); // tmp. print out error message, we might change return error code too
+				res = ErrorInfo.create(ERROR.INVALID_PARAM, ex.message);
 			}
 			return res;
 		});
@@ -293,7 +292,7 @@ const value = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((number) => number.value)
-		.mapNextArg((locale) =>	getValueLocale(locale && convert.toString(locale.value)))
+		.mapNextArg((locale) => getValueLocale(locale && convert.toString(locale.value)))
 		.run((number, locale) => {
 			let nr = typeof number === 'number' ? number : null;
 			if (nr == null) {

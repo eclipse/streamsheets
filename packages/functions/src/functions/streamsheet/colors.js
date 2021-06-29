@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,7 +10,7 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const {	runFunction, values: { isNumber } } = require('../../utils');
+const { runFunction, values: { isNumber } } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -34,10 +34,10 @@ const cmyk = {
 	set(c, m, y, k) {
 		this.error = this.error || (!areAllNumbers(c, m, y, k) ? ERROR.VALUE : undefined);
 		if (!this.error) {
-			this.color.c = ensureIsInRange(Math.round(c),0, 100);
-			this.color.m = ensureIsInRange(Math.round(m),0, 100);
-			this.color.y = ensureIsInRange(Math.round(y),0, 100);
-			this.color.k = ensureIsInRange(Math.round(k),0, 100);
+			this.color.c = ensureIsInRange(Math.round(c), 0, 100);
+			this.color.m = ensureIsInRange(Math.round(m), 0, 100);
+			this.color.y = ensureIsInRange(Math.round(y), 0, 100);
+			this.color.k = ensureIsInRange(Math.round(k), 0, 100);
 		}
 		return this;
 	},
@@ -202,7 +202,7 @@ const hsv = {
 		const v = this.color.v / 100;
 		const hue = (2 - s) * v;
 		const sat = hue !== 0 ? (s * v) / (hue < 1 ? hue : 2 - hue) : 0;
-		return hsl.set(h, sat * 100, hue/ 2 * 100);
+		return hsl.set(h, sat * 100, hue / 2 * 100);
 	},
 	rgb() {
 		const h = this.color.h / 60;
@@ -276,7 +276,7 @@ const rgb = {
 		const delta = max - min;
 		const l = (min + max) / 2;
 		// eslint-disable-next-line
-		let h =	max === min	? 0	: (red === max ? (green - blue) / delta : (green === max ? 2 + (blue - red) / delta : 4 + (red - green) / delta));
+		let h = max === min ? 0 : (red === max ? (green - blue) / delta : (green === max ? 2 + (blue - red) / delta : 4 + (red - green) / delta));
 		h *= 60;
 		if (h < 0) h += 360;
 		h = Math.min(h, 360);
@@ -302,11 +302,11 @@ const rgb = {
 			const bdelta = this._applyDelta(blue, delta, v);
 			s = delta / v;
 			// eslint-disable-next-line
-			h = red === v ? bdelta - gdelta : (green === v ? (1/3) + rdelta - bdelta : (blue === v ? (2/3) + gdelta - rdelta : 0));
+			h = red === v ? bdelta - gdelta : (green === v ? (1 / 3) + rdelta - bdelta : (blue === v ? (2 / 3) + gdelta - rdelta : 0));
 			if (h < 0) h += 1;
 			else if (h > 1) h -= 1;
 		}
-		return hsv.set(h * 360,s * 100,v * 100);
+		return hsv.set(h * 360, s * 100, v * 100);
 	}
 };
 
@@ -325,7 +325,7 @@ const transform = {
 		if (this._color) {
 			this._color = this._color.fromStr(this._value);
 			this._error = this._color.error;
-		} else this._error = ERROR.VALUE;	
+		} else this._error = ERROR.VALUE;
 		return this;
 	},
 	to(color) {

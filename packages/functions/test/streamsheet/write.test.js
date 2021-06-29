@@ -141,7 +141,7 @@ describe('write', () => {
 		await sleep(100);
 		await machine.step();
 		expect(outbox.size).toBe(2);
-		expect(sheet.cellAt('B3').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('B3').value.code).toBe(ERROR.NA);
 		expect(sheet.cellAt('B4').value).toBe(23);
 	});
 	describe('creation of simple message', () => {
@@ -339,7 +339,7 @@ describe('write', () => {
 			expect(createTerm('write(outboxdata("out1","Pos"),,"dictionary")', sheet).value).toBe('Pos');
 			expect(createTerm('write(outboxdata("out1","Pos", "Key1"),"hello","String")', sheet).value).toBe('Key1');
 			// now accidentally add another entry under Key1
-			expect(createTerm('write(outboxdata("out1","Pos", "Key1", "Key2"),"hy","String")', sheet).value).toBe(ERROR.INVALID_PATH);
+			expect(createTerm('write(outboxdata("out1","Pos", "Key1", "Key2"),"hy","String")', sheet).value.code).toBe(ERROR.INVALID_PATH);
 			const message = outbox.pop('out1');
 			expect(message.data.Pos).toBeDefined();
 			expect(message.data.Pos.Key1).toBe('hello');
@@ -465,36 +465,36 @@ describe('write', () => {
 			const sheet = streamsheet.sheet;
 			sheet._isProcessing = true;
 			// build a message:
-			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"array")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"dictionary")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:B2),"array")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),array(A1:B2, ,"flat"),"dictionary")', sheet).value).toBe(ERROR.TYPE_PARAM);
+			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"array")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"dictionary")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:B2),"array")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),array(A1:B2, ,"flat"),"dictionary")', sheet).value.code).toBe(ERROR.VALUE);
 
-			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"string")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"string")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:B2),"string")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),array(A1:B2, ,"flat"),"string")', sheet).value).toBe(ERROR.TYPE_PARAM);
+			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"string")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"string")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:B2),"string")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),array(A1:B2, ,"flat"),"string")', sheet).value.code).toBe(ERROR.VALUE);
 
-			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"number")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"number")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:B2),"number")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),array(A1:B2, ,"flat"),"number")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),"hello","number")', sheet).value).toBe(ERROR.TYPE_PARAM);
+			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"number")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"number")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:B2),"number")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),array(A1:B2, ,"flat"),"number")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),"hello","number")', sheet).value.code).toBe(ERROR.VALUE);
 
-			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"boolean")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"boolean")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:B2),"boolean")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),array(A1:B2, ,"flat"),"boolean")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			expect(createTerm('write(outboxdata("out1","Pos"),"hello","boolean")', sheet).value).toBe(ERROR.TYPE_PARAM);
-			// expect(createTerm('write(outboxdata("out1","Pos"),12345,"boolean")', sheet).value).toBe(ERROR.TYPE_PARAM);
+			expect(createTerm('write(outboxdata("out1","Pos"),json(A1:B2),"boolean")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:C2),"boolean")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),dictionary(A1:B2),"boolean")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),array(A1:B2, ,"flat"),"boolean")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('write(outboxdata("out1","Pos"),"hello","boolean")', sheet).value.code).toBe(ERROR.VALUE);
+			// expect(createTerm('write(outboxdata("out1","Pos"),12345,"boolean")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		it('should return an error if specified type is unknown', () => {
 			const { streamsheet } = setup();
 			const sheet = streamsheet.sheet;
-			expect(createTerm('write(outboxdata("out1"),"one","hello")', sheet).value).toBe(ERROR.INVALID_PARAM);
-			expect(createTerm('write(outboxdata("out1"),"one","StringIt")', sheet).value).toBe(ERROR.INVALID_PARAM);
-			expect(createTerm('write(outboxdata("out1"),"one","arry")', sheet).value).toBe(ERROR.INVALID_PARAM);
-			expect(createTerm('write(outboxdata("out1"),"one","Date")', sheet).value).toBe(ERROR.INVALID_PARAM);
+			expect(createTerm('write(outboxdata("out1"),"one","hello")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+			expect(createTerm('write(outboxdata("out1"),"one","StringIt")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+			expect(createTerm('write(outboxdata("out1"),"one","arry")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
+			expect(createTerm('write(outboxdata("out1"),"one","Date")', sheet).value.code).toBe(ERROR.INVALID_PARAM);
 		});
 	});
 	describe('write metadata', () => {

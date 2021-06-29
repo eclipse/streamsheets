@@ -57,6 +57,7 @@
     "worker-loader": "^1.1.0"
   },
   "dependencies": {
+    "@cedalo/error-codes": "2.4.0",
     "@cedalo/functions": "2.4.0",
     "@cedalo/gateway-client": "2.4.0",
     "@cedalo/gateway-client-proxy": "2.4.0",

@@ -20,8 +20,8 @@ describe('triggerstep', () => {
 			cells: { A1: { formula: 'A1+1' }, B1: { formula: 'triggerstep()' }, C1: { formula: 'if(1,triggerstep())' } }
 		});
 		expect(sheet.cellAt('A1').value).toBe(1);
-		expect(sheet.cellAt('B1').value).toBe(ERROR.INVALID);
-		expect(sheet.cellAt('C1').value).toBe(ERROR.INVALID);
+		expect(sheet.cellAt('B1').value.code).toBe(ERROR.INVALID);
+		expect(sheet.cellAt('C1').value.code).toBe(ERROR.INVALID);
 	});
 	it('should perform a step on sheet', () => {
 		const m1 = new Machine();
