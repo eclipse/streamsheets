@@ -40,6 +40,26 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		});
 	}
 
+	getExpandRow(event, viewer, point, layoutNode) {
+		const data = layoutNode.rowData;
+		const rect = new Rectangle();
+
+		rect.x = layoutNode.getWidth().getValue() - 700;
+		rect.y = 100;
+		rect.width = 600;
+		rect.height = 600;
+
+		for (let i = 0; i < data.length; i += 1) {
+			const row = data[i];
+			if (rect.containsPoint(point)) {
+				return i;
+			}
+			rect.y += row.layoutSize;
+		}
+
+		return -1;
+	}
+
 	getColumn(event, viewer, point, layoutNode) {
 		const data = layoutNode.columnData;
 		const rect = new Rectangle();
@@ -172,55 +192,80 @@ export default class LayoutNodeActivator extends InteractionActivator {
 				interaction.onMouseDown(event, viewer);
 				event.hasActivated = true;
 				event.doRepaint = true;
-			} else {
-				index = this.getRow(event, viewer, point, layoutNode);
-				if (index !== -1) {
-					const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, true, index),
-						dispatcher);
-					interaction.onMouseDown(event, viewer);
-					event.hasActivated = true;
-					event.doRepaint = true;
-				} else {
-					index = this.getRowHeader(event, viewer, point, layoutNode);
-					if (index !== -1) {
-						const newSelection = [];
-						const selectionProvider = viewer.getSelectionProvider();
+				return;
+			}
+			index = this.getRow(event, viewer, point, layoutNode);
+			if (index !== -1) {
+				const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, true, index),
+					dispatcher);
+				interaction.onMouseDown(event, viewer);
+				event.hasActivated = true;
+				event.doRepaint = true;
+				return;
+			}
+			index = this.getRowHeader(event, viewer, point, layoutNode);
+			if (index !== -1) {
+				const newSelection = [];
+				const selectionProvider = viewer.getSelectionProvider();
 
-						layoutNode.columnData.forEach((column, columnIndex) => {
-							const node = layoutNode.getItemAt(index * layoutNode.columnData.length + columnIndex);
-							// if we store parent controller we can use getModelController which traverse only direct children...
-							const contr = controller.getControllerByModelId(node.getId());
-							if (contr !== undefined) {
-								newSelection.push(contr);
-							}
-						});
-						selectionProvider.setSelection(newSelection, {obj: 'layoutsectionrow', index});
-						event.hasActivated = true;
-					} else {
-						index = this.getColumnHeader(event, viewer, point, layoutNode);
-						if (index !== -1) {
-							const newSelection = [];
-							const selectionProvider = viewer.getSelectionProvider();
-
-							layoutNode.rowData.forEach((row, rowIndex) => {
-								const node = layoutNode.getItemAt(
-									rowIndex * layoutNode.columnData.length + index);
-								// if we store parent controller we can use getModelController which traverse only direct children...
-								const contr = controller.getControllerByModelId(node.getId());
-								if (contr !== undefined) {
-									newSelection.push(contr);
-								}
-							});
-							selectionProvider.setSelection(newSelection, {obj: 'layoutsectioncolumn', index});
-							event.hasActivated = true;
-						}
+				layoutNode.columnData.forEach((column, columnIndex) => {
+					const node = layoutNode.getItemAt(index * layoutNode.columnData.length + columnIndex);
+					// if we store parent controller we can use getModelController which traverse only direct children...
+					const contr = controller.getControllerByModelId(node.getId());
+					if (contr !== undefined) {
+						newSelection.push(contr);
 					}
-				}
+				});
+				selectionProvider.setSelection(newSelection, {obj: 'layoutsectionrow', index});
+				event.hasActivated = true;
+				return;
+			}
+			index = this.getColumnHeader(event, viewer, point, layoutNode);
+			if (index !== -1) {
+				const newSelection = [];
+				const selectionProvider = viewer.getSelectionProvider();
+
+				layoutNode.rowData.forEach((row, rowIndex) => {
+					const node = layoutNode.getItemAt(
+						rowIndex * layoutNode.columnData.length + index);
+					// if we store parent controller we can use getModelController which traverse only direct children...
+					const contr = controller.getControllerByModelId(node.getId());
+					if (contr !== undefined) {
+						newSelection.push(contr);
+					}
+				});
+				selectionProvider.setSelection(newSelection, {obj: 'layoutsectioncolumn', index});
+				event.hasActivated = true;
+				return;
+			}
+			index = this.getExpandRow(event, viewer, point, layoutNode);
+			if (index !== -1) {
+				const data = layoutNode.rowData[index];
+				const cmd = new JSG.SetLayoutSectionCommand(layoutNode,
+					index,
+					true,
+					data.size,
+					data.minSize,
+					data.sizeMode,
+					data.expandable,
+					!data.expanded);
+
+				viewer.getInteractionHandler().execute(cmd);
+				event.hasActivated = true;
 			}
 		}
 	}
 
 	onMouseUp(event, viewer, dispatcher) {
+		const controller = this._getControllerAt(event.location, viewer, dispatcher);
+		if (controller) {
+			const point = this.pointToNode(controller, event, viewer);
+			const layoutNode = controller.getModel();
+			const index = this.getExpandRow(event, viewer, point, layoutNode);
+			if (index !== -1) {
+				event.hasActivated = true;
+			}
+		}
 	}
 
 	onMouseMove(event, viewer, dispatcher) {
@@ -240,6 +285,8 @@ export default class LayoutNodeActivator extends InteractionActivator {
 				dispatcher.setCursor(Cursor.Style.SHEETCOLUMN);
 			} else if (this.getRowHeader(event, viewer, point, layoutNode) !== -1) {
 				dispatcher.setCursor(Cursor.Style.SHEETROW);
+			} else if (this.getExpandRow(event, viewer, point, layoutNode) !== -1) {
+				dispatcher.setCursor(Cursor.Style.EXECUTE);
 			} else {
 				return;
 			}

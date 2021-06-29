@@ -433,17 +433,24 @@ module.exports = class LayoutNode extends Node {
 				break;
 			case 'auto': {
 				let height = row._minSize;
-				this._columnData.forEach((column, columnIndex) => {
-					let usedHeight = margin;
-					const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
-					if (node) {
-						node.getItems().forEach(subItem => {
-							usedHeight += subItem.getHeight().getValue();
-							usedHeight += margin;
-						});
+				if (row.expandable && !row.expanded) {
+					height = 800;
+				} else {
+					this._columnData.forEach((column, columnIndex) => {
+						let usedHeight = margin;
+						const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+						if (node) {
+							node.getItems().forEach(subItem => {
+								usedHeight += subItem.getHeight().getValue();
+								usedHeight += margin;
+							});
+						}
+						height = Math.max(height, usedHeight);
+					});
+					if (row.expandable) {
+						height += 600;
 					}
-					height = Math.max(height, usedHeight);
-				});
+				}
 				row.layoutSize = height;
 				row.size = height;
 				break;
@@ -483,13 +490,17 @@ module.exports = class LayoutNode extends Node {
 					}
 					node.setSize(width, row.layoutSize);
 					node.getFormat().setLineStyle(0);
-					// node.addAttribute(new NumberAttribute('mergecount', 0));
-					let yInner = 0;
+					let yInner = row.expandable ? 600 : 0;
 					node.getItems().forEach(subItem => {
-						const height = subItem.getHeight().getValue();
-						subItem.setSize(width - margin * 2, height);
-						subItem.setOrigin(margin, yInner + margin);
-						yInner += height + margin;
+						if (row.expandable && !row.expanded) {
+							subItem.getItemAttributes().setVisible(false);
+						} else {
+							subItem.getItemAttributes().setVisible(true);
+							const height = subItem.getHeight().getValue();
+							subItem.setSize(width - margin * 2, height);
+							subItem.setOrigin(margin, yInner + margin);
+							yInner += height + margin;
+						}
 					});
 				}
 				x += column.layoutSize;

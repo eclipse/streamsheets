@@ -11,6 +11,7 @@
 // import {default as JSG, FormatAttributes, TextFormatAttributes} from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
+import { default as JSG, ImagePool } from '../../../../jsg-core';
 
 export default class LayoutView extends NodeView {
 	drawBorder(graphics, format, rect) {
@@ -19,9 +20,6 @@ export default class LayoutView extends NodeView {
 		const item = this.getItem();
 		const viewSettings = item.getGraph().viewSettings;
 
-		if (viewSettings.active) {
-			return;
-		}
 
 		const rowData = item.rowData;
 		const columnData = item.columnData;
@@ -35,20 +33,30 @@ export default class LayoutView extends NodeView {
 		graphics.beginPath();
 
 		rowData.forEach((row, rowIndex) => {
-			graphics.moveTo(0, y);
-			graphics.lineTo(rect.width, y);
 
-			columnData.forEach((column, columnIndex) => {
+			if (!viewSettings.active) {
+				graphics.moveTo(0, y);
+				graphics.lineTo(rect.width, y);
 
-				node = item.getItemAt(rowIndex * columnData.length + columnIndex);
-				if (node && node._merged === false) {
-					graphics.moveTo(x, y);
-					graphics.lineTo(x, y + row.layoutSize);
-				}
-				x += column.layoutSize;
-			});
+				columnData.forEach((column, columnIndex) => {
+
+					node = item.getItemAt(rowIndex * columnData.length + columnIndex);
+					if (node && node._merged === false) {
+						graphics.moveTo(x, y);
+						graphics.lineTo(x, y + row.layoutSize);
+					}
+					x += column.layoutSize;
+				});
+			}
 
 			x = 0;
+
+			if (row.expandable) {
+				const size = 650;
+				const icon = JSG.imagePool.get(row.expanded ? ImagePool.SVG_MOVE_UP : ImagePool.SVG_MOVE_DOWN);
+				graphics.drawImage(icon, rect.getRight() - 700, y + 100, size, size);
+			}
+
 			y += row.layoutSize;
 		});
 
