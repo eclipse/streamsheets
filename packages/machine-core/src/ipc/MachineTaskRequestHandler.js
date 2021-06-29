@@ -31,6 +31,7 @@ class MachineTaskRequestHandler {
 		if (msg.request != null) {
 			const handler = this.handlers.get(msg.request);
 			if (handler) {
+				logger.info(`Handle request: ${msg.request}`);
 				// set lastModified on handled request,
 				// actually this should be done on success, but that might needs adapt of result, so simply do it here
 				if (handler.isModifying) {
@@ -38,7 +39,8 @@ class MachineTaskRequestHandler {
 				}
 				handler.handle(msg)
 					.then((result) => this.channel.send({ response: msg.requestId, result }))
-					.catch((error) => this.channel.send({ response: msg.requestId, error: { message: error.message} }));
+					.catch((error) => this.channel.send({ response: msg.requestId, error: { message: error.message} }))
+					.finally(() => logger.info(`Finished handle request: ${msg.request}`));
 			} else {
 				logger.error(`Unknown request ${msg.request}!`);
 				this.channel.send({ response: msg.requestId, error: { message: `Unknown request ${msg.request}!` } });

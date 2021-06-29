@@ -8,11 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const logger = require('../logger').create({ name: 'SheetParserContext' });
-const { referenceFromNode } = require('./References');
-const FunctionRegistry = require('../FunctionRegistry');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { ParserContext, Term } = require('@cedalo/parser');
+const logger = require('../logger').create({ name: 'SheetParserContext' });
+const FunctionRegistry = require('../FunctionRegistry');
+const ErrorTerm = require('./ErrorTerm');
+const { referenceFromNode } = require('./References');
 
 // DL-1431
 const EXCLUDE_FUNCTIONS = ['ACOS', 'ASIN', 'ATAN', 'ATAN2'];
@@ -31,25 +32,25 @@ const executor = (func) => function wrappedFunction(sheet, ...terms) {
 		result = func(sheet, ...terms);
 	} catch (err) {
 		logger.error('Error', err);
-		return FunctionErrors.code.FUNC_EXEC;
+		return ErrorInfo.create(FunctionErrors.code.FUNC_EXEC, err.message, term.name);
 	}
 	func.term = undefined;
 	func.context = undefined;
 	return result;
 };
 
-// DL-1253: an identifier can contain an error code. we ignore this and simply use a string term for it
+// DL-1253: an identifier can contain an error code, so create an ErrorTerm for it
 const createErrorTermFromNode = (node) =>
-	node.type === 'identifier' && FunctionErrors.isError(node.value) ? Term.fromString(node.value) : undefined;
+	node.type === 'identifier' && FunctionErrors.isError(node.value) ? ErrorTerm.fromError(node.value) : undefined;
 
 const referenceTerm = (node, context) => {
-	const operand = referenceFromNode(node, context) || createErrorTermFromNode(node);
+	const operand = referenceFromNode(node, context);
 	if (operand) {
 		const term = new Term();
 		term.operand = operand;
 		return term;
 	}
-	return undefined;
+	return createErrorTermFromNode(node);
 };
 
 // for internally use only => to ease parsing 
@@ -59,7 +60,7 @@ class SheetParserContext extends ParserContext {
 	constructor() {
 		super();
 		this.strict = true;
-		this.functions = Object.assign({NOOP: noop}, filter(this.functions));
+		this.functions = Object.assign({ NOOP: noop }, filter(this.functions));
 	}
 
 	// node: is a parser AST node

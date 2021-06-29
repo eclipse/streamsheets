@@ -370,8 +370,8 @@ describe('json', () => {
 	});
 	it(`should return ${ERROR.VALUE} error if no json could be created`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('json(,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('json(I33)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('json(,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('json(I33)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	// DL-1305
 	describe('converting to JSON array', () => {
@@ -656,10 +656,10 @@ describe('json', () => {
 			createCellAt('B1', { formula: 'json(inbox(,"123"))' }, sheet);
 			createCellAt('C1', { formula: 'json(inboxdata(,,"Kundenname"))' }, sheet);
 			createCellAt('D1', { formula: 'json(inboxdata(,"1234","Kundenname"))' }, sheet);
-			expect(sheet.cellAt('A1').value).toBe(ERROR.VALUE);
-			expect(sheet.cellAt('B1').value).toBe(ERROR.VALUE);
-			expect(sheet.cellAt('C1').value).toBe(ERROR.VALUE);
-			expect(sheet.cellAt('D1').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A1').value.code).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('B1').value.code).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('C1').value.code).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('D1').value.code).toBe(ERROR.VALUE);
 		});
 	});
 });

@@ -198,7 +198,7 @@ export default class SheetActivator extends InteractionActivator {
 				}
 				const view = controller.getView().getWorksheetView();
 				this._hitCode = view.getHitCode(event.location, viewer);
-				view.setCursor(this._hitCode, dispatcher);
+				view.setCursor(this._hitCode, dispatcher, event, viewer);
 				this._controller = controller;
 				event.isConsumed = true;
 				event.hasActivated = true;

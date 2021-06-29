@@ -45,7 +45,7 @@ const resolveRequestAt = async (index, sheet) => {
 describe('await', () => {
 	it(`should return ${ERROR.ARGS} error if called without any arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('await()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('await()', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if reference cell does not exist`, async () => {
 		const machine = new Machine();
@@ -57,11 +57,11 @@ describe('await', () => {
 		});
 		expect(sheet.cellAt('A3').value).toBe(true);
 		await machine.step();
-		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 		createCellAt('A3', { formula: 'await(A2, A5)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(true);
 		await machine.step();
-		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 	});
 	it('should ignore empty cells in request range', async () => {
 		const machine = new Machine();
@@ -543,7 +543,7 @@ describe('await', () => {
 describe('await.one', () => {
 	it(`should return ${ERROR.ARGS} error if called without any arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('await.one()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('await.one()', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it('should wait until single referenced request is resolved', async () => {
 		const machine = new Machine();

@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { getMachine } = require('./sheet');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
 
@@ -79,7 +79,9 @@ class Chain {
 
 	run(f) {
 		if (this.context.isProcessing === false || this.error) {
-			return this.error || true;
+			// convert error:
+			const error = this.error && (this.error.isErrorInfo ? this.error : ErrorInfo.create(this.error));
+			return error || true;
 		}
 		return f(this.context, ...this.mappedArgs);
 	}

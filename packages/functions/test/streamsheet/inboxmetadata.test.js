@@ -76,12 +76,12 @@ describe('inboxmetadata', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
 			sheet.streamsheet.setLoopPath('[data][Teile]');
 			let terms = createParamTerms('T1', '').concat(Term.fromString(''));
-			expect(INBOXMETADATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
+			expect(INBOXMETADATA(sheet, ...terms).code).toBe(ERROR.INVALID_LOOP_PATH);
 			terms = createParamTerms('T1', '').concat(createParamTerms('', 'Nr'));
-			expect(INBOXMETADATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
+			expect(INBOXMETADATA(sheet, ...terms).code).toBe(ERROR.INVALID_LOOP_PATH);
 			sheet.streamsheet.setLoopPath('');
 			terms = createParamTerms('T1', '').concat(Term.fromString(''));
-			expect(INBOXMETADATA(sheet, ...terms)).toBe(ERROR.INVALID_LOOP_PATH);
+			expect(INBOXMETADATA(sheet, ...terms).code).toBe(ERROR.INVALID_LOOP_PATH);
 		});
 		it('should be possible to reference a loop-element absolute', () => {
 			const sheet = setup({ streamsheetName: 'T1' });
@@ -112,7 +112,7 @@ describe('inboxmetadata', () => {
 			expect(sheet.cellAt('A1').value).toBe('[T1][]');
 			sheet.loadCells({ A1: { formula: 'inboxmetadata(,,)' } });
 			sheet.streamsheet.step();
-			expect(sheet.cellAt('A1').value).toBe(ERROR.INVALID_LOOP_PATH);
+			expect(sheet.cellAt('A1').value.code).toBe(ERROR.INVALID_LOOP_PATH);
 			sheet.loadCells({ A1: { formula: 'inboxmetadata("T1")' } });
 			sheet.streamsheet.step();
 			expect(sheet.cellAt('A1').value).toBe('[T1][]');			

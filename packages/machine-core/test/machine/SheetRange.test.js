@@ -329,7 +329,7 @@ describe('SheetRange', () => {
 			sheet.settings.maxrow = 2;
 			expect(colRange.value).toBe(3);
 			// this range is invalid now...
-			expect(rowRange.value).toBe(FunctionErrors.code.REF);
+			expect(rowRange.value.code).toBe(FunctionErrors.code.REF);
 			sheet = new Sheet().load({ cells: { A1: 1, B1: 2, C1: 3, D1: 4 } });
 			colRange = createTerm('sum(A:D)', sheet);
 			rowRange = createTerm('sum(1:1)', sheet);
@@ -337,7 +337,7 @@ describe('SheetRange', () => {
 			expect(rowRange.value).toBe(10);
 			sheet.settings.maxcol = 1;
 			expect(rowRange.value).toBe(3);
-			expect(colRange.value).toBe(FunctionErrors.code.REF);
+			expect(colRange.value.code).toBe(FunctionErrors.code.REF);
 		});
 	});
 	describe('isEqualTo', () => {

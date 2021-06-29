@@ -19,13 +19,13 @@ const ERROR = FunctionErrors.code;
 describe('table.get', () => {
 	it(`should return ${ERROR.ARGS} error if called without any or too many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('table.get()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('table.get(,,,)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('table.get()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('table.get(,,,)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if passed values are invalid`, async () => {
 		const sheet = new StreamSheet().sheet;
 		// first param must be a cell range, so:
-		expect(createTerm('table.get(A1,42,"hello")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('table.get(A1,42,"hello")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should return the value from specified table cell', async () => {
 		const machine = new Machine();
@@ -57,9 +57,9 @@ describe('table.get', () => {
 		sheet.load({ cells: SHEET.TABLEGET });
 		createCellAt('A1', { formula: 'table.get(A3:C8, 42, "Turbine 1")'}, sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		createCellAt('A1', { formula: 'table.get(A3:C8, 1594993370, "Turbine 23")'}, sheet);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 	});
 });

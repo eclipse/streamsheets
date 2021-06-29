@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const EventEmitter = require('events');
-const { convert } = require('@cedalo/commons');
+const { convert, proc } = require('@cedalo/commons');
 const IdGenerator = require('@cedalo/id-generator');
 const logger = require('../logger').create({ name: 'Machine' });
 const State = require('../State');
@@ -20,6 +20,7 @@ const locale = require('../locale');
 const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
 const TaskQueue = require('./TaskQueue');
+const autoexit = require('../utils/autoexit');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -32,6 +33,10 @@ const defaultStreamSheetName = (streamsheet) => {
 };
 
 const defaultMachineName = () => `Machine${new Date().getUTCMilliseconds()}`;
+const changeProcessTitle = (machine, name) => {
+	proc.setProcessTitle(`Machine[${machine.id}](${name})`);
+	return name;
+};
 
 const FILE_VERSION = '2.0.0';
 
@@ -75,7 +80,7 @@ class Machine {
 		this._id = IdGenerator.generate();
 		this.namedCells = new NamedCells();
 		this._initialLoadTime = Date.now();
-		this._name = DEF_CONF.name;
+		this._name = changeProcessTitle(this, DEF_CONF.name);
 		this._state = DEF_CONF.state;
 		// a Map keeps its insertion order
 		this._streamsheets = new Map();
@@ -136,7 +141,7 @@ class Machine {
 		const { settings = {}, metadata, extensionSettings = {} } = definition;
 		const streamsheets = def.streamsheets || [{}];
 		this._id = def.isTemplate ? this._id : def.id || this._id;
-		this._name = def.isTemplate ? defaultMachineName() : def.name;
+		this._name = changeProcessTitle(this, def.isTemplate ? defaultMachineName() : def.name);
 		this._scope = def.scope;
 		this.metadata = { ...this.metadata, ...metadata };
 		this._settings = { ...this.settings, ...settings };
@@ -225,7 +230,7 @@ class Machine {
 
 	set name(name) {
 		if (this.name !== name) {
-			this._name = name;
+			this._name = changeProcessTitle(this, name);
 			this._emitter.emit('update', 'name');
 		}
 	}
@@ -307,7 +312,7 @@ class Machine {
 	}
 
 	set extensionSettings(extensionSettings) {
-		this._extensionSettings = extensionSettings;;
+		this._extensionSettings = extensionSettings;
 	}
 
 	setExtensionSettings({ extensionId, settings } = {}) {
@@ -487,6 +492,7 @@ class Machine {
 		this.stats.cyclesPerSecond = 0;
 		// we have no listener for this one -> remove
 		this._emitter.emit('didStop', this);
+		autoexit.update(this);
 	}
 
 	async pause() {
@@ -583,9 +589,11 @@ class Machine {
 
 	subscribe(clientId) {
 		if (clientId) this._subscriptions.add(clientId);
+		autoexit.update(this);
 	}
 	unsubscribe(clientId) {
 		this._subscriptions.delete(clientId);
+		autoexit.update(this);
 	}
 	getClientCount() {
 		return this._subscriptions.size;

@@ -38,15 +38,15 @@ describe('setcycletime', () => {
 	});
 	it('should not be possible to set a cycletime < 1', () => {
 		const { sheet } = setup();
-		expect(SETCYCLETIME(sheet, Term.fromNumber(0))).toBe(ERROR.VALUE);
-		expect(SETCYCLETIME(sheet, Term.fromNumber(-1))).toBe(ERROR.VALUE);
+		expect(SETCYCLETIME(sheet, Term.fromNumber(0)).code).toBe(ERROR.VALUE);
+		expect(SETCYCLETIME(sheet, Term.fromNumber(-1)).code).toBe(ERROR.VALUE);
 	});
 	it('should return error if no valid parameters are provided', () => {
 		const { sheet } = setup();
 		const invalidSheet = new StreamSheet().sheet;
-		expect(SETCYCLETIME()).toBe(ERROR.ARGS);
-		expect(SETCYCLETIME(sheet)).toBe(ERROR.ARGS);
-		expect(SETCYCLETIME(invalidSheet, Term.fromNumber(4000))).toBe(ERROR.NO_MACHINE);
-		expect(SETCYCLETIME(sheet, Term.fromString('abc'))).toBe(ERROR.VALUE);
+		expect(SETCYCLETIME().code).toBe(ERROR.ARGS);
+		expect(SETCYCLETIME(sheet).code).toBe(ERROR.ARGS);
+		expect(SETCYCLETIME(invalidSheet, Term.fromNumber(4000)).code).toBe(ERROR.NO_MACHINE);
+		expect(SETCYCLETIME(sheet, Term.fromString('abc')).code).toBe(ERROR.VALUE);
 	});
 });

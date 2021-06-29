@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -101,18 +101,18 @@ const copyvalues = (sheet, ...terms) =>
 		.onSheetCalculation()
 		.withArgCount(2)
 		.mapNextArg(source => getCellRangeFromTerm(source, sheet))
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.RANGE)
 		.run((source, target) =>
 			copyRange(source, target)
 			|| copyCellValue(terms[0], target)
-			|| ERROR.SOURCE);
+			|| ERROR.RANGE);
 
 const movevalues = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
-		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.SOURCE)
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
+		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.RANGE)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.RANGE)
 		.run((source, target) => {
 			const values = rangevalues(source);
 			const moved = moverangevalues(values, target);
@@ -121,21 +121,21 @@ const movevalues = (sheet, ...terms) =>
 		});
 
 const setvalue = (sheet, ...terms) =>
-runFunction(sheet, terms)
-	.withMinArgs(3)
-	.withMaxArgs(4)
-	.mapNextArg(condition => !!condition.value)
-	.mapNextArg(val => val.value)
-	.mapNextArg(cellrefs => getCellReferencesFromTerm(cellrefs, sheet) || [])
-	.mapNextArg(overwrite => convert.toBoolean(overwrite && overwrite.value, false))
-	.run((condition, val, cellrefs, overwrite) => condition && setCells(val, cellrefs, overwrite) || true);
+	runFunction(sheet, terms)
+		.withMinArgs(3)
+		.withMaxArgs(4)
+		.mapNextArg(condition => !!condition.value)
+		.mapNextArg(val => val.value)
+		.mapNextArg(cellrefs => getCellReferencesFromTerm(cellrefs, sheet) || [])
+		.mapNextArg(overwrite => convert.toBoolean(overwrite && overwrite.value, false))
+		.run((condition, val, cellrefs, overwrite) => condition && setCells(val, cellrefs, overwrite) || true);
 
 const swapvalues = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.withArgCount(2)
-		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.SOURCE)
-		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.TARGET)
+		.mapNextArg(source => getCellRangeFromTerm(source, sheet) || ERROR.RANGE)
+		.mapNextArg(target => getCellRangeFromTerm(target, sheet) || ERROR.RANGE)
 		.run((source, target) => {
 			const sourcevalues = rangevalues(source);
 			const targetvalues = rangevalues(target);

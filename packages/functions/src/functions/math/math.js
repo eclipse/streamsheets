@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -109,8 +109,8 @@ const log = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
-		.mapNextArg((base) => base ? toNumberOrError(base.value) : 10)
-		.run((nr, base) => nr !== 0 && base !== 0 ? Math.log(nr) / Math.log(base) : ERROR.VALUE);
+		.mapNextArg((base) => (base ? toNumberOrError(base.value) : 10))
+		.run((nr, base) => (nr !== 0 && base !== 0 ? Math.log(nr) / Math.log(base) : ERROR.VALUE));
 
 const mod = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -118,12 +118,12 @@ const mod = (sheet, ...terms) =>
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.mapNextArg((divisor) => toNumberOrError(divisor.value))
 		.run((nr, divisor) => divisor !== 0 ? nr - (divisor * Math.floor(nr / divisor)) : ERROR.DIV0);
-		// if we want to round result to a certain decimal to get e.g 0.2 instead of 0.199999996
-		// .run((nr, divisor) => {
-		// 	if (divisor === 0) return ERROR.DIV0;
-		// 	const decimals = Math.max(getDecimalsCount(nr), getDecimalsCount(divisor));
-		// 	return roundDecimaals(nr - divisor * Math.floor(nr / divisor), decimals);
-		// });
+// if we want to round result to a certain decimal to get e.g 0.2 instead of 0.199999996
+// .run((nr, divisor) => {
+// 	if (divisor === 0) return ERROR.DIV0;
+// 	const decimals = Math.max(getDecimalsCount(nr), getDecimalsCount(divisor));
+// 	return roundDecimaals(nr - divisor * Math.floor(nr / divisor), decimals);
+// });
 
 
 const odd = (sheet, ...terms) =>

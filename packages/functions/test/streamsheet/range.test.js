@@ -18,9 +18,9 @@ const ERROR = FunctionErrors.code;
 describe('range', () => {
 	it(`should return error ${ERROR.ARGS} if called with to few or to many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('range()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('range(,)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('range(A1:B1,C1:D1)', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('range()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('range(,)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('range(A1:B1,C1:D1)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it('should create an array from single cell', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: 42, B2: 'hello' } });

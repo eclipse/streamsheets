@@ -11,11 +11,13 @@
 const CODES = require('./src/codes');
 const Errors = require('./src/Errors');
 const HttpErrors = require('./src/HttpErrors');
+const ErrorInfo = require('./src/ErrorInfo');
 const FunctionErrors = require('./src/FunctionErrors');
 
 module.exports = {
 	CODES,
 	Errors,
 	HttpErrors,
+	ErrorInfo,
 	FunctionErrors
 };

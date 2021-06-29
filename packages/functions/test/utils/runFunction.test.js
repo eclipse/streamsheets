@@ -20,7 +20,6 @@ describe('runFunction', () => {
 		expect(runner).toBeDefined();
 	});
 	it('should support ignoring errors', () => {
-		let error;
 		const sheet = new StreamSheet().sheet;
 		const runner = runFunction(sheet, ['hello', 'world', ERROR.NA, '!!']);
 		runner
@@ -29,16 +28,17 @@ describe('runFunction', () => {
 			.mapNextArg((second) => second)
 			.mapNextArg((third) => third)
 			.mapNextArg((last) => last)
-			.run((first, second, third, last, err) => {
+			.run((first, second, third, last) => {
 				expect(first).toBe('hello');
 				expect(second).toBe('world');
 				expect(third).toBe(ERROR.NA);
 				expect(last).toBe('!!');
-				error = err;
 			});
+		runner.errorHandler.ignoreError = false;
+		const error = runner.errorHandler.getError();
 		expect(error).toBeDefined();
 		expect(error.code).toBe(ERROR.NA);
-		expect(error.index).toBe(2);
+		expect(error.paramIndex).toBe(3);
 	});
 	it('should support remapping of previous mapped argument', () => {
 		const sheet = new StreamSheet().sheet;

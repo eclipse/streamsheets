@@ -74,9 +74,9 @@ describe('outboxdata', () => {
 		it(`should return error "${ERROR.ARGS}" if not all required parameters are provided`, () => {
 			const sheet = setup({ streamsheetName: 'T1' }).load(SHEETS.SIMPLE);
 			const terms = createParamTerms('').concat(Term.fromString(''));
-			expect(OUTBOXDATA()).toBe(ERROR.ARGS);
-			expect(OUTBOXDATA(sheet)).toBe(ERROR.ARGS);
-			expect(OUTBOXDATA(sheet, terms[0])).toBe(ERROR.NO_MSG_ID);
+			expect(OUTBOXDATA().code).toBe(ERROR.ARGS);
+			expect(OUTBOXDATA(sheet).code).toBe(ERROR.ARGS);
+			expect(OUTBOXDATA(sheet, terms[0]).code).toBe(ERROR.NO_MSG_ID);
 		});
 	});
 });

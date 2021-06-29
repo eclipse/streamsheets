@@ -314,13 +314,37 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return String(value);
 	}
 
+	wrapText(graphics, cs, format, id, text, maxWidth) {
+		const words = text.split(' ');
+		let line = '';
+		let lines = '';
+
+		words.forEach((word, index) => {
+			const testLine = `${line}${index ? ' ' : ''}${word}`;
+			const metrics = graphics.measureText(testLine);
+			if (graphics.getCoordinateSystem().deviceToLogX(metrics.width, true) > maxWidth && index > 0) {
+				lines += `${line}\n`;
+				line = `${word}`;
+			} else {
+				line = testLine;
+			}
+		});
+
+		lines += line;
+
+		return lines;
+	}
+
 	measureText(graphics, cs, format, id, text, unrotated = false) {
 		const name = format.fontName || this.getTemplate()[id].format.fontName || this.getTemplate().font.name;
 		const size = format.fontSize || this.getTemplate()[id].format.fontSize || this.getTemplate().font.size;
 
+		const textSize = graphics.measureMultiLineText(String(text), cs.deviceToLogYNoZoom(GraphUtils.getFontMetricsEx(name, size).lineheightPx, true));
+		// const textSize = graphics.measureMultiLineText(String(text), GraphUtils.getFontMetricsEx(name, size).lineheight);
+
 		const result = {
-			width: cs.deviceToLogX(graphics.measureText(text).width, true),
-			height: GraphUtils.getFontMetricsEx(name, size).lineheight
+			width: cs.deviceToLogX(textSize.x, true),
+			height: textSize.y
 		};
 
 		if (!unrotated) {
@@ -346,6 +370,29 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		return textSize;
 	}
 
+	getAxisSpace(axis) {
+		let space;
+
+		if (axis.type === 'linear' || axis.type === 'logarithmic' || axis.wordBreak === false) {
+			return undefined;
+		}
+
+		switch (axis.align) {
+		case 'left':
+		case 'right':
+			space = 2000;
+			break;
+		case 'top':
+		case 'bottom':
+			space = this.plot.position.width / (axis.scale.max - axis.scale.min -  this.getEmptyCategoryCount(axis));
+			break;
+		default:
+			break;
+		}
+
+		return space;
+	}
+
 	measureAxis(graphics, axis) {
 		const result = {
 			width: 200,
@@ -356,11 +403,6 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			return result;
 		}
 
-		// const lastInfo = JSON.stringify({
-		// 	format: axis.format.getSizeChangeInfo(),
-		// 	scale: axis.scale,
-		// });
-
 		this.setFont(graphics, axis.format, 'axis', 'middle', TextFormatAttributes.TextAlignment.CENTER);
 
 		const cs = graphics.getCoordinateSystem();
@@ -369,6 +411,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		const refLabel = this.getDataSourceInfoAxis(axis);
 		let current = this.getAxisStart(refLabel, axis);
 		const final = this.getAxisEnd(axis);
+		const space = this.getAxisSpace(axis);
 
 		while (current.value <= final) {
 			if (axis.type === 'category' && axis.betweenTicks && current.value >= axis.scale.max) {
@@ -384,7 +427,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					text = this.getLabel(refLabel, axis, index);
 				}
 				text = this.getLabel(refLabel, axis, Math.floor(current.value));
-			} else if (axis.format && axis.format.numberFormat) {
+			} else if (axis.format && axis.format.numberFormat && !axis.format.linkNumberFormat) {
 				text = this.formatNumber(
 					current.value,
 					axis.format && axis.format.numberFormat ? axis.format : axis.scale.format
@@ -392,13 +435,17 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			} else {
 				text = this.formatNumber(
 					current.value,
-					axis.scale.format
+					axis.scale.format && !axis.format.linkNumberFormat
 						? axis.scale.format
 						: { numberFormat: axis.format.linkedNumberFormat, localCulture: axis.format.linkedLocalCulture }
 				);
 			}
 
-			const size = this.measureText(graphics, cs, axis.format, 'axis', text);
+			if (space) {
+				text = this.wrapText(graphics, cs, axis.format, 'axis', text, space);
+			}
+
+			const size = this.measureText(graphics, cs, axis.format, 'axis', text, false, space);
 			result.width = Math.max(result.width, size.width);
 			result.height = Math.max(result.height, size.height);
 
@@ -443,6 +490,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			result.lastHeight = 0;
 			result.lastPos = 0;
 		}
+
+		result.space = space;
 
 		return result;
 	}
@@ -541,7 +590,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.actions = [];
 
 		this.xAxes.forEach((axis) => {
-			if (axis.scale.maxZoom !== undefined) {
+			if (axis.scale.maxZoom !== undefined || axis.scale.minZoom !== undefined) {
 				this.plot.position.top = Math.max(this.plot.position.top, 800);
 				this.actions.push({
 					position: new ChartRect(size.x - 3200, 0, size.x - 500, 800),
@@ -571,6 +620,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		const legend = this.getLegend();
+		this.legend.columns = undefined;
 		if (legend.length && this.legend.visible) {
 			const margin = 200;
 			this.setFont(
@@ -580,10 +630,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				'middle',
 				TextFormatAttributes.TextAlignment.CENTER
 			);
+			const rowSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', 'X');
 			let legendWidth = 0;
-			let textSize = {};
 			let legendHeight = 0;
 			let maxTextWidth = 0;
+			let textSize = {};
 			let extra = margin * 6;
 			const map = this.isMap();
 
@@ -604,27 +655,53 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			});
 
 			maxTextWidth += extra;
-			this.legend.columns = undefined;
-			if (this.legend.align === 'top' || this.legend.align === 'bottom') {
-				if (map) {
+			if (map) {
+				if (this.legend.align === 'top' || this.legend.align === 'bottom') {
 					legendWidth = this.plot.position.width / 3;
-					legendHeight =  textSize.height + 300 + margin * 2;
-				} else if (legendWidth > this.plot.position.width) {
-					const columns = Math.floor(this.plot.position.width / maxTextWidth);
-					const rows = Math.ceil(legend.length / columns);
-					legendWidth = columns * (maxTextWidth);
-					legendHeight = (rows - 1) * textSize.height * 1.3 + textSize.height + margin * 2;
-					this.legend.columns = columns;
-					this.legend.maxTextWidth = maxTextWidth;
+					legendHeight = rowSize.height + 300 + margin * 2;
 				} else {
-					legendHeight =  textSize.height + margin * 2;
+					legendHeight = Math.max(1500, this.plot.position.height / 3);
+					legendWidth = maxTextWidth - margin * 2;
 				}
-			} else if (map) {
-				legendHeight = Math.max(1500, this.plot.position.height / 3);
-				legendWidth = maxTextWidth - margin * 2;
 			} else {
-				legendHeight = (legend.length - 1) * textSize.height * 1.3 + textSize.height + margin * 2;
-				legendWidth = maxTextWidth;
+				if (this.legend.align === 'top' || this.legend.align === 'bottom') {
+					if (legendWidth > this.plot.position.width) {
+						const columns = Math.max(1, Math.floor(this.plot.position.width / maxTextWidth));
+						const rows = Math.ceil(legend.length / columns);
+						legendWidth = columns * (maxTextWidth);
+						legendHeight = (rows - 1) * textSize.height * 1.3 + textSize.height + margin * 2;
+						this.legend.columns = columns;
+						this.legend.maxTextWidth = maxTextWidth;
+					} else {
+						legendHeight = textSize.height + margin * 2;
+					}
+				} else {
+					legendHeight = (legend.length - 1) * textSize.height * 1.3 + textSize.height + margin * 2;
+					legendWidth = maxTextWidth;
+				}
+
+				let maxHeight = 0;
+				let column = 0;
+				let firstRow = true;
+				legendHeight = 2 * margin;
+				legend.forEach((entry, index) => {
+					textSize = this.measureText(JSG.graphics, cs, this.legend.format, 'legend', String(entry.name));
+					maxHeight = Math.max(maxHeight, textSize.height);
+					if (this.legend.align === 'right' || this.legend.align === 'middleright' || this.legend.align === 'left' || this.legend.align === 'middleleft') {
+						legendHeight += textSize.height;
+						if (index < legend.length - 1) {
+							legendHeight += rowSize.height * 0.5;
+						}
+					} else if (this.legend.columns === undefined) {
+						legendHeight = maxHeight + margin * 2;
+					} else if (column === this.legend.columns - 1 || index === legend.length - 1) {
+						legendHeight += maxHeight + (firstRow ? 0 : rowSize.height * 0.5);
+						column = -1;
+						firstRow = false;
+						maxHeight = 0;
+					}
+					column += 1;
+				});
 			}
 
 			switch (this.legend.align) {
@@ -689,6 +766,29 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		});
 
+		this.yAxes.forEach((axis) => {
+			if (axis.title.visible) {
+				title = String(this.getExpressionValue(axis.title.formula));
+				axis.title.size = this.measureTitle(JSG.graphics, axis.title, 'axisTitle', title);
+				switch (axis.align) {
+				case 'left':
+					this.plot.position.left += axis.title.size.height;
+					break;
+				case 'right':
+					this.plot.position.right -= axis.title.size.height;
+					break;
+				case 'top':
+					this.plot.position.top += axis.title.size.height;
+					break;
+				case 'bottom':
+					this.plot.position.bottom -= axis.title.size.height;
+					break;
+				default:
+					break;
+				}
+			}
+		});
+
 		// reduce plot by axis size
 		this.xAxes.forEach((axis, index) => {
 			switch (axis.align) {
@@ -727,193 +827,85 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		});
 
-		this.yAxes.forEach((axis) => {
-			if (axis.title.visible) {
-				title = String(this.getExpressionValue(axis.title.formula));
-				axis.title.size = this.measureTitle(JSG.graphics, axis.title, 'axisTitle', title);
+		this.yAxes.forEach((axis, index) => {
+			if (axis.visible) {
 				switch (axis.align) {
+				case 'radialoutside':
+					axis.size = this.measureAxis(JSG.graphics, axis);
+					const thresholds = this.hasLegendRange() ? legend : undefined;
+					if (thresholds && thresholds.length && axis.valueRangesVisible && this.chart.gaugePointer === false) {
+						axis.size.height += 400;
+						axis.size.width += 400;
+					}
+					this.plot.position.top += axis.size.height;
+					this.plot.position.bottom -= axis.size.height;
+					this.plot.position.left += axis.size.width;
+					this.plot.position.right -= axis.size.width;
+					break;
 				case 'left':
-					this.plot.position.left += axis.title.size.height;
+					axis.size = this.measureAxis(JSG.graphics, axis);
+					this.plot.position.left += axis.size.width;
+					if (index) {
+						this.plot.position.left += 200;
+					}
 					break;
 				case 'right':
-					this.plot.position.right -= axis.title.size.height;
+					axis.size = this.measureAxis(JSG.graphics, axis);
+					this.plot.position.right -= axis.size.width;
+					if (index) {
+						this.plot.position.right -= 200;
+					}
 					break;
 				case 'top':
-					this.plot.position.top += axis.title.size.height;
+					axis.size = this.measureAxis(JSG.graphics, axis);
+					this.plot.position.top += axis.size.height;
+					if (index) {
+						this.plot.position.top += 200;
+					}
 					break;
 				case 'bottom':
-					this.plot.position.bottom -= axis.title.size.height;
+					axis.size = this.measureAxis(JSG.graphics, axis);
+					this.plot.position.bottom -= axis.size.height;
+					if (index) {
+						this.plot.position.bottom -= 200;
+					}
 					break;
 				default:
 					break;
 				}
-			}
-		});
-
-		this.yAxes.forEach((axis, index) => {
-			switch (axis.align) {
-			case 'radialoutside':
-				axis.size = this.measureAxis(JSG.graphics, axis);
-				const thresholds = this.hasLegendRange() ? legend : undefined;
-				if (
-					thresholds &&
-					thresholds.length &&
-					axis.valueRangesVisible &&
-					this.chart.gaugePointer === false
-				) {
-					axis.size.height += 400;
-					axis.size.width += 400;
-				}
-				this.plot.position.top += axis.size.height;
-				this.plot.position.bottom -= axis.size.height;
-				this.plot.position.left += axis.size.width;
-				this.plot.position.right -= axis.size.width;
-				break;
-			case 'left':
-				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.left += axis.size.width;
-				if (index) {
-					this.plot.position.left += 200;
-				}
-				break;
-			case 'right':
-				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.right -= axis.size.width;
-				if (index) {
-					this.plot.position.right -= 200;
-				}
-				break;
-			case 'top':
-				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.top += axis.size.height;
-				if (index) {
-					this.plot.position.top += 200;
-				}
-				break;
-			case 'bottom':
-				axis.size = this.measureAxis(JSG.graphics, axis);
-				this.plot.position.bottom -= axis.size.height;
-				if (index) {
-					this.plot.position.bottom -= 200;
-				}
-				break;
-			default:
-				break;
 			}
 		});
 
 		// ensure for axis first and last label space
 		this.xAxes.forEach((axis) => {
 			if (axis.visible) {
-				const labelAngle =
-					axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 				switch (axis.align) {
-				case 'left': {
-					let plot = this.plot.position.bottom - axis.size.lastPos * this.plot.position.height;
-					if (Math.abs(labelAngle) === Math.PI_2) {
-						this.plot.position.top = Math.max(
-							this.plot.position.top,
-							axis.size.lastHeight / 2 - (plot - this.plot.position.top) + 150
-						);
-					} else if (labelAngle < 0) {
-						this.plot.position.top = Math.max(
-							this.plot.position.top,
-							axis.size.lastHeight - (plot - this.plot.position.top) + 150
-						);
-					}
-					plot = this.plot.position.bottom - axis.size.firstPos * this.plot.position.height;
-					if (Math.abs(labelAngle) === Math.PI_2) {
-						this.plot.position.bottom = Math.min(
-							this.plot.position.bottom,
-							size.y - (plot + axis.size.lastHeight / 2 - this.plot.position.bottom)
-						);
-					} else if (labelAngle > 0) {
-						this.plot.position.bottom = Math.min(
-							this.plot.position.bottom,
-							size.y - (plot + axis.size.lastHeight - this.plot.position.bottom)
-						);
-					}
-					break;
-				}
+				case 'left':
 				case 'right': {
 					let plot = this.plot.position.bottom - axis.size.lastPos * this.plot.position.height;
-					if (Math.abs(labelAngle) === Math.PI_2) {
-						this.plot.position.top = Math.max(
-							this.plot.position.top,
-							axis.size.lastHeight / 2 - (plot - this.plot.position.top) + 150
-						);
-					} else if (labelAngle > 0) {
-						this.plot.position.top = Math.max(
-							this.plot.position.top,
-							axis.size.lastHeight - (plot - this.plot.position.top) + 150
-						);
-					}
+					this.plot.position.top = Math.max(
+						this.plot.position.top,
+						axis.size.lastHeight / 2 - (plot - this.plot.position.top) + 150
+					);
 					plot = this.plot.position.bottom - axis.size.firstPos * this.plot.position.height;
-					if (Math.abs(labelAngle) === Math.PI_2) {
-						this.plot.position.bottom = Math.min(
-							this.plot.position.bottom,
-							size.y - (plot + axis.size.lastHeight / 2 - this.plot.position.bottom)
-						);
-					} else if (labelAngle < 0) {
-						this.plot.position.bottom = Math.min(
-							this.plot.position.bottom,
-							size.y - (plot + axis.size.lastHeight - this.plot.position.bottom)
-						);
-					}
+					this.plot.position.bottom = Math.min(
+						this.plot.position.bottom,
+						size.y - (plot + axis.size.firstHeight / 2 - this.plot.position.bottom)
+					);
 					break;
 				}
-				case 'top': {
-					let plot = axis.size.firstPos * this.plot.position.width;
-					if (labelAngle === 0) {
-						this.plot.position.left = Math.max(
-							this.plot.position.left,
-							axis.size.firstWidth / 2 - plot
-						);
-					} else if (labelAngle < 0) {
-						this.plot.position.left = Math.max(
-							this.plot.position.left,
-							axis.size.firstWidth - plot + 150
-						);
-					}
-					plot = this.plot.position.left + axis.size.lastPos * this.plot.position.width;
-					if (labelAngle === 0) {
-						this.plot.position.right = Math.min(
-							this.plot.position.right,
-							size.x - (plot + axis.size.lastWidth / 2 - this.plot.position.right)
-						);
-					} else if (labelAngle > 0) {
-						this.plot.position.right = Math.min(
-							this.plot.position.right,
-							size.x - (plot + axis.size.lastWidth - this.plot.position.right) - 150
-						);
-					}
-					break;
-				}
+				case 'top':
 				case 'bottom': {
 					let plot = axis.size.firstPos * this.plot.position.width;
-					if (labelAngle === 0) {
-						this.plot.position.left = Math.max(
-							this.plot.position.left,
-							axis.size.firstWidth / 2 - plot
-						);
-					} else if (labelAngle > 0) {
-						this.plot.position.left = Math.max(
-							this.plot.position.left,
-							axis.size.firstWidth - plot + 150
-						);
-					}
+					this.plot.position.left = Math.max(
+						this.plot.position.left,
+						axis.size.firstWidth / 2 - plot
+					);
 					plot = this.plot.position.left + axis.size.lastPos * this.plot.position.width;
-					if (labelAngle === 0) {
-						this.plot.position.right = Math.min(
-							this.plot.position.right,
-							size.x - (plot + axis.size.lastWidth / 2 - this.plot.position.right)
-						);
-					} else if (labelAngle < 0) {
-						this.plot.position.right = Math.min(
-							this.plot.position.right,
-							size.x - (plot + axis.size.lastWidth - this.plot.position.right) - 150
-						);
-					}
+					this.plot.position.right = Math.min(
+						this.plot.position.right,
+						size.x - (plot + axis.size.lastWidth / 2 - this.plot.position.right)
+					);
 					break;
 				}
 				default:
@@ -923,67 +915,27 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		});
 
 		this.yAxes.forEach((axis) => {
-			const labelAngle =
-				axis.format.fontRotation === undefined ? 0 : JSG.MathUtils.toRadians(-axis.format.fontRotation);
 			if (axis.visible) {
 				switch (axis.align) {
-				case 'top': {
-					let plot = axis.size.firstPos * this.plot.position.width;
-					if (labelAngle === 0) {
-						this.plot.position.left = Math.max(
-							this.plot.position.left,
-							axis.size.firstWidth / 2 - plot
-						);
-					} else if (labelAngle < 0) {
-						this.plot.position.left = Math.max(
-							this.plot.position.left,
-							axis.size.firstWidth - plot + 150
-						);
-					}
-					plot = this.plot.position.left + axis.size.lastPos * this.plot.position.width;
-					if (labelAngle === 0) {
-						this.plot.position.right = Math.min(
-							this.plot.position.right,
-							size.x - (plot + axis.size.lastWidth / 2 - this.plot.position.right)
-						);
-					} else if (labelAngle > 0) {
-						this.plot.position.right = Math.min(
-							this.plot.position.right,
-							size.x - (plot + axis.size.lastWidth - this.plot.position.right) - 150
-						);
-					}
+				case 'left':
+				case 'right': {
+					let plot = this.plot.position.bottom - axis.size.lastPos * this.plot.position.height;
+					this.plot.position.top = Math.max(this.plot.position.top,
+						axis.size.lastHeight / 2 - (plot - this.plot.position.top) + 150);
+					plot = this.plot.position.bottom - axis.size.firstPos * this.plot.position.height;
+					this.plot.position.bottom = Math.min(this.plot.position.bottom,
+						size.y - (plot + axis.size.firstHeight / 2 - this.plot.position.bottom));
 					break;
 				}
+				case 'top':
 				case 'bottom': {
 					let plot = axis.size.firstPos * this.plot.position.width;
-					if (labelAngle === 0) {
-						this.plot.position.left = Math.max(
-							this.plot.position.left,
-							axis.size.firstWidth / 2 - plot
-						);
-					} else if (labelAngle > 0) {
-						this.plot.position.left = Math.max(
-							this.plot.position.left,
-							axis.size.firstWidth - plot + 150
-						);
-					}
+					this.plot.position.left = Math.max(this.plot.position.left, axis.size.firstWidth / 2 - plot);
 					plot = this.plot.position.left + axis.size.lastPos * this.plot.position.width;
-					if (labelAngle === 0) {
-						this.plot.position.right = Math.min(
-							this.plot.position.right,
-							size.x - (plot + axis.size.lastWidth / 2 - this.plot.position.right)
-						);
-					} else if (labelAngle < 0) {
-						this.plot.position.right = Math.min(
-							this.plot.position.right,
-							size.x - (plot + axis.size.lastWidth - this.plot.position.right) - 150
-						);
-					}
+					this.plot.position.right = Math.min(this.plot.position.right,
+						size.x - (plot + axis.size.lastWidth / 2 - this.plot.position.right));
 					break;
 				}
-				case 'left':
-				case 'right':
-					break;
 				default:
 					break;
 				}
@@ -993,157 +945,161 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		let { left, top, right, bottom } = this.plot.position;
 
 		this.xAxes.forEach((axis) => {
-			if (axis.position) {
-				Object.assign(axis.position, this.plot.position);
-				switch (axis.align) {
-				case 'left':
-					axis.position.left = left - axis.size.width;
-					axis.position.right = left;
-					left -= axis.size.width;
-					if (axis.title.visible) {
-						axis.title.position.left = axis.position.left - axis.title.size.height;
-						axis.title.position.right = axis.position.left;
-						axis.title.position.top =
-							axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
-						axis.title.position.bottom =
-							axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
-						left -= axis.title.size.height;
-					} else {
-						axis.title.position.reset();
+			if (axis.visible) {
+				if (axis.position) {
+					Object.assign(axis.position, this.plot.position);
+					switch (axis.align) {
+					case 'left':
+						axis.position.left = left - axis.size.width;
+						axis.position.right = left;
+						left -= axis.size.width;
+						if (axis.title.visible) {
+							axis.title.position.left = axis.position.left - axis.title.size.height;
+							axis.title.position.right = axis.position.left;
+							axis.title.position.top =
+								axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+							axis.title.position.bottom =
+								axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+							left -= axis.title.size.height;
+						} else {
+							axis.title.position.reset();
+						}
+						left -= 200;
+						break;
+					case 'right':
+						axis.position.left = right;
+						axis.position.right = right + axis.size.width;
+						right += axis.size.width;
+						if (axis.title.visible) {
+							axis.title.position.left = axis.position.right;
+							axis.title.position.right = axis.position.right + axis.title.size.height;
+							axis.title.position.top =
+								axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+							axis.title.position.bottom =
+								axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+							right += axis.title.size.height;
+						} else {
+							axis.title.position.reset();
+						}
+						right += 200;
+						break;
+					case 'top':
+						axis.position.top = top - axis.size.height;
+						axis.position.bottom = top;
+						top -= axis.size.height;
+						if (axis.title.visible) {
+							axis.title.position.top = axis.position.top - axis.title.size.height;
+							axis.title.position.bottom = axis.position.top;
+							axis.title.position.left =
+								axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+							axis.title.position.right =
+								axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+							top -= axis.title.size.height;
+						} else {
+							axis.title.position.reset();
+						}
+						top -= 200;
+						break;
+					case 'bottom':
+						axis.position.top = bottom;
+						axis.position.bottom = bottom + axis.size.height;
+						bottom += axis.size.height;
+						if (axis.title.visible) {
+							axis.title.position.top = axis.position.bottom;
+							axis.title.position.bottom = axis.position.bottom + axis.title.size.height;
+							axis.title.position.left =
+								axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+							axis.title.position.right =
+								axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+							bottom += axis.title.size.height;
+						} else {
+							axis.title.position.reset();
+						}
+						bottom += 200;
+						break;
+					default:
+						break;
 					}
-					left -= 200;
-					break;
-				case 'right':
-					axis.position.left = right;
-					axis.position.right = right + axis.size.width;
-					right += axis.size.width;
-					if (axis.title.visible) {
-						axis.title.position.left = axis.position.right;
-						axis.title.position.right = axis.position.right + axis.title.size.height;
-						axis.title.position.top =
-							axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
-						axis.title.position.bottom =
-							axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
-						right += axis.title.size.height;
-					} else {
-						axis.title.position.reset();
-					}
-					right += 200;
-					break;
-				case 'top':
-					axis.position.top = top - axis.size.height;
-					axis.position.bottom = top;
-					top -= axis.size.height;
-					if (axis.title.visible) {
-						axis.title.position.top = axis.position.top - axis.title.size.height;
-						axis.title.position.bottom = axis.position.top;
-						axis.title.position.left =
-							axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
-						axis.title.position.right =
-							axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
-						top -= axis.title.size.height;
-					} else {
-						axis.title.position.reset();
-					}
-					top -= 200;
-					break;
-				case 'bottom':
-					axis.position.top = bottom;
-					axis.position.bottom = bottom + axis.size.height;
-					bottom += axis.size.height;
-					if (axis.title.visible) {
-						axis.title.position.top = axis.position.bottom;
-						axis.title.position.bottom = axis.position.bottom + axis.title.size.height;
-						axis.title.position.left =
-							axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
-						axis.title.position.right =
-							axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
-						bottom += axis.title.size.height;
-					} else {
-						axis.title.position.reset();
-					}
-					bottom += 200;
-					break;
-				default:
-					break;
 				}
 			}
 		});
 
 		this.yAxes.forEach((axis) => {
-			if (axis.position) {
-				Object.assign(axis.position, this.plot.position);
-				switch (axis.align) {
-				case 'left':
-					axis.position.left = left - axis.size.width;
-					axis.position.right = left;
-					left -= axis.size.width;
-					if (axis.title.visible) {
-						axis.title.position.left = axis.position.left - axis.title.size.height;
-						axis.title.position.right = axis.position.left;
-						axis.title.position.top =
-							axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
-						axis.title.position.bottom =
-							axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
-						left -= axis.title.size.height;
-					} else {
-						axis.title.position.reset();
+			if (axis.visible) {
+				if (axis.position) {
+					Object.assign(axis.position, this.plot.position);
+					switch (axis.align) {
+					case 'left':
+						axis.position.left = left - axis.size.width;
+						axis.position.right = left;
+						left -= axis.size.width;
+						if (axis.title.visible) {
+							axis.title.position.left = axis.position.left - axis.title.size.height;
+							axis.title.position.right = axis.position.left;
+							axis.title.position.top =
+								axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+							axis.title.position.bottom =
+								axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+							left -= axis.title.size.height;
+						} else {
+							axis.title.position.reset();
+						}
+						left -= 200;
+						break;
+					case 'right':
+						axis.position.left = right;
+						axis.position.right = right + axis.size.width;
+						right += axis.size.width;
+						if (axis.title.visible) {
+							axis.title.position.left = axis.position.right;
+							axis.title.position.right = axis.position.right + axis.title.size.height;
+							axis.title.position.top =
+								axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
+							axis.title.position.bottom =
+								axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
+							right += axis.title.size.height;
+						} else {
+							axis.title.position.reset();
+						}
+						right += 200;
+						break;
+					case 'top':
+						axis.position.top = top - axis.size.height;
+						axis.position.bottom = top;
+						top -= axis.size.height;
+						if (axis.title.visible) {
+							axis.title.position.top = axis.position.top - axis.title.size.height;
+							axis.title.position.bottom = axis.position.top;
+							axis.title.position.left =
+								axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+							axis.title.position.right =
+								axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+							top -= axis.title.size.height;
+						} else {
+							axis.title.position.reset();
+						}
+						top -= 200;
+						break;
+					case 'bottom':
+						axis.position.top = bottom;
+						axis.position.bottom = bottom + axis.size.height;
+						bottom += axis.size.height;
+						if (axis.title.visible) {
+							axis.title.position.top = axis.position.bottom;
+							axis.title.position.bottom = axis.position.bottom + axis.title.size.height;
+							axis.title.position.left =
+								axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
+							axis.title.position.right =
+								axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
+							bottom += axis.title.size.height;
+						} else {
+							axis.title.position.reset();
+						}
+						bottom += 200;
+						break;
+					default:
+						break;
 					}
-					left -= 200;
-					break;
-				case 'right':
-					axis.position.left = right;
-					axis.position.right = right + axis.size.width;
-					right += axis.size.width;
-					if (axis.title.visible) {
-						axis.title.position.left = axis.position.right;
-						axis.title.position.right = axis.position.right + axis.title.size.height;
-						axis.title.position.top =
-							axis.position.top + axis.position.height / 2 - axis.title.size.width / 2;
-						axis.title.position.bottom =
-							axis.position.top + axis.position.height / 2 + axis.title.size.width / 2;
-						right += axis.title.size.height;
-					} else {
-						axis.title.position.reset();
-					}
-					right += 200;
-					break;
-				case 'top':
-					axis.position.top = top - axis.size.height;
-					axis.position.bottom = top;
-					top -= axis.size.height;
-					if (axis.title.visible) {
-						axis.title.position.top = axis.position.top - axis.title.size.height;
-						axis.title.position.bottom = axis.position.top;
-						axis.title.position.left =
-							axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
-						axis.title.position.right =
-							axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
-						top -= axis.title.size.height;
-					} else {
-						axis.title.position.reset();
-					}
-					top -= 200;
-					break;
-				case 'bottom':
-					axis.position.top = bottom;
-					axis.position.bottom = bottom + axis.size.height;
-					bottom += axis.size.height;
-					if (axis.title.visible) {
-						axis.title.position.top = axis.position.bottom;
-						axis.title.position.bottom = axis.position.bottom + axis.title.size.height;
-						axis.title.position.left =
-							axis.position.left + axis.position.width / 2 - axis.title.size.width / 2;
-						axis.title.position.right =
-							axis.position.left + axis.position.width / 2 + axis.title.size.width / 2;
-						bottom += axis.title.size.height;
-					} else {
-						axis.title.position.reset();
-					}
-					bottom += 200;
-					break;
-				default:
-					break;
 				}
 			}
 		});
@@ -1294,8 +1250,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		}
 
 		let selection;
-		const cellData = [];
 		let sheet;
+		const zoomcmd = [];
 
 		values.forEach((value) => {
 			const info = this.getParamInfo(term, value.index);
@@ -1304,16 +1260,22 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					sheet = info.sheet;
 					const range = info.range.copy();
 					if (value.value === undefined) {
-						if (!selection) {
-							selection = new JSG.Selection(info.sheet);
-						}
+						selection = new JSG.Selection(info.sheet);
 						selection.add(range);
+						zoomcmd.push(JSG.SheetCommandFactory.create(
+							'command.DeleteCellContentCommand',
+							sheet,
+							selection.toStringMulti(),
+							'all'
+						));
 					} else {
 						range.shiftToSheet();
+						const cellData = [];
 						const cell = {};
 						cell.reference = range.toString();
 						cell.value = value.value;
 						cellData.push(cell);
+						zoomcmd.push(JSG.SheetCommandFactory.create('command.SetCellsCommand', sheet, cellData, false));
 					}
 				}
 			} else if (term && term.params) {
@@ -1332,21 +1294,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		});
 
-		let zoomcmd;
-		if (sheet) {
-			if (selection) {
-				zoomcmd = JSG.SheetCommandFactory.create(
-					'command.DeleteCellContentCommand',
-					sheet,
-					selection.toStringMulti(),
-					'all'
-				);
-			} else if (cellData.length) {
-				zoomcmd = JSG.SheetCommandFactory.create('command.SetCellsCommand', sheet, cellData, false);
-			}
-		}
 		// eslint-disable-next-line consistent-return
-		return zoomcmd;
+		return zoomcmd ? [zoomcmd] : [];
 	}
 
 	getParamFormat(term, index) {
@@ -2179,60 +2128,62 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			if (input.timeStep === undefined) {
 				input.timeStep = timeStep;
 			}
-			switch (input.timeStep) {
-			case 'year':
-				format = {
-					localCulture: `date;en`,
-					numberFormat: 'dd\\.MM\\.yy'
-				};
-				break;
-			case 'quarter':
-				format = {
-					localCulture: `date;en`,
-					numberFormat: 'dd\\.MM\\.yy'
-				};
-				break;
-			case 'month':
-				format = {
-					localCulture: `date;en`,
-					numberFormat: 'dd\\.MM\\.yy'
-				};
-				break;
-			case 'week':
-				format = {
-					localCulture: `date;en`,
-					numberFormat: 'dd\\.MM\\.yy'
-				};
-				break;
-			case 'day':
-				format = {
-					localCulture: `date;en`,
-					numberFormat: 'dd\\.MM\\.yy'
-				};
-				break;
-			case 'hour':
-				format = {
-					localCulture: `time;en`,
-					numberFormat: 'h:mm'
-				};
-				break;
-			case 'minute':
-				format = {
-					localCulture: `time;en`,
-					numberFormat: 'h:mm'
-				};
-				break;
-			case 'millisecond':
-				format = {
-					localCulture: `time;en`,
-					numberFormat: 'h:mm:ss.000'
-				};
-				break;
-			default:
-				break;
-			}
 
-			input.format = format;
+			let set = true;
+			if (this.series.length) {
+				const ref = this.getDataSourceInfo(this.series[0].formula);
+				if (ref.time && ref.xKey && ref.xKey !== 'time') {
+					set = false;
+				}
+			}
+			if (set) {
+				switch (input.timeStep) {
+				case 'year':
+					format = {
+						localCulture: `date;en`, numberFormat: 'dd\\.MM\\.yy'
+					};
+					break;
+				case 'quarter':
+					format = {
+						localCulture: `date;en`, numberFormat: 'dd\\.MM\\.yy'
+					};
+					break;
+				case 'month':
+					format = {
+						localCulture: `date;en`, numberFormat: 'dd\\.MM\\.yy'
+					};
+					break;
+				case 'week':
+					format = {
+						localCulture: `date;en`, numberFormat: 'dd\\.MM\\.yy'
+					};
+					break;
+				case 'day':
+					format = {
+						localCulture: `date;en`, numberFormat: 'dd\\.MM\\.yy'
+					};
+					break;
+				case 'hour':
+					format = {
+						localCulture: `time;en`, numberFormat: 'h:mm'
+					};
+					break;
+				case 'minute':
+					format = {
+						localCulture: `time;en`, numberFormat: 'h:mm'
+					};
+					break;
+				case 'millisecond':
+					format = {
+						localCulture: `time;en`, numberFormat: 'h:mm:ss.000'
+					};
+					break;
+				default:
+					break;
+				}
+
+				input.format = format;
+			}
 			input.step = Math.max(input.step, epsilon * 10);
 
 			break;
@@ -2281,7 +2232,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					distLin = 10; // von 5.0
 				} else if (distLin > 2) {
 					distLin = 5; // von 5.0
-				} else if (distLin > 1) {
+				} else if (distLin > 1 && axis.type !== 'category') {
 					distLin = 2;
 				} else {
 					distLin = 1;
@@ -2527,7 +2478,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 			const fact = 1 - serie.barGap;
 			barWidth = (barWidth * fact) / (this.chart.stacked ? 1 : seriesCnt);
-			return Math.min(Math.abs(barWidth), 50);
+			return Math.max(50, Math.abs(barWidth));
 		}
 
 		return 100;
@@ -2851,7 +2802,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		case 'linear':
 			return value / (axis.scale.max - axis.scale.min);
 		case 'logarithmic':
-			return Math.log10(value) / (Math.log10(axis.scale.max) - Math.log10(axis.scale.min));
+			return this.scaleToAxis(axis, value) -	this.scaleToAxis(axis, axis.scale.min);
 		}
 	}
 
@@ -3601,25 +3552,23 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					break;
 				case 'line':
 				case 'scatter':
+				case 'heatmap':
 				case 'bubble':
-					if (serie.marker.style === 'vertical') {
-						dataRect.set(
-							plotRect.left + x * plotRect.width - 200,
-							plotRect.top,
-							plotRect.left + x * plotRect.width + 200,
-							plotRect.bottom
-						);
+					if (x >= 0 && x <= 1) {
+						if (serie.marker.style === 'vertical') {
+							dataRect.set(plotRect.left + x * plotRect.width - 200, plotRect.top,
+								plotRect.left + x * plotRect.width + 200, plotRect.bottom);
+						} else {
+							dataRect.set(plotRect.left + x * plotRect.width - 200,
+								plotRect.bottom - y * plotRect.height - 200,
+								plotRect.left + x * plotRect.width + 200,
+								plotRect.bottom - y * plotRect.height + 200);
+						}
 					} else {
-						dataRect.set(
-							plotRect.left + x * plotRect.width - 200,
-							plotRect.bottom - y * plotRect.height - 200,
-							plotRect.left + x * plotRect.width + 200,
-							plotRect.bottom - y * plotRect.height + 200
-						);
+						dataRect.reset();
 					}
 					points.push({
-						x: plotRect.left + x * plotRect.width,
-						y: plotRect.bottom - y * plotRect.height
+						x: plotRect.left + x * plotRect.width, y: plotRect.bottom - y * plotRect.height
 					});
 					break;
 				case 'area':
@@ -4050,6 +3999,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			switch (params.serie.type) {
 			case 'profile':
 			case 'scatter':
+			case 'heatmap':
 			case 'line':
 			case 'area':
 				labelRect.set(pt.x - 100, pt.y - 100, pt.x + 100, pt.y + 100);
@@ -4308,8 +4258,8 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 
 		if (params.serie.type !== 'pie') {
 			if (
-				labelRect.left < params.plotRect.left - 100 ||
-				labelRect.right > params.plotRect.right + 100 ||
+				labelRect.center.x < params.plotRect.left - 100 ||
+				labelRect.center.x > params.plotRect.right + 100 ||
 				labelRect.top < params.plotRect.top - 100 ||
 				labelRect.bottom > params.plotRect.bottom + 100
 			) {
@@ -4556,6 +4506,28 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		this.yAxes[0].gridVisible = true;
 		this.chart.varyByCategories = false;
 
+		const setAxisParams = ((axes, param, value) => {
+			axes.forEach(axis => {
+				axis[param] = value;
+			});
+		});
+
+		const setAxisDirection = ((axes, horizontal) => {
+			axes.forEach(axis => {
+				if (horizontal)  {
+					if (axis.align === 'left') {
+						axis.align = 'bottom';
+					} else if (axis.align === 'right') {
+						axis.align = 'top';
+					}
+				} else if (axis.align === 'top') {
+					axis.align = 'right';
+				} else if (axis.align === 'bottom') {
+					axis.align = 'left';
+				}
+			});
+		});
+
 		switch (type) {
 		case 'pie':
 		case 'pie3d':
@@ -4567,9 +4539,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			this.chart.startAngle = type === 'piehalf' ? Math.PI_2 * 3 : 0;
 			this.chart.endAngle = type === 'piehalf' ? Math.PI_2 * 5 : Math.PI * 2;
 			this.legend.align = 'bottom';
-			this.xAxes[0].type = 'category';
-			this.xAxes[0].visible = false;
-			this.yAxes[0].visible = false;
+			setAxisParams(this.xAxes, 'type', 'category');
+			setAxisParams(this.yAxes, 'type', 'linear');
+			setAxisParams(this.xAxes, 'visible', false);
+			setAxisParams(this.yAxes, 'visible', false);
 			this.chart.varyByCategories = true;
 			type = 'pie';
 			break;
@@ -4578,60 +4551,77 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			this.chart.relative = true;
 			this.chart.hole = 0.5;
 			this.legend.align = 'bottom';
-			this.xAxes[0].type = 'category';
-			this.xAxes[0].visible = false;
-			this.yAxes[0].visible = false;
+			setAxisParams(this.xAxes, 'type', 'category');
+			setAxisParams(this.yAxes, 'type', 'linear');
+			setAxisParams(this.xAxes, 'visible', false);
+			setAxisParams(this.yAxes, 'visible', false);
 			this.chart.varyByCategories = true;
 			type = 'doughnut';
 			break;
 		case 'columnstacked100':
 		case 'columnstacked':
 		case 'column':
-			this.xAxes[0].type = 'category';
+			setAxisParams(this.xAxes, 'type', 'category');
+			setAxisParams(this.yAxes, 'type', 'linear');
+			setAxisDirection(this.xAxes, true);
+			setAxisDirection(this.yAxes, false);
 			type = 'column';
 			break;
 		case 'barstacked100':
 		case 'barstacked':
 		case 'bar':
-			this.xAxes[0].type = 'category';
-			this.xAxes[0].align = 'left';
-			this.yAxes[0].align = 'bottom';
+			setAxisParams(this.xAxes, 'type', 'category');
+			setAxisParams(this.yAxes, 'type', 'linear');
+			setAxisDirection(this.xAxes, false);
+			setAxisDirection(this.yAxes, true);
 			type = 'bar';
 			break;
 		case 'profile':
-			this.xAxes[0].type = 'category';
-			this.xAxes[0].align = 'left';
-			this.yAxes[0].align = 'bottom';
+			setAxisParams(this.xAxes, 'type', 'category');
+			setAxisParams(this.yAxes, 'type', 'linear');
+			setAxisDirection(this.xAxes, false);
+			setAxisDirection(this.yAxes, true);
 			type = 'profile';
 			break;
 		case 'area':
 		case 'areastacked':
 		case 'areastacked100':
-			this.xAxes[0].type = 'category';
+			setAxisParams(this.xAxes, 'type', 'category');
+			setAxisParams(this.yAxes, 'type', 'linear');
+			setAxisDirection(this.xAxes, true);
+			setAxisDirection(this.yAxes, false);
 			type = 'area';
 			break;
 		case 'linestep':
 		case 'line':
 		case 'linestacked':
 		case 'linestacked100':
+			setAxisParams(this.xAxes, 'type', 'category');
+			setAxisParams(this.yAxes, 'type', 'linear');
+			setAxisDirection(this.xAxes, true);
+			setAxisDirection(this.yAxes, false);
 			this.xAxes[0].type = 'category';
 			type = 'line';
 			break;
 		case 'heatmap':
-			this.xAxes[0].type = 'linear';
+			setAxisParams(this.xAxes, 'type', 'linear');
+			setAxisParams(this.yAxes, 'type', 'linear');
 			this.legend.visible = false;
 			break;
 		case 'scattermarker':
 			type = 'scatter';
-			this.xAxes[0].type = 'linear';
+			setAxisParams(this.xAxes, 'type', 'linear');
+			setAxisParams(this.yAxes, 'type', 'linear');
 			break;
 		case 'scatterline':
 		case 'scatterlinemarker':
 			type = 'scatter';
-			this.xAxes[0].type = 'linear';
+			setAxisParams(this.xAxes, 'type', 'linear');
+			setAxisParams(this.yAxes, 'type', 'linear');
 			break;
 		case 'bubble':
-			this.xAxes[0].type = 'linear';
+			setAxisParams(this.xAxes, 'type', 'linear');
+			setAxisParams(this.yAxes, 'type', 'linear');
 			break;
 		default:
 			break;
@@ -4731,6 +4721,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 		let step = 1;
 
 		switch (type) {
+		case 'pie3d':
+		case 'piehalf':
+			type = 'pie';
+			break;
 		case 'columnstacked100':
 		case 'columnstacked':
 			type = 'column';
@@ -4857,10 +4851,10 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					if (xValue === 'time') {
 						if (type === 'scatter' || type === 'bubble') {
 							this.xAxes[0].type = 'time';
-						} else {
-							this.xAxes[0].format.localCulture = `time;en`;
-							this.xAxes[0].format.numberFormat = 'h:mm:ss';
 						}
+						// this.xAxes[0].format.localCulture = `time;en`;
+						// this.xAxes[0].format.numberFormat = 'h:mm:ss';
+						this.xAxes[0].format.linkNumberFormat = false;
 					}
 				});
 				if (!initial) {
@@ -5519,17 +5513,23 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				if (item instanceof SheetPlotNode) {
 					const groupOther = item.getAxes().x.zoomGroup;
 					if (item === this || (groupOther.length && group === groupOther)) {
-						const cmd = item.setParamValues(
+						const cmds = item.setParamValues(
 							viewer,
 							item.xAxes[0].formula,
 							[
 								{ index: 4, value: undefined },
-								{ index: 5, value: undefined }
+								{ index: 5, value: undefined },
+								{ index: 7, value: undefined },
+								{ index: 8, value: undefined },
+								{ index: 10, value: undefined },
+								{ index: 11, value: undefined }
 							],
 							item
 						);
 						item.chartZoomTimestamp = undefined;
-						if (cmd) zoomcmds.push(cmd);
+						if (cmds.length) {
+							cmds.forEach(cmd => zoomcmds.push(cmd));
+						}
 					}
 				}
 			},
@@ -5893,4 +5893,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 	static get templates() {
 		return templates;
 	}
-};
+
+	get LINEHEIGHT() {
+		return 1.3;
+	}};

@@ -186,11 +186,11 @@ describe('OnDataArrival with EXECUTE(), RETURN()', () => {
 			putMessages(t1, new Message());
 			await wait(500);
 			// t2 never returns, so in t1:
-			expect(sheet1.cellAt('A1').value).toBe(FunctionErrors.code.WAITING);
+			expect(sheet1.cellAt('A1').value.code).toBe(FunctionErrors.code.WAITING);
 			expect(sheet1.cellAt('B1').value).toBe(1);
 			await machine.stop();
 			expect(sheet1.cellAt('B1').value).toBe(1);
-			expect(sheet1.cellAt('A1').value).toBe(FunctionErrors.code.WAITING);
+			expect(sheet1.cellAt('A1').value.code).toBe(FunctionErrors.code.WAITING);
 			// getcycle returns number of steps done in endless mode => so must be much more than 1
 			expect(sheet2.cellAt('A2').value).toBeGreaterThan(1);
 		});
@@ -239,12 +239,12 @@ describe('OnExecute', () => {
 		expect(t2.sheet.cellAt('A1').value).toBe(1);
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(3);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
+		expect(t1.sheet.cellAt('B1').value.code).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(2);
 		await machine.step();
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(3);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
+		expect(t1.sheet.cellAt('B1').value.code).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(4);
 	});
 	it('should always execute if triggered once and in endless mode until return', async () => {
@@ -260,16 +260,16 @@ describe('OnExecute', () => {
 		// putMessages(t1, new Message(), new Message());
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
+		expect(t1.sheet.cellAt('B1').value.code).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(2);
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
+		expect(t1.sheet.cellAt('B1').value.code).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(3);
 		expect(t2.sheet.cellAt('B1').value).toBe(false);
 		await machine.step();
 		expect(t1.sheet.cellAt('A1').value).toBe(2);
-		expect(t1.sheet.cellAt('B1').value).toBe(FunctionErrors.code.WAITING);
+		expect(t1.sheet.cellAt('B1').value.code).toBe(FunctionErrors.code.WAITING);
 		expect(t2.sheet.cellAt('A1').value).toBe(4);
 		expect(t2.sheet.cellAt('B1').value).toBe(false);
 		await machine.step();

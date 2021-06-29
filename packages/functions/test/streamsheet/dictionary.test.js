@@ -83,14 +83,14 @@ describe('dictionary', () => {
 	});
 
 	it('should return error code if no sheet or range is specified', () => {
-		expect(DICTIONARY()).toBe(ERROR.ARGS);
-		expect(DICTIONARY(new StreamSheet().sheet)).toBe(ERROR.ARGS);
+		expect(DICTIONARY().code).toBe(ERROR.ARGS);
+		expect(DICTIONARY(new StreamSheet().sheet).code).toBe(ERROR.ARGS);
 	});
 
 	it('should return error code if range is not valid', () => {
 		const sheet = new StreamSheet().sheet;
 		const range = createCellRangeTerm('12:B2', sheet);
-		expect(DICTIONARY(sheet, range)).toBe(ERROR.INVALID_PARAM);
+		expect(DICTIONARY(sheet, range).code).toBe(ERROR.INVALID_PARAM);
 	});
 
 	// define how to handle cells without any value...

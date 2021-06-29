@@ -9,14 +9,14 @@
  *
  ********************************************************************************/
 const logger = require('../logger').create({ name: 'MachineTaskMonitor' });
+const Redis = require('ioredis');
+const { EventMessage } = require('@cedalo/messages');
+const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
+const State = require('../State');
 const MachineTaskOutboxMonitor = require('./MachineTaskOutboxMonitor');
 const MachineTaskStreamSheetMonitor = require('./MachineTaskStreamSheetMonitor');
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
 const { collectMachineStats } = require('./utils');
-const State = require('../State');
-const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
-const { EventMessage } = require('@cedalo/messages');
-const Redis = require('ioredis');
 
 const REDIS_PORT = parseInt(process.env.REDIS_PORT, 10) || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'internal-redis';

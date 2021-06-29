@@ -18,6 +18,7 @@ import GraphSynchronizationInteractionHandler from './helper/synchronization/Gra
 import store from './store';
 import StreamHelper from './helper/StreamHelper';
 import { intl } from './helper/IntlGlobalProvider';
+import * as Localizer from './languages/localizer';
 
 const {
 	AddTreeItemCommand,
@@ -63,7 +64,6 @@ const {
 	MathUtils,
 	ViewActivator,
 	WorksheetNode,
-	WorksheetView,
 	CellInfoView
 } = JSG;
 
@@ -87,6 +87,7 @@ export default class GraphManager {
 		JSG.imagePool.add('resources/statuswarning.png', 'statuswarning');
 		JSG.SelectionStyle.MARKER_FILL_COLOR = '#90B5EE';
 		JSG.SelectionStyle.FILL = true;
+		JSG.appLocalizer = Localizer;
 
 		const xhr = JSG._createRequest(`maps/mapinfo.json`, {
 			onload(response) {
@@ -401,7 +402,7 @@ export default class GraphManager {
 		}
 		this.updateStats(streamsheetId, stats);
 		this.updateSheetProperties(streamsheetId, properties);
-		this.updateDataView();
+		this.updateInfoView();
 		this.updateEditBar();
 	}
 
@@ -428,15 +429,12 @@ export default class GraphManager {
 		info.innerHTML = item.getOwnSelection().refToString();
 	}
 
-	updateDataView() {
+	updateInfoView() {
 		const graph = this.getGraph();
-		if (graph && graph.dataView) {
-			const data = graph.dataView;
+		const info = graph && graph.infoView;
+		if (info) {
 			// data.view.showCellValues(data.viewer, data.cell, data.targetRange);
-			CellInfoView.of(WorksheetView.HitCode.DATAVIEW, data.viewer, data.view).showInfo(
-				data.cell,
-				data.targetRange
-			);
+			CellInfoView.of(info.type, info.viewer, info.view).showInfo(info.cell, info.targetRange);
 		}
 	}
 

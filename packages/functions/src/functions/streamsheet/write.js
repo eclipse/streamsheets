@@ -57,7 +57,7 @@ const valueOf = (term, typeStr) => {
 		value = isEmpty(value) ? '' : asString(value);
 		break;
 	case 'boolean':
-		value = isEmpty(value) ? false : convert.toBoolean(value, ERROR.TYPE_PARAM);
+		value = isEmpty(value) ? false : convert.toBoolean(value, ERROR.VALUE);
 		break;
 	default:
 		value = value != null ? value : '';
@@ -82,7 +82,7 @@ const write = (sheet, ...terms) =>
 		.mapNextArg((type) => checkType(type ? convert.toString(type.value, '').toLowerCase() : ''))
 		.mapNextArg((ttl) => ttl ? getTTL(ttl.value) : undefined)
 		.addMappedArg((path) => jsonpath.last(path) || terms[0].value)
-		.addMappedArg(() => getOutbox(sheet) || ERROR.OUTBOX)
+		.addMappedArg(() => getOutbox(sheet))
 		.addMappedArg(() => isMeta(terms[0]))
 		.validate((path) => FunctionErrors.containsError(path) && ERROR.INVALID_PATH)
 		.defaultReturnValue((path, valTerm, typeStr, ttl, retval) => retval)
@@ -100,7 +100,7 @@ const write = (sheet, ...terms) =>
 				}
 				return newData;
 			}
-			return ERROR.TYPE_PARAM;
+			return ERROR.VALUE;
 		});
 write.displayName = true;
 

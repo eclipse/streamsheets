@@ -38,13 +38,13 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: '1111200', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('bin2dec(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2dec(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2dec(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2dec(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2dec(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2dec(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2dec(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2dec(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2dec(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2dec(B3)', sheet).value.code).toBe(ERROR.NUM);
 			// not more than 10 bits
-			expect(createTerm('bin2dec(11111111111)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2dec(11111111111)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('bin2float', () => {
@@ -73,17 +73,17 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('bin2float(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2float(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2float(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2float(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2float(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2float(B3)', sheet).value.code).toBe(ERROR.NUM);
 		});
 		// DL-3707
 		it(`should return ${ERROR.NUM} if given binary number is too large or infinity`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('bin2float("11111111100000000000000000000000")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2float("01111111100000000000000000000000")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2float("11111111100000000000000000000000")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2float("01111111100000000000000000000000")', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('bin2hex', () => {
@@ -102,12 +102,12 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('bin2hex(1110, true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('bin2hex(1110, false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('bin2hex(1110, "5")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('bin2hex(1110, B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('bin2hex(1110, -4)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2hex(1110, A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('bin2hex(1110, true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('bin2hex(1110, false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('bin2hex(1110, "5")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('bin2hex(1110, B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('bin2hex(1110, -4)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2hex(1110, A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('bin2hex(1110, A2)', sheet).value).toBe('E');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -122,13 +122,13 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: '1111200', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('bin2hex(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2hex(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2hex(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2hex(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2hex(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2hex(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2hex(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2hex(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2hex(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2hex(B3)', sheet).value.code).toBe(ERROR.NUM);
 			// not more than 10 bits
-			expect(createTerm('bin2hex(11111111111)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2hex(11111111111)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('bin2oct', () => {
@@ -147,13 +147,13 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('bin2oct(1001, true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('bin2oct(1001, false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('bin2oct(1001, B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('bin2oct(1001, -4)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2oct(1001, 1)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2oct(1001, true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('bin2oct(1001, false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('bin2oct(1001, B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('bin2oct(1001, -4)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2oct(1001, 1)', sheet).value.code).toBe(ERROR.NUM);
 			// expect(createTerm('bin2oct(1001, A1)', sheet).value).toBe('11');
-			expect(createTerm('bin2oct(1001, A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('bin2oct(1001, A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('bin2oct(1001, A2)', sheet).value).toBe('11');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -168,13 +168,13 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: '1111200', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('bin2oct(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2oct(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2oct(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2oct(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('bin2oct(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2oct(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2oct(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2oct(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2oct(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('bin2oct(B3)', sheet).value.code).toBe(ERROR.NUM);
 			// not more than 10 bits
-			expect(createTerm('bin2oct(11111111111)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('bin2oct(11111111111)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 
@@ -201,14 +201,14 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('dec2bin(53, true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2bin(53, false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2bin(15, "8")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2bin(53, B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2bin(53, -4)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2bin(53, 1)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(53, true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2bin(53, false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2bin(15, "8")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2bin(53, B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2bin(53, -4)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(53, 1)', sheet).value.code).toBe(ERROR.NUM);
 			// expect(createTerm('dec2bin(53, A1)', sheet).value).toBe('110101');
-			expect(createTerm('dec2bin(53, A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('dec2bin(53, A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('dec2bin(53, A2)', sheet).value).toBe('110101');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -224,14 +224,14 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('dec2bin(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2bin(B2, 3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2bin(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2bin(A3, "1")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2bin(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(B2, 3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(A3, "1")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(B3)', sheet).value.code).toBe(ERROR.NUM);
 			// range is -512 to 511
-			expect(createTerm('dec2bin(512)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2bin(-513)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(512)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2bin(-513)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('dec2hex', () => {
@@ -256,14 +256,14 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('dec2hex(53, true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2hex(53, false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2hex(15, "4")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2hex(53, B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2hex(53, -4)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2hex(53, 1)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(53, true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2hex(53, false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2hex(15, "4")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2hex(53, B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2hex(53, -4)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(53, 1)', sheet).value.code).toBe(ERROR.NUM);
 			// expect(createTerm('dec2hex(53, A1)', sheet).value).toBe('35');
-			expect(createTerm('dec2hex(53, A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('dec2hex(53, A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('dec2hex(53, A2)', sheet).value).toBe('35');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -279,14 +279,14 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('dec2hex(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2hex(B2, 3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2hex(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2hex(A3, "1")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2hex(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(B2, 3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(A3, "1")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(B3)', sheet).value.code).toBe(ERROR.NUM);
 			// range is -549,755,813,888 <= .. <= 549,755,813,887
-			expect(createTerm('dec2hex(549755813888)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2hex(-549755813889)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(549755813888)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(-549755813889)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('dec2oct', () => {
@@ -309,14 +309,14 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('dec2oct(183, true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2oct(183, false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2oct(15, "4")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2oct(183, B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('dec2oct(183, -4)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2oct(183, 1)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(183, true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2oct(183, false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2oct(15, "4")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2oct(183, B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('dec2oct(183, -4)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(183, 1)', sheet).value.code).toBe(ERROR.NUM);
 			// expect(createTerm('dec2oct(183, A1)', sheet).value).toBe('267');
-			expect(createTerm('dec2oct(183, A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('dec2oct(183, A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('dec2oct(183, A2)', sheet).value).toBe('267');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -332,13 +332,13 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('dec2oct(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2oct(B2, 3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2oct(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2oct(A3, "1")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2oct(B3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2oct(536870912)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2oct(-536870913)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(B2, 3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(A3, "1")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(B3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(536870912)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2oct(-536870913)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 
@@ -365,11 +365,11 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('float2bin(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('float2bin(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('float2bin(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('float2bin(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('float2bin(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('float2bin(B3)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('float2hex', () => {
@@ -395,11 +395,11 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('float2hex(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('float2hex(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('float2hex(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('float2hex(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('float2hex(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('float2hex(B3)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 
@@ -424,14 +424,14 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('hex2bin("3A", true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('hex2bin("3A", false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('hex2bin(A2, "3")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('hex2bin("3A", B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('hex2bin("3A", -4)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2bin(1001, 1)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin("3A", true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('hex2bin("3A", false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('hex2bin(A2, "3")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('hex2bin("3A", B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('hex2bin("3A", -4)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin(1001, 1)', sheet).value.code).toBe(ERROR.NUM);
 			// expect(createTerm('hex2bin("3A", A1)', sheet).value).toBe('111010');
-			expect(createTerm('hex2bin("3A", A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('hex2bin("3A", A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('hex2bin("3A", A2)', sheet).value).toBe('111010');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -447,17 +447,17 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('hex2bin(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2bin(B2, 3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2bin(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2bin(A3, "1")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2bin(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin(B2, 3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin(A3, "1")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin(B3)', sheet).value.code).toBe(ERROR.NUM);
 			// range FFFFFFFE00 <= .. <= 1FF (-512 <=..<= 511)
-			expect(createTerm('hex2bin("FFFFFFFDFF")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2bin("200")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin("FFFFFFFDFF")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2bin("200")', sheet).value.code).toBe(ERROR.NUM);
 
-			expect(createTerm('dec2hex(549755813888)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('dec2hex(-549755813889)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(549755813888)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('dec2hex(-549755813889)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('hex2dec', () => {
@@ -487,12 +487,12 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('hex2dec(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2dec(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2dec(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2dec(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2dec(B3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2dec("90000000001")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2dec(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2dec(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2dec(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2dec(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2dec(B3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2dec("90000000001")', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('hex2oct', () => {
@@ -515,13 +515,13 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('hex2oct("3A", true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('hex2oct("3A", false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('hex2oct(A2, "3")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('hex2oct("3A", B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('hex2oct("3A", -4)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("3A", true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('hex2oct("3A", false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('hex2oct(A2, "3")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('hex2oct("3A", B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('hex2oct("3A", -4)', sheet).value.code).toBe(ERROR.NUM);
 			// expect(createTerm('hex2oct("3A", A1)', sheet).value).toBe('72');
-			expect(createTerm('hex2oct("3A", A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('hex2oct("3A", A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('hex2oct("3A", A2)', sheet).value).toBe('72');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -536,15 +536,15 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('hex2oct(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2oct(B2, 3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2oct(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2oct(A3, "1")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2oct(B3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2oct("1FFFFFFF0")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2oct("FFDFFFFFFF")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2oct("2000000000")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2oct("8000000000")', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct(B2, 3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct(A3, "1")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct(B3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("1FFFFFFF0")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("FFDFFFFFFF")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("2000000000")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2oct("8000000000")', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('hex2float', () => {
@@ -570,11 +570,11 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('hex2float(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2float(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2float(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2float(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('hex2float(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('hex2float(B3)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 
@@ -599,14 +599,14 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('oct2bin(15, true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('oct2bin(15, false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('oct2bin(15, "8")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('oct2bin(15, B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('oct2bin(15, -4)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2bin(15, 1)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(15, true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('oct2bin(15, false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('oct2bin(15, "8")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('oct2bin(15, B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('oct2bin(15, -4)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(15, 1)', sheet).value.code).toBe(ERROR.NUM);
 			// expect(createTerm('oct2bin(15, A1)', sheet).value).toBe('1101');
-			expect(createTerm('oct2bin(15, A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('oct2bin(15, A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('oct2bin(15, A2)', sheet).value).toBe('1101');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -621,15 +621,15 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('oct2bin(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2bin(B2, 3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2bin(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2bin(A3, "1")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2bin(B3)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(B2, 3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(A3, "1")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(B3)', sheet).value.code).toBe(ERROR.NUM);
 			// -513
-			expect(createTerm('oct2bin(7777776777)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(7777776777)', sheet).value.code).toBe(ERROR.NUM);
 			// 512
-			expect(createTerm('oct2bin(1000)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2bin(1000)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('oct2dec', () => {
@@ -661,12 +661,12 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('oct2dec(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2dec(B2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2dec(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2dec(A3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2dec(B3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2hex(8000000000)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(B2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(A3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2dec(B3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(8000000000)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 	describe('oct2hex', () => {
@@ -692,15 +692,15 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', A2: undefined, B2: true }
 			});
-			expect(createTerm('oct2hex(17, true)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('oct2hex(17, false)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('oct2hex(17, "4")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('oct2hex(17, B2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('oct2hex(17, -4)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2hex(267, 1)', sheet).value).toBe(ERROR.NUM);
-			// expect(createTerm('oct2hex(17, 0)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(17, true)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('oct2hex(17, false)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('oct2hex(17, "4")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('oct2hex(17, B2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('oct2hex(17, -4)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(267, 1)', sheet).value.code).toBe(ERROR.NUM);
+			// expect(createTerm('oct2hex(17, 0)', sheet).value.code).toBe(ERROR.NUM);
 			// expect(createTerm('oct2hex(17, A1)', sheet).value).toBe('F');
-			expect(createTerm('oct2hex(17, A1)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('oct2hex(17, A1)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('oct2hex(17, A2)', sheet).value).toBe('F');
 		});
 		it('should return 0 for undefined or empty cells', () => {
@@ -715,12 +715,12 @@ describe('engineering functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A2: 'hello', B2: 'fffAH', C2: ' ', A3: false, B3: true }
 			});
-			expect(createTerm('oct2hex(A2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2hex(B2, 3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2hex(C2)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2hex(A3, "1")', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2hex(B3)', sheet).value).toBe(ERROR.NUM);
-			expect(createTerm('oct2hex(8000000000)', sheet).value).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(A2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(B2, 3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(C2)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(A3, "1")', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(B3)', sheet).value.code).toBe(ERROR.NUM);
+			expect(createTerm('oct2hex(8000000000)', sheet).value.code).toBe(ERROR.NUM);
 		});
 	});
 });

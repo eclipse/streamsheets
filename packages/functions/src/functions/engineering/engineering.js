@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -221,7 +221,7 @@ const oct2hex = (sheet, ...terms) =>
 		.mapNextArg(places => getPlaces(places))
 		.run((octstr, places) => padded(places)(_oct2hex(octstr)));
 
-		
+
 module.exports = {
 	BIN2DEC: bin2dec,
 	BIN2FLOAT: bin2float,
@@ -240,8 +240,8 @@ module.exports = {
 	OCT2DEC: oct2dec,
 	OCT2HEX: oct2hex
 
-/* more to come...
-	complex.
-	convert,
-*/	
+	/* more to come...
+		complex.
+		convert,
+	*/
 };
