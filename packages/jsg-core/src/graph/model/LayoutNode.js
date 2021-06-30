@@ -495,7 +495,7 @@ module.exports = class LayoutNode extends Node {
 						}
 					}
 					node.setSize(width, row.layoutSize);
-					node.getFormat().setLineStyle(0);
+					// node.getFormat().setLineStyle(0);
 					let yInner = row.expandable ? 600 : 0;
 					// if (node.getLayout()) {
 					// 	node.layout();
@@ -507,7 +507,12 @@ module.exports = class LayoutNode extends Node {
 							subItem.getItemAttributes().setVisible(true);
 							if (!node.getLayout()) {
 								const height = subItem.getHeight().getValue();
-								subItem.setSize(width - margin * 2, height);
+								if (!subItem.getWidth().hasFormula()) {
+									subItem.setWidth(width - margin * 2);
+								}
+								if (!subItem.getHeight().hasFormula()) {
+									subItem.setHeight(height);
+								}
 								subItem.setOrigin(margin, yInner + margin);
 								yInner += height + margin;
 							}

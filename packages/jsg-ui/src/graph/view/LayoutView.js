@@ -11,16 +11,33 @@
 // import {default as JSG, FormatAttributes, TextFormatAttributes} from '@cedalo/jsg-core';
 
 import NodeView from './NodeView';
-import { default as JSG, ImagePool } from '../../../../jsg-core';
+import { default as JSG, ImagePool, FormatAttributes } from '@cedalo/jsg-core';
 
 export default class LayoutView extends NodeView {
+	drawSubViews(graphics) {
+		super.drawSubViews(graphics);
+
+		let tmprect = JSG.rectCache.get()
+
+		this._subviews.forEach((subview) => {
+			const format = subview.getFormat();
+			if (subview.isVisible() === true && format.getLineStyle().getValue() !== FormatAttributes.LineStyle.NONE) {
+				tmprect = subview.getItem().getSize().toRectangle(tmprect);
+				graphics.save();
+				subview.translateGraphics(graphics);
+				subview.drawBorder(graphics, format, tmprect);
+				graphics.restore();
+			}
+		});
+
+		JSG.rectCache.release(tmprect);
+	}
+
 	drawBorder(graphics, format, rect) {
 		super.drawBorder(graphics, format, rect);
 
 		const item = this.getItem();
 		const viewSettings = item.getGraph().viewSettings;
-
-
 		const rowData = item.rowData;
 		const columnData = item.columnData;
 		let y = 0;
@@ -59,7 +76,6 @@ export default class LayoutView extends NodeView {
 
 			y += row.layoutSize;
 		});
-
 
 		graphics.stroke();
 		graphics.clearLineDash();
