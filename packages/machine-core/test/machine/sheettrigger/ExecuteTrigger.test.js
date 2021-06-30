@@ -1494,12 +1494,14 @@ describe('behaviour on manual steps', () => {
 			createCellAt('A1', { formula: 'execute("S2")' }, s1.sheet);
 			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
 			await machine.step();
-			expect(s1.sheet.cellAt('A1').value).toBe(`${ERROR.INVALID_PARAM}_1`);
+			expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.INVALID_PARAM);
+			expect(s1.sheet.cellAt('A1').value.paramIndex).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(1);
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			expect(s1.sheet.cellAt('A1').value).toBe(`${ERROR.INVALID_PARAM}_1`);
+			expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.INVALID_PARAM);
+			expect(s1.sheet.cellAt('A1').value.paramIndex).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(1);
 		});
 		test('execute sheet', async () => {
