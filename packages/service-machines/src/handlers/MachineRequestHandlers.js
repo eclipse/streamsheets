@@ -350,6 +350,7 @@
 			 // REVIEW: for what?
 			 result.position = request.position;
 			 result.activeItemId = request.activeItemId;
+			 result.sheetType = request.sheetType;
 			 return this.confirm(request, result);
 		 }
 		 // no runner, no machine:

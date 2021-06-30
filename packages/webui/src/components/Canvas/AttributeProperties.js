@@ -13,8 +13,6 @@
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 import {FormGroup, TextField} from '@material-ui/core';
-// import PropTypes from 'prop-types' ;
-// import { FormattedMessage } from 'react-intl';
 import JSG from '@cedalo/jsg-ui';
 
 import { graphManager } from '../../GraphManager';
@@ -22,7 +20,6 @@ import CellRangeComponent from './CellRangeComponent';
 import {intl} from "../../helper/IntlGlobalProvider";
 import { FormattedMessage } from 'react-intl';
 import MenuItem from '@material-ui/core/MenuItem';
-// import {FormattedMessage} from "react-intl";
 
 function MyInputComponent(props) {
 	const { inputRef, ...other } = props;
@@ -119,6 +116,36 @@ export class AttributeProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	getLayoutType() {
+		const item = this.props.view.getItem();
+
+		if (!item.getLayout()) {
+			return 'none';
+		}
+
+		return item.getLayout().getType() === 'jsg.matrix.layout' ? 'columnlayout' : 'none';
+	}
+
+	handleLayoutType = (event) => {
+		const item = this.props.view.getItem();
+		let layout;
+
+		switch (event.target.value) {
+		case 'columnlayout':
+			layout = JSG.MatrixLayout.TYPE;
+			break;
+		case 'none':
+		default:
+			break;
+		}
+
+		const cmd = new JSG.SetLayoutCommand(item, layout);
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	};
+
 	handleLayoutColumns = (event) => {
 		const item = this.props.view.getItem();
 		const settings = new JSG.Settings();
@@ -129,7 +156,18 @@ export class AttributeProperties extends Component {
 		this.setState({
 			dummy: Math.random()
 		})
+	};
 
+	handleLayoutMargin = (event) => {
+		const item = this.props.view.getItem();
+		// const settings = new JSG.Settings();
+		const settings = item.getLayoutSettings();
+		settings.set(JSG.MatrixLayout.MARGIN, Number(event.target.value));
+		const cmd = new JSG.SetLayoutSettingCommand(item, settings);
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
 	};
 
 	render() {
@@ -138,6 +176,7 @@ export class AttributeProperties extends Component {
 			return <div />;
 		}
 		const item = this.props.view.getItem();
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		return (
 			<FormGroup>
 				{this.getAttributeHandler("GraphItemProperties.Label", item, JSG.ItemAttributes.LABEL)}
@@ -159,8 +198,28 @@ export class AttributeProperties extends Component {
 					{ value: '2', label: 'GraphItemProperties.OnlyHorizontal'},
 					{ value: '3', label: 'GraphItemProperties.MoveFree'},
 					])}
+				{line ? null : (
+					<TextField
+						variant="outlined"
+						size="small"
+						margin="normal"
+						select
+						value={this.getLayoutType()}
+						onChange={event => this.handleLayoutType(event)}
+						label={
+							<FormattedMessage id="GraphItemProperties.Layout" defaultMessage="Layout" />
+						}
+					>
+						<MenuItem value="none">
+							<FormattedMessage id="GraphItemProperties.None" defaultMessage="None"/>
+						</MenuItem>
+						<MenuItem value="columnlayout">
+							<FormattedMessage id="GraphItemProperties.ColumnLayout" defaultMessage="Column Layout"/>
+						</MenuItem>
+					</TextField>
+				)}
 				{
-					item.getLayout() && item.getLayout().getType() === 'jsg.matrix.layout' ? (
+					item.getLayout() && item.getLayout().getType() === 'jsg.matrix.layout' ? [
 						<TextField
 							variant="outlined"
 							size="small"
@@ -184,8 +243,18 @@ export class AttributeProperties extends Component {
 							<MenuItem value="4">
 								4
 							</MenuItem>
-						</TextField>
-					) : null
+						</TextField>,
+						<TextField
+							variant="outlined"
+							size="small"
+							margin="normal"
+							value={item.getLayoutSettings().get(JSG.MatrixLayout.MARGIN)}
+							onBlur={event => this.handleLayoutMargin(event)}
+							label={
+								<FormattedMessage id="GraphItemProperties.LayoutMargin" defaultMessage="Layout Margin" />
+							}
+						/>
+					] : null
 				}
 			</FormGroup>
 		);

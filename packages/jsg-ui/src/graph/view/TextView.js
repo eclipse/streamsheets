@@ -92,11 +92,11 @@ class TextView extends NodeView {
 						.getValue()) &&
 				rect.height < item._sizeText.y
 			) {
-				yoffset = 0;
+				yoffset = extra ? 150 : 0;
 			} else {
 				switch (valign) {
 					case TextFormatAttributes.VerticalTextAlignment.TOP:
-						yoffset = 0;
+						yoffset = extra ? 150 : 0;
 						break;
 					case TextFormatAttributes.VerticalTextAlignment.CENTER:
 						yoffset = (rect.height - item._sizeText.y) / 2;

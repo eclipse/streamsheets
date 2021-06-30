@@ -440,10 +440,16 @@ module.exports = class LayoutNode extends Node {
 						let usedHeight = margin;
 						const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
 						if (node) {
-							node.getItems().forEach(subItem => {
-								usedHeight += subItem.getHeight().getValue();
-								usedHeight += margin;
-							});
+							if (node.getLayout()) {
+								node.getLayoutSettings().set(JSG.MatrixLayout.EXPANDABLE, row.expandable);
+								node.layout();
+								usedHeight = node._layoutHeight;
+							} else {
+								node.getItems().forEach(subItem => {
+									usedHeight += subItem.getHeight().getValue();
+									usedHeight += margin;
+								});
+							}
 						}
 						height = Math.max(height, usedHeight);
 					});
@@ -459,7 +465,7 @@ module.exports = class LayoutNode extends Node {
 			size.y += row.layoutSize;
 		});
 
-		// update layoutcells
+		// update
 		let x = 0;
 		let y = 0;
 		let node;
@@ -491,15 +497,20 @@ module.exports = class LayoutNode extends Node {
 					node.setSize(width, row.layoutSize);
 					node.getFormat().setLineStyle(0);
 					let yInner = row.expandable ? 600 : 0;
+					// if (node.getLayout()) {
+					// 	node.layout();
+					// }
 					node.getItems().forEach(subItem => {
 						if (row.expandable && !row.expanded) {
 							subItem.getItemAttributes().setVisible(false);
 						} else {
 							subItem.getItemAttributes().setVisible(true);
-							const height = subItem.getHeight().getValue();
-							subItem.setSize(width - margin * 2, height);
-							subItem.setOrigin(margin, yInner + margin);
-							yInner += height + margin;
+							if (!node.getLayout()) {
+								const height = subItem.getHeight().getValue();
+								subItem.setSize(width - margin * 2, height);
+								subItem.setOrigin(margin, yInner + margin);
+								yInner += height + margin;
+							}
 						}
 					});
 				}
