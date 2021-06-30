@@ -9,13 +9,15 @@
  *
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { runFunction } = require('../../utils');
 const {
 	sheet: { createMessageFromTerm, getMachine, getStreamSheetByName }
 } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
+
+const errorHint = (sheetname) => `EXECUTE ${sheetname}`;
 
 const createExecuteMessage = (term, sheet) => {
 	const machine = getMachine(sheet);
@@ -72,12 +74,12 @@ const execute = (sheet, ...terms) =>
 				callingStreamSheet.pauseProcessing();
 				context.isResumed = false;
 				if (!calledStreamSheet.execute(Math.max(1, repetitions), message, speed, resumeExecute(context))) {
-					return `${ERROR.INVALID_PARAM}_1`;
+					return ErrorInfo.create(ERROR.INVALID_PARAM, errorHint(sheetname)).setParamIndex(1);
 				}
 			}
 			// eslint-disable-next-line no-nested-ternary
 			return sheet.isPaused
-				? ERROR.WAITING
+				? ErrorInfo.create(ERROR.WAITING, errorHint(sheetname))
 				: context.isResumed
 					? context.returnValue
 					: getDefaultReturnValue(calledStreamSheet);
