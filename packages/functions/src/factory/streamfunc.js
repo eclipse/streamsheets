@@ -14,6 +14,7 @@ const { isBoxFuncTerm } = require('../utils/terms');
 const {	FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { Message } = require('@cedalo/machine-core');
 
+const ERROR = FunctionErrors.code;
 
 const BASE_FUNC = {
 	REQUEST: 'request',
@@ -74,10 +75,12 @@ const handleParameters = (sheet, parameters, args, errorOffset = 0) => {
 	for (let [index, paramConfig] of parameters.entries()) {
 		let result = handleParam(args[index], paramConfig, sheet);
 		if (FunctionErrors.isError(result)) {
-			if (result === FunctionErrors.code.INVALID_PARAM) {
+			// if (result === FunctionErrors.code.INVALID_PARAM) {
+			if (FunctionErrors.isErrorCode(result, ERROR.INVALID_PARAM)) {
 				return ErrorInfo.create(result).setParamIndex(index + errorOffset);
 			}
-			if (sheet.isProcessing || result !== FunctionErrors.code.NO_MSG) {
+			// if (sheet.isProcessing || result !== FunctionErrors.code.NO_MSG) {
+			if (sheet.isProcessing || !FunctionErrors.isErrorCode(result, ERROR.NO_MSG)) {
 				return ErrorInfo.create(result);
 			}
 			// no return => convert error:

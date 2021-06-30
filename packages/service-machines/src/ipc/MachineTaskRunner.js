@@ -54,7 +54,7 @@ class MachineTaskRunner {
 		this.name = undefined;
 		this.isOPCUA = false;
 		this.state = State.STOPPED;
-		this.channel = Channel.create(task);
+		this.channel = Channel.create(task, { logger });
 		this.options = Object.assign({}, options);
 		this.streams = new MachineTaskStreams(this.channel);
 		this.taskObserver = new MachineTaskObserver(this);
