@@ -34,7 +34,7 @@ const iserr = (sheet, ...terms) =>
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
-			return value !== ERROR.NA && !!FunctionErrors.isError(value);
+			return !!FunctionErrors.isError(value) && !FunctionErrors.isErrorCode(value, ERROR.NA);
 		});
 
 const iserror = (sheet, ...terms) =>
@@ -50,7 +50,7 @@ const isna = (sheet, ...terms) =>
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
-			return value === ERROR.NA;
+			return FunctionErrors.isErrorCode(value, ERROR.NA);
 		});
 
 const iseven = (sheet, ...terms) =>
