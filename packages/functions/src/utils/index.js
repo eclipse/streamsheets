@@ -22,6 +22,7 @@ const messages = require('./messages');
 const runFunction = require('./runner');
 const sheet = require('./sheet');
 const httprequest = require('./httprequest');
+const response = require('./response');
 const terms = require('./terms');
 // const types = require('./types'); // <-- causes circular reference!!
 const validation = require('./validation');
@@ -40,6 +41,7 @@ module.exports = {
 	jsonflatten,
 	jsonbuilder,
 	messages,
+	response,
 	runFunction,
 	sheet,
 	httprequest,
