@@ -43,6 +43,8 @@ class Channel {
 
 	send(msg) {
 		if (this._isAvailable && this._isActive) {
+			// NOTES: should we use callback to return a promise.
+			// can we use callback or return value of send() to prevent fill up of process channel?
 			this.task.send(msg, this._logger ? this._logChannelError : undefined);
 		}
 	}
