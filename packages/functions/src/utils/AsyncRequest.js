@@ -11,9 +11,19 @@
 const logger = require('@cedalo/logger').create({ name: 'AsyncRequest' });
 const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
-const { RequestState } = require('@cedalo/machine-core');
+const { RequestState, SheetIndex } = require('@cedalo/machine-core');
 
 const noop = () => {};
+
+const getCellReference = (sheet, context) => {
+	const term = context && context.term;
+	const cell = term && term.cell;
+	if (cell) {
+		const sheetname = sheet ? `${sheet.streamsheet.name}!` : '';
+		return `${sheetname}${SheetIndex.columnAsStr(cell.col)}${cell.row}`;
+	}
+	return 'n.a.';
+};
 
 const setStatus = (sheet, reqId, state) => {
 	if (!sheet.setRequestState(reqId, state)) sheet.registerRequest(reqId, state);
@@ -72,7 +82,8 @@ class Queue {
 			request.result = await request.requestFn(request.context);
 			request.state = RequestState.RESOLVED;
 		} catch (err) {
-			logger.error(`Request failed ${request.reqId()}`, err);
+			const { context, sheet } = request;
+			logger.error(`Request in cell ${getCellReference(sheet, context)} failed! Id: ${request.reqId()}\n`, err);
 			request.error = err;
 			request.state = RequestState.REJECTED;
 		} finally {
