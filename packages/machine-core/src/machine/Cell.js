@@ -29,13 +29,13 @@ const checkTermValue = (term) => {
 };
 const evaluate = (cell, newValue) => {
 	cell._isInited = true;
+	// remove any previous error
+	cell.setCellInfo('error', undefined);
 	if (newValue != null) {
 		cell._value = checkNaN(newValue);
 		cell._cellValue = undefined;
 	} else {
 		const term = cell._term;
-		// remove any previous error
-		cell.setCellInfo('error', undefined);
 		cell._value = term ? checkTermValue(term) : checkNaN(cell._value);
 		cell._cellValue = term && term.cellValue != null ? checkNaN(term.cellValue) : undefined;
 		// error handling
