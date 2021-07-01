@@ -365,7 +365,7 @@ class NodeController extends GraphItemController {
 
 		while (nodeparent !== undefined) {
 			// nodeparent is not enough!! => need edges from above parents too!!
-			subItems = nodeparent.getItems();
+			subItems = nodeparent.subItems;
 			subItems.forEach((item) => {
 				if (item instanceof Edge) {
 					if (this.isItemInsideNode(item.getSourceNode())) {

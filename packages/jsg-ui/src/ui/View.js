@@ -80,7 +80,7 @@ class View {
 	copy() {
 		const copy = this.newInstance();
 
-		this._subviews.forEach((subview) => {
+		this.subViews.forEach((subview) => {
 			const cv = subview.copy();
 			copy.addView(cv);
 		});
@@ -132,9 +132,9 @@ class View {
 	 */
 	addView(view, index) {
 		if (index >= 0) {
-			Arrays.insertAt(this._subviews, index, view);
+			Arrays.insertAt(this.subViews, index, view);
 		} else {
-			this._subviews.push(view);
+			this.subViews.push(view);
 		}
 		view._parent = this;
 
@@ -149,7 +149,7 @@ class View {
 	 * @return {Boolean} <code>true</code> if view was removed otherwise <code>false</code>
 	 */
 	removeView(view) {
-		return Arrays.remove(this._subviews, view);
+		return Arrays.remove(this.subViews, view);
 	}
 
 	/**
@@ -158,7 +158,7 @@ class View {
 	 * @method removeAllViews
 	 */
 	removeAllViews() {
-		this._subviews = [];
+		this.subViews = [];
 	}
 
 	/**
@@ -168,7 +168,7 @@ class View {
 	 * @return {Boolean} <code>true</code> if this view has at least on sub-view, <code>false</code> otherwise.
 	 */
 	hasSubviews() {
-		return this._subviews.length > 0;
+		return this.subViews.length > 0;
 	}
 
 
@@ -184,6 +184,9 @@ class View {
 		return this._subviews;
 	}
 
+	get subViews() {
+		return this._subviews;
+	}
 	/**
 	 * Returns the sub-view at given index or <code>undefined</code> if index is not valid.
 	 *
@@ -192,7 +195,7 @@ class View {
 	 * @return {View} The sub-view at index or <code>undefined</code>.
 	 */
 	getSubviewAt(index) {
-		return (index < 0 || index > this._subviews.length) ? undefined : this._subviews[index];
+		return (index < 0 || index > this.subViews.length) ? undefined : this.subViews[index];
 	}
 
 	/**
@@ -203,7 +206,7 @@ class View {
 	 * @since 1.6.2
 	 */
 	getSubviewCount() {
-		return this._subviews.length;
+		return this.subViews.length;
 	}
 
 	/**
@@ -216,7 +219,7 @@ class View {
 	invalidate() {
 		this._valid = false;
 
-		this._subviews.forEach((subview) => {
+		this.subViews.forEach((subview) => {
 			subview.layout();
 		});
 		this.layout();
@@ -250,7 +253,7 @@ class View {
 			this._valid = true;
 			// TODO relayout is actually a layout() but layout is currently used :(  => to be reviewed...
 			this.relayout();
-			this._subviews.forEach((subview) => {
+			this.subViews.forEach((subview) => {
 				subview.validate();
 			});
 		}
@@ -354,7 +357,7 @@ class View {
 	 * @method layout
 	 */
 	layout() {
-		this._subviews.forEach((subview) => {
+		this.subViews.forEach((subview) => {
 			subview.layout();
 		});
 	}
@@ -378,7 +381,7 @@ class View {
 	 * @param {Graphics} graphics Graphics class to use for generating output.
 	 */
 	drawSubViews(graphics) {
-		this._subviews.forEach((subview) => {
+		this.subViews.forEach((subview) => {
 			subview.draw(graphics);
 		});
 	}
@@ -416,7 +419,7 @@ class View {
 	 * @param {MouseEvent} ev Event info class.
 	 */
 	handleMouseEvent(ev) {
-		this._subviews.forEach((subview) => {
+		this.subViews.forEach((subview) => {
 			subview.handleMouseEvent(ev);
 		});
 	}
@@ -435,8 +438,8 @@ class View {
 		let n;
 		let consumed = false;
 
-		for (i = 0, n = this._subviews.length; i < n && !consumed; i += 1) {
-			consumed |= this._subviews[i].handleDragEvent(ev);
+		for (i = 0, n = this.subViews.length; i < n && !consumed; i += 1) {
+			consumed |= this.subViews[i].handleDragEvent(ev);
 		}
 		return consumed;
 	}
@@ -455,8 +458,8 @@ class View {
 		let n;
 		let consumed = false;
 
-		for (i = 0, n = this._subviews.length; i < n && !consumed; i += 1) {
-			consumed |= this._subviews[i].handleKeyEvent(ev);
+		for (i = 0, n = this.subViews.length; i < n && !consumed; i += 1) {
+			consumed |= this.subViews[i].handleKeyEvent(ev);
 		}
 		return consumed;
 	}
@@ -504,7 +507,7 @@ class View {
 	 * @return {Number} Position of view in parents sub view list.
 	 */
 	getIndex() {
-		return this._parent ? this._parent._subviews.indexOf(this) : -1;
+		return this._parent ? this._parent.subViews.indexOf(this) : -1;
 	}
 
 	/**
@@ -514,8 +517,8 @@ class View {
 	 * @param {Number} newIndex New position.
 	 */
 	moveToIndex(newIndex) {
-		const index = this._parent._subviews.indexOf(this);
-		Arrays.move(this._parent._subviews, index, newIndex);
+		const index = this._parent.subViews.indexOf(this);
+		Arrays.move(this._parent.subViews, index, newIndex);
 	}
 
 	/**
@@ -524,8 +527,8 @@ class View {
 	 * @method moveToTop
 	 */
 	moveToTop() {
-		const index = this._parent._subviews.indexOf(this);
-		Arrays.move(this._parent._subviews, index, this._parent._subviews.length - 1);
+		const index = this._parent.subViews.indexOf(this);
+		Arrays.move(this._parent.subViews, index, this._parent.subViews.length - 1);
 	}
 
 	/**
@@ -534,9 +537,9 @@ class View {
 	 * @method moveUp
 	 */
 	moveUp() {
-		const index = this._parent._subviews.indexOf(this);
-		if (index < this._parent._subviews.length - 1) {
-			Arrays.move(this._parent._subviews, index, index + 1);
+		const index = this._parent.subViews.indexOf(this);
+		if (index < this._parent.subViews.length - 1) {
+			Arrays.move(this._parent.subViews, index, index + 1);
 		}
 	}
 
@@ -546,8 +549,8 @@ class View {
 	 * @method moveToBottom
 	 */
 	moveToBottom() {
-		const index = this._parent._subviews.indexOf(this);
-		Arrays.move(this._parent._subviews, index, 0);
+		const index = this._parent.subViews.indexOf(this);
+		Arrays.move(this._parent.subViews, index, 0);
 	}
 
 	/**
@@ -556,9 +559,9 @@ class View {
 	 * @method moveDown
 	 */
 	moveDown() {
-		const index = this._parent._subviews.indexOf(this);
+		const index = this._parent.subViews.indexOf(this);
 		if (index > 0) {
-			Arrays.move(this._parent._subviews, index, index - 1);
+			Arrays.move(this._parent.subViews, index, index - 1);
 		}
 	}
 }

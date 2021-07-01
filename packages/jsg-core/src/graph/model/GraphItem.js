@@ -2184,6 +2184,10 @@ class GraphItem extends Model {
 		return this._subItems;
 	}
 
+	get subItems() {
+		return this._subItems
+	}
+
 	/**
 	 * Returns access to a sub item at the given index.
 	 *
@@ -3381,7 +3385,7 @@ class GraphItem extends Model {
 	}
 
 	assignIdsToChildren(item, lid) {
-		item.getItems().forEach((subItem) => {
+		item.subItems.forEach((subItem) => {
 			subItem._id = lid;
 			lid += 1;
 			lid = subItem.assignIdsToChildren(subItem, lid);

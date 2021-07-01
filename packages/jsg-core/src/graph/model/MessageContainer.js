@@ -160,7 +160,7 @@ module.exports = class MessageContainer extends Node {
 	}
 
 	_assignItems() {
-		this.getItems().forEach((item) => {
+		this.subItems.forEach((item) => {
 			if (item instanceof CaptionNode) {
 				this._messageCaption = item;
 			} else if (item instanceof SplitterNode) {

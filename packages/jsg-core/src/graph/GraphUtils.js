@@ -138,7 +138,7 @@ class GraphUtils {
 			if (include) {
 				func.call(this, item);
 			}
-			item.getItems().forEach((litem) => {
+			item.subItems.forEach((litem) => {
 				GraphUtils.traverseItem(litem, func);
 			});
 		}
@@ -513,7 +513,7 @@ class GraphUtils {
 	static traverse(view, callback, stop) {
 		if (!stop) {
 			stop = callback(view);
-			const subviews = view.getSubviews();
+			const subviews = view.subViews;
 			let i;
 			const n = subviews.length;
 			for (i = 0; !stop && i < n; i += 1) {

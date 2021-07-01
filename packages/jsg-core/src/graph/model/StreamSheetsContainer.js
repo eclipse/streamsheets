@@ -77,7 +77,7 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 	enumerateProcessSheets(callback) {
 		const pane = this.getContentPane();
 
-		pane.getItems().forEach((sheet) => {
+		pane.subItems.forEach((sheet) => {
 			if (sheet instanceof StreamSheetContainer) {
 				callback(sheet.getStreamSheet());
 			}
@@ -87,7 +87,7 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 	enumerateStreamSheetContainers(callback) {
 		const pane = this.getContentPane();
 
-		pane.getItems().forEach((sheet) => {
+		pane.subItems.forEach((sheet) => {
 			if (sheet instanceof StreamSheetContainer) {
 				callback(sheet);
 			}
@@ -96,7 +96,7 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 
 	getFirstStreamSheetContainer() {
 		const pane = this.getContentPane();
-		const result = pane.getItems().find((sheet) => {
+		const result = pane.subItems.find((sheet) => {
 			if (sheet instanceof StreamSheetContainer) {
 				return sheet;
 			}
@@ -107,7 +107,7 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 
 	getFirstVisibleStreamSheetContainer() {
 		const pane = this.getContentPane();
-		const result = pane.getItems().find((sheet) => {
+		const result = pane.subItems.find((sheet) => {
 			if ((sheet instanceof StreamSheetContainer) && sheet.isVisible()) {
 				return sheet;
 			}
@@ -143,7 +143,7 @@ module.exports = class StreamSheetsContainer extends ContentNode {
 	}
 
 	assignIdsToChildren(item, lid) {
-		this._contentPane.getItems().forEach((subItem) => {
+		this._contentPane.subItems.forEach((subItem) => {
 			if (subItem instanceof StreamSheetContainer) {
 				// continue from this persisted id
 				lid = subItem.getId() + 1;

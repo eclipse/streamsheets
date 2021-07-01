@@ -135,7 +135,7 @@ class LayoutContextComponent extends Component {
 			return;
 		}
 
-		info.item.getItems().forEach(item => {
+		info.item.subItems.forEach(item => {
 			cmd.add(new JSG.DeleteItemCommand(item));
 		});
 
@@ -226,7 +226,7 @@ class LayoutContextComponent extends Component {
 			return undefined;
 		}
 
-		const index = layoutNode.getItems().indexOf(item);
+		const index = layoutNode.subItems.indexOf(item);
 
 		return {
 			item,
@@ -244,7 +244,7 @@ class LayoutContextComponent extends Component {
 		let nextMergeCount = 0;
 
 		if (info.column + val < info.layoutNode.columns) {
-			nextMergeCount = info.layoutNode.getItems()[info.index + val + 1].getAttributeValueAtPath(
+			nextMergeCount = info.layoutNode.subItems[info.index + val + 1].getAttributeValueAtPath(
 				'mergecount');
 		}
 
@@ -302,7 +302,7 @@ class LayoutContextComponent extends Component {
 		let node;
 
 		do {
-			node = info.layoutNode.getItems()[startIndex];
+			node = info.layoutNode.subItems[startIndex];
 			startIndex -= 1;
 		} while (startIndex > 0 && node._merged);
 

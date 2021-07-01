@@ -317,7 +317,7 @@ module.exports = class MachineGraph extends Graph {
 	}
 
 	_assignItems() {
-		this.getItems().forEach((item) => {
+		this.subItems.forEach((item) => {
 			if (item instanceof MachineContainer) {
 				this._machineContainer = item;
 			}

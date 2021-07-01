@@ -46,7 +46,7 @@ module.exports = class MatrixLayout extends Layout {
 	getVisibleItemCount(item) {
 		let cnt = 0;
 
-		item.getItems().forEach((litem, index) => {
+		item.subItems.forEach((litem, index) => {
 			if (litem.isVisible()) {
 				cnt += 1;
 			}
@@ -75,7 +75,7 @@ module.exports = class MatrixLayout extends Layout {
 		const height = 5100;
 		let cnt = 0;
 
-		item.getItems().forEach((litem, index) => {
+		item.subItems.forEach((litem, index) => {
 			if (litem.isVisible()) {
 				litem.getBoundingBox(newbox);
 

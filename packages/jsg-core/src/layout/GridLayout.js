@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -71,7 +71,7 @@ module.exports = class GridLayout extends Layout {
 		const newbox = JSG.boxCache.get();
 
 		// measure total sub item width
-		item.getItems().forEach((litem) => {
+		item.subItems.forEach((litem) => {
 			const attrH = litem.getItemAttributes().getAttribute('LayoutHorizontal');
 			if (attrH !== undefined) {
 				const alignH = attrH.getValue();
@@ -99,7 +99,7 @@ module.exports = class GridLayout extends Layout {
 		currentcX = center.x - cwidth / 2;
 		currentrX = box.getWidth() - rwidth;
 
-		item.getItems().forEach((litem) => {
+		item.subItems.forEach((litem) => {
 			const attrH = litem.getItemAttributes().getAttribute('LayoutHorizontal');
 			const attrV = litem.getItemAttributes().getAttribute('LayoutVertical');
 

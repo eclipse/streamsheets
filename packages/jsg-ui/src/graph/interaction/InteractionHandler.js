@@ -1033,7 +1033,7 @@ class InteractionHandler {
 				const item = sel.getModel();
 				// TODO review Group handling: should we give the group a chance to check attribute?
 				if (JSG.isGroup(item)) {
-					const groupitems = item.getItems();
+					const groupitems = item.subItems;
 					groupitems.forEach((groupitem) => {
 						cmd.add(new SetAttributesMapCommand(groupitem, map, listpath));
 					});

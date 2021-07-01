@@ -164,7 +164,7 @@ module.exports = class WorksheetNode extends ContentNode {
 	getLayoutNode() {
 		let ret;
 
-		this._cells.getItems().some(subItem => {
+		this._cells.subItems.some(subItem => {
 			if (subItem instanceof LayoutNode) {
 				ret = subItem;
 				return true;

@@ -445,7 +445,7 @@ module.exports = class LayoutNode extends Node {
 								node.layout();
 								usedHeight = node._layoutHeight;
 							} else {
-								node.getItems().forEach(subItem => {
+								node.subItems.forEach(subItem => {
 									usedHeight += subItem.getHeight().getValue();
 									usedHeight += margin;
 								});
@@ -500,7 +500,7 @@ module.exports = class LayoutNode extends Node {
 					// if (node.getLayout()) {
 					// 	node.layout();
 					// }
-					node.getItems().forEach(subItem => {
+					node.subItems.forEach(subItem => {
 						if (row.expandable && !row.expanded) {
 							subItem.getItemAttributes().setVisible(false);
 						} else {

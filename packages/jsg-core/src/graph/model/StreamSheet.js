@@ -89,7 +89,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 	}
 
 	assignIdsToChildren(item, lid) {
-		this._contentPane.getItems().forEach((subItem) => {
+		this._contentPane.subItems.forEach((subItem) => {
 			subItem._id = lid;
 			lid += 1;
 			// graph items in sheet keep their id (port etc.)

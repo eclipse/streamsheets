@@ -184,7 +184,7 @@ class ContentNode extends Node {
 		this._saveScrollMode(writer, this._hScrollMode, this._vScrollMode);
 
 		writer.writeStartArray('graphitem');
-		this._contentPane.getItems().forEach((item) => {
+		this._contentPane.subItems.forEach((item) => {
 			item.save(writer);
 		});
 		writer.writeEndArray('graphitem');

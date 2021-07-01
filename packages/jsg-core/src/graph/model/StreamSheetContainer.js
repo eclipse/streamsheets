@@ -306,7 +306,7 @@ module.exports = class StreamSheetContainer extends Node {
 	}
 
 	_assignItems() {
-		this.getItems().forEach((item) => {
+		this.subItems.forEach((item) => {
 			if (item instanceof StreamSheet) {
 				this._processSheet = item;
 			} else if (item instanceof SplitterNode) {
@@ -455,11 +455,11 @@ module.exports = class StreamSheetContainer extends Node {
 
 		if (captions) {
 			this._sheetCaption.getItemAttributes().setVisible(true);
-			this._sheetCaption.getItems().forEach((subItem) => {
+			this._sheetCaption.subItems.forEach((subItem) => {
 				subItem.getItemAttributes().setVisible(hideButtons === false);
 			});
 
-			this._inboxCaption.getItems().forEach((subItem) => {
+			this._inboxCaption.subItems.forEach((subItem) => {
 				subItem.getItemAttributes().setVisible(hideButtons === false);
 			});
 		} else {

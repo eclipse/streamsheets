@@ -448,7 +448,7 @@ class GraphItemView extends View {
 		// draw content:
 		if (this._item.isCollapsed()) {
 			const title = this._item.getTitle ? this._item.getTitle() : undefined;
-			this._subviews.forEach((subview) => {
+			this.subViews.forEach((subview) => {
 				if (subview.getItem() === title || subview
 					.getItemAttributes()
 					.getCollapseBehaviour()
@@ -457,7 +457,7 @@ class GraphItemView extends View {
 				}
 			});
 		} else {
-			this._subviews.forEach((subview) => {
+			this.subViews.forEach((subview) => {
 				if (subview.isVisible() === true) {
 					subview.draw(graphics);
 				}
