@@ -108,12 +108,13 @@ module.exports = class WorksheetNode extends ContentNode {
 	}
 
 	get sourceSheet() {
-		const attr = this.getAttributeAtPath('streamsheet');
+		const attr = this.getAttributeAtPath('range');
 		if (attr) {
-			const id = attr.getValue();
-			const graph = this.getGraph();
-			if (graph) {
-				return graph.getItemById(id);
+			const expr = attr.getExpression();
+			if (expr) {
+				const term = expr.getTerm();
+				const operand = term && term.operand;
+				return operand && operand instanceof SheetReference && operand._item;
 			}
 		}
 

@@ -104,13 +104,9 @@ module.exports = class HeaderNode extends Node {
 		if (sheet) {
 			const sourceSheet = sheet.sourceSheet;
 			if (sourceSheet) {
-				if (this.isRow()) {
-					return sourceSheet._rows.sectionData;
-				}
-				return sourceSheet._columns.sectionData;
+				return this.isRow() ?  sourceSheet._rows.sectionData : sourceSheet._columns.sectionData;
 			}
 		}
-
 
 		return this._sectionData;
 	}
@@ -425,11 +421,12 @@ module.exports = class HeaderNode extends Node {
 		let i;
 		let ret;
 		const n = this.getSections();
+		const sectionData = this.sectionData;
 
 		defSection.setSize(this.getDefaultSectionSize());
 
 		for (i = 0; i < n; i += 1) {
-			section = this.sectionData[i];
+			section = sectionData[i];
 			if (section) {
 				ret = callback(section, i);
 			} else {

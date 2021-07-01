@@ -979,23 +979,21 @@ export default class SheetInteraction extends Interaction {
 				if (targetView.getParent() instanceof LayoutView) {
 					const node = new JSG.StreamSheet();
 					// editor.getGraph()._sheetWrapper = node;
-					node.addAttribute(new JSG.NumberAttribute('streamsheet', this._controller.getModel().getId()));
+					// node.addAttribute(new JSG.NumberAttribute('streamsheet', this._controller.getModel().getId()));
 					const range = this._controller
 						.getModel()
 						.getOwnSelection()
-						.getAt(0);
+						.getAt(0).copy();
 					range.shiftToSheet();
 					node.getFormat().setLineCorner(75);
 					node.setHeight(5000);
 					node.getItemAttributes().setSelectionMode(JSG.ItemAttributes.SelectionMode.DEFAULT);
 					node.getWorksheetAttributes().setShowHeader(false);
 					node.getWorksheetAttributes().setShowGrid(false);
-					node.addAttribute(new JSG.StringAttribute('range', range.toString()));
-					if (node) {
-						viewer
-							.getInteractionHandler()
-							.execute(new JSG.AddItemCommand(node, targetController.getModel()));
-					}
+					node.addAttribute(new JSG.Attribute('range', new Expression(0, range.toString({ item: node, useName: true, forceName: true }))));
+					viewer
+						.getInteractionHandler()
+						.execute(new JSG.AddItemCommand(node, targetController.getModel()));
 				} else if (targetView instanceof TreeItemsView) {
 					const json = view.getOwnSelection().toJson();
 					targetView.getItem().pasteJson(json);
