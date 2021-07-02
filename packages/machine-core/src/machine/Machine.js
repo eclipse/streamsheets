@@ -158,13 +158,15 @@ class Machine {
 
 		// load streamsheets:
 		this.removeAllStreamSheets();
-		streamsheets.forEach((transdef) => {
-			const streamsheet = new StreamSheet(transdef);
-			transdef.id = streamsheet.id;
+		streamsheets.forEach((sheetdef) => {
+			const streamsheet = new StreamSheet(sheetdef);
+			sheetdef.id = streamsheet.id;
 			this.addStreamSheet(streamsheet);
+			// support to preload additions which might be referenced across sheets, e.g. shapes
+			streamsheet.preload(sheetdef);
 		});
 		// then load all
-		streamsheets.forEach((transdef) => this.getStreamSheet(transdef.id).load(transdef, this));
+		streamsheets.forEach((sheetdef) => this.getStreamSheet(sheetdef.id).load(sheetdef, this));
 		// second time load named cells so that references from named cells are resolved correctly
 		this.namedCells.load(this, def.namedCells);
 

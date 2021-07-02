@@ -262,6 +262,13 @@ class Sheet {
 		}
 	}
 
+	preload(def = {}) {
+		// preload independent additions which might be referenced across sheets, like shapes, named-cells...
+		this.shapes.fromJSON(def.shapes);
+		this.namedCells.load(this, def.namedCells);
+		return this;
+	}
+
 	load(conf = {}) {
 		// prevent event on load:
 		const onUpdate = disableNotifyUpdate(this);
@@ -274,9 +281,6 @@ class Sheet {
 		}
 		// include editable-web-component:
 		// this.properties = this.properties.load(conf.properties);
-		// load names first, they may be referenced by sheet cells...
-		this.namedCells.load(this, conf.namedCells);
-		this.shapes.fromJSON(conf.shapes);
 		this.loadCells(conf.cells);
 		enableNotifyUpdate(this, onUpdate);
 		return this;

@@ -104,6 +104,10 @@ class StreamSheet {
 		this.trigger = TriggerFactory.create(config.trigger);
 	}
 
+	preload(def = {}) {
+		this.sheet.preload(def.sheet);
+	}
+
 	load(conf, machine) {
 		const config = Object.assign({ id: this._id }, DEF_CONF(), conf);
 		this._applyConfig(config, machine);
