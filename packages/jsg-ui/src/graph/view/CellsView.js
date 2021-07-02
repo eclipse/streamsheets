@@ -102,28 +102,74 @@ export default class CellsView extends NodeView {
 	// hasSubviews() {
 	// 	return true;
 	// }
+	//
+	// drawSubViews(graphics) {
+	// 	let view;
+	//
+	// 	this._wsItem = this.getWorksheetNode();
+	// 	if (!this._wsItem) {
+	// 		return;
+	// 	}
+	// 	const sourceSheet = this._wsItem.sourceSheet;
+	// 	if (sourceSheet) {
+	// 		const graphView = this.getGraphView();
+	// 		GraphUtils.traverseView(graphView, (v) => {
+	// 			if (v.getItem && v.getItem().getId() === sourceSheet.getId()) {
+	// 				view = v.getCellsView();
+	// 			}
+	// 		}, false);
+	// 		this._wsView = this.getWorksheetView();
+	// 		this._wsItem.getItemAttributes().setSelectionMode(JSG.ItemAttributes.SelectionMode.DEFAULT);
+	//
+	// 		const attr = this._wsItem.getAttributeAtPath('range');
+	// 		if (!attr) {
+	// 			return;
+	// 		}
+	// 		const rangeString = attr.getValue();
+	// 		const range = CellRange.parse(rangeString, sourceSheet);
+	// 		if (range) {
+	// 			range.shiftFromSheet();
+	// 			const rect = sourceSheet.getCellRect(range);
+	// 			graphics.translate(-rect.x, -rect.y);
+	// 		}
+	// 	} else {
+	// 		view = this;
+	// 	}
+	//
+	// 	if (view) {
+	// 		view._subviews.forEach((subview) => {
+	// 			if (subview.isVisible() === true) {
+	// 				subview.draw(graphics);
+	// 			}
+	// 		});
+	// 	}
+	// }
+	//
+	// hasSubviews() {
+	// 	return true;
+	// }
 
-	get subViews() {
-		this._wsItem = this.getWorksheetNode();
-		if (!this._wsItem) {
-			return this._subviews;
-		}
-
-		const sourceSheet = this._wsItem.sourceSheet;
-		if (sourceSheet) {
-			let view;
-			const graphView = this.getGraphView();
-			GraphUtils.traverseView(graphView, (v) => {
-				if (v.getItem && v.getItem().getId() === sourceSheet.getId()) {
-					view = v.getCellsView();
-				}
-			}, false);
-
-			return view._subviews;
-		}
-		return this._subviews;
-	}
-
+	// get subViews() {
+	// 	this._wsItem = this.getWorksheetNode();
+	// 	if (!this._wsItem) {
+	// 		return this._subviews;
+	// 	}
+	//
+	// 	const sourceSheet = this._wsItem.sourceSheet;
+	// 	if (sourceSheet) {
+	// 		let view;
+	// 		const graphView = this.getGraphView();
+	// 		GraphUtils.traverseView(graphView, (v) => {
+	// 			if (v.getItem && v.getItem().getId() === sourceSheet.getId()) {
+	// 				view = v.getCellsView();
+	// 			}
+	// 		}, false);
+	//
+	// 		return view._subviews;
+	// 	}
+	// 	return this._subviews;
+	// }
+	//
 	drawBorder(graphics, format, rect) {
 		this._wsView = this.getWorksheetView();
 		this._wsItem = this.getWorksheetNode();

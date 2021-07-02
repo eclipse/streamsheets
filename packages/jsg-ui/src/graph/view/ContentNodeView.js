@@ -125,6 +125,7 @@ class ContentNodeView extends NodeView {
 		this._scrollview.getViewPort().getViewPanelBounds = function(cArea) {
 			// called in scope of ViewPort:
 			const vpBounds = this._viewpanel.getPreferredBounds();
+
 			const minbounds = JSG.rectCache
 				.get()
 				.set(cArea.x - this._vpOffset.x, cArea.y - this._vpOffset.y, cArea.width, cArea.height);

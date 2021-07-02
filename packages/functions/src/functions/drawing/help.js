@@ -88,7 +88,7 @@ module.exports = {
 		'DRAW.LABEL': {
 			en: {
 				argumentList:
-					'X,Y,Width,Height,LineColor,FillColor,Angle,Text,Font',
+					'X,Y,Width,Height,LineColor,FillColor,Angle,Text',
 				description: 'Creates a text element'
 			},
 			de: {

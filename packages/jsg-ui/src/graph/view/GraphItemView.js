@@ -751,6 +751,7 @@ class GraphItemView extends View {
 	 * @return {Rectangle} The preferred Rectangle this view needs to draw itself.
 	 */
 	getPreferredBounds(recthint, reuserect) {
+		// return reuserect || new Rectangle(0, 0, 0, 0);
 	}
 
 	adaptHighlight(highlight) {

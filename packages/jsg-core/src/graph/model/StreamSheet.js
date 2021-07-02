@@ -331,6 +331,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getCells()._shapesChanged = undefined;
 		const itemMap = {};
 		const parentMap = {};
+		let parent;
 
 		GraphUtils.traverseItem(this.getCells(), item => {
 			itemMap[item.getId()] = item;
@@ -341,6 +342,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 		// read and create items
 		json.shapes.forEach(shape => {
 			let node = itemMap[shape.id];
+			if (shape.sheetShape) {
+				parent = parentMap[shape.parent];
+				if (parent) {
+					shape.parent = parent.getCells().getId();
+				}
+			}
 			if (!node) {
 				node = JSG.graphItemFactory.createItemFromString(shape.itemType, true);
 				if (!node) {
@@ -352,12 +359,15 @@ module.exports = class StreamSheet extends WorksheetNode {
 					s.fromJSON(shape.shape);
 				}
 
-				const parent = parentMap[shape.parent];
+				parent = parentMap[shape.parent];
+				if (!parent) {
+					parent = this.getCells().getItemById(shape.parent);
+				}
 				if (parent) {
 					parent.addItem(node);
 				}
 			} else if (shape.parent !== node.getParent().getId()) {
-				const parent = this.getCells().getItemById(shape.parent);
+				parent = this.getCells().getItemById(shape.parent);
 				if (parent) {
 					node.changeParent(parent);
 				}
@@ -426,7 +436,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 		// remove deleted items
 		Object.values(itemMap).forEach(value => {
-			if (value !== undefined ) {
+			if (value !== undefined && value.getParent() ) {
 				value.getParent().removeItem(value);
 			}
 		});

@@ -3489,7 +3489,7 @@ class GraphItem extends Model {
 	toJSON() {
 		const ret = {
 			id: this._id,
-			parent: this._parent.getId(),
+			// parent: this._parent.getItemType() === 'cellsnode' ? this._parent.getSheet().getId() : this._parent.getId(),
 			itemType: this.getItemType(),
 			x: this.getPin().getX().toJSON(true),
 			y: this.getPin().getY().toJSON(true),
@@ -3498,6 +3498,14 @@ class GraphItem extends Model {
 			width: this.getWidth().toJSON(true),
 			height: this.getHeight().toJSON(true),
 		};
+
+		if (this._parent.getItemType() === 'cellsnode' && this._parent.getSheet().sourceSheet) {
+			ret.parent = this._parent.getSheet().getId();
+			ret.sheetShape = true;
+		} else {
+			ret.parent =  this._parent.getId();
+		}
+
 		if (this._angle.getValue() !== 0 || this._angle.hasFormula()) {
 			ret.angle = this.getAngle().toJSON(true);
 		}
@@ -3538,7 +3546,7 @@ class GraphItem extends Model {
 		this._shapesChanged = json.changed;
 
 		GraphUtils.traverseItem(this, item => {
-			// do not save sheet sub items for noe
+			// do not save sheet sub items for now
 			if (item.getItemType() !== 'cellsnode' && item.getItemType() !== 'rowheadernode' &&
 				item.getItemType() !== 'columnheadernode' && item.getItemType() !== 'sheetheadernode' &&
 				item.getItemType() !== 'contentpane') {
