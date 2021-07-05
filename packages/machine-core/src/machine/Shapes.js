@@ -80,8 +80,8 @@ const getValue = (obj, defValue) => {
 		val = Number(val);
 	} else if (obj.t === 'b') {
 		val = val === 'true' || val === true;
-		// } else {
-		// 	val = Strings.decode(String(input));
+	} else {
+	 	val = decode(String(val));
 	}
 	return val;
 };

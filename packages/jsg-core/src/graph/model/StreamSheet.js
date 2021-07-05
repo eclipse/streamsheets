@@ -364,6 +364,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 					parent = this.getCells().getItemById(shape.parent);
 				}
 				if (parent) {
+					node.fromJSON(shape);
 					parent.addItem(node);
 				}
 			} else if (shape.parent !== node.getParent().getId()) {
