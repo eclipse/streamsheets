@@ -16,6 +16,7 @@ import { FormGroup, TextField } from '@material-ui/core';
 // import PropTypes from 'prop-types';
 // import { FormattedMessage } from 'react-intl';
 import JSG from '@cedalo/jsg-ui';
+import { Locale } from '@cedalo/parser';
 
 import { graphManager } from '../../GraphManager';
 import CellRangeComponent from './CellRangeComponent';
@@ -72,13 +73,32 @@ export class EventProperties extends Component {
 			return '';
 		}
 
-		return `=${attr.getValue()}`;
+		const sheetView = this.getSheetView();
+		const sheet = sheetView.getItem();
+
+		const expr = new JSG.Expression(0, attr.getValue());
+		expr.evaluate(sheet);
+		return expr.toLocaleString(JSG.getParserLocaleSettings(), {
+			item: sheet,
+			useName: true
+		});
 	}
 
 	getExpression(item, event) {
 		let formula = String(event.target.textContent);
 		const asText = formula.charAt(0) === "=";
-		if (asText) formula = formula.substring(1);
+		if (asText) {
+			const sheetView = this.getSheetView();
+			const sheet = sheetView.getItem();
+			formula = formula.substring(1);
+			JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;
+			const expr = new JSG.Expression(0, formula);
+			expr.evaluate(sheet);
+			expr.correctFormula(sheet);
+			JSG.FormulaParser.context.separators = Locale.EN.separators;
+			formula = expr.getFormula();
+
+		}
 		return new JSG.StringExpression(formula);
 	}
 
