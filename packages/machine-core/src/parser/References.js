@@ -360,7 +360,7 @@ const referenceFromString = (str, scope) => {
 	// sheet reference
 	let streamsheetId;
 	const parts = str.split('!');
-	const externalRef = parts.length === 2;
+	const externalRef = parts.length === 2 && !!parts[0] && !!parts[1];
 	if (externalRef) {
 		// we have a sheet reference...
 		const machine = scope.machine || scope;

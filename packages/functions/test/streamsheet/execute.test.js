@@ -659,7 +659,8 @@ describe('execute', () => {
 		s1.sheet.load({ cells: { A1: { formula: 'execute("S2",1,"data")' } } });
 		s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(`${ERROR.INVALID_PARAM}_1`);
+		expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.INVALID_PARAM);
+		expect(s1.sheet.cellAt('A1').value.paramIndex).toBe(1);
 	});
 	// DL-3731:
 	test('check passed message', async () => {

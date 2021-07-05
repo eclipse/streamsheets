@@ -30,7 +30,7 @@ const createMachine = () => {
 	machine.metadata.lastModifiedBy = machine.owner;
 	return machine;
 };
-const channel = Channel.create(process);
+const channel = Channel.create(process, { logger });
 const machine = createMachine();
 const monitor = new MachineTaskMonitor(machine, channel);
 const requestHandler = new MachineTaskRequestHandler(monitor, channel);

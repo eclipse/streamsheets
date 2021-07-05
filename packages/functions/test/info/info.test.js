@@ -8,11 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
+const { StreamSheet, SheetParser } = require('@cedalo/machine-core');
 const { createTerm } = require('../utilities');
-const { StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
+
+SheetParser.context.functions.ERRINFO = (sheet, ...terms) =>{
+	return ErrorInfo.create(terms[0].value);
+};
 
 describe('info functions', () => {
 	describe('iferror', () => {
@@ -72,11 +76,14 @@ describe('info functions', () => {
 	});
 	describe('iserr', () => {
 		it(`should return true on any error value except ${ERROR.NA}`, () => {
-			const sheet = new StreamSheet().sheet.load({ cells: { A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35 } });
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35, A4: {formula: 'na()' }
+			});
 			expect(createTerm('iserr(A1)', sheet).value).toBe(true);
 			expect(createTerm(`iserr("${ERROR.DIV0}")`, sheet).value).toBe(true);
 			expect(createTerm('iserr(A2)', sheet).value).toBe(false);
 			expect(createTerm('iserr(A3)', sheet).value).toBe(false);
+			expect(createTerm('iserr(A4)', sheet).value).toBe(false);
 		});
 		// DL-1374
 		it('shoud return error code for invalid or to much parameters', () => {
@@ -90,11 +97,14 @@ describe('info functions', () => {
 	});
 	describe('iserror', () => {
 		it('should return true if value represents an error', () => {
-			const sheet = new StreamSheet().sheet.load({ cells: { A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35 } });
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35, A4: {formula: 'na()' }
+			});
 			expect(createTerm('iserror(A1)', sheet).value).toBe(true);
 			expect(createTerm(`iserror("${ERROR.DIV0}")`, sheet).value).toBe(true);
 			expect(createTerm('iserror(A2)', sheet).value).toBe(true);
 			expect(createTerm('iserror(A3)', sheet).value).toBe(false);
+			expect(createTerm('iserror(A4)', sheet).value).toBe(true);
 		});
 		// DL-1374
 		it('shoud return error code for invalid or to much parameters', () => {
@@ -114,6 +124,24 @@ describe('info functions', () => {
 			expect(createTerm(`isna("${ERROR.DIV0}")`, sheet).value).toBe(false);
 			expect(createTerm('isna(A2)', sheet).value).toBe(true);
 			expect(createTerm('isna(A3)', sheet).value).toBe(false);
+		});
+		it(`should return true if value equals error info with error code ${ERROR.NA}`, () => {
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: { formula: 'na()' }, A2: { formula: 'sum(1, 3, na())' }, A3: { formula: '1 + na()' }
+			});
+			expect(createTerm('isna(A1)', sheet).value).toBe(true);
+			expect(createTerm('isna(A2)', sheet).value).toBe(true);
+			expect(createTerm('isna(A3)', sheet).value).toBe(true);
+		});
+		it('should return false if value equals error info with different error code', () => {
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: { formula: `errinfo(${ERROR.REF})` },
+				A2: { formula: `errinfo(${ERROR.DIV0})` },
+				A3: { formula: `errinfo(${ERROR.NA})` }
+			});
+			expect(createTerm('isna(A1)', sheet).value).toBe(false);
+			expect(createTerm('isna(A2)', sheet).value).toBe(false);
+			expect(createTerm('isna(A3)', sheet).value).toBe(true);
 		});
 		// DL-1375
 		it('shoud return error code for invalid or to much parameters', () => {

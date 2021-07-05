@@ -79,6 +79,16 @@ class FunctionErrors {
 		return value != null && (value.isErrorInfo || errorValues.includes(value)) ? value : undefined;
 	}
 
+	isErrorCode(value, code) {
+		if (value != null) return value.isErrorInfo ? value.code === code : value === code;
+		return false;
+	}
+	// getErrorCode(value) {
+	// 	if (value == null) return undefined;
+	// 	if (value.isErrorInfo) return value.code;
+	// 	return errorValues.includes(value) ? value : undefined;
+	// }
+
 	containsError(values) {
 		return values.some((value) => this.isError(value));
 	}

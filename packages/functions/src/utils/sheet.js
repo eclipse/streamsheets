@@ -8,6 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { jsonpath } = require('@cedalo/commons');
+const { FunctionErrors } = require('@cedalo/error-codes');
+const { Term } = require('@cedalo/parser');
+const { Cell, Message } = require('@cedalo/machine-core');
 const {
 	isBoxFuncTerm,
 	isInboxTerm,
@@ -17,10 +21,6 @@ const {
 	isOutboxDataTerm,
 	termFromValue
 } = require('./terms');
-const { Term } = require('@cedalo/parser');
-const { jsonpath } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
-const { Cell, Message } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
@@ -160,6 +160,8 @@ const setCellValue = (sheet, index, value, keepFormula = false) => {
 		else cell.term = termFromValue(value);
 	}
 };
+
+
 module.exports = {
 	cellFromFunc,
 	createMessageFromValue,
