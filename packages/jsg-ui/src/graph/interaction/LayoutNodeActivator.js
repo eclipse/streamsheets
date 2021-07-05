@@ -73,6 +73,14 @@ export default class LayoutNodeActivator extends InteractionActivator {
 			const column = data[i];
 			rect.x += column.layoutSize - 100;
 			if (rect.containsPoint(point)) {
+				const rowIndex = this.getRowInside(event, viewer, point, layoutNode);
+				if (rowIndex !== -1 && i < data.length - 1) {
+					const node = layoutNode.getItemAt(rowIndex * data.length + i + 1);
+					if (node._merged) {
+						return -1;
+					}
+
+				}
 				return i;
 			}
 			rect.x += 100;
@@ -137,6 +145,26 @@ export default class LayoutNodeActivator extends InteractionActivator {
 				return i;
 			}
 			rect.y += 100;
+		}
+
+		return -1;
+	}
+
+	getRowInside(event, viewer, point, layoutNode) {
+		const data = layoutNode.rowData;
+		const rect = new Rectangle();
+
+		rect.x = 0;
+		rect.y = 0;
+		rect.width = layoutNode.getWidth().getValue();
+
+		for (let i = 0; i < data.length; i += 1) {
+			const row = data[i];
+			rect.height = row.layoutSize;
+			if (rect.containsPoint(point)) {
+				return i;
+			}
+			rect.y += row.layoutSize;
 		}
 
 		return -1;
