@@ -4210,11 +4210,6 @@ export class CanvasToolBar extends Component {
 								</SvgIcon>
 							</IconButton>
 						</GridListTile>
-						<GridListTile cols={1}>
-							<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('layout')}>
-								<BorderAllIcon fontSize="inherit" />
-							</IconButton>
-						</GridListTile>
 					</GridList>
 				</Popover>
 				<Tooltip
