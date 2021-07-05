@@ -194,9 +194,10 @@ const randbetween = (sheet, ...terms) =>
 
 const round = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withArgCount(2)
+		.withMinArgs(1)
+		.withMaxArgs(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
-		.mapNextArg((digits) => toNumberOrError(digits.value))
+		.mapNextArg((digits) => digits ? toNumberOrError(digits.value) : 0)
 		.run((nr, digits) => roundNumber(nr, digits));
 
 const sign = (sheet, ...terms) =>
