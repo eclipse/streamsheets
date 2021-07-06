@@ -181,13 +181,15 @@ class MarqueeActivator extends InteractionActivator {
 		// check position because of nested nodes...
 		if (selProvider.hasSingleSelection()) {
 			const selection = selProvider.getFirstSelection();
-			if (selection.getModel().getParent() instanceof JSG.CellsNode) {
+			const selItem = selection.getModel();
+			if ((selItem.getParent() instanceof JSG.CellsNode) ||
+				(selItem instanceof JSG.StreamSheetContainer)) {
 				return true;
 			}
 
 			const pt = JSG.ptCache.get().setTo(event.location);
 			viewer.translateFromParent(pt);
-			GraphUtils.translatePointDown(pt, selection.model.getGraph(), selection.model.getParent());
+			GraphUtils.translatePointDown(pt, selItem.getGraph(), selItem.getParent());
 			const contains = selection.containsPoint(pt);
 			JSG.ptCache.release(pt);
 			return !contains;

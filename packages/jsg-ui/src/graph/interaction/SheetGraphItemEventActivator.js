@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, NotificationCenter, Notification, Shape, LayoutNode, CellsNode } from '@cedalo/jsg-core';
+import { default as JSG, NotificationCenter, Notification, StreamSheet, Shape, LayoutNode, CellsNode } from '@cedalo/jsg-core';
 
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
 import SheetGraphItemEventInteraction from './SheetGraphItemEventInteraction';
@@ -35,9 +35,17 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	 * <code>undefined</code>.
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
+		let streamSheet = false;
+
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
 			const item = cont.getModel()
 			if (!item.isVisible()) {
+				return false;
+			}
+			if (item instanceof StreamSheet) {
+				streamSheet = true;
+			}
+			if (streamSheet) {
 				return false;
 			}
 			return (item.getAttributeValueAtPath('value') !== undefined ||

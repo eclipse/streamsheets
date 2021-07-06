@@ -170,9 +170,9 @@ export default class GraphManager {
 		defInteraction.addActivator(ResizeActivator.KEY, new ResizeActivator());
 		defInteraction.addActivator(ReshapeActivator.KEY, new ReshapeActivator());
 		defInteraction.addActivator(RotateActivator.KEY, new RotateActivator());
-		defInteraction.addActivator(LayoutNodeActivator.KEY, new LayoutNodeActivator());
 		defInteraction.addActivator(SheetGraphItemEventActivator.KEY, new SheetGraphItemEventActivator());
 		defInteraction.addActivator(SheetActivator.KEY, new SheetActivator());
+		defInteraction.addActivator(LayoutNodeActivator.KEY, new LayoutNodeActivator());
 		defInteraction.addActivator(EditTextActivator.KEY, new EditTextActivator());
 		defInteraction.addActivator(MoveActivator.KEY, new MoveActivator());
 		defInteraction.addActivator(SheetPlotActivator.KEY, new SheetPlotActivator());

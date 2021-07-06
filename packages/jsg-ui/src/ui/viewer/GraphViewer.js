@@ -411,7 +411,7 @@ class GraphViewer extends ControllerViewer {
 		for (let i = 0; i < this._controllers.length; i += 1) {
 			const info = this._controllers.data[i];
 			if (info.controller.containsPoint(info.location, flag)) {
-				const ret = callback(info.controller, info.location);
+				const ret = callback(info.controller, info.location, i);
 				if (ret === true) {
 					return info.controller;
 				}

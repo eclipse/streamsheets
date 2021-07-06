@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, NotificationCenter, Notification, Rectangle, Shape, LayoutNode, GraphUtils } from '@cedalo/jsg-core';
+import { default as JSG, NotificationCenter, Notification, StreamSheet, Rectangle, Shape, LayoutNode, GraphUtils } from '@cedalo/jsg-core';
 
 import InteractionActivator from './InteractionActivator';
 import Cursor from '../../ui/Cursor';
@@ -34,9 +34,14 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	 * <code>undefined</code>.
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
-		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
+		let streamSheet = false;
+
+		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont, loc, index) => {
 			const item = cont.getModel()
-			return (item instanceof LayoutNode);
+			if (item instanceof StreamSheet) {
+				streamSheet = true;
+			}
+			return (!streamSheet && (item instanceof LayoutNode));
 		});
 	}
 
