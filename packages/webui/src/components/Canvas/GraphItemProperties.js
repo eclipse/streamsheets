@@ -232,7 +232,7 @@ export class GraphItemProperties extends Component {
 			case 'attributes':
 				return <AttributeProperties view={this.state.view}/>;
 			case 'events':
-				return <EventProperties view={this.state.view}/>;
+				return <EventProperties view={this.state.view} dummy={this.state.dummy}/>;
 			default:
 				if (this.state.view.isNewChart) {
 					return <StreamChartProperties view={this.state.view}/>;

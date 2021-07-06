@@ -133,7 +133,6 @@ export class FormatProperties extends Component {
 			return <div />;
 		}
 		const item = this.props.view.getItem();
-		// const fillStyle = this.state.fillStyle;
 		return (
 			<FormGroup>
 				<Typography variant="subtitle1" style={{marginTop: '5px', marginBottom: '5px'}}>

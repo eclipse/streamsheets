@@ -133,7 +133,6 @@ export class TextFormatProperties extends Component {
 			return <div />;
 		}
 		const item = this.props.view.getItem();
-		// const fillStyle = this.state.fillStyle;
 		return (
 			<FormGroup>
 				{this.getAttributeHandler("GraphItemProperties.FontName", item, JSG.TextFormatAttributes.FONTNAME, false, [

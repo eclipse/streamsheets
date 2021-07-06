@@ -159,8 +159,13 @@ export class AttributeProperties extends Component {
 	};
 
 	handleLayoutMargin = (event) => {
+		const margin = Number(event.target.value);
+
+		if (Number.isNaN(margin) || margin < 0 || margin > 5000) {
+			return;
+		}
+
 		const item = this.props.view.getItem();
-		// const settings = new JSG.Settings();
 		const settings = item.getLayoutSettings();
 		settings.set(JSG.MatrixLayout.MARGIN, Number(event.target.value));
 		const cmd = new JSG.SetLayoutSettingCommand(item, settings);
@@ -178,7 +183,7 @@ export class AttributeProperties extends Component {
 		const item = this.props.view.getItem();
 		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		return (
-			<FormGroup>
+			<FormGroup id={this.props.dummy}>
 				{this.getAttributeHandler("GraphItemProperties.Label", item, JSG.ItemAttributes.LABEL)}
 				{this.getAttributeHandler("GraphItemProperties.Container", item, JSG.ItemAttributes.CONTAINER)}
 				{this.getAttributeHandler("GraphItemProperties.Selection", item, JSG.ItemAttributes.SELECTIONMODE,  [
@@ -249,7 +254,7 @@ export class AttributeProperties extends Component {
 							size="small"
 							margin="normal"
 							value={item.getLayoutSettings().get(JSG.MatrixLayout.MARGIN)}
-							onBlur={event => this.handleLayoutMargin(event)}
+							onChange={event => this.handleLayoutMargin(event)}
 							label={
 								<FormattedMessage id="GraphItemProperties.LayoutMargin" defaultMessage="Layout Margin" />
 							}
