@@ -102,4 +102,4 @@ module.exports.AndOperator = class AndOperator extends SheetBoolOperator {
 	}
 };
 
-module.exports.DotReference = DotReferenceOperator;
+module.exports.DotOperator = DotReferenceOperator;
