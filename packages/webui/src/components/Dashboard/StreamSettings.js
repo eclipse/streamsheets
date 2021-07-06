@@ -16,6 +16,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
@@ -284,41 +285,51 @@ class StreamSettings extends React.Component {
 						{this.getConnectorFields(fc)}
 					</div>
 					<div>
-						<TextField
-							style={{
-								width: '30%',
-								marginRight: '20px'
-							}}
-							variant="outlined"
-							size="small"
-							inputRef={(el) => {
-								this.nameRef = el;
-							}}
-							label={<FormattedMessage id="Stream.Name" defaultMessage="Name" />}
-							id="name"
-							name="name"
-							disabled={!this.props.canEdit}
-							margin="normal"
-							value={stream.name}
-							onChange={this.handleNameChange}
-							error={typeof error === 'string' && error.length > 0}
-							helperText={error}
-						/>
-						<TextField
-							style={{
-								width: '66%'
-							}}
-							variant="outlined"
-							size="small"
-							label={<FormattedMessage id="Stream.Description" defaultMessage="Description" />}
-							id="description"
-							name="description"
-							disabled={!this.props.canEdit}
-							multiline
-							margin="normal"
-							value={stream.description}
-							onChange={this.handleDescriptionChange}
-						/>
+						<Tooltip
+							title={<FormattedMessage id="Stream.NameTool" defaultMessage="Stream Name" />}
+							placement='top-start'
+						>
+							<TextField
+								style={{
+									width: '30%',
+									marginRight: '20px'
+								}}
+								variant="outlined"
+								size="small"
+								inputRef={(el) => {
+									this.nameRef = el;
+								}}
+								label={<FormattedMessage id="Stream.Name" defaultMessage="Name" />}
+								id="name"
+								name="name"
+								disabled={!this.props.canEdit}
+								margin="normal"
+								value={stream.name}
+								onChange={this.handleNameChange}
+								error={typeof error === 'string' && error.length > 0}
+								helperText={error}
+							/>
+						</Tooltip>
+						<Tooltip
+							title={<FormattedMessage id="Stream.DescriptionTool" defaultMessage="Stream Description" />}
+							placement='top-start'
+						>
+							<TextField
+								style={{
+									width: '66%'
+								}}
+								variant="outlined"
+								size="small"
+								label={<FormattedMessage id="Stream.Description" defaultMessage="Description" />}
+								id="description"
+								name="description"
+								disabled={!this.props.canEdit}
+								multiline
+								margin="normal"
+								value={stream.description}
+								onChange={this.handleDescriptionChange}
+							/>
+						</Tooltip>
 					</div>
 					{fc.getCheckBox(
 						new Field({
@@ -326,6 +337,10 @@ class StreamSettings extends React.Component {
 							label: {
 								en: 'Disabled',
 								de: 'Deaktiviert'
+							},
+							help: {
+								en: 'Disable Stream',
+								de: 'Stream deaktivieren'
 							}
 						}),
 						this.state.stream.disabled || !canEdit

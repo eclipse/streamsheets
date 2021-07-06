@@ -12,6 +12,7 @@
 import React, {useState} from 'react';
 import MaterialIconButton from '@material-ui/core/IconButton';
 import MaterialTextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
 import IconReload from '@material-ui/icons/Autorenew';
 
 import InputLabel from '@material-ui/core/InputLabel';
@@ -70,6 +71,9 @@ export function PasswordField(props) {
 	};
 
 	return (
+		<Tooltip
+			title={field.getHelp(locale)} placement='top-start'
+		>
 			<FormControl fullWidth variant="outlined" size="small" margin="normal">
 				<InputLabel htmlFor={id}>{field.getLabel(locale)}</InputLabel>
 				<OutlinedInput
@@ -98,6 +102,7 @@ export function PasswordField(props) {
 					labelWidth={60}
 				/>
 			</FormControl>
+		</Tooltip>
 	);
 }
 PasswordField.propTypes = {
