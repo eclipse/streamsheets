@@ -191,6 +191,15 @@ module.exports = class WorksheetNode extends ContentNode {
 	layout() {
 		const wsattributes = this.getWorksheetAttributes();
 		const header = this.isHeaderVisible();
+		const source = this.sourceSheet;
+
+		if (source)  {
+			const sattributes = source.getWorksheetAttributes();
+			const rowCount = sattributes.getRows().getValue();
+			const columnCount = sattributes.getRows().getValue();
+			this.setColumnCount(columnCount);
+			this.setRowCount(rowCount);
+		}
 
 		this._rowCount = wsattributes.getRows().getValue();
 		this._columnCount = wsattributes.getRows().getValue();
