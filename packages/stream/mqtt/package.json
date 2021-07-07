@@ -24,7 +24,7 @@
   "dependencies": {
     "@cedalo/sdk-streams": "2.3.0",
     "@cedalo/id-generator": "2.3.0",
-    "mqtt": "3.0.0"
+    "mqtt": "4.2.8"
   },
   "jest": {
     "collectCoverage": true,
