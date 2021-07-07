@@ -7,6 +7,9 @@
     "test": "jest --forceExit",
     "lint": "./node_modules/.bin/eslint ."
   },
+  "dependencies": {
+    "systeminformation": "5.7.7"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cedalo/streamsheets.git"
