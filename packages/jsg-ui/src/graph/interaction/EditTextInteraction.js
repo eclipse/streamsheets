@@ -447,12 +447,13 @@ class EditTextInteraction extends AbstractInteraction {
 			if (sheet && typeof formatRange === 'string') {
 				const frange = CellRange.parse(formatRange, sheet);
 				if (frange) {
+					const textFormat = item.getTextFormat();
 					frange.shiftFromSheet();
 					for (let i = frange.getY1(); i <= frange.getY2(); i += 1) {
 						const cell = frange._worksheet.getDataProvider().getRC(frange.getX1(), i);
 						if (cell && cell.getValue() !== undefined) {
 							html += `<div id="option${i}" style="padding: 3px;background-color: ${JSG.theme.fill}">`;
-							html += `<p style="">${cell.getValue()}</p>`;
+							html += `<p style="font-size: ${textFormat.getFontSize().getValue()}pt; font-family: ${textFormat.getFontName().getValue()};">${cell.getValue()}</p>`;
 							// }
 							html += '</div>';
 						}
