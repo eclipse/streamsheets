@@ -76,40 +76,14 @@ Also, visit us on our [website](https://cedalo.com/) or check out the [Streamshe
 
 ## Table of contents
 
--   [Installation](#installation)
 -   [Quick start](#quick-start)
 -   [Documentation](#documentation)
 -   [FAQ](#faq)
 -   [License](#license)
 
-## 🔌 Installation
-
-### Using Docker and Docker Compose
-
-There are Docker images available for installing Streamsheets on Linux, macOS, Windows and Raspberry Pi (tested with Raspbian). For each of those installations we provide a separate installer image, that facilitates the installation process.
-
-Run the following command to execute the installer for Streamsheets (replace the placeholders accordingly).
-
-* `<PATH>`: path to the installation directory, e.g., "~/streamsheets"
-* `<VERSION>`: version to install, e.g., "2.3"
-* `<PLATFORM>`: target platform (one of `linux`, `macos`, `rpi`, `win`)
-
-```
-docker run -v <PATH>:/streamsheets cedalo/streamsheets-installer:<VERSION>-<PLATFORM>
-```
-
-Example
-```
-docker run -v ~/streamsheets:/streamsheets cedalo/streamsheets-installer:2.3-linux
-```
-
-<!-- ### Running from source code
-
-TBD -->
-
 ## 🚀 Quick start
 
-After successfully running the installer navigate to the install directory and run the start script (depending on the target platform).
+The easiest way to install Streamsheets is to use the [official installer](https://docs.cedalo.com/streamsheets/installation/). After successfully running the installer navigate to the install directory and run the start script (depending on the target platform).
 
 For Linux:
 ```
@@ -143,14 +117,12 @@ Check out the Getting Started page for a quick overview.
 
 The documentation is divided into several sections:
 
-* [Installation](https://docs.cedalo.com/installation.html)
-* [Introduction](https://docs.cedalo.com/introduction.html)
-* [Main Components](https://docs.cedalo.com/maincomponents.html)
-* [Getting Started](https://docs.cedalo.com/gettingstarted.html)
-* [Tutorials](https://docs.cedalo.com/tutorials.html)
-* [Functions](https://docs.cedalo.com/functions.html)
-* [Other](https://docs.cedalo.com/others.html)
-* [Glossary](https://docs.cedalo.com/glossary.html)
+* [Installation](https://docs.cedalo.com/streamsheets/installation)
+* [Introduction](https://docs.cedalo.com/streamsheets/introduction)
+* [Main Components](https://docs.cedalo.com/streamsheets/maincomponents)
+* [Getting Started](https://docs.cedalo.com/streamsheets/getting-started)
+* [Tutorials](https://docs.cedalo.com/streamsheets/tutorials/tut-general/)
+* [Glossary](https://docs.cedalo.com/streamsheets/glossary)
 
 ## 🙋 FAQ
 
@@ -160,7 +132,7 @@ Streamsheets are maintained by the [Cedalo AG](https://cedalo.com/).
 
 ### Looking for a hosted version of Streamsheets?
 
-If you are interested in a hosted version of Streamsheets on our infrastructure please [contact us](https://cedalo.com/contact.html)
+If you are interested in a hosted version of Streamsheets on our infrastructure please [contact us](https://cedalo.com/contact-us/)
 
 ### Looking for support?
 
