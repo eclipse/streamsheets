@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -20,6 +20,7 @@ const packageJSON = require('../package.json');
 const initContext = require('./src/context').init;
 const config = require('./src/config');
 const path = require('path');
+const process = require('process');
 
 const logger = LoggerFactory.createLogger('Gateway Service', process.env.GATEWAY_SERVICE_LOG_LEVEL);
 
@@ -44,6 +45,15 @@ const run = async () => {
 	await service.start();
 	initializer.setup(service);
 	logger.info('Gateway service started');
+
+	process.on('SIGTERM', () => {
+		logger.warn('SIGTERM signal received.');
+		service.stop().then(() => {
+			logger.warn('Service stopped. Exiting ...');
+			process.exit(0);
+		});
+	});
+
 };
 
 run();
