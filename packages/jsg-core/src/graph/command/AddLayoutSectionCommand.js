@@ -40,7 +40,13 @@ class AddLayoutSectionCommand extends AbstractItemCommand {
 		}
 	}
 
-	undo() {}
+	undo() {
+		if (this._row) {
+			this.getItem().deleteRow(this._index);
+		} else {
+			this.getItem().deleteColumn(this._index);
+		}
+	}
 
 	redo() {
 		this.execute();
