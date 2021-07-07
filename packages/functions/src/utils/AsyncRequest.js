@@ -41,7 +41,8 @@ const setCellError = (context, error) => {
 const resolve = async (request) => {
 	const { context, error, result, sheet } = request;
 	try {
-		if (sheet.isPendingRequest(request.reqId())) {
+		// request could be disposed meanwhile, so check for sheet
+		if (sheet && sheet.isPendingRequest(request.reqId())) {
 			let cellerror = error;
 			// callback can optionally return new request state or new error:
 			const newresp = await request.onResponse(context, result, error);
@@ -62,7 +63,8 @@ const resolve = async (request) => {
 	} finally {
 		// remove callback dependencies:
 		request.onResponse = noop;
-		setStatus(sheet, request.reqId(), request.state);
+		// request could be disposed meanwhile, so check for sheet
+		if (sheet) setStatus(sheet, request.reqId(), request.state);
 	}
 };
 // queue to limit max parallel requests:
