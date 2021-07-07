@@ -205,6 +205,11 @@ class Cell {
 		evaluate(this, newValue);
 	}
 
+	setInternalValue(newValue) {
+		this._info = {};
+		this._value = newValue;
+	}
+
 	copy() {
 		const term = this._term ? this._term.copy() : undefined;
 		return new Cell(this._value, term);

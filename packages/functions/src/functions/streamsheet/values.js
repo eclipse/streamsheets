@@ -31,7 +31,7 @@ const setCells = (value, cellrefs, overwrite) => {
 			if (cell.formula == null || overwrite) {
 				cell.term = Term.fromValue(value);
 			} else {
-				cell._value = value;
+				cell.setInternalValue(value);
 			}
 		});
 		res = true;
