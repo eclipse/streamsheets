@@ -66,6 +66,7 @@ module.exports = class MatrixLayout extends Layout {
 		const count = this.getVisibleItemCount(item);
 
 		if (count === 0 || !columns) {
+			item._layoutHeight = 2000;
 			return false;
 		}
 
