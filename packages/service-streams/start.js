@@ -13,7 +13,6 @@ const { LoggerFactory } = require('@cedalo/logger');
 const StreamsService = require('./src/StreamsService');
 const metadata = require('./meta.json');
 const packageJSON = require('./package.json');
-const { LoggerFactory } = require('@cedalo/logger');
 const process = require('process');
 
 const logger = LoggerFactory.createLogger(
