@@ -51,7 +51,7 @@ export default class LayoutNodeInteraction extends Interaction {
 	onMouseDown(event, viewer) {
 		const node = this._controller.getModel();
 		node.prepareResize(this.row, this.index);
-
+		this._oldState = this.getData().copy();
 		this._ptDown = this.pointToNode(event, viewer);
 	}
 
@@ -83,7 +83,9 @@ export default class LayoutNodeInteraction extends Interaction {
 			data.minSize,
 			data.sizeMode,
 			data.expandable,
-			data.expanded);
+			data.expanded,
+			this._oldState,
+			node.resizeInfo);
 
 		viewer.getInteractionHandler().execute(cmd);
 

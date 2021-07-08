@@ -281,7 +281,8 @@ export default class LayoutNodeActivator extends InteractionActivator {
 					data.minSize,
 					data.sizeMode,
 					data.expandable,
-					!data.expanded);
+					!data.expanded,
+					data.copy());
 
 				viewer.getInteractionHandler().execute(cmd);
 				event.hasActivated = true;

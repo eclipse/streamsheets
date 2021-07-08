@@ -191,6 +191,8 @@ module.exports = class LayoutNode extends Node {
 				}
 			});
 		}
+
+		return this.resizeInfo;
 	}
 
 	resizeSection(delta) {

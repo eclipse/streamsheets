@@ -143,11 +143,12 @@ export class LayoutSectionProperties extends Component {
 
 	handleSizeBlur = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.size = Number(event.target.value);
-		this.execute(data);
+		this.execute(data, oldState);
 	};
 
-	execute(data) {
+	execute(data, oldState) {
 		const viewer = graphManager.getGraphViewer();
 		const context = viewer.getSelectionProvider().getSelectionContext();
 		if (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow')) {
@@ -161,7 +162,8 @@ export class LayoutSectionProperties extends Component {
 				data.minSize,
 				data.sizeMode,
 				data.expandable,
-				data.expanded);
+				data.expanded,
+				oldState);
 			graphManager.synchronizedExecute(cmd);
 		}
 	}
@@ -172,31 +174,35 @@ export class LayoutSectionProperties extends Component {
 
 	handleMinimumSizeBlur = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.minSize = Number(event.target.value);
-		this.execute(data);
+		this.execute(data, oldState);
 	};
 
 	handleSizeMode = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.sizeMode = event.target.value;
 		this.setState({sizeMode: event.target.value});
-		this.execute(data);
+		this.execute(data, oldState);
 
 	};
 
 	handleExpandableChange = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.expandable = event.target.checked;
 		this.setState({expandable: event.target.checked});
-		this.execute(data);
+		this.execute(data, oldState);
 
 	};
 
 	handleExpandedChange = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.expanded = event.target.checked;
 		this.setState({expanded: event.target.checked});
-		this.execute(data);
+		this.execute(data, oldState);
 
 	};
 
