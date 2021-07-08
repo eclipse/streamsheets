@@ -43,7 +43,6 @@ module.exports = class DataProvider {
 		this._rows = [];
 		this._sheet = sheet;
 		this._names = [];
-		this._graphs = [];
 	}
 
 	newInstance() {
@@ -132,34 +131,6 @@ module.exports = class DataProvider {
 
 	deleteName(name) {
 		Arrays.remove(this._names, name);
-	}
-
-	getGraphs() {
-		return this._graphs;
-	}
-
-	getOrCreateGraph(name) {
-		const nameObj = this.getGraph(name);
-		return nameObj || this.addGraph(new SheetName(name));
-	}
-
-	getGraph(name) {
-		return this._graphs.find((lname) => lname.getName() === name);
-	}
-
-	addGraph(name) {
-		const nameDef = this.getGraph(name.getName());
-		if (nameDef) {
-			this._graphs[this._graphs.indexOf(nameDef)] = name;
-		} else {
-			this._graphs.push(name);
-		}
-		name.evaluate(this._sheet);
-		return name;
-	}
-
-	deleteGraph(name) {
-		Arrays.remove(this._graphs, name);
 	}
 
 	get(pos) {
@@ -1488,16 +1459,16 @@ module.exports = class DataProvider {
 	}
 
 	evaluate(item) {
+		if (item && item.getAttributeAtPath('range')) {
+			return;
+		}
+
 		this.enumerate((c, r, cell) => {
 			cell.evaluate(item);
 			return true;
 		});
 
 		this._names.forEach((name) => {
-			name.evaluate(item);
-		});
-
-		this._graphs.forEach((name) => {
 			name.evaluate(item);
 		});
 	}
@@ -1509,10 +1480,6 @@ module.exports = class DataProvider {
 		});
 
 		this._names.forEach((name) => {
-			name.invalidateTerm();
-		});
-
-		this._graphs.forEach((name) => {
 			name.invalidateTerm();
 		});
 	}
