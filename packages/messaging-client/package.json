@@ -19,7 +19,7 @@
   "dependencies": {
     "@cedalo/id-generator": "2.4.0",
     "@cedalo/logger": "2.4.0",
-    "mqtt": "3.0.0"
+    "mqtt": "4.2.8"
   },
   "devDependencies": {
     "jest": "20.0.0",
