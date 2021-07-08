@@ -133,14 +133,6 @@ export class LayoutSectionProperties extends Component {
 		return undefined;
 	}
 
-	// onPlotDoubleClicked(notification) {
-	// 	if (notification.object && notification.object.open) {
-	// 		this.props.setAppState({showLayoutSectionProperties: true});
-	// 	}
-	//
-	// 	this.onGraphSelectionChanged();
-	// }
-	//
 	handleClose = () => {
 		this.props.setAppState({ showLayoutSectionProperties: false });
 	};

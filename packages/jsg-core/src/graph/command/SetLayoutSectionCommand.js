@@ -37,6 +37,7 @@ class SetLayoutSectionCommand extends AbstractItemCommand {
 
 	execute() {
 		const section = this._row ? this.getItem().rowData[this._index] : this.getItem().columnData[this._index];
+		this._oldSection = section.copy();
 
 		section.minSize = this._minSize;
 		section.size = this._size;
@@ -47,7 +48,17 @@ class SetLayoutSectionCommand extends AbstractItemCommand {
 		this.getItem().getGraph().markDirty();
 	}
 
-	undo() {}
+	undo() {
+		const section = this._row ? this.getItem().rowData[this._index] : this.getItem().columnData[this._index];
+
+		section.minSize = this._oldSection._minSize;
+		section.size = this._oldSection._size;
+		section.sizeMode = this._oldSection._sizeMode;
+		section.expandable = this._oldSection._expandable;
+		section.expanded = this._oldSection._expanded;
+
+		this.getItem().getGraph().markDirty();
+	}
 
 	redo() {
 		this.execute();

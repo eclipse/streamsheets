@@ -13,7 +13,6 @@ const { LoggerFactory } = require('@cedalo/logger');
 const GraphService = require('./src/services/graphs/GraphService');
 const metadata = require('./meta.json');
 const packageJSON = require('./package.json');
-const { LoggerFactory } = require('@cedalo/logger');
 const process = require('process');
 
 const logger = LoggerFactory.createLogger(

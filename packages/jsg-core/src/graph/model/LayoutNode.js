@@ -92,14 +92,20 @@ module.exports = class LayoutNode extends Node {
 		return this._columns;
 	}
 
-	addRow(section, index) {
+	addRow(section, index, cells) {
 		if (section) {
 			Arrays.insertAt(this.rowData, index, section);
 		}
 		this._rows += 1;
 
-		for (let i = 0; i < this._columnData.length; i += 1) {
-			this.addCell(index, i);
+		if (cells) {
+			for (let i = 0; i < this._columnData.length; i += 1) {
+				this.addItem(cells[this._columnData.length - i - 1], index * this._columnData.length + i);
+			}
+		} else {
+			for (let i = 0; i < this._columnData.length; i += 1) {
+				this.addCell(index, i);
+			}
 		}
 
 		this.updateData();
@@ -107,41 +113,54 @@ module.exports = class LayoutNode extends Node {
 	}
 
 	deleteRow(index) {
+		const removedCells = [];
 		this._rows -= 1;
 		Arrays.removeAt(this._rowData, index);
 
 		for (let i = this._columnData.length - 1; i  >= 0; i -= 1) {
-			this.removeCell(index, i);
+			removedCells.push(this.removeCell(index, i));
 		}
 
 		this.updateData();
 		this.getGraph().markDirty();
+
+		return removedCells;
 	}
 
-	addColumn(section, index) {
+	addColumn(section, index, cells) {
 		if (section) {
 			Arrays.insertAt(this.columnData, index, section);
 		}
 		this._columns += 1;
 
-		for (let i = 0; i  < this._rowData.length; i += 1) {
-			this.addCell(i, index);
+		if (cells) {
+			for (let i = 0; i < this._rowData.length; i += 1) {
+				this.addItem(cells[this._rowData.length - i - 1], i * this._columnData.length + index);
+			}
+		} else {
+			for (let i = 0; i < this._rowData.length; i += 1) {
+				this.addCell(i, index);
+			}
 		}
+
 		this.updateData();
 		this.getGraph().markDirty();
 	}
 
 	deleteColumn(index) {
+		const removedCells = [];
 		this._columns -= 1;
 
 		for (let i = this._rowData.length - 1; i  >= 0; i -= 1) {
-			this.removeCell(i, index);
+			removedCells.push(this.removeCell(i, index));
 		}
 
 		Arrays.removeAt(this._columnData, index);
 
 		this.updateData();
 		this.getGraph().markDirty();
+
+		return removedCells;
 	}
 
 	prepareResize(row, index) {
@@ -182,7 +201,7 @@ module.exports = class LayoutNode extends Node {
 			this._columnData[info.index];
 
 		if (data.sizeMode === 'relative') {
-			const factor = info.reltiveSize.space ? info.relativeSize.sum / info.relativeSize.space : 1;
+			const factor = info.relativeSize.space ? info.relativeSize.sum / info.relativeSize.space : 1;
 			const size = (info.sectionSize + delta * factor) / factor;
 			if (size > data.minSize) {
 				data.size = Math.max(0, info.sectionSize + delta * factor);
@@ -229,6 +248,8 @@ module.exports = class LayoutNode extends Node {
 	removeCell(rowIndex, columnIndex) {
 		const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
 		this.removeItem(node);
+
+		return node;
 	}
 
 	updateData() {
@@ -341,10 +362,6 @@ module.exports = class LayoutNode extends Node {
 		super.layout();
 
 		const size = this.getSize().toPoint();
-		const layoutMode = this.getAttributeValueAtPath('layoutmode');
-
-		// get min cell sizes from content
-
 
 		// do column layout first to get row heights
 		let sizeLeftOver = size.x;

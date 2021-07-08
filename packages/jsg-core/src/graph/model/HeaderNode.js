@@ -95,6 +95,13 @@ module.exports = class HeaderNode extends Node {
 		return undefined;
 	}
 
+	layout() {
+		this._viewRange = this.getViewRange();
+		this._sectionDataSource = this.getSectionData();
+
+		super.layout();
+	}
+
 	isRow() {
 		return this instanceof JSG.RowHeaderNode;
 	}
@@ -112,7 +119,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	get sectionData() {
-		return this.getSectionData();
+		return this._sectionDataSource || this.getSectionData();
 	}
 
 	setSectionData(data) {
@@ -158,7 +165,7 @@ module.exports = class HeaderNode extends Node {
 
 	getSectionSize(index) {
 		const data = this.sectionData[index];
-		const range = this.getViewRange();
+		const range = this._viewRange || this.getViewRange();
 
 		if (range) {
 			if (this.isRow()) {
