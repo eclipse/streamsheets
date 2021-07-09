@@ -101,6 +101,7 @@ export class TextFormatProperties extends Component {
 				variant="outlined"
 				size="small"
 				margin="normal"
+				fullWidth
 				label={intl.formatMessage({ id: label })}
 				onBlur={(event) => this.handleAttribute(event, item, name, itemAttribute)}
 				InputLabelProps={{shrink: true}}
@@ -134,7 +135,11 @@ export class TextFormatProperties extends Component {
 		}
 		const item = this.props.view.getItem();
 		return (
-			<FormGroup>
+			<FormGroup
+				style={{
+					width: '100%'
+				}}
+			>
 				{this.getAttributeHandler("GraphItemProperties.FontName", item, JSG.TextFormatAttributes.FONTNAME, false, [
 					{ value: 'Arial'},
 					{ value: 'Courier New'},

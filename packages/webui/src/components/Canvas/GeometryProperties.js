@@ -92,6 +92,7 @@ export class GeometryProperties extends Component {
 		return (
 			<TextField
 				variant="outlined"
+				fullWidth
 				size="small"
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
@@ -120,6 +121,7 @@ export class GeometryProperties extends Component {
 				key={label}
 				variant="outlined"
 				size="small"
+				fullWidth
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
 				onBlur={(event) => handler(event)}
@@ -459,7 +461,11 @@ export class GeometryProperties extends Component {
 		const item = this.props.view.getItem();
 		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		return (
-			<FormGroup>
+			<FormGroup
+				style={{
+					width: '100%'
+				}}
+			>
 				{this.getPropertyHandler(line ? "GraphItemProperties.StartX" : "GraphItemProperties.HorizontalPosition", this.handleX, this.getX())}
 				{this.getPropertyHandler(line ? "GraphItemProperties.StartY" : "GraphItemProperties.VerticalPosition", this.handleY, this.getY())}
 				{this.getPropertyHandler(line ? "GraphItemProperties.EndX" : "GraphItemProperties.Width", this.handleWidth, this.getWidth())}
@@ -469,6 +475,7 @@ export class GeometryProperties extends Component {
 					<TextField
 						variant="outlined"
 						size="small"
+						fullWidth
 						margin="normal"
 						select
 						value={this.getRotationCenter()}
@@ -549,6 +556,7 @@ export class GeometryProperties extends Component {
 					<TextField
 						variant="outlined"
 						size="small"
+						fullWidth
 						margin="normal"
 						select
 						value={this.getLayoutMode(item, 'layoutmode')}
@@ -569,6 +577,7 @@ export class GeometryProperties extends Component {
 					</TextField>,
 					<TextField
 						variant="outlined"
+						fullWidth
 						size="small"
 						margin="normal"
 						value={this.getLayoutMode(item, 'minwidth')}

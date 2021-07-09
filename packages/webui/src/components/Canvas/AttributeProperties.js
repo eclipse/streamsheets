@@ -89,6 +89,7 @@ export class AttributeProperties extends Component {
 				key={name}
 				variant="outlined"
 				size="small"
+				fullWidth
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
 				onBlur={(event) => this.handleAttribute(event, item, name)}
@@ -183,7 +184,11 @@ export class AttributeProperties extends Component {
 		const item = this.props.view.getItem();
 		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		return (
-			<FormGroup id={this.props.dummy}>
+			<FormGroup id={this.props.dummy}
+			   style={{
+				   width: '100%'
+			   }}
+			>
 				{this.getAttributeHandler("GraphItemProperties.Label", item, JSG.ItemAttributes.LABEL)}
 				{this.getAttributeHandler("GraphItemProperties.Container", item, JSG.ItemAttributes.CONTAINER)}
 				{this.getAttributeHandler("GraphItemProperties.Selection", item, JSG.ItemAttributes.SELECTIONMODE,  [

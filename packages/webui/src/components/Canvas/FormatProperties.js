@@ -91,6 +91,7 @@ export class FormatProperties extends Component {
 			<TextField
 				key={name}
 				variant="outlined"
+				fullWidth
 				size="small"
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
@@ -134,7 +135,11 @@ export class FormatProperties extends Component {
 		}
 		const item = this.props.view.getItem();
 		return (
-			<FormGroup>
+			<FormGroup
+				style={{
+					width: '100%'
+				}}
+			>
 				<Typography variant="subtitle1" style={{marginTop: '5px', marginBottom: '5px'}}>
 					<FormattedMessage id="GraphItemProperties.Line" defaultMessage="Line" />
 				</Typography>

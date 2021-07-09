@@ -2131,12 +2131,17 @@ export class StreamChartProperties extends Component {
 							/>
 						</FormGroup>
 						{item.chart.coharentData ? (
-							<FormGroup>
-								<FormControl>
+							<FormGroup
+								style={{
+									width: '100%'
+								}}
+							>
+								<FormControl fullWidth>
 									<TextField
 										variant="outlined"
 										size="small"
 										margin="normal"
+										fullWidth
 										label={
 											<FormattedMessage
 												id="StreamChartProperties.ChartDataRange"
@@ -2242,15 +2247,17 @@ export class StreamChartProperties extends Component {
 									/* eslint-disable-next-line react/no-array-index-key */
 									key={`s${index}`}
 									style={{
-										borderBottom: '1px solid #CCCCCC'
+										borderBottom: '1px solid #CCCCCC',
+										width: '100%'
 									}}
 								>
-									<FormControl style={{}}>
+									<FormControl fullWidth>
 										<TextField
 											style={{
 												height: '30px'
 											}}
 											variant="outlined"
+											fullWidth
 											size="small"
 											margin="normal"
 											label={this.getLabel(series)}
