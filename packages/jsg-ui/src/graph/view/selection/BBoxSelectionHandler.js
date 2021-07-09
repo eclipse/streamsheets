@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -243,6 +243,37 @@ class BBoxSelectionHandler extends SelectionHandler {
 		}
 
 		graphics.restore();
+
+		const graphView = this._views[0].getGraphView();
+
+		this._views.forEach(view => {
+			graphics.beginPath();
+			// graphics.setTransparency(15);
+			graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
+			graphics.setLineColor('#CCCCCC');
+			if (view.getItem().allowSubMarkers) {
+				view.subViews.forEach(subView => {
+					subView.getTranslatedBoundingBox(graphView, bbox);
+					bbox.getTopLeft(topleft);
+					graphics.translate(topleft.x, topleft.y);
+					graphics.rotate(bbox.getAngle());
+					// graphics.moveTo(0, 0);
+					// graphics.circle(0, 0, 100);
+					// graphics.moveTo(bbox.getWidth(), 0);
+					// graphics.circle(bbox.getWidth(), 0, 100);
+					// graphics.moveTo(bbox.getWidth(), bbox.getHeight());
+					// graphics.circle(bbox.getWidth(), bbox.getHeight(), 100);
+					// graphics.moveTo(0, bbox.getHeight());
+					// graphics.circle(0, bbox.getHeight(), 100);
+					graphics.rect(-75, -75, bbox.getWidth() + 150, bbox.getHeight() + 150);
+					graphics.rotate(-bbox.getAngle());
+					graphics.translate(-topleft.x, -topleft.y);
+				});
+			}
+			graphics.stroke();
+			// graphics.setTransparency(100);
+		});
+
 		JSG.ptCache.release(topleft);
 		JSG.boxCache.release(bbox);
 	}

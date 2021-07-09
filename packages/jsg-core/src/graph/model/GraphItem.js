@@ -330,6 +330,10 @@ class GraphItem extends Model {
 		return path;
 	}
 
+	get allowSubMarkers() {
+		return true;
+	}
+
 	isFeedbackDetailed() {
 		return this.getReshapeCoordinates().length !== 0;
 	}

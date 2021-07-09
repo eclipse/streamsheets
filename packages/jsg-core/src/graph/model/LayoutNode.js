@@ -76,6 +76,10 @@ module.exports = class LayoutNode extends Node {
 		return 'layoutnode';
 	}
 
+	get allowSubMarkers() {
+		return false;
+	}
+
 	get rowData() {
 		return this._rowData;
 	}

@@ -78,6 +78,10 @@ module.exports = class StreamSheetContainer extends Node {
 		// this._drawEnabled = false;
 	}
 
+	get allowSubMarkers() {
+		return false;
+	}
+
 	addDashboardSettings() {
 		const layoutNode = new LayoutNode();
 		layoutNode.setSize(20000, 10000);
