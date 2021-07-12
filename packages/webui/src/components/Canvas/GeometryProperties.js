@@ -82,6 +82,10 @@ export class GeometryProperties extends Component {
 		try {
 			return this.getSheet(item).textToExpression(String(event.target.textContent));
 		} catch (e) {
+			this.getSheetView().notifyMessage({
+				message: e.message,
+				focusIndex: e.index !== undefined ? e.index + 1 : 1
+			});
 			return undefined;
 		}
 	}

@@ -81,7 +81,15 @@ export class FormatProperties extends Component {
 	}
 
 	getExpression(item, value) {
-		return this.getSheet(item).textToExpression(String(value));
+		try {
+			return this.getSheet(item).textToExpression(String(value));
+		} catch (e) {
+			this.getSheetView().notifyMessage({
+				message: e.message,
+				focusIndex: e.index !== undefined ? e.index + 1 : 1
+			});
+			return false;
+		}
 	}
 
 	getAttributeHandler(label, item, name, options = 'none') {
@@ -114,6 +122,9 @@ export class FormatProperties extends Component {
 
 	handleAttribute(value, item, name) {
 		const expr = this.getExpression(item, value);
+		if (!expr) {
+			return;
+		}
 		const path = JSG.AttributeUtils.createPath(JSG.FormatAttributes.NAME, name);
 		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr.expression);
 

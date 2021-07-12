@@ -78,7 +78,15 @@ export class AttributeProperties extends Component {
 	}
 
 	getExpression(item, event) {
-		return this.getSheet(item).textToExpression(String(event.target.textContent));
+		try {
+			return this.getSheet(item).textToExpression(String(event.target.textContent));
+		} catch (e) {
+			this.getSheetView().notifyMessage({
+				message: e.message,
+				focusIndex: e.index !== undefined ? e.index + 1 : 1
+			});
+			return false;
+		}
 	}
 
 	getAttributeHandler(label, item, name, options) {
@@ -111,6 +119,9 @@ export class AttributeProperties extends Component {
 
 	handleAttribute(event, item, name) {
 		const expr = this.getExpression(item, event);
+		if (!expr) {
+			return;
+		}
 		const path = JSG.AttributeUtils.createPath(JSG.ItemAttributes.NAME, name);
 		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr.expression);
 

@@ -103,14 +103,12 @@ class ImagePool extends Dictionary {
 		let image;
 		try {
 			image = new Image();
-
-			if (key !== 'uriimage') {
-				this._imagesToBeLoaded += 1;
-			}
+			image._backupImage = this.get(key);
 			image._jsgKey = key;
 
 			image.onerror = () => {
 				this._imagesToBeLoaded -= 1;
+				this._backupImage = undefined;
 				if (this._imagesToBeLoaded <= 0) {
 					NotificationCenter.getInstance().send(
 						new Notification(IMAGES_LOADED_NOTIFICATION, this)
@@ -121,6 +119,7 @@ class ImagePool extends Dictionary {
 			image.onload = () => {
 				// invalidate previously registered editors
 				this._imagesToBeLoaded -= 1;
+				this._backupImage = undefined;
 				if (this._imagesToBeLoaded === 0) {
 					this._views.forEach((view) => {
 						view.invalidate();

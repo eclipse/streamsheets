@@ -203,7 +203,15 @@ export class StreamChartProperties extends Component {
 	}
 
 	getExpression(item, value) {
-		return this.getSheet(item).textToExpression(String(value));
+		try {
+			return this.getSheet(item).textToExpression(String(value));
+		} catch (e) {
+			this.getSheetView().notifyMessage({
+				message: e.message,
+				focusIndex: e.index !== undefined ? e.index + 1 : 1
+			});
+			return false;
+		}
 	}
 
 	finishCommand(cmd, key, notify = false) {
