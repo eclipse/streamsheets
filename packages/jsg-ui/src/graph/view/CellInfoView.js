@@ -68,7 +68,8 @@ class CellInfoView {
 			width: cellRange.getWidth() > 1 ? cs.logToDeviceY(cellRect.width, false) : undefined,
 			minWidth: cs.logToDeviceY(cellRect.width, false),
 			minHeight: cs.logToDeviceY(cellRect.height, false),
-			maxHeight: cellRange.getHeight() > 1 ? cs.logToDeviceY(cellRect.height, false) : 320
+			maxHeight: cellRange.getHeight() > 1 ? cs.logToDeviceY(cellRect.height, false) : 320,
+			maxWidth: 1000
 		};
 	}
 	createDiv(innerHTML) {
@@ -157,7 +158,7 @@ class DataInfoView extends CellInfoView {
 			JSG.theme.text
 		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-		html += `<div id="dataviewtable" style="overflow-y: auto; max-height: ${bounds.maxHeight - 25}px">`;
+		html += `<div id="dataviewtable" style="overflow-y: auto; max-width: ${bounds.maxWidth}px; max-height: ${bounds.maxHeight - 25}px">`;
 		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${
 			bounds.width ? '100%' : 'inherit'
 		}"><thead><tr>`;
