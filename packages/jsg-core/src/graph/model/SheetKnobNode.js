@@ -104,7 +104,7 @@ module.exports = class SheetKnobNode extends Node {
 		}
 
 		let expr;
-		const params = {useName: true, item: sheet};
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -195,7 +195,7 @@ module.exports = class SheetKnobNode extends Node {
 		}
 
 		let expr;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {

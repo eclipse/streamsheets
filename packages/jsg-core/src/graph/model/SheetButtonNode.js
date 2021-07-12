@@ -100,7 +100,7 @@ module.exports = class SheetButtonNode extends Node {
 		}
 
 		let expr;
-		const params = {useName: true, item: sheet};
+		const params = {useName: true, item: sheet, forceName: true};
 
 		// UniqueID,Container,Name,X,Y,Width,Height,Line,Fill,Attributes,Events,Angle,RotCenter,Label,LabelFont,Value
 
@@ -150,7 +150,7 @@ module.exports = class SheetButtonNode extends Node {
 
 		let value;
 		let label;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {

@@ -3569,7 +3569,7 @@ class GraphItem extends Model {
 		const pin = this.getPin();
 		const size = this.getSize();
 		let expr;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -3767,7 +3767,7 @@ class GraphItem extends Model {
 		let expr;
 		let points;
 		let closed;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {

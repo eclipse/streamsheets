@@ -1158,7 +1158,7 @@ module.exports = class WorksheetNode extends ContentNode {
 			throw e;
 		}
 
-		const formula = term ? term.toLocaleString('en', { item: this, useName: true }) : '';
+		const formula = term ? term.toLocaleString('en', { item: this, useName: true, forceName: true }) : '';
 		const expr = isFormula ? new Expression(0, formula) : ExpressionHelper.createExpressionFromValueTerm(term);
 
 		if (term) {
