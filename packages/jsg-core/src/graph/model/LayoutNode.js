@@ -496,7 +496,9 @@ module.exports = class LayoutNode extends Node {
 		this._rowData.forEach((row, rowIndex) => {
 			this._columnData.forEach((column, columnIndex) => {
 				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
-				node._merged = false;
+				if (node) {
+					node._merged = false;
+				}
 			});
 			this._columnData.forEach((column, columnIndex) => {
 				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
@@ -510,10 +512,12 @@ module.exports = class LayoutNode extends Node {
 							if (i < this._columnData.length) {
 								width += this._columnData[i].layoutSize;
 								const mergeNode = this.getItemAt(rowIndex * this._columnData.length + i);
-								if (mergeNode && mergeNode.isItemVisible()) {
-									mergeNode.getItemAttributes().setVisible(false);
+								if (mergeNode) {
+									if (mergeNode.isItemVisible()) {
+										mergeNode.getItemAttributes().setVisible(false);
+									}
+									mergeNode._merged = true;
 								}
-								mergeNode._merged = true;
 							}
 						}
 					}

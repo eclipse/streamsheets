@@ -304,7 +304,7 @@ class LayoutContextComponent extends Component {
 		do {
 			node = info.layoutNode.subItems[startIndex];
 			startIndex -= 1;
-		} while (startIndex > 0 && node._merged);
+		} while (startIndex > 0 && node && node._merged);
 
 		mergeCount += node.getAttributeValueAtPath('mergecount') + 1;
 

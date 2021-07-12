@@ -81,7 +81,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 				const rowIndex = this.getRowInside(event, viewer, point, layoutNode);
 				if (rowIndex !== -1 && i < data.length - 1) {
 					const node = layoutNode.getItemAt(rowIndex * data.length + i + 1);
-					if (node._merged) {
+					if (node && node._merged) {
 						return -1;
 					}
 
