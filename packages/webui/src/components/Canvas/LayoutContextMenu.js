@@ -142,6 +142,7 @@ class LayoutContextComponent extends Component {
 		graphManager
 			.getGraphEditor()
 			.getInteractionHandler().execute(cmd);
+		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
 
 	onDeleteRow = (popupState) => {
@@ -156,6 +157,7 @@ class LayoutContextComponent extends Component {
 		graphManager
 			.getGraphEditor()
 			.getInteractionHandler().execute(cmd);
+		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
 
 	onAddRow = (popupState, before) => {
@@ -170,6 +172,8 @@ class LayoutContextComponent extends Component {
 		graphManager
 			.getGraphEditor()
 			.getInteractionHandler().execute(cmd);
+
+		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
 
 	onDeleteColumn = (popupState) => {
@@ -184,6 +188,7 @@ class LayoutContextComponent extends Component {
 		graphManager
 			.getGraphEditor()
 			.getInteractionHandler().execute(cmd);
+		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
 
 	onAddColumn = (popupState, before) => {
@@ -198,6 +203,7 @@ class LayoutContextComponent extends Component {
 		graphManager
 			.getGraphEditor()
 			.getInteractionHandler().execute(cmd);
+		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
 
 	isMultiSelection() {
@@ -251,6 +257,7 @@ class LayoutContextComponent extends Component {
 		val += 1 + nextMergeCount;
 		const cmd = new JSG.SetAttributeAtPathCommand(info.item, 'mergecount', val);
 		viewer.getInteractionHandler().execute(cmd);
+		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
 
 	isMergeRightAllowed() {
@@ -288,6 +295,7 @@ class LayoutContextComponent extends Component {
 
 		const cmd = new JSG.SetAttributeAtPathCommand(info.item, 'mergecount', new JSG.NumberExpression(0));
 		viewer.getInteractionHandler().execute(cmd);
+		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
 
 	onMergeLeft = () => {
@@ -319,6 +327,7 @@ class LayoutContextComponent extends Component {
 			viewer.getSelectionProvider().select(controller);
 			viewer.getInteractionHandler().repaint();
 		}
+		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
 
 	onRowProperties = (popupState) => {
