@@ -125,12 +125,13 @@ export class GraphItemProperties extends Component {
 	}
 
 	getSelectedCategory() {
-		const selection = this.state.view.getSelectedPropertyCategory();
+		const view = this.state.view;
+		const selection = view.getSelectedPropertyCategory();
 		if (selection !== undefined) {
 			return selection;
 		}
-		if (this.state.category === '' || !this.state.view.isValidPropertyCategory(this.state.category)) {
-			return this.state.view.getDefaultPropertyCategory();
+		if (this.state.category === '' || !view.getItem().isValidPropertyCategory(this.state.category)) {
+			return view.getItem().getDefaultPropertyCategory();
 		}
 
 		return this.state.category;
@@ -143,7 +144,7 @@ export class GraphItemProperties extends Component {
 
 		view.setSelectedPropertyCategory(data, 0);
 
-		if (view.isValidPropertyCategory(data[0])) {
+		if (item.isValidPropertyCategory(data[0])) {
 			this.setState({
 				category: data[0]
 			})

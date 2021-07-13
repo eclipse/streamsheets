@@ -3432,6 +3432,14 @@ class GraphItem extends Model {
 		]
 	}
 
+	getDefaultPropertyCategory() {
+		return 'general';
+	}
+
+	isValidPropertyCategory(category) {
+		return category === 'general' || category === 'format' || category === 'textformat' || category === 'attributes' || category === 'events';
+	}
+
 	fromJSON(json) {
 		this._id = json.id;
 		this.getPin().getX().fromJSON(json.x);

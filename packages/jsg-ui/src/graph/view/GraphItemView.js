@@ -984,13 +984,6 @@ class GraphItemView extends View {
 	setSelectedPropertyCategory(data) {
 	}
 
-	getDefaultPropertyCategory() {
-		return 'general';
-	}
-
-	isValidPropertyCategory(category) {
-		return category === 'general' || category === 'format' || category === 'textformat' || category === 'attributes' || category === 'events';
-	}
 }
 
 export default GraphItemView;

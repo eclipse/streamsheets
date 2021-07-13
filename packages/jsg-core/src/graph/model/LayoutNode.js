@@ -15,6 +15,7 @@ const LayoutSection = require('./LayoutSection');
 const FormatAttributes = require('../attr/FormatAttributes');
 const StringAttribute = require('../attr/StringAttribute');
 const NumberAttribute = require('../attr/NumberAttribute');
+const LayoutCell = require('./LayoutCell');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Numbers = require('../../commons/Numbers');
 const Arrays = require('../../commons/Arrays');
@@ -237,7 +238,7 @@ module.exports = class LayoutNode extends Node {
 	}
 
 	addCell(rowIndex, columnIndex) {
-		const node = new Node();
+		const node = new LayoutCell();
 
 		node.getFormat().setLineStyle(0);
 		node.getItemAttributes().setRotatable(false);

@@ -21,6 +21,7 @@ const SheetSliderNode = require('./SheetSliderNode');
 const SheetKnobNode = require('./SheetKnobNode');
 const CaptionNode = require('./CaptionNode');
 const LayoutNode = require('./LayoutNode');
+const LayoutCell = require('./LayoutCell');
 const CellsNode = require('./CellsNode');
 const HeaderNode = require('./HeaderNode');
 const LineNode = require('./LineNode');
@@ -2545,6 +2546,8 @@ class GraphItemFactory {
 				return new OutboxContainer();
 			case 'layoutnode':
 				return new LayoutNode();
+			case 'layoutcell':
+				return new LayoutCell();
 			case 'StreamSheetWrapper':
 				return new StreamSheetWrapper();
 			default:

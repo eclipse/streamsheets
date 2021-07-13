@@ -303,6 +303,7 @@ JSG.DataProvider = require('./src/graph/model/DataProvider');
 JSG.CaptionNode = require('./src/graph/model/CaptionNode');
 JSG.ButtonNode = require('./src/graph/model/ButtonNode');
 JSG.LayoutSection = require('./src/graph/model/LayoutSection');
+JSG.LayoutCell = require('./src/graph/model/LayoutCell');
 JSG.LayoutNode = require('./src/graph/model/LayoutNode');
 JSG.SheetButtonNode = require('./src/graph/model/SheetButtonNode');
 JSG.SheetCheckboxNode = require('./src/graph/model/SheetCheckboxNode');
