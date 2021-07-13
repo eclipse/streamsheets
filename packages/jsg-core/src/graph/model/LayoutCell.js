@@ -52,6 +52,11 @@ module.exports = class LayoutCell extends Node {
 				label: 'GraphItemProperties.Format',
 				name: '',
 			},
+			{
+				key: 'layout',
+				label: 'GraphItemProperties.Layout',
+				name: '',
+			},
 		]
 	}
 
@@ -60,7 +65,7 @@ module.exports = class LayoutCell extends Node {
 	}
 
 	isValidPropertyCategory(category) {
-		return category === 'format';
+		return category === 'format' || category === 'layout';
 	}
 
 };

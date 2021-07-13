@@ -18,6 +18,8 @@ import JSG from '@cedalo/jsg-ui';
 import { graphManager } from '../../GraphManager';
 import CellRangeComponent from './CellRangeComponent';
 import {intl} from "../../helper/IntlGlobalProvider";
+import { FormattedMessage } from 'react-intl';
+import MenuItem from '@material-ui/core/MenuItem';
 
 function MyInputComponent(props) {
 	const { inputRef, ...other } = props;
@@ -30,7 +32,7 @@ function MyInputComponent(props) {
 	return <CellRangeComponent {...other} />;
 }
 
-export class AttributeProperties extends Component {
+export class LayoutProperties extends Component {
 	state = {
 		dummy: 0,
 	}
@@ -126,40 +128,139 @@ export class AttributeProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	getLayoutType() {
+		const item = this.props.view.getItem();
+
+		if (!item.getLayout()) {
+			return 'none';
+		}
+
+		return item.getLayout().getType() === 'jsg.matrix.layout' ? 'columnlayout' : 'none';
+	}
+
+	handleLayoutType = (event) => {
+		const item = this.props.view.getItem();
+		let layout;
+
+		switch (event.target.value) {
+		case 'columnlayout':
+			layout = JSG.MatrixLayout.TYPE;
+			break;
+		case 'none':
+		default:
+			break;
+		}
+
+		const cmd = new JSG.SetLayoutCommand(item, layout);
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	};
+
+	handleLayoutColumns = (event) => {
+		const item = this.props.view.getItem();
+		const settings = new JSG.Settings();
+		settings.set(JSG.MatrixLayout.COLUMNS, Number(event.target.value));
+		settings.set(JSG.MatrixLayout.MARGIN, 1000);
+		const cmd = new JSG.SetLayoutSettingCommand(item, settings);
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	};
+
+	handleLayoutMargin = (event) => {
+		const margin = Number(event.target.value);
+
+		if (Number.isNaN(margin) || margin < 0 || margin > 5000) {
+			return;
+		}
+
+		const item = this.props.view.getItem();
+		const settings = item.getLayoutSettings();
+		settings.set(JSG.MatrixLayout.MARGIN, Number(event.target.value));
+		const cmd = new JSG.SetLayoutSettingCommand(item, settings);
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	};
+
 	render() {
 		const sheetView = this.getSheetView();
 		if (!sheetView) {
 			return <div />;
 		}
 		const item = this.props.view.getItem();
+		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		return (
 			<FormGroup id={this.props.dummy}
 			   style={{
 				   width: '100%'
 			   }}
 			>
-				{this.getAttributeHandler("GraphItemProperties.Label", item, JSG.ItemAttributes.LABEL)}
-				{this.getAttributeHandler("GraphItemProperties.Container", item, JSG.ItemAttributes.CONTAINER)}
-				{this.getAttributeHandler("GraphItemProperties.Selection", item, JSG.ItemAttributes.SELECTIONMODE,  [
-					{ value: '0', label: 'GraphItemProperties.NotSelectable'},
-					{ value: '1', label: 'GraphItemProperties.OnBorder'},
-					{ value: '2', label: 'GraphItemProperties.OnArea'},
-					{ value: '4', label: 'GraphItemProperties.Default'},
-				])}
-				{this.getAttributeHandler("GraphItemProperties.Clip", item, JSG.ItemAttributes.CLIPCHILDREN)}
-				{this.getAttributeHandler("GraphItemProperties.Closed", item, JSG.ItemAttributes.CLOSED)}
-				{this.getAttributeHandler("GraphItemProperties.Visible", item, JSG.ItemAttributes.VISIBLE)}
-				{this.getAttributeHandler("GraphItemProperties.Sizeable", item, JSG.ItemAttributes.SIZEABLE)}
-				{this.getAttributeHandler("GraphItemProperties.Deletable", item, JSG.ItemAttributes.DELETEABLE)}
-				{this.getAttributeHandler("GraphItemProperties.Moveable", item, JSG.ItemAttributes.MOVEABLE,  [
-					{ value: '0', label: 'GraphItemProperties.NotMoveable'},
-					{ value: '1', label: 'GraphItemProperties.OnlyVertical'},
-					{ value: '2', label: 'GraphItemProperties.OnlyHorizontal'},
-					{ value: '3', label: 'GraphItemProperties.MoveFree'},
-					])}
+				{line ? null : (
+					<TextField
+						variant="outlined"
+						size="small"
+						margin="normal"
+						select
+						value={this.getLayoutType()}
+						onChange={event => this.handleLayoutType(event)}
+						label={
+							<FormattedMessage id="GraphItemProperties.Layout" defaultMessage="Layout" />
+						}
+					>
+						<MenuItem value="none">
+							<FormattedMessage id="GraphItemProperties.None" defaultMessage="None"/>
+						</MenuItem>
+						<MenuItem value="columnlayout">
+							<FormattedMessage id="GraphItemProperties.ColumnLayout" defaultMessage="Column Layout"/>
+						</MenuItem>
+					</TextField>
+				)}
+				{
+					item.getLayout() && item.getLayout().getType() === 'jsg.matrix.layout' ? [
+						<TextField
+							variant="outlined"
+							size="small"
+							margin="normal"
+							select
+							value={item.getLayoutSettings().get(JSG.MatrixLayout.COLUMNS)}
+							onChange={event => this.handleLayoutColumns(event)}
+							label={
+								<FormattedMessage id="GraphItemProperties.LayoutColumns" defaultMessage="Layout Columns" />
+							}
+						>
+							<MenuItem value="1">
+								1
+							</MenuItem>
+							<MenuItem value="2">
+								2
+							</MenuItem>
+							<MenuItem value="3">
+								3
+							</MenuItem>
+							<MenuItem value="4">
+								4
+							</MenuItem>
+						</TextField>,
+						<TextField
+							variant="outlined"
+							size="small"
+							margin="normal"
+							value={item.getLayoutSettings().get(JSG.MatrixLayout.MARGIN)}
+							onChange={event => this.handleLayoutMargin(event)}
+							label={
+								<FormattedMessage id="GraphItemProperties.LayoutMargin" defaultMessage="Layout Margin" />
+							}
+						/>
+					] : null
+				}
 			</FormGroup>
 		);
 	}
 }
 
-export default AttributeProperties;
+export default LayoutProperties;

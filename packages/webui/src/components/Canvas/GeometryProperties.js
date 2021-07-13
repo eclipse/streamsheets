@@ -529,8 +529,8 @@ export class GeometryProperties extends Component {
 						{ value: '2', label: 'GraphItemProperties.Select'},
 					]),
 					this.getAttributeHandler("GraphItemProperties.ReturnAction", item, 'GRAPHITEM:returnaction', 0, [
-						{ value: '0', label: 'GraphItemProperties.New Line'},
-						{ value: '1', label: 'GraphItemProperties.Accept Value'},
+						{ value: '0', label: 'GraphItemProperties.NewLine'},
+						{ value: '1', label: 'GraphItemProperties.AcceptValue'},
 					]),
 					this.getAttributeHandler("GraphItemProperties.OptionsRange", item, 'GRAPHITEM:optionsrange'),
 				] : null}
