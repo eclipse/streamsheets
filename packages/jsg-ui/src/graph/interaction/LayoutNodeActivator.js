@@ -210,66 +210,64 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	}
 
 	onMouseDown(event, viewer, dispatcher) {
-		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() !== 1) {
-			return;
-		}
-
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
+			let index;
 			const point = this.pointToNode(controller, event, viewer);
 			const layoutNode = controller.getModel();
-			let index = this.getColumn(event, viewer, point, layoutNode);
-			if (index !== -1) {
-				const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, false, index),
-					dispatcher);
-				interaction.onMouseDown(event, viewer);
-				event.hasActivated = true;
-				event.doRepaint = true;
-				return;
-			}
-			index = this.getRow(event, viewer, point, layoutNode);
-			if (index !== -1) {
-				const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, true, index),
-					dispatcher);
-				interaction.onMouseDown(event, viewer);
-				event.hasActivated = true;
-				event.doRepaint = true;
-				return;
-			}
-			index = this.getRowHeader(event, viewer, point, layoutNode);
-			if (index !== -1) {
-				const newSelection = [];
-				const selectionProvider = viewer.getSelectionProvider();
+			if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+				index = this.getColumn(event, viewer, point, layoutNode);
+				if (index !== -1) {
+					const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, false, index),
+						dispatcher);
+					interaction.onMouseDown(event, viewer);
+					event.hasActivated = true;
+					event.doRepaint = true;
+					return;
+				}
+				index = this.getRow(event, viewer, point, layoutNode);
+				if (index !== -1) {
+					const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, true, index),
+						dispatcher);
+					interaction.onMouseDown(event, viewer);
+					event.hasActivated = true;
+					event.doRepaint = true;
+					return;
+				}
+				index = this.getRowHeader(event, viewer, point, layoutNode);
+				if (index !== -1) {
+					const newSelection = [];
+					const selectionProvider = viewer.getSelectionProvider();
 
-				layoutNode.columnData.forEach((column, columnIndex) => {
-					const node = layoutNode.getItemAt(index * layoutNode.columnData.length + columnIndex);
-					// if we store parent controller we can use getModelController which traverse only direct children...
-					const contr = controller.getControllerByModelId(node.getId());
-					if (contr !== undefined) {
-						newSelection.push(contr);
-					}
-				});
-				selectionProvider.setSelection(newSelection, {obj: 'layoutsectionrow', index});
-				event.hasActivated = true;
-				return;
-			}
-			index = this.getColumnHeader(event, viewer, point, layoutNode);
-			if (index !== -1) {
-				const newSelection = [];
-				const selectionProvider = viewer.getSelectionProvider();
+					layoutNode.columnData.forEach((column, columnIndex) => {
+						const node = layoutNode.getItemAt(index * layoutNode.columnData.length + columnIndex);
+						// if we store parent controller we can use getModelController which traverse only direct children...
+						const contr = controller.getControllerByModelId(node.getId());
+						if (contr !== undefined) {
+							newSelection.push(contr);
+						}
+					});
+					selectionProvider.setSelection(newSelection, { obj: 'layoutsectionrow', index });
+					event.hasActivated = true;
+					return;
+				}
+				index = this.getColumnHeader(event, viewer, point, layoutNode);
+				if (index !== -1) {
+					const newSelection = [];
+					const selectionProvider = viewer.getSelectionProvider();
 
-				layoutNode.rowData.forEach((row, rowIndex) => {
-					const node = layoutNode.getItemAt(
-						rowIndex * layoutNode.columnData.length + index);
-					// if we store parent controller we can use getModelController which traverse only direct children...
-					const contr = controller.getControllerByModelId(node.getId());
-					if (contr !== undefined) {
-						newSelection.push(contr);
-					}
-				});
-				selectionProvider.setSelection(newSelection, {obj: 'layoutsectioncolumn', index});
-				event.hasActivated = true;
-				return;
+					layoutNode.rowData.forEach((row, rowIndex) => {
+						const node = layoutNode.getItemAt(rowIndex * layoutNode.columnData.length + index);
+						// if we store parent controller we can use getModelController which traverse only direct children...
+						const contr = controller.getControllerByModelId(node.getId());
+						if (contr !== undefined) {
+							newSelection.push(contr);
+						}
+					});
+					selectionProvider.setSelection(newSelection, { obj: 'layoutsectioncolumn', index });
+					event.hasActivated = true;
+					return;
+				}
 			}
 			index = this.getExpandRow(event, viewer, point, layoutNode);
 			if (index !== -1) {
@@ -303,29 +301,31 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	}
 
 	onMouseMove(event, viewer, dispatcher) {
-		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() !== 1) {
-			return;
-		}
 
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
 			const point = this.pointToNode(controller, event, viewer);
 			const layoutNode = controller.getModel();
-			if (this.getColumn(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.SHEETCOLUMNSIZE);
-			} else if (this.getRow(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.SHEETROWSIZE);
-			} else if (this.getColumnHeader(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.SHEETCOLUMN);
-			} else if (this.getRowHeader(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.SHEETROW);
-			} else if (this.getExpandRow(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.EXECUTE);
-			} else {
-				return;
+			let cursor;
+			if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+				if (this.getColumn(event, viewer, point, layoutNode) !== -1) {
+					cursor = Cursor.Style.SHEETCOLUMNSIZE;
+				} else if (this.getRow(event, viewer, point, layoutNode) !== -1) {
+					cursor = Cursor.Style.SHEETROWSIZE;
+				} else if (this.getColumnHeader(event, viewer, point, layoutNode) !== -1) {
+					cursor = Cursor.Style.SHEETCOLUMN;
+				} else if (this.getRowHeader(event, viewer, point, layoutNode) !== -1) {
+					cursor = Cursor.Style.SHEETROW;
+				}
 			}
-			event.hasActivated = true;
-			event.doRepaint = true;
+			if (this.getExpandRow(event, viewer, point, layoutNode) !== -1) {
+				cursor = Cursor.Style.EXECUTE;
+			}
+			if (cursor !== undefined) {
+				dispatcher.setCursor(cursor);
+				event.hasActivated = true;
+				event.doRepaint = true;
+			}
 		}
 	}
 
