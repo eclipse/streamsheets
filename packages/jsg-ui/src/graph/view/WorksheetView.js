@@ -1904,7 +1904,7 @@ export default class WorksheetView extends ContentNodeView {
 		const data = this.getItem().getDataProvider();
 		const cell = data.get(cellPos);
 		const cellRect = cell && cell.errorInfo ? this.getCellRect(cellPos) : undefined;
-		return cellRect && 
+		return cellRect &&
 			point.x > cellRect.x &&
 			point.x < cellRect.x + 300 &&
 			point.y > cellRect.y &&
@@ -1935,8 +1935,17 @@ export default class WorksheetView extends ContentNodeView {
 
 		if (event.event.shiftKey) {
 			pt.x += zDelta * 2000;
-		} else {
+		} else if (scrollView.getVerticalScrollbar().isVisible()) {
 			pt.y += zDelta * 1500;
+		} else {
+			// if no scrollbar, pass to parent
+			let view = this.getParent();
+			while (view && !(view instanceof ContentNodeView)) {
+				view = view.getParent();
+			}
+			if (view && view.handleMouseWheel) {
+				view.handleMouseWheel(event, viewer);
+			}
 		}
 
 		scrollView.setScrollPositionTo(pt);
