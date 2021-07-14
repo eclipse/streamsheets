@@ -846,6 +846,7 @@
 	"GraphItemProperties.View": "Nur Ansicht",
 	"GraphItemProperties.Edit": "Bearbeitbar",
 	"GraphItemProperties.Select": "Liste",
+	"GraphItemProperties.SelectEdit": "Liste bearbeitbar",
 	"GraphItemProperties.ReturnAction": "Aktion bei Eingabe Taste",
 	"GraphItemProperties.OptionsRange": "Zellbereich für Listenwauswahl",
 	"GraphItemProperties.AcceptValue": "Eingabe übernehmen",

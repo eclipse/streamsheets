@@ -847,6 +847,7 @@
   "GraphItemProperties.View": "View",
   "GraphItemProperties.Edit": "Edit",
   "GraphItemProperties.Select": "Selection List",
+  "GraphItemProperties.SelectEdit": "Editable Selection List",
   "GraphItemProperties.ReturnAction": "Action after Return",
   "GraphItemProperties.OptionsRange": "Cellrange for Selection List",
   "GraphItemProperties.AcceptValue": "Accept Value",

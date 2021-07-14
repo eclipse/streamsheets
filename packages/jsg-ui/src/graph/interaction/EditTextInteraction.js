@@ -275,8 +275,8 @@ class EditTextInteraction extends AbstractInteraction {
 
 		// this._item.setItemAttribute(ItemAttributes.VISIBLE, false);
 		this._item._editing = true;
-		this._select = this._item.getItemAttributes().getType().getValue() === 2;
-		this._selectSize = this._select ? 25 : 0;
+		this._controlType = this._item.getItemAttributes().getType().getValue();
+		this._selectSize = (this._controlType === 3 || this._controlType === 2) ? 25 : 0;
 
 		event.doRepaint = true;
 		this._item.getGraph().markDirty();
@@ -290,7 +290,7 @@ class EditTextInteraction extends AbstractInteraction {
 
 		const div = document.createElement('div');
 
-		if (!this.isViewMode(controller)) {
+		if (!this.isViewMode(controller) && this._controlType !== 2) {
 			div.contentEditable = 'true';
 		}
 
@@ -375,7 +375,7 @@ class EditTextInteraction extends AbstractInteraction {
 		// place div and scroll div into view, if necessary
 		this.updateTextArea(viewer, false, true);
 
-		if (this._select) {
+		if (this._controlType === 2 || this._controlType === 3) {
 			this.selectBtn = document.createElement('div');
 			this.selectBtn.id = 'jsgTextSelect';
 			this.selectBtn.tabIndex = '6';
@@ -395,7 +395,7 @@ class EditTextInteraction extends AbstractInteraction {
 		}
 
 		// select complete text
-		if (window.getSelection) {
+		if (window.getSelection && this._controlType !== 2) {
 			const selection = window.getSelection();
 			const range = document.createRange();
 			let elem = div;

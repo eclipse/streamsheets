@@ -206,7 +206,6 @@ export default class LayoutNodeActivator extends InteractionActivator {
 				}));
 			}
 		}
-
 	}
 
 	onMouseDown(event, viewer, dispatcher) {
