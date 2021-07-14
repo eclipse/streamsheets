@@ -80,13 +80,59 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node.setOrigin(0, 0);
 				node._rowData = [new LayoutSection(3000), new LayoutSection(3000)];
 				break;
-			case 'text': {
+			case 'title': {
 				node = new JSG.TextNode('Title');
 				const f = node.getTextFormat();
 				f.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
 				f.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
 				f.setRichText(false);
 				f.setFontSize(18);
+				node.associate(false);
+				node.setHeight(1000);
+				break;
+			}
+			case 'text': {
+				node = new JSG.TextNode('Text');
+				const tf = node.getTextFormat();
+				const f = node.getFormat();
+				tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+				tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+				f.setLineCorner(50);
+				f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+				tf.setRichText(false);
+				node.getItemAttributes().setLabel('Label');
+				node.associate(false);
+				node.setHeight(1000);
+				break;
+			}
+			case 'edit': {
+				node = new JSG.TextNode('Edit');
+				const tf = node.getTextFormat();
+				const f = node.getFormat();
+				tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+				tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+				f.setLineCorner(50);
+				f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+				tf.setRichText(false);
+				node.getItemAttributes().setType(1);
+				node.getItemAttributes().setLabel('Label');
+				node.getItemAttributes().setReturnAction(1);
+				node.associate(false);
+				node.setHeight(1000);
+				break;
+			}
+			case 'select': {
+				node = new JSG.TextNode('Select');
+				const tf = node.getTextFormat();
+				const f = node.getFormat();
+				tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+				tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+				f.setLineCorner(50);
+				f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+				tf.setRichText(false);
+				node.getItemAttributes().setType(2);
+				node.getItemAttributes().setReturnAction(1);
+				node.getItemAttributes().setLabel('Label');
 				node.associate(false);
 				node.setHeight(1000);
 				break;
@@ -167,7 +213,10 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 		addElement('check', 'Checkbox', 'lib/res/svg/checkbox.svg');
 		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
 		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
-		addElement('text', 'Title', 'lib/res/svg/label.svg');
+		addElement('title', 'Title', 'lib/res/svg/label.svg');
+		addElement('text', 'Text', 'lib/res/svg/textview.svg');
+		addElement('edit', 'Edit', 'lib/res/svg/textedit.svg');
+		addElement('select', 'Select', 'lib/res/svg/select.svg');
 		// addTitle('Table');
 		// addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
 		// addElement('layout', 'Layout', 'lib/res/svg/layout.svg');

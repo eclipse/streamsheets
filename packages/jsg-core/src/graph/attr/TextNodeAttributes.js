@@ -295,7 +295,7 @@ class TextNodeAttributes extends ItemAttributes {
 		addAttribute(new NumberAttribute(TXT_ATTR.MAXIMUMHEIGHT), 0);
 		addAttribute(new NumberAttribute(TXT_ATTR.TYPE), TXT_ATTR.Type.VIEW);
 		addAttribute(new NumberAttribute(TXT_ATTR.RETURNACTION), 0);
-		addAttribute(new Attribute(TXT_ATTR.OPTIONSRANGE), 0);
+		addAttribute(new Attribute(TXT_ATTR.OPTIONSRANGE), '');
 
 		return attributes.toTemplate(TextNodeAttributes.TemplateID);
 	}
