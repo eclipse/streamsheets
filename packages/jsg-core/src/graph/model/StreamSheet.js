@@ -378,9 +378,9 @@ module.exports = class StreamSheet extends WorksheetNode {
 				const eventEnabled = node.disableEvents();
 				node.fromJSON(shape);
 				node.enableEvents(eventEnabled);
-				if (shape.format && shape.format.pattern && shape.format.pattern.sv) {
+				let pattern = node.getFormat().getPattern().getValue();
+				if (pattern) {
 					node.getFormat().setPatternFromShape();
-					let pattern = shape.format.pattern.sv;
 					try {
 						const qr = pattern.indexOf('qrcode:');
 						if (qr !== -1) {

@@ -3472,6 +3472,10 @@ class GraphItem extends Model {
 		this._shape.fromJSON(json.shape);
 		if (json.format) {
 			this.getFormat().fromJSON(json.format);
+			const pattern = this.getFormat().getPattern().getValue();
+			if (pattern && json.patternImage) {
+				JSG.imagePool.set(json.patternImage, pattern);
+			}
 		}
 		if (json.textformat) {
 			this.getTextFormat().fromJSON(json.textformat);
@@ -3540,6 +3544,13 @@ class GraphItem extends Model {
 		ret.shape = this._shape.toJSON();
 
 		ret.format = this.getFormat().toJSON(true);
+		const pattern = this.getFormat().getPattern().getValue();
+		if (pattern && pattern.indexOf('dataimage') !== -1) {
+			const image = JSG.imagePool.get(pattern);
+			if (image !== undefined) {
+				ret.patternImage = image.src;
+			}
+		}
 		ret.textformat = this.getTextFormat().toJSON(true);
 		ret.attributes = this.getItemAttributes().toJSON(true);
 		ret.events = this.getEvents().toJSON();
