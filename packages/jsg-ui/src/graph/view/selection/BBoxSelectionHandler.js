@@ -15,6 +15,7 @@ import {
 	NumberExpression,
 	Coordinate,
 	BoundingBox,
+	ContentNode,
 	Strings
 } from '@cedalo/jsg-core';
 import { Term } from '@cedalo/parser';
@@ -251,7 +252,7 @@ class BBoxSelectionHandler extends SelectionHandler {
 			// graphics.setTransparency(15);
 			graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
 			graphics.setLineColor('#CCCCCC');
-			if (view.getItem().allowSubMarkers) {
+			if (view.getItem().allowSubMarkers && !(view.getItem() instanceof ContentNode)) {
 				view.subViews.forEach(subView => {
 					subView.getTranslatedBoundingBox(graphView, bbox);
 					bbox.getTopLeft(topleft);
