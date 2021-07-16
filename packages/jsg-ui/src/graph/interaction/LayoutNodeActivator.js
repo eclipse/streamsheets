@@ -56,7 +56,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 
 		for (let i = 0; i < data.length; i += 1) {
 			const row = data[i];
-			if (rect.containsPoint(point)) {
+			if (row.expandable && rect.containsPoint(point)) {
 				return i;
 			}
 			rect.y += row.layoutSize;
@@ -74,7 +74,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		rect.height = layoutNode.getHeight().getValue();
 		rect.width = 200;
 
-		for (let i = 0; i < data.length; i += 1) {
+		for (let i = 0; i < data.length - 1; i += 1) {
 			const column = data[i];
 			rect.x += column.layoutSize - 100;
 			if (rect.containsPoint(point)) {
@@ -143,7 +143,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		rect.width = layoutNode.getWidth().getValue();
 		rect.height = 200;
 
-		for (let i = 0; i < data.length; i += 1) {
+		for (let i = 0; i < data.length - 1; i += 1) {
 			const row = data[i];
 			rect.y += row.layoutSize - 100;
 			if (rect.containsPoint(point)) {

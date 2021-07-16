@@ -12,10 +12,10 @@
 
 
 module.exports = class LayoutSection {
-	constructor(size) {
+	constructor(size, mode) {
 		this._size = size === undefined ? 4000 : size;
 		this._minSize = 1000;
-		this._sizeMode = 'absolute';
+		this._sizeMode = mode || 'relative';
 		this._expandable = false;
 		this._expanded = true;
 		this._paddingBefore = 300;
@@ -25,9 +25,8 @@ module.exports = class LayoutSection {
 	}
 
 	copy() {
-		const copy = new LayoutSection(this._size);
+		const copy = new LayoutSection(this._size, this._sizeMode);
 		copy._minSize = this._minSize;
-		copy._sizeMode = this._sizeMode;
 		copy._expandable = this._expandable;
 		copy._expanded = this._expanded;
 		copy._paddingBefore = this._paddingBefore;

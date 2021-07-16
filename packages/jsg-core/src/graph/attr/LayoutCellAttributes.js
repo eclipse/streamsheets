@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright (c) 2020 Cedalo AG
+ * Copyright (c) 2021 Cedalo AG
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -11,30 +11,31 @@
 const AttributeList = require('./AttributeList');
 const StringAttribute = require('./StringAttribute');
 const BooleanAttribute = require('./BooleanAttribute');
+const NumberAttribute = require('./NumberAttribute');
 
-const TemplateID = 'LayoutAttributes.Template';
+const TemplateID = 'LayoutCellAttributes.Template';
 
 /**
  * An AttributeList which can be used by {{#crossLink "Layout"}}{{/crossLink}} instances to store
  * layout specific settings as {{#crossLink "Attribute"}}{{/crossLink}}s.
  *
- * @class LayoutAttributes
+ * @class LayoutCellAttributes
  * @extends AttributeList
  * @constructor
  * @param {MapExpression} [mapExpr] An optional MapExpression which contains predefined attributes.
  */
-class LayoutAttributes extends AttributeList {
+class LayoutCellAttributes extends AttributeList {
 	constructor(mapExpr) {
-		super(LayoutAttributes.NAME, mapExpr);
-		this.setParent(LayoutAttributes.template);
+		super(LayoutCellAttributes.NAME, mapExpr);
+		this.setParent(LayoutCellAttributes.template);
 	}
 
 	newInstance(mapExpr) {
-		return new LayoutAttributes(mapExpr);
+		return new LayoutCellAttributes(mapExpr);
 	}
 
 	getClassString() {
-		return 'LayoutAttributes';
+		return 'LayoutCellAttributes';
 	}
 
 	copy() {
@@ -50,7 +51,7 @@ class LayoutAttributes extends AttributeList {
 	 * @return {Attribute} Attribute with current layout name.
 	 */
 	getLayout() {
-		return this.getAttribute(LayoutAttributes.LAYOUT);
+		return this.getAttribute(LayoutCellAttributes.LAYOUT);
 	}
 
 	/**
@@ -64,19 +65,19 @@ class LayoutAttributes extends AttributeList {
 	 * @param {StringExpression | String} type Layout type of the layout to be used.
 	 */
 	setLayout(type) {
-		this.setAttribute(LayoutAttributes.LAYOUT, type);
+		this.setAttribute(LayoutCellAttributes.LAYOUT, type);
 	}
 
 	/**
 	 * Returns the layout enabled attribute attached to a GraphItem. This attribute simply defines if currently used
 	 * {{#crossLink "Layout"}}{{/crossLink}} is should be applied or not.<br/>
-	 * Please see {{#crossLink "LayoutAttributes/isEnabled:method"}}{{/crossLink}} too.
+	 * Please see {{#crossLink "LayoutCellAttributes/isEnabled:method"}}{{/crossLink}} too.
 	 *
 	 * @method getEnabled
 	 * @return {Attribute} Attribute with current layout enabled state.
 	 */
 	getEnabled() {
-		return this.getAttribute(LayoutAttributes.ENABLED);
+		return this.getAttribute(LayoutCellAttributes.ENABLED);
 	}
 
 	/**
@@ -92,9 +93,40 @@ class LayoutAttributes extends AttributeList {
 		return enabled ? enabled.getValue() : true;
 	}
 
+	getGap() {
+		return this.getAttribute(LayoutCellAttributes.GAP);
+	}
+
+	setGap(value) {
+		this.setAttribute(LayoutCellAttributes.GAP, value);
+	}
+
+	getMargin() {
+		return this.getAttribute(LayoutCellAttributes.MARGIN);
+	}
+
+	setMargin(value) {
+		this.setAttribute(LayoutCellAttributes.MARGIN, value);
+	}
+
+	getSections() {
+		return this.getAttribute(LayoutCellAttributes.SECTIONS);
+	}
+
+	setSections(value) {
+		this.setAttribute(LayoutCellAttributes.SECTIONS, value);
+	}
+
+	getMergeCount() {
+		return this.getAttribute(LayoutCellAttributes.MERGECOUNT);
+	}
+
+	setMergeCount(value) {
+		this.setAttribute(LayoutCellAttributes.MERGECOUNT, value);
+	}
 	/**
 	 * Specifies if the {{#crossLink "Layout"}}{{/crossLink}} defined by
-	 * {{#crossLink "LayoutAttributes/getLayout:method"}}{{/crossLink}} is should be applied or not.<br/>
+	 * {{#crossLink "LayoutCellAttributes/getLayout:method"}}{{/crossLink}} is should be applied or not.<br/>
 	 * Note: if this AttributeList is attached to a GraphItem attributes hierarchy, a corresponding
 	 * {{#crossLink "AttributeChangeEvent"}}{{/crossLink}} is raised.
 	 *
@@ -102,13 +134,13 @@ class LayoutAttributes extends AttributeList {
 	 * @param {BooleanExpression | Boolean} doIt Enable or disable current <code>Layout</code>.
 	 */
 	setEnabled(doIt) {
-		this.setAttribute(LayoutAttributes.ENABLED, doIt);
+		this.setAttribute(LayoutCellAttributes.ENABLED, doIt);
 	}
 
 	doSaveParentRef() {
 		return (
 			this._parent &&
-			this._parent.getName() !== LayoutAttributes.TemplateID
+			this._parent.getName() !== LayoutCellAttributes.TemplateID
 		);
 	}
 	/**
@@ -119,7 +151,7 @@ class LayoutAttributes extends AttributeList {
 	 * @static
 	 */
 	static get NAME() {
-		return 'layoutattributes';
+		return 'LayoutCellAttributes';
 	}
 
 	/**
@@ -146,12 +178,28 @@ class LayoutAttributes extends AttributeList {
 		return 'enabled';
 	}
 
+	static get SECTIONS() {
+		return 'sections';
+	}
+
+	static get GAP() {
+		return 'gap';
+	}
+
+	static get MARGIN() {
+		return 'margin';
+	}
+
+	static get MERGECOUNT() {
+		return 'mergecound';
+	}
+
 	static get TemplateID() {
 		return TemplateID;
 	}
 
 	static createTemplate() {
-		const attributes = new LayoutAttributes();
+		const attributes = new LayoutCellAttributes();
 
 		function addAttribute(attribute, value, constraint) {
 			if (constraint) {
@@ -163,13 +211,17 @@ class LayoutAttributes extends AttributeList {
 			attributes.addAttribute(attribute);
 		}
 
-		addAttribute(new StringAttribute(LayoutAttributes.LAYOUT), 'None');
-		addAttribute(new BooleanAttribute(LayoutAttributes.ENABLED), true);
+		addAttribute(new StringAttribute(LayoutCellAttributes.LAYOUT), 'row');
+		addAttribute(new BooleanAttribute(LayoutCellAttributes.ENABLED), true);
+		addAttribute(new NumberAttribute(LayoutCellAttributes.SECTIONS), 2);
+		addAttribute(new NumberAttribute(LayoutCellAttributes.MARGIN), 200);
+		addAttribute(new NumberAttribute(LayoutCellAttributes.GAP), 200);
+		addAttribute(new NumberAttribute(LayoutCellAttributes.MERGECOUNT), 0);
 
-		return attributes.toTemplate(LayoutAttributes.TemplateID);
+		return attributes.toTemplate(LayoutCellAttributes.TemplateID);
 	}
 }
 
-LayoutAttributes.template = LayoutAttributes.createTemplate();
+LayoutCellAttributes.template = LayoutCellAttributes.createTemplate();
 
-module.exports = LayoutAttributes;
+module.exports = LayoutCellAttributes;

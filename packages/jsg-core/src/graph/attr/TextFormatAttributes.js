@@ -480,7 +480,7 @@ class TextFormatAttributes extends AttributeList {
 	doSaveParentRef() {
 		return (
 			this._parent &&
-			this._parent.getName() !== TextFormatAttributes.Template_ID
+			this._parent.getName() !== TextFormatAttributes.TemplateID
 		);
 	}
 

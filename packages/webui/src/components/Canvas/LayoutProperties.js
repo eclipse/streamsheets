@@ -131,27 +131,14 @@ export class LayoutProperties extends Component {
 	getLayoutType() {
 		const item = this.props.view.getItem();
 
-		if (!item.getLayout()) {
-			return 'none';
-		}
-
-		return item.getLayout().getType() === 'jsg.matrix.layout' ? 'columnlayout' : 'none';
+		return item.getLayoutCellAttributes().getLayout().getValue();
 	}
 
 	handleLayoutType = (event) => {
 		const item = this.props.view.getItem();
-		let layout;
+		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.LAYOUT);
+		const cmd = new JSG.SetAttributeAtPathCommand(item, path, event.target.value);
 
-		switch (event.target.value) {
-		case 'columnlayout':
-			layout = JSG.MatrixLayout.TYPE;
-			break;
-		case 'none':
-		default:
-			break;
-		}
-
-		const cmd = new JSG.SetLayoutCommand(item, layout);
 		graphManager.synchronizedExecute(cmd);
 		this.setState({
 			dummy: Math.random()
@@ -160,11 +147,12 @@ export class LayoutProperties extends Component {
 
 	handleLayoutColumns = (event) => {
 		const item = this.props.view.getItem();
-		const settings = new JSG.Settings();
-		settings.set(JSG.MatrixLayout.COLUMNS, Number(event.target.value));
-		settings.set(JSG.MatrixLayout.MARGIN, 1000);
-		const cmd = new JSG.SetLayoutSettingCommand(item, settings);
-		graphManager.synchronizedExecute(cmd);
+		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.SECTIONS);
+		const cmp = new JSG.CompoundCommand();
+		cmp.add(new JSG.SetAttributeAtPathCommand(item, path, Number(event.target.value)));
+		item.handleLayoutColumnChange(Number(event.target.value), cmp);
+
+		graphManager.synchronizedExecute(cmp);
 		this.setState({
 			dummy: Math.random()
 		})
@@ -178,9 +166,9 @@ export class LayoutProperties extends Component {
 		}
 
 		const item = this.props.view.getItem();
-		const settings = item.getLayoutSettings();
-		settings.set(JSG.MatrixLayout.MARGIN, Number(event.target.value));
-		const cmd = new JSG.SetLayoutSettingCommand(item, settings);
+		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.MARGIN);
+		const cmd = new JSG.SetAttributeAtPathCommand(item, path, event.target.value);
+
 		graphManager.synchronizedExecute(cmd);
 		this.setState({
 			dummy: Math.random()
@@ -215,27 +203,27 @@ export class LayoutProperties extends Component {
 						<MenuItem value="none">
 							<FormattedMessage id="GraphItemProperties.None" defaultMessage="None"/>
 						</MenuItem>
-						<MenuItem value="columnlayout">
+						<MenuItem value="row">
+							<FormattedMessage id="GraphItemProperties.RowLayout" defaultMessage="Row Layout"/>
+						</MenuItem>
+						<MenuItem value="column">
 							<FormattedMessage id="GraphItemProperties.ColumnLayout" defaultMessage="Column Layout"/>
 						</MenuItem>
 					</TextField>
 				)}
 				{
-					item.getLayout() && item.getLayout().getType() === 'jsg.matrix.layout' ? [
+					item.getLayoutCellAttributes().getLayout().getValue() === 'column' ? [
 						<TextField
 							variant="outlined"
 							size="small"
 							margin="normal"
 							select
-							value={item.getLayoutSettings().get(JSG.MatrixLayout.COLUMNS)}
+							value={item.getLayoutCellAttributes().getSections().getValue()}
 							onChange={event => this.handleLayoutColumns(event)}
 							label={
 								<FormattedMessage id="GraphItemProperties.LayoutColumns" defaultMessage="Layout Columns" />
 							}
 						>
-							<MenuItem value="1">
-								1
-							</MenuItem>
 							<MenuItem value="2">
 								2
 							</MenuItem>
@@ -245,12 +233,30 @@ export class LayoutProperties extends Component {
 							<MenuItem value="4">
 								4
 							</MenuItem>
+							<MenuItem value="5">
+								5
+							</MenuItem>
+							<MenuItem value="6">
+								6
+							</MenuItem>
+							<MenuItem value="7">
+								7
+							</MenuItem>
+							<MenuItem value="8">
+								8
+							</MenuItem>
+							<MenuItem value="9">
+								9
+							</MenuItem>
+							<MenuItem value="10">
+								10
+							</MenuItem>
 						</TextField>,
 						<TextField
 							variant="outlined"
 							size="small"
 							margin="normal"
-							value={item.getLayoutSettings().get(JSG.MatrixLayout.MARGIN)}
+							value={item.getLayoutCellAttributes().getMargin().getValue()}
 							onChange={event => this.handleLayoutMargin(event)}
 							label={
 								<FormattedMessage id="GraphItemProperties.LayoutMargin" defaultMessage="Layout Margin" />

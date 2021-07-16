@@ -2936,7 +2936,7 @@ class GraphItem extends Model {
 			const tf = subitem.getTextFormat();
 			const tfparent = tf.getParent();
 			// parent is standard template? => use text format or parent...
-			if (!tf._pl && tfparent && tfparent.getName() === TextFormatAttributes.Template_ID) {
+			if (!tf._pl && tfparent && tfparent.getName() === TextFormatAttributes.TemplateID) {
 				tf.setParent(parent.getTextFormat());
 			}
 		}

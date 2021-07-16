@@ -198,7 +198,7 @@ class LayoutContextComponent extends Component {
 			return;
 		}
 
-		const cmd = new JSG.AddLayoutSectionCommand(info.layoutNode, 4000, 'absolute', false, before ? info.column : info.column + 1);
+		const cmd = new JSG.AddLayoutSectionCommand(info.layoutNode, 30, 'relative', false, before ? info.column : info.column + 1);
 
 		graphManager
 			.getGraphEditor()

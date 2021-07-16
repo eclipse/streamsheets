@@ -189,7 +189,7 @@ class TextNodeAttributes extends ItemAttributes {
 		return (
 			this._parent &&
 			this._parent.getName() !==
-				TextNodeAttributes.Template_ID
+				TextNodeAttributes.TemplateID
 		);
 	}
 	// OUR PREDEFINED ATTRIBUTES:

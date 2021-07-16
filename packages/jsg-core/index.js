@@ -244,6 +244,7 @@ JSG.CommandUtils = require('./src/graph/command/utils');
 JSG.CellRange = require('./src/graph/model/CellRange');
 JSG.CellAttributes = require('./src/graph/attr/CellAttributes');
 JSG.WorksheetAttributes = require('./src/graph/attr/WorksheetAttributes');
+JSG.LayoutCellAttributes = require('./src/graph/attr/LayoutCellAttributes');
 JSG.MachineContainerAttributes = require('./src/graph/attr/MachineContainerAttributes');
 JSG.StreamSheetContainerAttributes = require('./src/graph/attr/StreamSheetContainerAttributes');
 JSG.HeaderAttributes = require('./src/graph/attr/HeaderAttributes');

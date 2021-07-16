@@ -11,18 +11,24 @@
  ********************************************************************************/
 const Node = require('./Node');
 const NumberAttribute = require('../attr/NumberAttribute');
-const ItemAttributes = require('../attr/ItemAttributes');
+const StringAttribute = require('../attr/StringAttribute');
+const LayoutCellAttributes = require('../attr/LayoutCellAttributes');
+const LayoutSection = require('./LayoutSection');
+const DeleteItemCommand = require('../command/DeleteItemCommand');
+const AddItemCommand = require('../command/AddItemCommand');
 
 module.exports = class LayoutCell extends Node {
 	constructor() {
 		super();
 
+		// this._columnData = [new LayoutSection(100, 'relative')];
 		this.getFormat().setLineStyle(0);
 		this.getItemAttributes().setRotatable(false);
 		this.getItemAttributes().setMoveable(false);
 		this.getItemAttributes().setSizeable(false);
 		this.getItemAttributes().setDeleteable(false);
-		this.addAttribute(new NumberAttribute('mergecount', 0));
+
+		this.addAttribute(new LayoutCellAttributes());
 	}
 
 	newInstance() {
@@ -43,6 +49,10 @@ module.exports = class LayoutCell extends Node {
 
 	isAddLabelAllowed() {
 		return false;
+	}
+
+	getLayoutCellAttributes() {
+		return this.getModelAttributes().getAttribute(LayoutCellAttributes.NAME);
 	}
 
 	getPropertyCategories() {
@@ -68,5 +78,18 @@ module.exports = class LayoutCell extends Node {
 		return category === 'format' || category === 'layout';
 	}
 
+	handleLayoutColumnChange(newColumns, cmp) {
+		const currentColumns = this.getItemCount();
+
+		if (currentColumns < newColumns) {
+			for (let i = currentColumns; i < newColumns; i+= 1) {
+				cmp.add(new AddItemCommand(new LayoutCell(), this, i));
+			}
+		} else if (currentColumns > newColumns) {
+			for (let i = currentColumns - 1; i >= newColumns; i -= 1) {
+				cmp.add(new DeleteItemCommand(this.getItemAt(i)));
+			}
+		}
+	}
 };
 
