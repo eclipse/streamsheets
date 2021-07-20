@@ -48,9 +48,69 @@ export default class LayoutNodeInteraction extends Interaction {
 		return this._controller.getModel().columnData[this.index];
 	}
 
+	prepareResize(node, row, index) {
+		this.resizeInfo = {
+			row,
+			index,
+			sectionSize: row ? node.rowData[index].size : node.columnData[index].size,
+			size: row ? node.getHeight().getValue() : node.getWidth().getValue(),
+		};
+
+		if (row) {
+			this.resizeInfo.sectionSizes = [];
+			node.rowData.forEach((rowa, rowIndex) => {
+				this.resizeInfo.sectionSizes.push(row.size);
+			});
+		} else {
+			this.resizeInfo.sectionSizes = [];
+			this.resizeInfo.layoutSizes = [];
+			node.columnData.forEach((column, colIndex) => {
+				this.resizeInfo.sectionSizes.push(column.size);
+				this.resizeInfo.layoutSizes.push(column.layoutSize);
+			});
+		}
+	}
+
+	resizeSection(node, delta) {
+		const info = this.resizeInfo;
+		const data = info.row ?
+			node.rowData[info.index] :
+			node.columnData[info.index];
+		const dataNext = info.row ?
+			node.rowData[info.index + 1] :
+			node.columnData[info.index + 1];
+
+		if (data.sizeMode === 'relative') {
+			const totalRelSize = info.sectionSizes[info.index] + info.sectionSizes[info.index + 1];
+			const totalAbsSize = info.layoutSizes[info.index] + info.layoutSizes[info.index + 1];
+			let leftSize = (info.layoutSizes[info.index] + delta) / totalAbsSize * totalRelSize;
+			let rightSize = (info.layoutSizes[info.index + 1] - delta) / totalAbsSize * totalRelSize;
+			const leftSizeAbs = leftSize * info.size / 100;
+			const rightSizeAbs = rightSize * info.size / 100;
+			if (leftSizeAbs < data.minSize && rightSizeAbs < dataNext.minSize) {
+				return;
+			} else if (leftSizeAbs < data.minSize) {
+				leftSize = data.minSize / info.size * 100;
+				rightSize = totalRelSize - leftSize;
+			} else if (rightSizeAbs < dataNext.minSize) {
+				rightSize = dataNext.minSize / info.size * 100;
+				leftSize = totalRelSize - rightSize;
+			}
+			data.size = leftSize;
+			dataNext.size = rightSize;
+		} else {
+			data.size = Math.max(0, info.sectionSize + delta);
+		}
+		if (info.row) {
+			node.setHeight(info.size + delta);
+		}
+
+		node.layout();
+	}
+
 	onMouseDown(event, viewer) {
 		const node = this._controller.getModel();
-		node.prepareResize(this.row, this.index);
+		this.prepareResize(node, this.row, this.index);
 		this._oldState = this.getData().copy();
 		this._ptDown = this.pointToNode(event, viewer);
 	}
@@ -59,7 +119,7 @@ export default class LayoutNodeInteraction extends Interaction {
 		this._ptDrag = this.pointToNode(event, viewer);
 		const node = this._controller.getModel();
 
-		node.resizeSection(node.resizeInfo.row ?
+		this.resizeSection(node, this.resizeInfo.row ?
 			this._ptDrag.y - this._ptDown.y :
 			this._ptDrag.x - this._ptDown.x);
 

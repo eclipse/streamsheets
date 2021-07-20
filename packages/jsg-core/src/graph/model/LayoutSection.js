@@ -18,10 +18,6 @@ module.exports = class LayoutSection {
 		this._sizeMode = mode || 'relative';
 		this._expandable = false;
 		this._expanded = true;
-		this._paddingBefore = 300;
-		this._paddingAfter = 300;
-		this._marginBefore = 300;
-		this._marginAfter = 300;
 	}
 
 	copy() {
@@ -29,10 +25,6 @@ module.exports = class LayoutSection {
 		copy._minSize = this._minSize;
 		copy._expandable = this._expandable;
 		copy._expanded = this._expanded;
-		copy._paddingBefore = this._paddingBefore;
-		copy._paddingAfter = this._paddingAfter;
-		copy._marginBefore = this._marginBefore;
-		copy._marginAfter = this._marginAfter;
 		copy.layoutSize = this.layoutSize;
 
 		return copy;

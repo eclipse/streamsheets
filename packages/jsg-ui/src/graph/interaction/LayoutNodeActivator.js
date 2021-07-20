@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, NotificationCenter, Notification, StreamSheet, Rectangle, Shape, LayoutNode, GraphUtils } from '@cedalo/jsg-core';
+import { default as JSG, NotificationCenter, Notification, StreamSheet, LayoutCell, Rectangle, Shape, LayoutNode, GraphUtils } from '@cedalo/jsg-core';
 
 import InteractionActivator from './InteractionActivator';
 import Cursor from '../../ui/Cursor';
@@ -36,11 +36,17 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	_getControllerAt(location, viewer, dispatcher) {
 		let streamSheet = false;
 
+		this._layoutCellController = undefined;
+
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont, loc, index) => {
 			const item = cont.getModel()
 			if (item instanceof StreamSheet) {
 				streamSheet = true;
 			}
+			if ((item instanceof LayoutCell) && this._layoutCellController === undefined) {
+				this._layoutCellController = cont.getParent();
+			}
+
 			return (!streamSheet && (item instanceof LayoutNode));
 		});
 	}
@@ -63,6 +69,39 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		}
 
 		return -1;
+	}
+
+	getCellColumn(event, viewer) {
+		if (!this._layoutCellController) {
+			return -1;
+		}
+		const node = this._layoutCellController.getModel();
+		const data = node._columnData;
+		if (!data || !data.length) {
+			return -1;
+		}
+
+		const point = this.pointToNode(this._layoutCellController, event, viewer);
+		const rect = new Rectangle();
+
+		rect.x = 0;
+		rect.y = 0;
+		rect.height = node.getHeight().getValue();
+		rect.width = 200;
+
+		const width = node.getWidth().getValue();
+
+		for (let i = 0; i < data.length - 1; i += 1) {
+			const column = data[i];
+			rect.x += column.size / 100 * width - 100;
+			if (rect.containsPoint(point)) {
+				return i;
+			}
+			rect.x += 100;
+		}
+
+		return -1;
+
 	}
 
 	getColumn(event, viewer, point, layoutNode) {
@@ -143,7 +182,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		rect.width = layoutNode.getWidth().getValue();
 		rect.height = 200;
 
-		for (let i = 0; i < data.length - 1; i += 1) {
+		for (let i = 0; i < data.length; i += 1) {
 			const row = data[i];
 			rect.y += row.layoutSize - 100;
 			if (rect.containsPoint(point)) {
@@ -215,6 +254,15 @@ export default class LayoutNodeActivator extends InteractionActivator {
 			const point = this.pointToNode(controller, event, viewer);
 			const layoutNode = controller.getModel();
 			if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+				index = this.getCellColumn(event, viewer, point, this._layoutCellController);
+				if (index !== -1) {
+					const interaction = this.activateInteraction(new LayoutNodeInteraction(this._layoutCellController, false, index),
+						dispatcher);
+					interaction.onMouseDown(event, viewer);
+					event.hasActivated = true;
+					event.doRepaint = true;
+					return;
+				}
 				index = this.getColumn(event, viewer, point, layoutNode);
 				if (index !== -1) {
 					const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, false, index),
@@ -300,14 +348,15 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	}
 
 	onMouseMove(event, viewer, dispatcher) {
-
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
 			const point = this.pointToNode(controller, event, viewer);
 			const layoutNode = controller.getModel();
 			let cursor;
 			if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
-				if (this.getColumn(event, viewer, point, layoutNode) !== -1) {
+				if (this.getCellColumn(event, viewer, point, this._layoutCellController) !== -1) {
+					cursor = Cursor.Style.SHEETCOLUMNSIZE;
+				} else if (this.getColumn(event, viewer, point, layoutNode) !== -1) {
 					cursor = Cursor.Style.SHEETCOLUMNSIZE;
 				} else if (this.getRow(event, viewer, point, layoutNode) !== -1) {
 					cursor = Cursor.Style.SHEETROWSIZE;
