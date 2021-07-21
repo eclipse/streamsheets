@@ -35,10 +35,10 @@ export default class LayoutCellsView extends NodeView {
 
 						columnData.forEach((column, columnIndex) => {
 							if (columnIndex) {
-								graphics.moveTo(x / 100 * size.x, 0);
-								graphics.lineTo(x / 100 * size.x, size.y);
+								graphics.moveTo(x, 0);
+								graphics.lineTo(x, size.y);
 							}
-							x += column.size;
+							x += column.layoutSize;
 						});
 
 						graphics.stroke();

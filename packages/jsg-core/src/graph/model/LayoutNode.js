@@ -283,10 +283,43 @@ module.exports = class LayoutNode extends Node {
 		return ret;
 	}
 
-	layout() {
-		// super.layout();
+	getMinimumLayoutSize() {
+		let node;
+		let total = 0;
 
-		const size = this.getSize().toPoint();
+		this._columnData.forEach((column, columnIndex) => {
+			let minSize = column.minSize;
+			this._rowData.forEach((row, rowIndex) => {
+				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+				if (node) {
+					minSize = Math.max(minSize, node.getMinimumLayoutSize());
+				}
+			});
+			column._layoutMinSize = minSize;
+			this._rowData.forEach((row, rowIndex) => {
+				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+				if (node) {
+					const size = node.getSizeAsPoint();
+					if (size.x < column._layoutMinSize) {
+						node.setWidth(column._layoutMinSize);
+					}
+				}
+			});
+			total += minSize;
+		});
+
+		return total;
+	}
+
+	layout() {
+		// super.layout()
+		const minimumSize = this.getMinimumLayoutSize();
+
+		const size = this.getSizeAsPoint();
+		if (size.x < minimumSize) {
+			this.setWidth(minimumSize);
+			size.x = minimumSize;
+		}
 
 		// do column layout first
 		let sizeLeftOver = size.x;
@@ -321,11 +354,11 @@ module.exports = class LayoutNode extends Node {
 			case 'relative':
 			default:
 				layoutSize = column.size / sumRelative * sizeLeftOver;
-				if (layoutSize > column.minSize) {
+				if (layoutSize > column._layoutMinSize) {
 					colData.size = column.size;
 					colData.sizeMode = column.sizeMode;
 				} else {
-					colData.size = column.minSize;
+					colData.size = column._layoutMinSize;
 					colData.sizeMode = 'absolute';
 				}
 				break;

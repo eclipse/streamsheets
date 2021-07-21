@@ -87,17 +87,17 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		rect.x = 0;
 		rect.y = 0;
 		rect.height = node.getHeight().getValue();
-		rect.width = 200;
+		rect.width = 300;
 
 		const width = node.getWidth().getValue();
 
 		for (let i = 0; i < data.length - 1; i += 1) {
 			const column = data[i];
-			rect.x += column.size / 100 * width - 100;
+			rect.x += column.layoutSize - 150;
 			if (rect.containsPoint(point)) {
 				return i;
 			}
-			rect.x += 100;
+			rect.x += 150;
 		}
 
 		return -1;

@@ -96,8 +96,10 @@ export default class LayoutNodeInteraction extends Interaction {
 				rightSize = dataNext.minSize / info.size * 100;
 				leftSize = totalRelSize - rightSize;
 			}
-			data.size = leftSize;
-			dataNext.size = rightSize;
+			if (leftSizeAbs > data._layoutMinSize) {
+				data.size = leftSize;
+				dataNext.size = rightSize;
+			}
 		} else {
 			data.size = Math.max(0, info.sectionSize + delta);
 		}

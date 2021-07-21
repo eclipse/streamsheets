@@ -50,20 +50,24 @@ module.exports = class LayoutCell extends Node {
 		return false;
 	}
 
-	toJSON() {
-		const ret = super.toJSON();
+	getMinimumLayoutSize() {
+		this.fixColumnData();
 
-		ret.layoutcellattributes = this.getLayoutCellAttributes().toJSON(true);
+		let minSize = 0;
 
-		return ret;
-	}
+		this._columnData.forEach((column, index) => {
+			const item = this._subItems[index];
+			const subSizes = item.getMinimumLayoutSize();
+			const size = item.getSizeAsPoint();
+			column._layoutMinSize = Math.max(column.minSize, subSizes);
+			if (size.x < column._layoutMinSize) {
+				item.setWidth(column._layoutMinSize);
+			}
+			minSize += Math.max(column.minSize, subSizes);
+		});
 
-	fromJSON(json) {
-		super.fromJSON(json);
 
-		if (json.layoutcellattributes) {
-			this.getLayoutCellAttributes().fromJSON(json.layoutcellattributes);
-		}
+		return minSize;
 	}
 
 	layout() {
@@ -73,6 +77,7 @@ module.exports = class LayoutCell extends Node {
 		let xInner = 0;
 
 		this._layoutHeight = undefined;
+		this._layoutWidth = undefined;
 
 		switch (this.getLayoutCellAttributes().getLayout().getValue()) {
 		case 'row':
@@ -91,23 +96,40 @@ module.exports = class LayoutCell extends Node {
 			});
 			this._layoutHeight = yInner + margin;
 			break;
-		case 'column':
+		case 'column': {
+			let absSizes = size.x;
+			let relSizes = 100;
 			this.fixColumnData();
 			this.subItems.forEach((subItem, index) => {
+				const column = this._columnData[index];
+				if (column.size / 100 * size.x <= column._layoutMinSize) {
+					absSizes -= column._layoutMinSize;
+					relSizes -= column.size;
+				}
+			});
+			this.subItems.forEach((subItem, index) => {
+				const column = this._columnData[index];
 				subItem._expandable = this._expandable;
 				subItem.layout();
 				if (subItem._layoutHeight) {
-					this._layoutHeight = this._layoutHeight === undefined ?
-						subItem._layoutHeight :
+					this._layoutHeight = this._layoutHeight === undefined ? subItem._layoutHeight :
 						Math.max(this._layoutHeight, subItem._layoutHeight);
 				}
-				const width = this._columnData[index].size / 100 * size.x;
+				let width;
+				if (column.size / relSizes * absSizes > column._layoutMinSize) {
+					width = column.size / relSizes * absSizes;
+				} else {
+					width = column._layoutMinSize;
+				}
+				// const width = Math.max(column.size / 100 * size.x, column._layoutMinSize);
+				column.layoutSize = width;
 				if (!subItem.getWidth().hasFormula()) {
 					subItem.setWidth(width);
 				}
 				subItem.setOrigin(xInner, 0);
 				xInner += width;
 			});
+			this._layoutWidth = xInner;
 			this.subItems.forEach((subItem, index) => {
 				if (subItem._layoutHeight > size.y) {
 					subItem.setHeight(subItem._layoutHeight);
@@ -115,7 +137,11 @@ module.exports = class LayoutCell extends Node {
 					subItem.setHeight(size.y);
 				}
 			});
+			// if (size.x < this._layoutWidth) {
+			// 	this.setWidth( this._layoutWidth);
+			// }
 			break;
+		}
 		default:
 			break;
 		}
@@ -123,6 +149,11 @@ module.exports = class LayoutCell extends Node {
 
 	fixColumnData() {
 		const itemCnt = Math.max(1, this.getItemCount());
+
+		if (this.getLayoutCellAttributes().getLayout().getValue() !== 'column') {
+			this._columnData = [];
+			return;
+		}
 
 		if (itemCnt === this._columnData.length) {
 			return;
@@ -142,6 +173,45 @@ module.exports = class LayoutCell extends Node {
 
 	getLayoutCellAttributes() {
 		return this.getModelAttributes().getAttribute(LayoutCellAttributes.NAME);
+	}
+
+	fromJSON(json) {
+		super.fromJSON(json);
+
+		if (json.layoutcellattributes) {
+			this.getLayoutCellAttributes().fromJSON(json.layoutcellattributes);
+		}
+
+		const layout = json.layout;
+
+		if (!layout) {
+			return;
+		}
+
+		if (layout.columnData) {
+			this._columnData = [];
+			layout.columnData.forEach(data => {
+				const section = new LayoutSection();
+				section.fromJSON(data);
+				this._columnData.push(section);
+			});
+		}
+	}
+
+	toJSON() {
+		const json = super.toJSON();
+		const layout = {};
+
+		json.layoutcellattributes = this.getLayoutCellAttributes().toJSON(true);
+		layout.columnData = [];
+
+		this._columnData.forEach((section) => {
+			layout.columnData.push(section.toJSON());
+		});
+
+		json.layout = layout;
+
+		return json;
 	}
 
 	getPropertyCategories() {

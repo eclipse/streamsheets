@@ -223,6 +223,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		}
 		if ((command instanceof JSG.PasteItemsCommand) ||
 			(command instanceof JSG.SetTextCommand) ||
+			(command instanceof JSG.SetLayoutSectionCommand) ||
 			(command instanceof JSG.SetPlotDataCommand)) {
 			return true;
 		}
