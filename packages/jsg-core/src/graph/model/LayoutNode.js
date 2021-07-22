@@ -447,7 +447,11 @@ module.exports = class LayoutNode extends Node {
 		this._rowData.forEach((row, rowIndex) => {
 			switch (row.sizeMode) {
 			case 'absolute':
-				row.layoutSize = Numbers.isNumber(row.size) ? row.size : 1000;
+				if (row.expandable && !row.expanded) {
+					row.layoutSize = 800;
+				} else {
+					row.layoutSize = Numbers.isNumber(row.size) ? row.size : 1000;
+				}
 				break;
 			case 'auto': {
 				let height = row._minSize;

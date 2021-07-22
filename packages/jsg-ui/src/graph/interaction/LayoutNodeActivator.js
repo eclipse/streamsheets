@@ -111,11 +111,11 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		rect.x = 0;
 		rect.y = 0;
 		rect.height = layoutNode.getHeight().getValue();
-		rect.width = 200;
+		rect.width = 300;
 
 		for (let i = 0; i < data.length - 1; i += 1) {
 			const column = data[i];
-			rect.x += column.layoutSize - 100;
+			rect.x += column.layoutSize - 150;
 			if (rect.containsPoint(point)) {
 				const rowIndex = this.getRowInside(event, viewer, point, layoutNode);
 				if (rowIndex !== -1 && i < data.length - 1) {
@@ -127,7 +127,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 				}
 				return i;
 			}
-			rect.x += 100;
+			rect.x += 150;
 		}
 
 		return -1;
@@ -180,15 +180,15 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		rect.x = 0;
 		rect.y = 0;
 		rect.width = layoutNode.getWidth().getValue();
-		rect.height = 200;
+		rect.height = 300;
 
 		for (let i = 0; i < data.length; i += 1) {
 			const row = data[i];
-			rect.y += row.layoutSize - 100;
+			rect.y += row.layoutSize - 150;
 			if (rect.containsPoint(point)) {
 				return i;
 			}
-			rect.y += 100;
+			rect.y += 150;
 		}
 
 		return -1;
@@ -281,7 +281,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 					event.doRepaint = true;
 					return;
 				}
-				index = this.getRowHeader(event, viewer, point, layoutNode);
+				/* index = this.getRowHeader(event, viewer, point, layoutNode);
 				if (index !== -1) {
 					const newSelection = [];
 					const selectionProvider = viewer.getSelectionProvider();
@@ -314,7 +314,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 					selectionProvider.setSelection(newSelection, { obj: 'layoutsectioncolumn', index });
 					event.hasActivated = true;
 					return;
-				}
+				}*/
 			}
 			index = this.getExpandRow(event, viewer, point, layoutNode);
 			if (index !== -1) {
@@ -360,11 +360,11 @@ export default class LayoutNodeActivator extends InteractionActivator {
 					cursor = Cursor.Style.SHEETCOLUMNSIZE;
 				} else if (this.getRow(event, viewer, point, layoutNode) !== -1) {
 					cursor = Cursor.Style.SHEETROWSIZE;
-				} else if (this.getColumnHeader(event, viewer, point, layoutNode) !== -1) {
+				}/* else if (this.getColumnHeader(event, viewer, point, layoutNode) !== -1) {
 					cursor = Cursor.Style.SHEETCOLUMN;
 				} else if (this.getRowHeader(event, viewer, point, layoutNode) !== -1) {
 					cursor = Cursor.Style.SHEETROW;
-				}
+				}*/
 			}
 			if (this.getExpandRow(event, viewer, point, layoutNode) !== -1) {
 				cursor = Cursor.Style.EXECUTE;

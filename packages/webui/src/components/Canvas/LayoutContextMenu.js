@@ -30,6 +30,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 // import SettingsIcon from '@material-ui/icons/Settings';
 import withStyles from '@material-ui/core/styles/withStyles';
 import PopupState, { bindHover, bindMenu } from 'material-ui-popup-state';
+import SettingsIcon from '@material-ui/icons/Settings';
 
 const ParentPopupState = React.createContext(null);
 
@@ -364,7 +365,7 @@ class LayoutContextComponent extends Component {
 		this.props.setAppState({ showLayoutSectionProperties: true });
 	};
 
-	onShowChartProperties = () => {
+	onShowProperties = () => {
 		// const sheetView = graphManager.getActiveSheetView();
 		// eslint-disable-next-line react/prop-types
 		this.props.setAppState({ showStreamChartProperties: true });
@@ -408,6 +409,17 @@ class LayoutContextComponent extends Component {
 								{...bindHover(popupState)}
 								{...bindMenu(popupState)}
 							>
+								{!this.isMultiSelection() ? [
+									<MenuItem onClick={this.onShowProperties} dense>
+										<ListItemIcon>
+											<SettingsIcon style={styles.menuItem} />
+										</ListItemIcon>
+										<ListItemText
+											primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
+										/>
+									</MenuItem>,
+									<Divider />
+								] : null}
 								{this.isMerged() ? (
 									<MenuItem onClick={this.onRemoveMerge} dense>
 										<ListItemIcon>

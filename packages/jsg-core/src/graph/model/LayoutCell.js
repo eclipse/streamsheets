@@ -11,11 +11,11 @@
  ********************************************************************************/
 const Node = require('./Node');
 const LayoutSection = require('./LayoutSection');
-const NumberAttribute = require('../attr/NumberAttribute');
-const StringAttribute = require('../attr/StringAttribute');
+const GraphUtils = require('../GraphUtils');
 const LayoutCellAttributes = require('../attr/LayoutCellAttributes');
 const DeleteItemCommand = require('../command/DeleteItemCommand');
 const AddItemCommand = require('../command/AddItemCommand');
+const ChangeParentCommand = require('../command/ChangeParentCommand');
 const ItemAttributes = require('../attr/ItemAttributes');
 
 module.exports = class LayoutCell extends Node {
@@ -71,17 +71,19 @@ module.exports = class LayoutCell extends Node {
 	}
 
 	layout() {
+		const attr = this.getLayoutCellAttributes();
 		const size = this.getSizeAsPoint();
-		const margin = 200;
+		const margin = attr.getMargin().getValue();
+		const gap = attr.getGap().getValue();
 		let yInner = this._expandable ? 600 : 0;
 		let xInner = 0;
 
 		this._layoutHeight = undefined;
-		this._layoutWidth = undefined;
 
-		switch (this.getLayoutCellAttributes().getLayout().getValue()) {
+		switch (attr.getLayout().getValue()) {
 		case 'row':
-			this.subItems.forEach(subItem => {
+			yInner += margin;
+			this.subItems.forEach((subItem, index) => {
 				subItem._expandable = this._expandable;
 				subItem.layout();
 				const height = subItem.getHeight().getValue();
@@ -91,8 +93,8 @@ module.exports = class LayoutCell extends Node {
 				if (!subItem.getHeight().hasFormula()) {
 					subItem.setHeight(height);
 				}
-				subItem.setOrigin(margin, yInner + margin);
-				yInner += height + margin;
+				subItem.setOrigin(margin, yInner);
+				yInner += height + (index === this.getItemCount() - 1? 0 : gap);
 			});
 			this._layoutHeight = yInner + margin;
 			break;
@@ -129,7 +131,6 @@ module.exports = class LayoutCell extends Node {
 				subItem.setOrigin(xInner, 0);
 				xInner += width;
 			});
-			this._layoutWidth = xInner;
 			this.subItems.forEach((subItem, index) => {
 				if (subItem._layoutHeight > size.y) {
 					subItem.setHeight(subItem._layoutHeight);
@@ -137,9 +138,6 @@ module.exports = class LayoutCell extends Node {
 					subItem.setHeight(size.y);
 				}
 			});
-			// if (size.x < this._layoutWidth) {
-			// 	this.setWidth( this._layoutWidth);
-			// }
 			break;
 		}
 		default:
@@ -230,7 +228,7 @@ module.exports = class LayoutCell extends Node {
 	}
 
 	getDefaultPropertyCategory() {
-		return 'format';
+		return 'layout';
 	}
 
 	isValidPropertyCategory(category) {
@@ -253,5 +251,45 @@ module.exports = class LayoutCell extends Node {
 		}
 	}
 
+	handleLayoutTypeChange(newLayout, cmp) {
+		const subItems = [];
+		const oldLayout =  this.getLayoutCellAttributes().getLayout().getValue();
+		const sections =  this.getLayoutCellAttributes().getSections().getValue();
+
+		if (oldLayout === newLayout) {
+			return;
+		}
+
+		GraphUtils.traverseItem(this, item => {
+			if (!(item instanceof LayoutCell)) {
+				subItems.push(item);
+			}
+		}, false);
+
+		if (oldLayout === 'column' && (newLayout === 'row' || newLayout === 'none')) {
+			// collect non cell sub items and attach them to this node
+			this.handleLayoutColumnChange(0, cmp);
+			subItems.forEach(subItem => {
+				cmp.add(new AddItemCommand(subItem, this));
+			});
+		} else 	if (oldLayout !== 'column' && newLayout === 'column') {
+			// remove items from current layout
+			subItems.forEach(subItem => {
+				cmp.add(new DeleteItemCommand(subItem));
+			});
+
+			// update layout cells
+			for (let i = 0; i < sections; i+= 1) {
+				const node = new LayoutCell();
+				if (i === 0) {
+					// attach subitems to first column
+					subItems.forEach(subItem => {
+						node.addItem(subItem);
+					});
+				}
+				cmp.add(new AddItemCommand(node, this, i));
+			}
+		}
+	}
 };
 

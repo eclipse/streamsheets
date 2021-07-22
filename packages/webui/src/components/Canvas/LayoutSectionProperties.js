@@ -210,6 +210,7 @@ export class LayoutSectionProperties extends Component {
 		if (!this.props.showLayoutSectionProperties) {
 			return <div />;
 		}
+		const isRowSection = this.isRowSection();
 		return (
 			<Slide direction="left" in={this.props.showLayoutSectionProperties} mountOnEnter unmountOnExit>
 				<Paper
@@ -281,14 +282,14 @@ export class LayoutSectionProperties extends Component {
 								<FormattedMessage id="GraphItemProperties.SizeMode" defaultMessage="Size" />
 							}
 						>
-							<MenuItem value="absolute">
-								<FormattedMessage id="GraphItemProperties.Absolute" defaultMessage="Absolute"/>
-							</MenuItem>
-							{this.isRowSection() ? (
+							{isRowSection ? [
 								<MenuItem value="auto">
 									<FormattedMessage id="GraphItemProperties.Automatic" defaultMessage="Automatic"/>
+								</MenuItem>,
+								<MenuItem value="absolute">
+									<FormattedMessage id="GraphItemProperties.Absolute" defaultMessage="Absolute"/>
 								</MenuItem>
-								) : (
+								] : (
 								<MenuItem value="relative">
 									<FormattedMessage id="GraphItemProperties.Relative" defaultMessage="Relative"/>
 								</MenuItem>
@@ -316,34 +317,35 @@ export class LayoutSectionProperties extends Component {
 							label={
 								<FormattedMessage id="GraphItemProperties.MinimumSize" defaultMessage="Minimum Size" />}
 						/>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={this.state.expandable}
-									onChange={event => this.handleExpandableChange(event)}
-								/>
-							}
-							label={
-								<FormattedMessage
-									id="GraphItemProperties.Expandable"
-									defaultMessage="Expandable"
-								/>
-							}
-						/>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={this.state.expanded}
-									onChange={(event => this.handleExpandedChange(event))}
-								/>
-							}
-							label={
-								<FormattedMessage
-									id="GraphItemProperties.Expanded"
-									defaultMessage="Expanded"
-								/>
-							}
-						/>
+						{isRowSection ? [
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={this.state.expandable}
+										onChange={event => this.handleExpandableChange(event)}
+									/>
+								}
+								label={
+									<FormattedMessage
+										id="GraphItemProperties.Expandable"
+										defaultMessage="Expandable"
+									/>
+								}
+							/>,
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={this.state.expanded}
+										onChange={(event => this.handleExpandedChange(event))}
+									/>
+								}
+								label={
+									<FormattedMessage
+										id="GraphItemProperties.Expanded"
+										defaultMessage="Expanded"
+									/>
+								}
+							/>] : null}
 					</div>
 				</Paper>
 			</Slide>

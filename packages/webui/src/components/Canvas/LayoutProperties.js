@@ -137,9 +137,11 @@ export class LayoutProperties extends Component {
 	handleLayoutType = (event) => {
 		const item = this.props.view.getItem();
 		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.LAYOUT);
-		const cmd = new JSG.SetAttributeAtPathCommand(item, path, event.target.value);
+		const cmp = new JSG.CompoundCommand();
+		cmp.add(new JSG.SetAttributeAtPathCommand(item, path, event.target.value));
+		item.handleLayoutTypeChange(event.target.value, cmp);
 
-		graphManager.synchronizedExecute(cmd);
+		graphManager.synchronizedExecute(cmp);
 		this.setState({
 			dummy: Math.random()
 		})
@@ -167,6 +169,23 @@ export class LayoutProperties extends Component {
 
 		const item = this.props.view.getItem();
 		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.MARGIN);
+		const cmd = new JSG.SetAttributeAtPathCommand(item, path, event.target.value);
+
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	};
+
+	handleLayoutGap = (event) => {
+		const gap = Number(event.target.value);
+
+		if (Number.isNaN(gap) || gap < 0 || gap > 5000) {
+			return;
+		}
+
+		const item = this.props.view.getItem();
+		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.GAP);
 		const cmd = new JSG.SetAttributeAtPathCommand(item, path, event.target.value);
 
 		graphManager.synchronizedExecute(cmd);
@@ -252,6 +271,9 @@ export class LayoutProperties extends Component {
 								10
 							</MenuItem>
 						</TextField>,
+					] : null}
+				{
+					item.getLayoutCellAttributes().getLayout().getValue() === 'row' ? [
 						<TextField
 							variant="outlined"
 							size="small"
@@ -260,6 +282,16 @@ export class LayoutProperties extends Component {
 							onChange={event => this.handleLayoutMargin(event)}
 							label={
 								<FormattedMessage id="GraphItemProperties.LayoutMargin" defaultMessage="Layout Margin" />
+							}
+						/>,
+						<TextField
+							variant="outlined"
+							size="small"
+							margin="normal"
+							value={item.getLayoutCellAttributes().getGap().getValue()}
+							onChange={event => this.handleLayoutGap(event)}
+							label={
+								<FormattedMessage id="GraphItemProperties.LayoutGap" defaultMessage="Layout Gap" />
 							}
 						/>
 					] : null
