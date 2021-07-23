@@ -14,8 +14,7 @@
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 import {
-	AppBar, IconButton, Paper, Slide,
-	TextField
+	AppBar, FormGroup, IconButton, Paper, Slide, TextField
 	// Typography
 } from '@material-ui/core';
 import { bindActionCreators } from 'redux';
@@ -295,17 +294,17 @@ export class LayoutSectionProperties extends Component {
 								</MenuItem>
 							)}
 						</TextField>
-						<TextField
-							variant="outlined"
-							size="small"
-							margin="normal"
-							fullWidth
-							value={Math.round(this.state.size)}
-							onChange={event => this.handleSize(event)}
-							onBlur={event => this.handleSizeBlur(event)}
-							label={
-							<FormattedMessage id="GraphItemProperties.Size" defaultMessage="Size" />}
-						/>
+						{/*<TextField*/}
+						{/*	variant="outlined"*/}
+						{/*	size="small"*/}
+						{/*	margin="normal"*/}
+						{/*	fullWidth*/}
+						{/*	value={Math.round(this.state.size)}*/}
+						{/*	onChange={event => this.handleSize(event)}*/}
+						{/*	onBlur={event => this.handleSizeBlur(event)}*/}
+						{/*	label={*/}
+						{/*	<FormattedMessage id="GraphItemProperties.Size" defaultMessage="Size" />}*/}
+						{/*/>*/}
 						<TextField
 							variant="outlined"
 							size="small"
@@ -318,6 +317,7 @@ export class LayoutSectionProperties extends Component {
 								<FormattedMessage id="GraphItemProperties.MinimumSize" defaultMessage="Minimum Size" />}
 						/>
 						{isRowSection ? [
+							<FormGroup>
 							<FormControlLabel
 								control={
 									<Checkbox
@@ -331,7 +331,7 @@ export class LayoutSectionProperties extends Component {
 										defaultMessage="Expandable"
 									/>
 								}
-							/>,
+							/>
 							<FormControlLabel
 								control={
 									<Checkbox
@@ -345,7 +345,9 @@ export class LayoutSectionProperties extends Component {
 										defaultMessage="Expanded"
 									/>
 								}
-							/>] : null}
+							/>
+							</FormGroup>
+						] : null}
 					</div>
 				</Paper>
 			</Slide>

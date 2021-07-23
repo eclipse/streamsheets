@@ -131,6 +131,25 @@ module.exports = class LayoutCell extends Node {
 				subItem.setOrigin(xInner, 0);
 				xInner += width;
 			});
+			if (xInner >= size.x + 1) {
+				let diff = xInner - size.x;
+				xInner = 0;
+				this.subItems.forEach((subItem, index) => {
+					const column = this._columnData[index];
+					if (diff > 0) {
+						if (column.layoutSize > column._layoutMinSize) {
+							diff -= column.layoutSize - column._layoutMinSize;
+							column.layoutSize = column._layoutMinSize;
+							if (!subItem.getWidth().hasFormula()) {
+								subItem.setWidth(column.layoutSize);
+							}
+						}
+					}
+					subItem.setOrigin(xInner, 0);
+					xInner += column.layoutSize;
+				});
+
+			}
 			this.subItems.forEach((subItem, index) => {
 				if (subItem._layoutHeight > size.y) {
 					subItem.setHeight(subItem._layoutHeight);

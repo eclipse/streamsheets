@@ -8,14 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, NotificationCenter, Notification, StreamSheet, Shape, LayoutNode, CellsNode } from '@cedalo/jsg-core';
+import { default as JSG, NotificationCenter, Notification, StreamSheet, Shape, LayoutNode, LayoutCell, CellsNode } from '@cedalo/jsg-core';
 
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
 import SheetGraphItemEventInteraction from './SheetGraphItemEventInteraction';
 import InteractionActivator from './InteractionActivator';
 import Feedback from '../feedback/Feedback';
 import Cursor from '../../ui/Cursor';
-import SelectionProvider from '../view/SelectionProvider';
 
 const KEY = 'sheetgraphitemevent.activator';
 
@@ -215,7 +214,8 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 				event.doRepaint = true;
 			}
 			event.hasActivated = true;
-			if (controller.getParent().getModel() instanceof LayoutNode) {
+			if ((controller.getParent().getModel() instanceof LayoutNode) ||
+				(controller.getParent().getModel() instanceof LayoutCell)) {
 				NotificationCenter.getInstance().send(
 					new Notification(JSG.LAYOUT_SHOW_CONTEXT_MENU_NOTIFICATION, {
 						event,
