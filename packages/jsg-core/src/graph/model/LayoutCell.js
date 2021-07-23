@@ -123,7 +123,6 @@ module.exports = class LayoutCell extends Node {
 				} else {
 					width = column._layoutMinSize;
 				}
-				// const width = Math.max(column.size / 100 * size.x, column._layoutMinSize);
 				column.layoutSize = width;
 				if (!subItem.getWidth().hasFormula()) {
 					subItem.setWidth(width);
@@ -138,8 +137,9 @@ module.exports = class LayoutCell extends Node {
 					const column = this._columnData[index];
 					if (diff > 0) {
 						if (column.layoutSize > column._layoutMinSize) {
-							diff -= column.layoutSize - column._layoutMinSize;
-							column.layoutSize = column._layoutMinSize;
+							const newSize = Math.max(column._layoutMinSize, column.layoutSize - diff);
+							column.layoutSize = newSize;
+							diff -= newSize;
 							if (!subItem.getWidth().hasFormula()) {
 								subItem.setWidth(column.layoutSize);
 							}
