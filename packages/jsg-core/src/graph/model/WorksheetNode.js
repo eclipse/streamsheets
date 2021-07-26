@@ -181,6 +181,16 @@ module.exports = class WorksheetNode extends ContentNode {
 		if (id === mySelectionId) {
 			this._selection.clear();
 		}
+
+		const layoutNode = this.getLayoutNode();
+		if (layoutNode) {
+			GraphUtils.traverseItem(layoutNode, item => {
+				if (item instanceof StreamSheet) {
+					item.removeSelection();
+				}
+			}, false);
+		}
+
 	}
 
 	/**
