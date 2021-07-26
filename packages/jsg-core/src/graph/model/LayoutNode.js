@@ -415,7 +415,7 @@ module.exports = class LayoutNode extends Node {
 					// node.setOrigin(x, y);
 					let width = column.layoutSize;
 					if (node._merged === false) {
-						const mergeCount = node.getAttributeValueAtPath('mergecount');
+						const mergeCount = node.getLayoutCellAttributes().getMergeCount().getValue();
 						node.getItemAttributes().setVisible(true);
 						for (let i = columnIndex + 1; i <= columnIndex + mergeCount; i += 1) {
 							if (i < this._columnData.length) {

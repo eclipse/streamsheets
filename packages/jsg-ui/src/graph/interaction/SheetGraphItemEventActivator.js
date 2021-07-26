@@ -214,14 +214,12 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 				event.doRepaint = true;
 			}
 			event.hasActivated = true;
-			if ((controller.getParent().getModel() instanceof LayoutNode) ||
-				(controller.getParent().getModel() instanceof LayoutCell)) {
-				NotificationCenter.getInstance().send(
-					new Notification(JSG.LAYOUT_SHOW_CONTEXT_MENU_NOTIFICATION, {
-						event,
-						controller
-					})
-				);
+			if (controller.getModel() instanceof LayoutCell) {
+				if (viewer.getSelectionProvider().hasSingleSelection()) {
+					NotificationCenter.getInstance().send(new Notification(JSG.LAYOUT_SHOW_CONTEXT_MENU_NOTIFICATION, {
+						event, controller
+					}));
+				}
 			} else {
 				NotificationCenter.getInstance().send(
 					new Notification(JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION, {

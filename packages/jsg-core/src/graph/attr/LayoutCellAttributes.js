@@ -191,7 +191,7 @@ class LayoutCellAttributes extends AttributeList {
 	}
 
 	static get MERGECOUNT() {
-		return 'mergecound';
+		return 'mergecount';
 	}
 
 	static get TemplateID() {

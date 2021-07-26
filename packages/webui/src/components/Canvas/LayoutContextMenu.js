@@ -260,7 +260,7 @@ class LayoutContextComponent extends Component {
 		if (!info) {
 			return false;
 		}
-		return !!info.item.getAttributeValueAtPath('mergecount');
+		return !!info.item.getLayoutCellAttributes().getMergeCount().getValue();
 	}
 
 	isLayoutNodeCell() {
@@ -326,16 +326,30 @@ class LayoutContextComponent extends Component {
 	onMergeRight = () => {
 		const viewer = graphManager.getGraphViewer();
 		const info = this.getNodeInfo();
-		let val = info.item.getAttributeValueAtPath('mergecount');
+		let val = info.item.getLayoutCellAttributes().getMergeCount().getValue();
 		let nextMergeCount = 0;
 
+		const mergeNode = info.layoutNode.subItems[info.index + val + 1];
 		if (info.column + val < info.layoutNode.columns) {
-			nextMergeCount = info.layoutNode.subItems[info.index + val + 1].getAttributeValueAtPath(
-				'mergecount');
+			nextMergeCount = mergeNode.getLayoutCellAttributes().getMergeCount().getValue();
 		}
 
 		val += 1 + nextMergeCount;
-		const cmd = new JSG.SetAttributeAtPathCommand(info.item, 'mergecount', val);
+		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.MERGECOUNT);
+		const cmd = new JSG.CompoundCommand();
+		cmd.add(new JSG.SetAttributeAtPathCommand(info.item, path, val));
+
+		const items = [];
+		mergeNode.subItems.forEach(subItem => {
+			items.push(subItem);
+			cmd.add(new JSG.DeleteItemCommand(subItem));
+		});
+
+		// update layout cells
+		items.forEach(item => {
+			cmd.add(new JSG.AddItemCommand(item, info.item));
+		});
+
 		viewer.getInteractionHandler().execute(cmd);
 		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
@@ -350,9 +364,21 @@ class LayoutContextComponent extends Component {
 		if (!info) {
 			return false;
 		}
-		// const val = info.item.getAttributeValueAtPath('mergecount');
+		const val = info.item.getLayoutCellAttributes().getMergeCount().getValue();
 
-		return false; //info.column + val + 1 < info.layoutNode.columns;
+		if (info.item.getLayoutCellAttributes().getLayout().getValue() === 'column') {
+			return false;
+		}
+
+		if (info.column + val + 1 >= info.layoutNode.columns) {
+			return false;
+		}
+
+		if (info.layoutNode.subItems[info.index + val + 1].getLayoutCellAttributes().getLayout().getValue() === 'column') {
+			return  false;
+		}
+
+		return true;
 	}
 
 	isMergeLeftAllowed() {
@@ -361,9 +387,28 @@ class LayoutContextComponent extends Component {
 		if (selection.length > 1) {
 			return false;
 		}
-		// const info = this.getNodeInfo();
+		const info = this.getNodeInfo();
+		if (!info) {
+			return false;
+		}
 
-		return false;//info && info.column;
+		let startIndex = info.index - 1;
+		let node;
+
+		if (info.item.getLayoutCellAttributes().getLayout().getValue() === 'column') {
+			return false;
+		}
+
+		do {
+			node = info.layoutNode.subItems[startIndex];
+			startIndex -= 1;
+		} while (startIndex > 0 && node && node._merged);
+
+		if (node.getLayoutCellAttributes().getLayout().getValue() === 'column') {
+			return  false;
+		}
+
+		return info && info.column;
 	}
 
 	onRemoveMerge = () => {
@@ -373,7 +418,8 @@ class LayoutContextComponent extends Component {
 			return;
 		}
 
-		const cmd = new JSG.SetAttributeAtPathCommand(info.item, 'mergecount', new JSG.NumberExpression(0));
+		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.MERGECOUNT);
+		const cmd = new JSG.SetAttributeAtPathCommand(info.item, path, new JSG.NumberExpression(0));
 		viewer.getInteractionHandler().execute(cmd);
 		window.setTimeout(() => graphManager.getCanvas().focus(), 250);
 	};
@@ -385,7 +431,7 @@ class LayoutContextComponent extends Component {
 			return;
 		}
 
-		let mergeCount = info.item.getAttributeValueAtPath('mergecount');
+		let mergeCount = info.item.getLayoutCellAttributes().getMergeCount().getValue();
 		let startIndex = info.index - 1;
 		let node;
 
@@ -394,9 +440,23 @@ class LayoutContextComponent extends Component {
 			startIndex -= 1;
 		} while (startIndex > 0 && node && node._merged);
 
-		mergeCount += node.getAttributeValueAtPath('mergecount') + 1;
+		mergeCount += node.getLayoutCellAttributes().getMergeCount().getValue() + 1;
 
-		const cmd = new JSG.SetAttributeAtPathCommand(node, 'mergecount', mergeCount);
+		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.MERGECOUNT);
+		const cmd = new JSG.CompoundCommand();
+		cmd.add(new JSG.SetAttributeAtPathCommand(node, path, mergeCount));
+
+		const items = [];
+		info.item.subItems.forEach(subItem => {
+			items.push(subItem);
+			cmd.add(new JSG.DeleteItemCommand(subItem));
+		});
+
+		// update layout cells
+		items.forEach(item => {
+			cmd.add(new JSG.AddItemCommand(item, node));
+		});
+
 		viewer.getInteractionHandler().execute(cmd);
 
 		viewer.getSelectionProvider().clearSelection();
@@ -468,6 +528,11 @@ class LayoutContextComponent extends Component {
 		// const selection = graphManager.getGraphViewer().getSelection();
 		// const item = selection.length ? selection[0].getModel() : undefined;
 		const layoutCell = this.isLayoutNodeCell();
+		const isFirst = this.isFirst();
+		const isLast = this.isLast();
+		const isMerged = this.isMerged();
+		const isMergeLeft = this.isMergeLeftAllowed();
+		const isMergeRight = this.isMergeRightAllowed();
 
 		return (<Paper
 				id='sheetmenu'
@@ -498,8 +563,9 @@ class LayoutContextComponent extends Component {
 											primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
 										/>
 									</MenuItem>,
+									<Divider />
 								] : null}
-								{this.isMerged() ? (
+								{isMerged ? (
 									<MenuItem onClick={this.onRemoveMerge} dense>
 										<ListItemIcon>
 											<SvgIcon>
@@ -514,7 +580,7 @@ class LayoutContextComponent extends Component {
 										/>
 									</MenuItem>
 									) : null}
-								{this.isMergeLeftAllowed() ? (
+								{isMergeLeft ? (
 									<MenuItem onClick={this.onMergeLeft} dense>
 										<ListItemIcon>
 											<SvgIcon>
@@ -530,7 +596,7 @@ class LayoutContextComponent extends Component {
 										/>
 									</MenuItem>) : null
 								}
-								{this.isMergeRightAllowed() ? (
+								{isMergeRight ? (
 									<MenuItem onClick={this.onMergeRight} dense>
 										<ListItemIcon>
 											<SvgIcon>
@@ -545,15 +611,9 @@ class LayoutContextComponent extends Component {
 										/>
 									</MenuItem>) : null
 								}
-								<Divider />
-								<MenuItem onClick={this.onDelete} dense>
-									<ListItemIcon>
-										<DeleteIcon style={styles.menuItem} />
-									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id='DeleteContent' defaultMessage='Delete Content' />} />
-								</MenuItem>
+								{isMerged || isMergeRight || isMergeLeft ? <Divider /> : null}
 								{
-									this.isFirst() ? null :
+									isFirst ? null :
 										<MenuItem onClick={() => this.onMoveLeft()} dense>
 											<ListItemIcon>
 												<SvgIcon>
@@ -568,7 +628,7 @@ class LayoutContextComponent extends Component {
 										</MenuItem>
 								}
 								{
-									this.isLast() ? null :
+									isLast ? null :
 										<MenuItem onClick={() => this.onMoveRight()} dense>
 											<ListItemIcon>
 												<SvgIcon>
@@ -582,8 +642,8 @@ class LayoutContextComponent extends Component {
 												primary={<FormattedMessage id='Layout.MoveRight' defaultMessage='Move Right' />} />
 										</MenuItem>
 								}
+								{isFirst && isLast ? null : (<Divider />)}
 								{layoutCell ? [
-									<Divider />,
 									<Submenu
 										popupId='rowMenu' title={<FormattedMessage id='Layout.Row' defaultMessage='Row' />}
 									>
@@ -635,6 +695,13 @@ class LayoutContextComponent extends Component {
 										</MenuItem>
 									</Submenu>,
 								] : null}
+								<Divider />
+								<MenuItem onClick={this.onDelete} dense>
+									<ListItemIcon>
+										<DeleteIcon style={styles.menuItem} />
+									</ListItemIcon>
+									<ListItemText primary={<FormattedMessage id='DeleteContent' defaultMessage='Delete Content' />} />
+								</MenuItem>
 							</MenuList>
 						</ParentPopupState.Provider>)}
 				</PopupState>
