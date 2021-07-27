@@ -34,10 +34,6 @@ function MyInputComponent(props) {
 }
 
 export class GeometryProperties extends Component {
-	state = {
-		dummy: 0,
-	}
-
 	getSheetView() {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection === undefined || selection.length !== 1) {
@@ -117,7 +113,7 @@ export class GeometryProperties extends Component {
 		)
 	}
 
-	getPropertyHandler(label, handler, expression, round = 0) {
+	getPropertyHandler(label, handler, expression, validate, round = 0) {
 		const sheetView = this.getSheetView();
 
 		return (
@@ -133,6 +129,7 @@ export class GeometryProperties extends Component {
 				InputProps={{
 					inputComponent: MyInputComponent,
 					inputProps: {
+						validate,
 						onlyReference: false,
 						component: CellRangeComponent,
 						sheetView,
@@ -262,8 +259,32 @@ export class GeometryProperties extends Component {
 	handleName = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
+
 		const cmd = new JSG.SetNameCommand(item, expr.expression);
 		graphManager.synchronizedExecute(cmd);
+	}
+
+	validateName = (name) => {
+		const item = this.props.view.getItem();
+		let used = false;
+
+		JSG.GraphUtils.traverseItem(graphManager.getGraph(), litem => {
+			if (item !== litem && name === litem.getName().getValue()) {
+				used = true;
+			}
+		}, false);
+
+		if (used || name === '') {
+			JSG.NotificationCenter.getInstance().send(
+				new JSG.Notification(JSG.WorksheetView.SHEET_MESSAGE_NOTIFICATION, {
+					view: this.props.view,
+					message: { message: intl.formatMessage({ id: 'Alert.SheetDoubleName' }, {}) },
+				}),
+			);
+			return false;
+		}
+
+		return true;
 	}
 
 	handleRotationCenter = (event) => {
@@ -324,9 +345,6 @@ export class GeometryProperties extends Component {
 		const cmd = new JSG.SetPinCommand(item, pin);
 
 		graphManager.synchronizedExecute(cmd);
-		this.setState({
-			dummy: Math.random()
-		})
 	}
 
 	handlePointRange = (event) => {
@@ -452,9 +470,6 @@ export class GeometryProperties extends Component {
 		const cmd = new JSG.SetAttributeAtPathCommand(item, name, expr);
 
 		graphManager.synchronizedExecute(cmd);
-		this.setState({
-			dummy: Math.random()
-		})
 	};
 
 	render() {
@@ -474,7 +489,7 @@ export class GeometryProperties extends Component {
 				{this.getPropertyHandler(line ? "GraphItemProperties.StartY" : "GraphItemProperties.VerticalPosition", this.handleY, this.getY())}
 				{this.getPropertyHandler(line ? "GraphItemProperties.EndX" : "GraphItemProperties.Width", this.handleWidth, this.getWidth())}
 				{this.getPropertyHandler(line ? "GraphItemProperties.EndY" : "GraphItemProperties.Height", this.handleHeight, this.getHeight())}
-				{line ? null : this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), 2)}
+				{line ? null : this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), undefined, 2)}
 				{line ? null : (
 					<TextField
 						variant="outlined"
@@ -517,7 +532,7 @@ export class GeometryProperties extends Component {
 						</MenuItem>
 					</TextField>
 				)}
-				{this.getPropertyHandler("GraphItemProperties.Name", this.handleName, item.getName())}
+				{this.getPropertyHandler("GraphItemProperties.Name", this.handleName, item.getName(), this.validateName)}
 				{item.getShape() instanceof JSG.PolygonShape ? (
 					this.getPropertyHandler("GraphItemProperties.PointRange", this.handlePointRange, item.getShape().getSource())
 				) : null}
@@ -555,7 +570,7 @@ export class GeometryProperties extends Component {
 					this.getAttributeHandler("GraphItemProperties.EndAngle", item, 'end', 2),
 				] : null}
 				{(item instanceof JSG.StreamSheet) ? [
-				this.getAttributeHandler("GraphItemProperties.SourceRange", item, 'range')
+					this.getAttributeHandler("GraphItemProperties.SourceRange", item, 'range')
 				] : null}
 				{(item instanceof JSG.LayoutNode) ? [
 					<TextField
