@@ -110,8 +110,11 @@ module.exports = class StreamSheet extends WorksheetNode {
 		writer.writeStartDocument();
 		this.saveCondensed(writer, true);
 		writer.writeEndDocument();
+		writer.root.shapes = this.getCells().subItemsToJSON();
 
-		return writer.flush();
+		const json = writer.flush();
+
+		return json;
 	}
 
 	saveCondensed(writer, undo = false) {
@@ -155,6 +158,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getDataProvider().clear();
 
 		this.read(reader, root);
+		this.setShapes(reader.getRoot().shapes);
 	}
 
 
