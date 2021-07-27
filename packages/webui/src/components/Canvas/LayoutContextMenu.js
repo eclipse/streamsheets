@@ -388,7 +388,7 @@ class LayoutContextComponent extends Component {
 			return false;
 		}
 		const info = this.getNodeInfo();
-		if (!info) {
+		if (!info || !info.column) {
 			return false;
 		}
 
@@ -427,7 +427,7 @@ class LayoutContextComponent extends Component {
 	onMergeLeft = () => {
 		const viewer = graphManager.getGraphViewer();
 		const info = this.getNodeInfo();
-		if (!info) {
+		if (!info || !info.column) {
 			return;
 		}
 
