@@ -700,7 +700,7 @@ class LayoutContextComponent extends Component {
 									<ListItemIcon>
 										<DeleteIcon style={styles.menuItem} />
 									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id='DeleteContent' defaultMessage='Delete Content' />} />
+									<ListItemText primary={<FormattedMessage id='Layout.DeleteContent' defaultMessage='Delete Content' />} />
 								</MenuItem>
 							</MenuList>
 						</ParentPopupState.Provider>)}
