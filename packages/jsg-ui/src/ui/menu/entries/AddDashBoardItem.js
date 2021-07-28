@@ -2,6 +2,7 @@
 
 import {default as JSG, ImagePool, Notification, NotificationCenter, LayoutNode, LayoutSection} from '@cedalo/jsg-core';
 import ItemMenuEntry from '../ItemMenuEntry';
+import { add } from 'cheerio/lib/api/traversing';
 
 
 export default class AddDashBoardItem extends ItemMenuEntry {
@@ -48,8 +49,11 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			}
 		};
 
-		toolBox.style.left = `${menu.offsetLeft + menu.clientWidth + 5}px`;
+		toolBox.style.left = menu.offsetLeft + menu.clientWidth + 221 < canvas.clientWidth ?
+			`${menu.offsetLeft + menu.clientWidth + 5}px` :
+			`${menu.offsetLeft - menu.clientWidth - 221}px`;
 		toolBox.style.top = `${menu.offsetTop}px`;
+		toolBox.style.width = '216px';
 		toolBox.style.position = 'absolute';
 		toolBox.style.backgroundColor = '#eeeeee';
 		toolBox.style.border = '1px solid #999999';
@@ -175,16 +179,23 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			}
 		};
 
+		const addBreak = (id, subtitle, icon) => {
+			const div = document.createElement('p');
+			toolBox.appendChild(div);
+		};
+
 		const addElement = (id, subtitle, icon) => {
 			const pdiv = document.createElement('div');
 			pdiv.style.textAlign = 'center';
 			pdiv.style.display = 'inline-block';
+			pdiv.style.marginRight = '5px';
+			pdiv.style.marginBottom = '5px';
 			pdiv.addEventListener('click', (ev) => addDashBoardItem(ev, id), false);
 			const div = document.createElement('div');
 			div.id = id;
 			// div.style.margin = '4px 4px 4px 0px';
-			div.style.height = '48px';
-			div.style.width = '48px';
+			div.style.height = '33px';
+			div.style.width = '38px';
 			div.style.backgroundImage = `url(${icon})`;
 			div.style.backgroundPosition = 'center center';
 			div.style.backgroundRepeat = 'no-repeat';
@@ -192,34 +203,33 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			const label = document.createElement('label');
 			label.innerHTML = subtitle;
 			label.style.fontFamily = "Roboto";
-			label.style.fontSize = '8pt';
+			label.style.fontSize = '6pt';
 			label.style.textAlign = 'center';
 			pdiv.appendChild(label);
 			toolBox.appendChild(pdiv);
 		};
 
-		addTitle('Timeline');
-		addElement('scatterline', 'Line (XY)', 'images/charts/line.png');
-		addElement('line', 'Line (Cat)', 'images/charts/line.png');
-		addElement('column', 'Column', 'images/charts/column.png');
-		addElement('area', 'Area', 'images/charts/area.png');
-		addElement('stateperiod', 'State', 'images/charts/stateperiod.png');
 		addTitle('Chart');
+		addElement('line', 'Line', 'images/charts/line.png');
 		addElement('column', 'Column', 'images/charts/column.png');
+		addElement('bar', 'Bar', 'images/charts/bar.png');
+		addElement('area', 'Area', 'images/charts/area.png');
+		addElement('scatterline', 'Line (XY)', 'images/charts/line.png');
+		// addBreak();
+		addElement('pie', 'Pie', 'images/charts/pie.png');
+		addElement('doughnut', 'Doughnut', 'images/charts/doughnut.png');
 		addElement('gauge', 'Gauge', 'images/charts/gauge.png');
-		addElement('pie', 'Pie', 'images/charts/Pie.png');
 		addElement('map', 'Map', 'images/charts/map.png');
 		addTitle('Control');
-		addElement('check', 'Checkbox', 'lib/res/svg/checkbox.svg');
-		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
-		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
 		addElement('title', 'Title', 'lib/res/svg/label.svg');
 		addElement('text', 'Text', 'lib/res/svg/textview.svg');
 		addElement('edit', 'Edit', 'lib/res/svg/textedit.svg');
 		addElement('select', 'Select', 'lib/res/svg/select.svg');
-		// addTitle('Table');
-		// addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
-		// addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
+		addElement('check', 'Checkbox', 'lib/res/svg/checkbox.svg');
+		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
+		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
+		addTitle('Layout');
+		addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
 
 
 		canvas.parentNode.appendChild(toolBox);

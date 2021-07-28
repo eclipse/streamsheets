@@ -290,6 +290,10 @@ class TextNode extends Node {
 			text = String.fromCharCode(tf.getIcon().getValue());
 		}
 
+		if (text === '') {
+			text = 'M';
+		}
+
 		if (force !== true) {
 			if (this._lastUpdateInfo.text === text && this._lastUpdateInfo.fontColor === tf.getFontColor().getValue()) {
 				return;
