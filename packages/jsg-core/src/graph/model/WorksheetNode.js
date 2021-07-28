@@ -22,6 +22,8 @@ const NotificationCenter = require('../notifications/NotificationCenter');
 const Notification = require('../notifications/Notification');
 const Numbers = require('../../commons/Numbers');
 const Rectangle = require('../../geometry/Rectangle');
+const Point = require('../../geometry/Point');
+const GraphUtils = require('../GraphUtils');
 
 const RowHeaderNode = require('./RowHeaderNode');
 const CellsNode = require('./CellsNode');
@@ -185,7 +187,7 @@ module.exports = class WorksheetNode extends ContentNode {
 		const layoutNode = this.getLayoutNode();
 		if (layoutNode) {
 			GraphUtils.traverseItem(layoutNode, item => {
-				if (item instanceof StreamSheet) {
+				if (item instanceof WorksheetNode) {
 					item.removeSelection();
 				}
 			}, false);
@@ -202,6 +204,7 @@ module.exports = class WorksheetNode extends ContentNode {
 		const wsattributes = this.getWorksheetAttributes();
 		const header = this.isHeaderVisible();
 		const source = this.sourceSheet;
+		const layoutNode = this.getLayoutNode();
 
 		if (source)  {
 			const sattributes = source.getWorksheetAttributes();
@@ -218,9 +221,8 @@ module.exports = class WorksheetNode extends ContentNode {
 		this._rows.getItemAttributes().setVisible(header);
 		this._columns.getItemAttributes().setVisible(header);
 
-		const colSize = this._columns.getInternalSize();
-		const rowSize = this._rows.getInternalSize();
-
+		const colSize = layoutNode ? new Point(0, 0) : this._columns.getInternalSize();
+		const rowSize = layoutNode ? new Point(0, 0) : this._rows.getInternalSize();
 		const box = JSG.boxCache.get();
 
 		if (header) {
@@ -268,10 +270,6 @@ module.exports = class WorksheetNode extends ContentNode {
 		JSG.boxCache.release(box);
 
 		super.layout();
-
-
-
-
 	}
 
 	_copy(copiednodes, deep, ids) {

@@ -291,7 +291,7 @@ module.exports = class LayoutNode extends Node {
 			let minSize = column.minSize;
 			this._rowData.forEach((row, rowIndex) => {
 				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
-				if (node) {
+				if (node && node.getMinimumLayoutSize) {
 					minSize = Math.max(minSize, node.getMinimumLayoutSize());
 				}
 			});
@@ -414,7 +414,7 @@ module.exports = class LayoutNode extends Node {
 				if (node) {
 					// node.setOrigin(x, y);
 					let width = column.layoutSize;
-					if (node._merged === false) {
+					if (node._merged === false && node.getLayoutCellAttributes) {
 						const mergeCount = node.getLayoutCellAttributes().getMergeCount().getValue();
 						node.getItemAttributes().setVisible(true);
 						for (let i = columnIndex + 1; i <= columnIndex + mergeCount; i += 1) {
