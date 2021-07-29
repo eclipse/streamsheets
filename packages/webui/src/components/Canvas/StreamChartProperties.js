@@ -443,6 +443,13 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'chart');
 	};
 
+	handleMenuVisibleChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.menuVisible = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
 	handleMapZoomChange = (event, state) => {
 		const cmd = this.prepareCommand('chart');
 		const item = this.state.plotView.getItem();
@@ -1644,6 +1651,22 @@ export class StreamChartProperties extends Component {
 										}
 									/>
 								) : null}
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={item.chart.menuVisible}
+											onChange={(event, state) =>
+												this.handleMenuVisibleChange(event, state)
+											}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.MenuVisible"
+											defaultMessage="Allow Visible Series Selection"
+										/>
+									}
+								/>
 								{map ? (
 									<FormControlLabel
 										control={

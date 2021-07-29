@@ -1047,6 +1047,7 @@
   "StreamChartProperties.EditValueRanges": "Edit Value Ranges",
   "StreamChartProperties.ValueRanges": "Value Ranges",
   "StreamChartProperties.SeriesLines": "Series Lines",
+  "StreamChartProperties.MenuVisible": "Preview Mode Menu",
   "StreamChartProperties.VaryByCategories": "Vary Color by Categories",
   "StreamChartProperties.ThresholdStyle": "Threshold Style",
   "StreamChartProperties.ThresholdDataRange": "Data Range Thresholds",
