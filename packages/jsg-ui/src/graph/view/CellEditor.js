@@ -994,6 +994,7 @@ export default class CellEditor {
 			case '-':
 			case '*':
 			case '/':
+			case '.':
 			case ',':
 			case ';':
 			case '(':
