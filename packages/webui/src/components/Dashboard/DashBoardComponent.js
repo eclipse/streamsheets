@@ -567,7 +567,13 @@ class DashBoardComponent extends Component {
 					</div>
 				</div>
 				{this.state.activeTab === 0 ? (
-					<div style={{ height: 'calc(100% - 49px)' }}>
+					<div
+						style={{
+							backgroundColor: this.props.theme.wall.backgroundColor,
+							height: 'calc(100% - 49px)',
+							overflowX: 'auto',
+							overflowY: 'auto'
+						}}>
 						<ImportDropzone>
 							<CombinedResourceListing
 								images
