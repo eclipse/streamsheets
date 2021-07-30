@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -37,7 +37,7 @@ import { Path } from '../../../helper/Path';
 
 class StreamDeleteDialog extends React.Component {
 	static propTypes = {
-		onDelete: PropTypes.func,
+		onDelete: PropTypes.func
 	};
 
 	static defaultProps = {
@@ -56,30 +56,28 @@ class StreamDeleteDialog extends React.Component {
 					</p>
 				</DialogContentText>
 				<List>
-				{conflicts.map(c => (<ListItem
-						key={c.id}
-				>
-					<ListItemIcon>
-						{
-							c.className === AdminConstants.CONFIG_CLASS.ConsumerConfiguration ? 
-							<IconStream /> : <IconProducer/>
-						}
-					</ListItemIcon>
-					<ListItemText primary={c.name} />
-				</ListItem>)
-			
-		)}
+					{conflicts.map((c) => (
+						<ListItem key={c.id}>
+							<ListItemIcon>
+								{c.className === AdminConstants.CONFIG_CLASS.ConsumerConfiguration ? (
+									<IconStream />
+								) : (
+									<IconProducer />
+								)}
+							</ListItemIcon>
+							<ListItemText primary={c.name} />
+						</ListItem>
+					))}
 				</List>
 			</div>
 		);
 	}
 
 	handleConflictClick(conflict) {
-		if(conflict && conflict.id && conflict.className) {
+		if (conflict && conflict.id && conflict.className) {
 			window.open(Path.stream(conflict.id));
-		}
-		else if(conflict && conflict.id) {
-			window.open(Path.machine(conflict.id))
+		} else if (conflict && conflict.id) {
+			window.open(Path.machine(conflict.id));
 		}
 	}
 
@@ -88,9 +86,9 @@ class StreamDeleteDialog extends React.Component {
 		if (action) {
 			const configuration = StreamHelper.getActiveConfiguration(this.props);
 			const resp = await this.props.deleteActiveConfiguration(configuration.id);
-			if(resp && resp.response && resp.response.result === 1) {
+			if (resp && resp.response && resp.response.result === 1) {
 				this.forceUpdate();
-				if(typeof this.props.onDelete === 'function') {
+				if (typeof this.props.onDelete === 'function') {
 					this.props.onDelete(true);
 					this.closeDeleteDialog();
 				}
@@ -98,9 +96,7 @@ class StreamDeleteDialog extends React.Component {
 				this.props.setFormFeedback({
 					title: 'Delete ',
 					error: 'STREAM_DELETE_FAILED',
-					message: intl.formatMessage(
-						{ id: 'STREAM_DELETE_FAILED', defaultMessage: 'Delete failed' },
-					),
+					message: intl.formatMessage({ id: 'STREAM_DELETE_FAILED', defaultMessage: 'Delete failed' })
 				});
 			}
 		}
@@ -113,64 +109,51 @@ class StreamDeleteDialog extends React.Component {
 	render() {
 		const { open } = this.props;
 		const stream = StreamHelper.getActiveConfiguration(this.props);
-		if(!stream)
-			return null;
+		if (!stream) return null;
 		const conflicts = StreamHelper.getConficts(this.props);
 		return (
-				<div>
-					<Dialog
-							open={open}
+			<div>
+				<Dialog open={open}>
+					<DialogTitle>
+						<FormattedMessage
+							id="Admin.deleteStream"
+							defaultMessage="Delete Stream: {streamName}"
+							values={{ streamName: stream && stream.name }}
+						/>
+					</DialogTitle>
+					<DialogContent
+						style={{
+							marginTop: '20px'
+						}}
 					>
-						<DialogTitle>
+						<DialogContentText>
 							<FormattedMessage
-								id="Admin.deleteStream"
-								defaultMessage="Delete Stream: {streamName}"
-								values={{ streamName: stream && stream.name }}
+								id="Admin.deleteStreamInfo"
+								defaultMessage="You are about to delete the active data source."
 							/>
-						</DialogTitle>
-						<DialogContent
-							style={{
-								marginTop: '20px',
-							}}
+							{conflicts.length > 0 ? this.getListOfConflicts(conflicts) : null}
+						</DialogContentText>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={this.closeDeleteDialog} color="primary">
+							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
+						</Button>
+						<Button
+							// disabled={conflicts.length>0}
+							data-action="delete"
+							onClick={this.onDelete}
+							color="primary"
+							autoFocus
 						>
-									<DialogContentText>
-										<FormattedMessage
-											id="Admin.deleteStreamInfo"
-											defaultMessage="You are about to delete the active data source."
-										/>
-										{ conflicts.length>0 ? this.getListOfConflicts(conflicts) : null
-										}
-											</DialogContentText>
-						</DialogContent>
-						<DialogActions>
-							<Button onClick={this.closeDeleteDialog} color="primary">
-								<FormattedMessage
-									id="Cancel"
-									defaultMessage="Cancel"
-								/>
-							</Button>
-							<Button
-									// disabled={conflicts.length>0}
-									data-action="delete"
-									onClick={this.onDelete}
-									color="primary"
-									autoFocus
-							>
-								{
-									conflicts.length>0 ?
-									<FormattedMessage
-									id="Admin.Stream.DeleteAll"
-									defaultMessage="Delete all"
-									/> :
-									<FormattedMessage
-									id="Delete"
-									defaultMessage="Delete"
-									/> 
-								}
-							</Button>
-						</DialogActions>
-					</Dialog>
-				</div>
+							{conflicts.length > 0 ? (
+								<FormattedMessage id="Admin.Stream.DeleteAll" defaultMessage="Delete all" />
+							) : (
+								<FormattedMessage id="Delete" defaultMessage="Delete" />
+							)}
+						</Button>
+					</DialogActions>
+				</Dialog>
+			</div>
 		);
 	}
 }
@@ -181,7 +164,7 @@ function mapStateToProps(state) {
 		providers: state.streams.providers,
 		connectors: state.streams.connectors,
 		consumers: state.streams.consumers,
-		producers: state.streams.producers,
+		producers: state.streams.producers
 	};
 }
 function mapDispatchToProps(dispatch) {
