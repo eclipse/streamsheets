@@ -45,66 +45,30 @@ class StreamDeleteDialog extends React.Component {
 	};
 
 	getListOfConflicts(conflicts) {
-		const stream = StreamHelper.getActiveConfiguration(this.props);
-		const consumers = conflicts.map(c => {
-			if(c.className && c.className === AdminConstants.CONFIG_CLASS.ConsumerConfiguration) {
-				return (<ListItem
-						key={c.id}
-						button
-						onClick={(event) => this.handleConflictClick(c, event)}
-				>
-					<ListItemIcon>
-						<IconStream />
-					</ListItemIcon>
-					<ListItemText primary={c.name} />
-				</ListItem>);
-			}
-			return undefined;
-		});
-		const producers = conflicts.map(c => {
-			if(c.className && c.className === AdminConstants.CONFIG_CLASS.ProducerConfiguration) {
-				return (<ListItem
-					key={c.id}
-					button
-					onClick={(event) => this.handleConflictClick(c, event)}
-				>
-					<ListItemIcon>
-						<IconProducer />
-					</ListItemIcon>
-					<ListItemText primary={c.name} />
-				</ListItem>);
-			}
-			return undefined;
-		});
-		const machines = conflicts.map(c => {
-			if(!c.className) {
-				return (<ListItem
-						key={c.id}
-						button
-						onClick={(event) => this.handleConflictClick(c, event)}
-				>
-					<ListItemIcon>
-						<IconMachine />
-					</ListItemIcon>
-					<ListItemText primary={c.name} />
-				</ListItem>);
-			}
-			return undefined;
-		});
 		return (
 			<div>
 				<DialogContentText>
-					<div style={{ textAlign: 'center' }}><Warning color='action'/></div>
 					<p>
 						<FormattedMessage
-							id="Admin.deleteStreamNotPossible"
-							defaultMessage="Deleting {streamName} is not possible because of the following dependencies:"
-							values={{ streamName: stream.name }}
+							id="Admin.Stream.WillAlsoDelete"
+							defaultMessage="Following streams depend on this connector and will also be deleted:"
 						/>
 					</p>
 				</DialogContentText>
 				<List>
-					{[...consumers, ...producers, ...machines]}
+				{conflicts.map(c => (<ListItem
+						key={c.id}
+				>
+					<ListItemIcon>
+						{
+							c.className === AdminConstants.CONFIG_CLASS.ConsumerConfiguration ? 
+							<IconStream /> : <IconProducer/>
+						}
+					</ListItemIcon>
+					<ListItemText primary={c.name} />
+				</ListItem>)
+			
+		)}
 				</List>
 			</div>
 		);
@@ -169,15 +133,14 @@ class StreamDeleteDialog extends React.Component {
 								marginTop: '20px',
 							}}
 						>
-							{ conflicts.length>0 ? this.getListOfConflicts(conflicts) : (
 									<DialogContentText>
 										<FormattedMessage
 											id="Admin.deleteStreamInfo"
 											defaultMessage="You are about to delete the active data source."
 										/>
-									</DialogContentText>
-								)
-							}
+										{ conflicts.length>0 ? this.getListOfConflicts(conflicts) : null
+										}
+											</DialogContentText>
 						</DialogContent>
 						<DialogActions>
 							<Button onClick={this.closeDeleteDialog} color="primary">
@@ -187,16 +150,23 @@ class StreamDeleteDialog extends React.Component {
 								/>
 							</Button>
 							<Button
-									disabled={conflicts.length>0}
+									// disabled={conflicts.length>0}
 									data-action="delete"
 									onClick={this.onDelete}
 									color="primary"
 									autoFocus
 							>
-								<FormattedMessage
+								{
+									conflicts.length>0 ?
+									<FormattedMessage
+									id="Admin.Stream.DeleteAll"
+									defaultMessage="Delete all"
+									/> :
+									<FormattedMessage
 									id="Delete"
 									defaultMessage="Delete"
-								/>
+									/> 
+								}
 							</Button>
 						</DialogActions>
 					</Dialog>
