@@ -26,6 +26,7 @@ module.exports = class LayoutSection {
 		copy._expandable = this._expandable;
 		copy._expanded = this._expanded;
 		copy.layoutSize = this.layoutSize;
+		copy._layoutMinSize = this._layoutMinSize;
 
 		return copy;
 	}

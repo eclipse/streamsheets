@@ -124,6 +124,14 @@ class LayoutCellAttributes extends AttributeList {
 	setMergeCount(value) {
 		this.setAttribute(LayoutCellAttributes.MERGECOUNT, value);
 	}
+
+	getNewLine() {
+		return this.getAttribute(LayoutCellAttributes.NEWLINE);
+	}
+
+	setNewLine(value) {
+		this.setAttribute(LayoutCellAttributes.NEWLINE, value);
+	}
 	/**
 	 * Specifies if the {{#crossLink "Layout"}}{{/crossLink}} defined by
 	 * {{#crossLink "LayoutCellAttributes/getLayout:method"}}{{/crossLink}} is should be applied or not.<br/>
@@ -194,6 +202,10 @@ class LayoutCellAttributes extends AttributeList {
 		return 'mergecount';
 	}
 
+	static get NEWLINE() {
+		return 'newline';
+	}
+
 	static get TemplateID() {
 		return TemplateID;
 	}
@@ -217,6 +229,7 @@ class LayoutCellAttributes extends AttributeList {
 		addAttribute(new NumberAttribute(LayoutCellAttributes.MARGIN), 200);
 		addAttribute(new NumberAttribute(LayoutCellAttributes.GAP), 200);
 		addAttribute(new NumberAttribute(LayoutCellAttributes.MERGECOUNT), 0);
+		addAttribute(new NumberAttribute(LayoutCellAttributes.NEWLINE), 0);
 
 		return attributes.toTemplate(LayoutCellAttributes.TemplateID);
 	}

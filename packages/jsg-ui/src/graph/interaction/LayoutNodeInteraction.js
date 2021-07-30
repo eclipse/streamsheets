@@ -10,7 +10,7 @@
  ********************************************************************************/
 /* global window */
 import {
-	default as JSG, GraphUtils
+	default as JSG, GraphUtils, Rectangle
 } from '@cedalo/jsg-core';
 
 import Interaction from './Interaction';
@@ -48,7 +48,28 @@ export default class LayoutNodeInteraction extends Interaction {
 		return this._controller.getModel().columnData[this.index];
 	}
 
-	prepareResize(node, row, index) {
+	getRowInside(event, viewer, point, layoutNode) {
+		const data = layoutNode._virtualRowData ? layoutNode._virtualRowData : layoutNode.rowData;
+		const rect = new Rectangle();
+
+		rect.x = 0;
+		rect.y = 0;
+		rect.width = layoutNode.getWidth().getValue();
+
+		for (let i = 0; i < data.length; i += 1) {
+			const row = data[i];
+			rect.height = row.layoutSize;
+			if (rect.containsPoint(point)) {
+				return i;
+			}
+			rect.y += row.layoutSize;
+		}
+
+		return -1;
+	}
+
+
+	prepareResize(node, row, index, event, viewer) {
 		this.resizeInfo = {
 			row,
 			index,
@@ -62,9 +83,21 @@ export default class LayoutNodeInteraction extends Interaction {
 				this.resizeInfo.sectionSizes.push(row.size);
 			});
 		} else {
+			let columnData;
 			this.resizeInfo.sectionSizes = [];
 			this.resizeInfo.layoutSizes = [];
-			node.columnData.forEach((column, colIndex) => {
+			if (node._virtualRowData) {
+				const pt = this.pointToNode(event, viewer);
+				const rowIndex = this.getRowInside(event, viewer, pt, node);
+				if (rowIndex === -1) {
+					return;
+				}
+				columnData = node._virtualRowData[rowIndex].columnData;
+			} else {
+				columnData = node.columnData;
+			}
+
+			columnData.forEach((column, colIndex) => {
 				this.resizeInfo.sectionSizes.push(column.size);
 				this.resizeInfo.layoutSizes.push(column.layoutSize);
 			});
@@ -112,7 +145,7 @@ export default class LayoutNodeInteraction extends Interaction {
 
 	onMouseDown(event, viewer) {
 		const node = this._controller.getModel();
-		this.prepareResize(node, this.row, this.index);
+		this.prepareResize(node, this.row, this.index, event, viewer);
 		this._oldState = this.getData().copy();
 		this._ptDown = this.pointToNode(event, viewer);
 	}

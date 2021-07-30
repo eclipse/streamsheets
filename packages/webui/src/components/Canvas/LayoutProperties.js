@@ -194,6 +194,23 @@ export class LayoutProperties extends Component {
 		})
 	};
 
+	handleLayoutNewLine = (event) => {
+		const value = Number(event.target.value);
+
+		if (Number.isNaN(value) || value < 0) {
+			return;
+		}
+
+		const item = this.props.view.getItem();
+		const path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.NEWLINE);
+		const cmd = new JSG.SetAttributeAtPathCommand(item, path, event.target.value);
+
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	};
+
 	render() {
 		const sheetView = this.getSheetView();
 		if (!sheetView) {
@@ -296,6 +313,19 @@ export class LayoutProperties extends Component {
 						/>
 					] : null
 				}
+				{
+					item.getParent() instanceof JSG.LayoutNode ? (
+						<TextField
+							variant="outlined"
+							size="small"
+							margin="normal"
+							value={item.getLayoutCellAttributes().getNewLine().getValue()}
+							onChange={event => this.handleLayoutNewLine(event)}
+							label={
+								<FormattedMessage id="GraphItemProperties.LayoutNewLine" defaultMessage="Wrap behind Cell Treshold" />
+							}
+						/>
+					) : null}
 			</FormGroup>
 		);
 	}
