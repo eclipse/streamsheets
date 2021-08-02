@@ -34,6 +34,10 @@ function MyInputComponent(props) {
 }
 
 export class GeometryProperties extends Component {
+	state = {
+		dummy: 0,
+	}
+
 	getSheetView() {
 		const selection = graphManager.getGraphViewer().getSelection();
 		if (selection === undefined || selection.length !== 1) {
@@ -345,6 +349,9 @@ export class GeometryProperties extends Component {
 		const cmd = new JSG.SetPinCommand(item, pin);
 
 		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
 	}
 
 	handlePointRange = (event) => {
@@ -470,6 +477,9 @@ export class GeometryProperties extends Component {
 		const cmd = new JSG.SetAttributeAtPathCommand(item, name, expr);
 
 		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
 	};
 
 	render() {
