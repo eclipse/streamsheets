@@ -83,6 +83,8 @@ class Field {
 		this.secret = definition.secret;
 		this.value = definition.value;
 		this.advanced = definition.advanced === true;
+		this.basePath = definition.basePath;
+		this.baseValue = null;
 	}
 
 	toJSON() {
@@ -99,7 +101,8 @@ class Field {
 			value: this.value,
 			advanced: this.advanced,
 			disabled: !!this._disabled,
-			help: this._help
+			help: this._help,
+			basePath: this.basePath
 		};
 	}
 
@@ -135,6 +138,13 @@ class Field {
 
 	get value() {
 		return this._value;
+	}
+
+	getBaseValue(model) {
+		if (!this.basePath) {
+			return null;
+		}
+		return model.connector.getFieldValue(this.basePath);
 	}
 
 	isShow(model) {

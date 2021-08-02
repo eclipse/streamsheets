@@ -108,6 +108,12 @@ class StreamSettings extends React.Component {
 	static getDerivedStateFromProps(props, state) {
 		if (state.stream === undefined && props.stream) {
 			const config = StreamHelper.getInstanceFromObject(props.stream, props.streams);
+			const hasConnector = ['ProducerConfiguration', 'ConsumerConfiguration'].includes(props.stream.className);
+			const connectorConfig = hasConnector
+				? StreamHelper.getConnectorConfig(props.stream.connector, props.streams.connectors)
+				: null;
+			const connector = connectorConfig ? StreamHelper.getInstanceFromObject(connectorConfig, props.streams) : null;
+			config.connector = connector;
 			return { ...state, stream: config };
 		}
 		return { ...state };
