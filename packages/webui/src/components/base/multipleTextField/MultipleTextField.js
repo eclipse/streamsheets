@@ -10,7 +10,7 @@
  ********************************************************************************/
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, IconButton, FormHelperText, TextField, Typography } from '@material-ui/core';
+import { Button, IconButton, FormHelperText, TextField, Typography, InputAdornment } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Clear';
 import { FormattedMessage } from 'react-intl';
@@ -117,7 +117,7 @@ export default class MultipleTextField extends Component {
 	};
 
 	render() {
-		const { label, name, disabled } = this.props;
+		const { label, name, disabled, baseValue } = this.props;
 		const { values } = this.state;
 		return (
 			<div style={{
@@ -141,6 +141,20 @@ export default class MultipleTextField extends Component {
 							onBlur={this.onBlur(idx)}
 							// onChange={this.onChangeData(idx)}
 							style={styles.textField}
+							InputProps={
+								baseValue
+									? {
+											startAdornment: (
+												<InputAdornment
+													style={{ marginRight: '0px' }}
+													position="start"
+												>
+													{baseValue}
+												</InputAdornment>
+											)
+									  }
+									: {}
+							}
 						/>
 						<IconButton
 							size="small"

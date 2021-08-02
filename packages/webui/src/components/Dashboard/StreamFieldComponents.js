@@ -69,6 +69,7 @@ export default class StreamFieldComponents {
 				if (field.isShow(configuration.fields)) {
 					const value = configuration.fields[field.id];
 					field.value = value;
+					field.baseValue = field.getBaseValue(configuration);
 					const component = this.getComponent(field, value, !!field.disabled || disabled,
 						errors ? errors[field.id] : undefined);
 					if (component) {
@@ -256,6 +257,7 @@ export default class StreamFieldComponents {
 			disabled={disabled}
 			key={field.id}
 			name={field.id}
+			baseValue={field.baseValue}
 			onChange={this.handler}
 			values={value}
 		/>;

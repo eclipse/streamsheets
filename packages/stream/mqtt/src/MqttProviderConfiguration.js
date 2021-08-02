@@ -283,6 +283,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'Topic to listen to. This topic will extend the base topic of the connector.',
 				de: 'Topic, dass abgehört werden soll. Dieses Topic ergänzt das Basistopic des Konnektors.'
 			},
+			basePath: 'baseTopic',
 			type: sdk.ProviderConfiguration.FIELDTYPES.TEXTLIST
 		});
 
