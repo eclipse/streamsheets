@@ -2,7 +2,6 @@
 
 import {default as JSG, ImagePool, Notification, NotificationCenter, LayoutNode, LayoutSection} from '@cedalo/jsg-core';
 import ItemMenuEntry from '../ItemMenuEntry';
-import { add } from 'cheerio/lib/api/traversing';
 
 
 export default class AddDashBoardItem extends ItemMenuEntry {
@@ -78,12 +77,17 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 		const addDashBoardItem = (ev, type) => {
 			let node;
 			switch (type) {
-			case 'layout':
-				node = new JSG.LayoutNode();
-				node.getPin().setLocalPoint(0, 0);
-				node.setOrigin(0, 0);
-				node._rowData = [new LayoutSection(3000), new LayoutSection(3000)];
+			case 'layout': {
+				const cmp = new JSG.CompoundCommand();
+				let path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.LAYOUT);
+				cmp.add(new JSG.SetAttributeAtPathCommand(item, path, 'column'));
+				item.handleLayoutTypeChange('column', cmp);
+				path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.SECTIONS);
+				cmp.add(new JSG.SetAttributeAtPathCommand(item, path, 2));
+				item.handleLayoutColumnChange(2, cmp);
+				editor.getInteractionHandler().execute(cmp);
 				break;
+			}
 			case 'title': {
 				node = new JSG.TextNode('Title');
 				const f = node.getTextFormat();

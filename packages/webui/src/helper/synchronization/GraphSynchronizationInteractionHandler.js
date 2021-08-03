@@ -205,6 +205,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 
 	isShapeChangingCommand(command) {
 		return (command instanceof JSG.PasteCellsFromClipboardCommand) ||
+			((command instanceof JSG.CompoundCommand) && command.hasCommands() && (command.commands[0] instanceof JSG.SetNameCommand)) ||
 			(command instanceof JSG.DeleteCellsCommand) ||
 			(command instanceof JSG.InsertCellsCommand);
 	}
@@ -296,7 +297,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				if (!command.isRequest) {
 					Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, true, false);
 				}
-				if (commandJSON.name !== 'command.PasteCellsFromClipboardCommand') {
+				if (this.isShapeChangingCommand(command)) {
 					this.updateGraphItems(true);
 				}
 			}
@@ -347,7 +348,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				if (!command.isRequest) {
 					Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, false, true);
 				}
-				if (commandJSON.name !== 'command.PasteCellsFromClipboardCommand') {
+				if (this.isShapeChangingCommand(command)) {
 					this.updateGraphItems(false);
 				}
 			}
