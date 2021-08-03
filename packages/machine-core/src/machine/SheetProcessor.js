@@ -40,6 +40,10 @@ class Cursor {
 		this.reset();
 	}
 
+	getCell() {
+		return cellAt(this.r, this.c, this.sheet);
+	}
+
 	isProcessed() {
 		return this.r > this.maxRow || (this.r === this.maxRow && this.c != null && this.c > this.maxCol);
 	}
@@ -84,6 +88,10 @@ class SheetProcessor {
 
 	continueAt(index) {
 		this._cursor.setToIndex(index);
+	}
+
+	getCurrentCell() {
+		return this._cursor.getCell();
 	}
 
 	reset() {
