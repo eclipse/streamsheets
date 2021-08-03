@@ -71,7 +71,7 @@ module.exports = class CellsNode extends Node {
 		const sheet = this.getSheet();
 		if (sheet) {
 			const sourceSheet = sheet.sourceSheet;
-			if (sourceSheet) {
+			if (sourceSheet && sheet !== sourceSheet) {
 				return sourceSheet.getCells().getDataProvider();
 			}
 		}

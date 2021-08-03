@@ -684,7 +684,7 @@ class Expression {
 			if (this._term === undefined) {
 				ret.f = Strings.encode(this._formula);
 			} else {
-				ret.f = Strings.encode(this._term.toString());
+				ret.f = Strings.encode(this._term.toString({useName: true, forceName: true}));
 			}
 		}
 		if (this._value !== undefined) {
@@ -762,7 +762,7 @@ class Expression {
 	 * @private
 	 */
 	_writeTermAttribute(writer) {
-		writer.writeAttributeString('f', Strings.encode(this._term.toString({useName: true, forceName: true})));
+		writer.writeAttributeString('f', Strings.encode(this._term.toString(writer.toStringParams)));
 	}
 
 	/**

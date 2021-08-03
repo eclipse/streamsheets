@@ -393,6 +393,10 @@ module.exports = class StreamSheetContainer extends Node {
 						break;
 					case 'pin':
 						this._pin.read(reader, child);
+						this._pin.setLocalCoordinate(
+							new JSG.NumberExpression(0, 'WIDTH * 0.5'),
+							new JSG.NumberExpression(0, 'HEIGHT * 0.5')
+						);
 						// after pin change we update origin cache, so that subsequent call to origin gets correct values...
 						this._updateOrigin();
 						break;

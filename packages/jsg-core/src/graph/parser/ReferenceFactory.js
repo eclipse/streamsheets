@@ -71,7 +71,7 @@ module.exports = class ReferenceFactory {
 				str = str.substring(cutIndex + 1);
 			} else if (Strings.startsWith(str, 'Item')) {
 				cutIndex = str.indexOf('!');
-				id = str.substring(5, cutIndex);
+				id = str.substring(4, cutIndex);
 				// not yet resolved...
 				unresolvedRef = new GraphReference();
 				_item = ReferenceFactory._resolve(id, litem, lgraph);

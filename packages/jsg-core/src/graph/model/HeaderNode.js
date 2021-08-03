@@ -78,7 +78,7 @@ module.exports = class HeaderNode extends Node {
 		const sheet = this.getSheet();
 		if (sheet) {
 			const sourceSheet = sheet.sourceSheet;
-			if (sourceSheet) {
+			if (sourceSheet && sheet !== sourceSheet) {
 				const attr = sheet.getAttributeAtPath('range');
 				if (attr) {
 					const rangeString = attr.getValue();
@@ -110,7 +110,7 @@ module.exports = class HeaderNode extends Node {
 		const sheet = this.getSheet();
 		if (sheet) {
 			const sourceSheet = sheet.sourceSheet;
-			if (sourceSheet) {
+			if (sourceSheet && sourceSheet !== sheet) {
 				return this.isRow() ?  sourceSheet._rows.sectionData : sourceSheet._columns.sectionData;
 			}
 		}

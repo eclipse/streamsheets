@@ -63,7 +63,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		for (let i = 0; i < data.length; i += 1) {
 			const row = data[i];
 			if (row.expandable && rect.containsPoint(point)) {
-				return i;
+				return row.index === undefined ? i : row.index;
 			}
 			rect.y += row.layoutSize;
 		}
