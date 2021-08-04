@@ -1,6 +1,6 @@
-/* global document image */
+/* global document Image */
 
-import {default as JSG, ImagePool, Notification, NotificationCenter, LayoutNode, LayoutSection} from '@cedalo/jsg-core';
+import {default as JSG, LayoutCell} from '@cedalo/jsg-core';
 import ItemMenuEntry from '../ItemMenuEntry';
 
 
@@ -16,7 +16,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 	}
 
 	isVisible(item) {
-		return (item.getParent() instanceof LayoutNode) && !item.isProtected();
+		return (item instanceof LayoutCell) && !item.isProtected();
 	}
 
 	onEvent(event, item, editor) {
@@ -77,14 +77,18 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 		const addDashBoardItem = (ev, type) => {
 			let node;
 			switch (type) {
-			case 'layout': {
+			case 'layout2':
+			case 'layout3':
+			case 'layout4':
+			case 'layout5':
+			case 'layout6': {
 				const cmp = new JSG.CompoundCommand();
 				let path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.LAYOUT);
 				cmp.add(new JSG.SetAttributeAtPathCommand(item, path, 'column'));
 				item.handleLayoutTypeChange('column', cmp);
 				path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.SECTIONS);
 				cmp.add(new JSG.SetAttributeAtPathCommand(item, path, 2));
-				item.handleLayoutColumnChange(2, cmp);
+				item.handleLayoutColumnChange(Number(type.charAt(6)), cmp);
 				editor.getInteractionHandler().execute(cmp);
 				break;
 			}
@@ -157,15 +161,6 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node = new JSG.SheetKnobNode();
 				node.setHeight(3000);
 				break;
-			// case 'sheet': {
-			// 	NotificationCenter.getInstance().send(
-			// 		new Notification(NotificationCenter.ADD_SHEET_NOTIFICATION, this));
-			// 	node = new JSG.StreamSheetWrapper();
-			// 	editor.getGraph()._sheetWrapper = node;
-			// 	node.getFormat().setLineCorner(75);
-			// 	node.setHeight(5000);
-			// 	break;
-			// }
 			default:
 				node = new JSG.SheetPlotNode();
 				type = node.setChartType(type);
@@ -233,7 +228,11 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
 		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
 		addTitle('Layout');
-		addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
+		addElement('layout2', 'Layout 2', 'lib/res/svg/layout2.svg');
+		addElement('layout3', 'Layout 3', 'lib/res/svg/layout3.svg');
+		addElement('layout4', 'Layout 4', 'lib/res/svg/layout4.svg');
+		addElement('layout5', 'Layout 5' , 'lib/res/svg/layout5.svg');
+		addElement('layout6', 'Layout 6', 'lib/res/svg/layout6.svg');
 
 
 		canvas.parentNode.appendChild(toolBox);
