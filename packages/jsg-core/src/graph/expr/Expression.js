@@ -762,7 +762,7 @@ class Expression {
 	 * @private
 	 */
 	_writeTermAttribute(writer) {
-		writer.writeAttributeString('f', Strings.encode(this._term.toString(writer.toStringParams)));
+		writer.writeAttributeString('f', Strings.encode(this._term.toString({useName: true, forceName: true})));
 	}
 
 	/**
