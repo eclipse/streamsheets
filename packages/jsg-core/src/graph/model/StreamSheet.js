@@ -381,6 +381,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 			if (!node._lastJSON || node._lastJSON !== jsonShape) {
 				const eventEnabled = node.disableEvents();
 				node.fromJSON(shape);
+				node.evaluate();
 				node.enableEvents(eventEnabled);
 				let pattern = node.getFormat().getPattern().getValue();
 				if (pattern) {
@@ -422,7 +423,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 					} catch (e) {
 					}
 				}
-                node.evaluate();
                 node.setRefreshNeeded(true);
 			}
 

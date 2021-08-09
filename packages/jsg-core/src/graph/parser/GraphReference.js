@@ -106,7 +106,7 @@ module.exports = class GraphReference extends Reference {
 			if (useName) {
 				return `${this._item.getName().getValue()}!${propString}`;
 			}
-			return `Item${this._item.getId()}!${propString}`;
+			return `Item${id}!${propString}`;
 		}
 		// not resolved => simply return raw string...
 		return this._str;
