@@ -1932,12 +1932,18 @@ export default class WorksheetView extends ContentNodeView {
 		const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
 		const scrollView = this.getScrollView();
 		const pt = scrollView.getScrollPosition();
+		const ptOld = pt.copy();
 
 		if (event.event.shiftKey) {
 			pt.x += zDelta * 2000;
-		} else if (scrollView.getVerticalScrollbar().isVisible()) {
+		} else/* if (scrollView.getVerticalScrollbar().isVisible())*/ {
 			pt.y += zDelta * 1500;
-		} else {
+		}
+
+		scrollView.setScrollPositionTo(pt);
+
+		const ptNew = scrollView.getScrollPosition();
+		if (ptNew.x === ptOld.x && ptNew.y === ptOld.y) {
 			// if no scrollbar, pass to parent
 			let view = this.getParent();
 			while (view && !(view instanceof ContentNodeView)) {
@@ -1947,8 +1953,6 @@ export default class WorksheetView extends ContentNodeView {
 				view.handleMouseWheel(event, viewer);
 			}
 		}
-
-		scrollView.setScrollPositionTo(pt);
 
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetView.SHEET_SCROLL_NOTIFICATION, {
