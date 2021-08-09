@@ -1047,7 +1047,7 @@
 	"StreamChartProperties.EditValueRanges": "Wertebereiche bearbeiten",
 	"StreamChartProperties.ValueRanges": "Wertebereiche",
 	"StreamChartProperties.SeriesLines": "Datenreihenlinien",
-	"StreamChartProperties.MenuVisible": "Auswahlmenü im Preview Mode",
+	"StreamChartProperties.MenuVisible": "Chartmenü anzeigen",
 	"StreamChartProperties.VaryByCategories": "Farbe pro Kategorie",
 	"StreamChartProperties.ThresholdStyle": "Grenzwertdarstellung",
 	"StreamChartProperties.ThresholdDataRange": "Datenbereich Grenzwerte",
