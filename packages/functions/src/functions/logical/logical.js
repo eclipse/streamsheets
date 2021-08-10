@@ -43,7 +43,7 @@ const getCondition = (term) => {
 };
 const condition = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withMinArgs(2)
+		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg((cond) => getCondition(cond))
 		.addNextTerm()
