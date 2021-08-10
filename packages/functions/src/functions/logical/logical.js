@@ -35,11 +35,7 @@ const and = (sheet, ...terms) => runWith(sheet, terms, (res, currbool) => (res =
 
 const or = (sheet, ...terms) => runWith(sheet, terms, (res, currbool) => res || currbool);
 
-// important to return a function, because for condition term value should be evaluated on true/false!
-const termValue = (term, defval) => () => {
-	const value = term != null ? term.value : undefined;
-	return value != null ? value : defval;
-};
+const termValue = (term) => term ? term.value : null;
 
 const getCondition = (term) => {
 	const value = term.value;
@@ -47,12 +43,12 @@ const getCondition = (term) => {
 };
 const condition = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withMinArgs(2)
+		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg((cond) => getCondition(cond))
-		.mapNextArg((onTrue) => termValue(onTrue, true)) // return a different value?
-		.mapNextArg((onFalse) => termValue(onFalse, false))
-		.run((cond, onTrue, onFalse) => cond ? onTrue() : onFalse());
+		.addNextTerm()
+		.addNextTerm()
+		.run((cond, truthyTerm, falsyTerm) => (cond ? termValue(truthyTerm) : termValue(falsyTerm)));
 
 const not = (sheet, ...terms) =>
 	runFunction(sheet, terms)

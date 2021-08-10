@@ -98,6 +98,11 @@ class Runner {
 		return this;
 	}
 
+	addNextTerm() {
+		if (!this.errorHandler.hasError()) this.mappedArgs.push(this.args.shift());
+		return this;
+	}
+
 	mapNextArg(fn) {
 		if (!this.errorHandler.hasError()) {
 			const term = this.args.shift();
