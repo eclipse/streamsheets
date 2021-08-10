@@ -399,7 +399,7 @@ describe('ms2serial', () => {
 		expect(year(serial)).toBe(2019);
 		expect(month(serial)).toBe(2);
 		expect(day(serial)).toBe(26);
-		expect(hours(serial)).toBe(18);
+		expect(hours(serial)).toBe(17);  // wintertime in germany
 		expect(minutes(serial)).toBe(29);
 		expect(seconds(serial)).toBe(39);
 		expect(milliseconds(serial)).toBe(160);
@@ -433,7 +433,7 @@ describe('serial2ms', () => {
 		expect(date.getUTCFullYear()).toBe(2019);
 		expect(date.getUTCMonth() + 1).toBe(2);
 		expect(date.getUTCDate()).toBe(26);
-		expect(date.getUTCHours()).toBe(14);
+		expect(date.getUTCHours()).toBe(15); // wintertime in germany
 		expect(date.getUTCMinutes()).toBe(29);
 		expect(date.getUTCSeconds()).toBe(39);
 		expect(date.getUTCMilliseconds()).toBe(160);

@@ -55,11 +55,14 @@ const weekday = (serial, floor) => {
 	return wday < 1 || serial < 1 ? 7 : wday;
 };
 
-const serial2ms = (serial, utc) => Math.round(asMillis(serial) + (utc ? timezoneOffset(new Date()) : 0));
+const serial2ms = (serial, utc) => {
+	const ms = Math.round(asMillis(serial));
+	return utc ? ms + timezoneOffset(new Date(ms)) : ms;
+};
 const serial2date = (serial) => new Date(serial2ms(serial));
 
 const ms2serial = (ms, utc) => {
-	if (utc) ms -= timezoneOffset(new Date());
+	if (utc) ms -= timezoneOffset(new Date(ms));
 	const serial = ms / DAY_IN_MS + 25569;
 	return serial > 61 ? serial : serial - 1;
 };
