@@ -39,6 +39,7 @@ class CellRangeComponent extends React.Component {
 		sheetView: PropTypes.object.isRequired,
 		onlyReference: PropTypes.bool,
 		inputEditorType: PropTypes.string,
+		label: PropTypes.string,
 		inputEditorOptions: PropTypes.array,
 		// fontSize: PropTypes.string
 	};
@@ -49,6 +50,7 @@ class CellRangeComponent extends React.Component {
 		onBlur: () => {},
 		onFocus: () => {},
 		validate: () => true,
+		label: undefined,
 		onlyReference: true,
 		inputEditorType: 'none',
 		inputEditorOptions: [],
@@ -168,8 +170,9 @@ class CellRangeComponent extends React.Component {
 			event.target.innerHTML = event.target.textContent;
 		}
 
-		if (this.props.validate && !this.props.validate(event.target.innerHTML)) {
-			event.target.innerHTML = this.state.oldValue;
+		if (this.props.validate) {
+			this.props.validate(event.target.innerHTML, this.props.label);
+			// event.target.innerHTML = this.state.oldValue;
 		}
 
 		if (event.type === 'keydown') {

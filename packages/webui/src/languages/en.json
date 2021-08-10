@@ -514,6 +514,7 @@
   "Alert.SheetDelete": "Cannot delete! There must be at least one Streamsheet.",
   "Alert.SheetMaximum": "There is a maximum of 10 Streamsheets allowed!",
   "Alert.SheetDoubleName": "This name is already used! The Name must be unique.",
+  "Alert.InvalidNumber": "Please enter a valid Number!",
   "Settings.Debug": "Debug Mode",
   "Settings.ExperimentalFeatures": "Experimental Features",
   "ToolsContainer": "Container",

@@ -36,6 +36,23 @@ function MyInputComponent(props) {
 export class GeometryProperties extends Component {
 	state = {
 		dummy: 0,
+		errors: [],
+	}
+
+	componentDidMount() {
+		JSG.NotificationCenter.getInstance().register(
+			this,
+			JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION,
+			'onGraphSelectionChanged',
+		);
+	}
+
+	componentWillUnmount() {
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION);
+	}
+
+	onGraphSelectionChanged() {
+		this.setState({errors: []});
 	}
 
 	getSheetView() {
@@ -117,8 +134,17 @@ export class GeometryProperties extends Component {
 		)
 	}
 
+	getError(label) {
+		const res = this.state.errors.filter(error => {
+			return error.label === label;
+		});
+
+		return res.length ? res[0] : undefined;
+	}
+
 	getPropertyHandler(label, handler, expression, validate, round = 0) {
 		const sheetView = this.getSheetView();
+		const error = this.getError(label);
 
 		return (
 			<TextField
@@ -126,18 +152,21 @@ export class GeometryProperties extends Component {
 				variant="outlined"
 				size="small"
 				fullWidth
+				error={error !== undefined}
+				helperText={error === undefined ? undefined : error.message}
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
-				onBlur={(event) => handler(event)}
+				onBlur={(event) => handler(event, error)}
 				InputLabelProps={{shrink: true}}
 				InputProps={{
 					inputComponent: MyInputComponent,
 					inputProps: {
+						label,
 						validate,
 						onlyReference: false,
 						component: CellRangeComponent,
 						sheetView,
-						range: this.getFormula(expression, round)
+						range: error ? error.value : this.getFormula(expression, round)
 					}
 				}}
 			/>
@@ -261,6 +290,9 @@ export class GeometryProperties extends Component {
 	}
 
 	handleName = (event) => {
+		if (this.getError('GraphItemProperties.Name')) {
+			return;
+		}
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
 
@@ -268,7 +300,29 @@ export class GeometryProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
-	validateName = (name) => {
+	validateCoordinate = (value, label) => {
+		if (!JSG.Numbers.isNumber(Number(value))) {
+			if (!this.getError(label)) {
+				this.state.errors.push({
+					value,
+					label,
+					message: intl.formatMessage({ id: 'Alert.InvalidNumber' }, {})
+				});
+				this.setState({ errors: this.state.errors });
+			}
+			return false;
+		}
+
+		const error = this.getError(label);
+		if (error) {
+			JSG.Arrays.remove(this.state.errors, error);
+			this.setState({errors : this.state.errors});
+		}
+
+		return true;
+	};
+
+	validateName = (name, label) => {
 		const item = this.props.view.getItem();
 		let used = false;
 
@@ -279,13 +333,21 @@ export class GeometryProperties extends Component {
 		}, false);
 
 		if (used || name === '') {
-			JSG.NotificationCenter.getInstance().send(
-				new JSG.Notification(JSG.WorksheetView.SHEET_MESSAGE_NOTIFICATION, {
-					view: this.props.view,
-					message: { message: intl.formatMessage({ id: 'Alert.SheetDoubleName' }, {}) },
-				}),
-			);
+			if (!this.getError(label)) {
+				this.state.errors.push({
+					value: name,
+					label,
+					message: intl.formatMessage({ id: 'Alert.SheetDoubleName' }, {})
+				});
+				this.setState({ errors: this.state.errors });
+			}
 			return false;
+		}
+
+		const error = this.getError(label);
+		if (error) {
+			JSG.Arrays.remove(this.state.errors, error);
+			this.setState({errors : this.state.errors});
 		}
 
 		return true;
@@ -495,10 +557,10 @@ export class GeometryProperties extends Component {
 					width: '100%'
 				}}
 			>
-				{this.getPropertyHandler(line ? "GraphItemProperties.StartX" : "GraphItemProperties.HorizontalPosition", this.handleX, this.getX())}
-				{this.getPropertyHandler(line ? "GraphItemProperties.StartY" : "GraphItemProperties.VerticalPosition", this.handleY, this.getY())}
-				{this.getPropertyHandler(line ? "GraphItemProperties.EndX" : "GraphItemProperties.Width", this.handleWidth, this.getWidth())}
-				{this.getPropertyHandler(line ? "GraphItemProperties.EndY" : "GraphItemProperties.Height", this.handleHeight, this.getHeight())}
+				{this.getPropertyHandler(line ? "GraphItemProperties.StartX" : "GraphItemProperties.HorizontalPosition", this.handleX, this.getX(), this.validateCoordinate)}
+				{this.getPropertyHandler(line ? "GraphItemProperties.StartY" : "GraphItemProperties.VerticalPosition", this.handleY, this.getY(), this.validateCoordinate)}
+				{this.getPropertyHandler(line ? "GraphItemProperties.EndX" : "GraphItemProperties.Width", this.handleWidth, this.getWidth(), this.validateCoordinate)}
+				{this.getPropertyHandler(line ? "GraphItemProperties.EndY" : "GraphItemProperties.Height", this.handleHeight, this.getHeight(), this.validateCoordinate)}
 				{line ? null : this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), undefined, 2)}
 				{line ? null : (
 					<TextField
