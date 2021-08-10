@@ -112,15 +112,12 @@ class CellInfoView {
 			const bounds = this.getCellBounds(cellRange);
 			const content = this.createInfoHTML(info, bounds);
 			const divView = this.createDiv(content);
-			const tableEl = getTableElement();
-			tableEl.storeScrollTop();
 			this.setDivBounds(divView, bounds);
 			this.appendDiv(divView);
 			const rightBorderOverlap = (divView.offsetLeft + divView.offsetWidth) - (divView.parentNode.offsetLeft + divView.parentNode.offsetWidth);
 			if (rightBorderOverlap > 0) {
 				divView.style.left = `${divView.offsetLeft - rightBorderOverlap}px`;
 			}
-			tableEl.restoreScrollTop();
 			this.registerView(divView, cell, cellRange);
 		}
 	}
@@ -133,8 +130,11 @@ class CellInfoView {
 	}
 	showInfo(cell, cellRange) {
 		// remove previous view before adding new one
+		const tableEl = getTableElement();
+		tableEl.storeScrollTop();
 		this.removeInfoView();
 		this.addInfoView(cell, cellRange);
+		tableEl.restoreScrollTop();
 	}
 }
 
@@ -156,7 +156,7 @@ class DataInfoView extends CellInfoView {
 
 		let html = `<p style="color: ${
 			JSG.theme.text
-		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
+		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">${JSG.getLocalizedString('Result')} (${rowCount}):</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
 		html += `<div id="dataviewtable" style="overflow-y: auto; max-width: ${bounds.maxWidth}px; max-height: ${bounds.maxHeight - 25}px">`;
 		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${
@@ -171,8 +171,12 @@ class DataInfoView extends CellInfoView {
 		html += '<tbody>';
 
 		if (rowCount) {
-			fields[0][1].forEach((value, index) => {
+			let index;
+			for (index = 0; index < fields[0][1].length && index < 100; index += 1) {
+			// fields[0][1].forEach((value, index) => {
+			// 	const value = fields[0][1][i];
 				html += '<tr>';
+				// eslint-disable-next-line no-loop-func
 				fields.forEach(([key, entry]) => {
 					let val = entry[index];
 					if (key === 'time') {
@@ -184,7 +188,11 @@ class DataInfoView extends CellInfoView {
 					}</td>`;
 				});
 				html += '</tr>';
-			});
+			}
+			if (index < fields[0][1].length) {
+				html += `<tr><td>${JSG.getLocalizedString('MaxDataViewRows')}</td></tr>`;
+
+			}
 		}
 
 		html += '</tbody>';
