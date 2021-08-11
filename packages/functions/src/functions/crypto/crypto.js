@@ -18,6 +18,7 @@ const ERROR = FunctionErrors.code;
 const DEF_HASHES = ['sha256', 'sha512', 'sha384', 'md5'];
 const HASH_ALGOS = crypto.getHashes().map((algo) => algo.toLowerCase());
 const DEFAULT_HASH = DEF_HASHES.find((hash) => HASH_ALGOS.includes(hash)) || HASH_ALGOS[0];
+const DEFAULT_ENCODING = 'hex';
 
 const getAlgorithm = (str) => {
 	str = str.toLowerCase();

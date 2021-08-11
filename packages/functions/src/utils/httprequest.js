@@ -63,7 +63,7 @@ const addResultToTarget = (sheet, target, resobj) => {
 	}
 };
 
-const ERRORDATA = ['code', 'message'];
+const ERRORDATA = ['code', 'message', 'data'];
 const METADATA = ['headers', 'status', 'statusText'];
 const REQUESTDATA = ['data', 'headers', 'method', 'url'];
 
@@ -85,6 +85,7 @@ const createRequestCallback = (sheet, target, extractErrorData, extractResultDat
 	const createResponseResult = createResult(extractResultData || getResultData);
 	return (context, response, error) => {
 		const reqId = context._reqId;
+		error.data = error.response ? error.response.data : undefined;
 		const resobj = error ? createErrorResult(reqId, error) : createResponseResult(reqId, response);
 		resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
 		if (target) addResultToTarget(sheet, target, resobj);
