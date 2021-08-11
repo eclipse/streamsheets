@@ -39,6 +39,11 @@ export default class LayoutView extends NodeView {
 		const item = this.getItem();
 		const viewSettings = item.getGraph().viewSettings;
 		const rowData = item._virtualRowData;
+
+		if (!rowData) {
+			return;
+		}
+
 		// const columnData = item.columnData;
 		let y = 0;
 		let x = 0;

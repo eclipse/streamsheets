@@ -386,7 +386,6 @@ export default class LayoutNodeActivator extends InteractionActivator {
 			if (cursor !== undefined) {
 				dispatcher.setCursor(cursor);
 				event.hasActivated = true;
-				event.doRepaint = true;
 			}
 		}
 	}

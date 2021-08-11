@@ -289,6 +289,7 @@ module.exports = class LayoutNode extends Node {
 		const minimumSize = this.getMinimumLayoutSize();
 		const size = this.getSizeAsPoint();
 		let node;
+		this.getItemAttributes().setClipChildren(false);
 
 		this._virtualRowData = [];
 
@@ -464,6 +465,7 @@ module.exports = class LayoutNode extends Node {
 
 		// finally set height of layout node
 		this.setSizeToPoint(size);
+		this.refresh(true);
 	}
 
 	isAddLabelAllowed() {

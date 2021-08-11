@@ -309,9 +309,8 @@ export default class GraphManager {
 	}
 
 	undo() {
-		// const command = this.commandStack.undo();
-		this.redraw();	// TODO: why redraw()??
-		this.getGraphEditor().getInteractionHandler().undo(); // command);
+		this.getGraphEditor().getInteractionHandler().undo();
+		this.redraw();
 
 		// to update toolbar
 		const sheetView = this.getActiveSheetView();
@@ -322,8 +321,8 @@ export default class GraphManager {
 
 	redo() {
 		// const command = this.commandStack.redo();
-		this.redraw(); // TODO: why redraw()??
 		this.getGraphEditor().getInteractionHandler().redo(); // command)
+		this.redraw();
 
 		// to update toolbar
 		const sheetView = this.getActiveSheetView();
