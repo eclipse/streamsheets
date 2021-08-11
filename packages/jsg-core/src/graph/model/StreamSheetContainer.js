@@ -527,6 +527,10 @@ module.exports = class StreamSheetContainer extends Node {
 			case 'resize': {
 				layoutNode.setOrigin(0, 0);
 				sheetSize = Math.max(sheetSize, minWidth)
+				const scroll = (size.y - heightCaption) < layoutSize.y;
+				if (scroll) {
+					sheetSize -= JSG.ScrollBar.SIZE;
+				}
 				if (sheetSize !== layoutSize.x) {
 					layoutNode.setWidth(sheetSize);
 					layoutNode.layout();

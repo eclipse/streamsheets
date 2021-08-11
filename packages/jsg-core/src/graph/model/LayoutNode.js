@@ -289,7 +289,6 @@ module.exports = class LayoutNode extends Node {
 		const minimumSize = this.getMinimumLayoutSize();
 		const size = this.getSizeAsPoint();
 		let node;
-		this.getItemAttributes().setClipChildren(false);
 
 		this._virtualRowData = [];
 
