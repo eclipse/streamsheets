@@ -149,6 +149,10 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node.setHeight(1000);
 				break;
 			}
+			case 'button':
+				node = new JSG.SheetButtonNode();
+				node.setHeight(1000);
+				break;
 			case 'check':
 				node = new JSG.SheetCheckboxNode();
 				node.setHeight(800);
@@ -189,6 +193,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			pdiv.style.display = 'inline-block';
 			pdiv.style.marginRight = '5px';
 			pdiv.style.marginBottom = '5px';
+			pdiv.style.cursor = 'pointer';
 			pdiv.addEventListener('click', (ev) => addDashBoardItem(ev, id), false);
 			const div = document.createElement('div');
 			div.id = id;
@@ -225,6 +230,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 		addElement('edit', 'Edit', 'lib/res/svg/textedit.svg');
 		addElement('select', 'Select', 'lib/res/svg/select.svg');
 		addElement('check', 'Checkbox', 'lib/res/svg/checkbox.svg');
+		addElement('button', 'Button', 'lib/res/svg/button.svg');
 		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
 		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
 		addTitle('Layout');
