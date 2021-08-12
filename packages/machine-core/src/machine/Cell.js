@@ -86,6 +86,12 @@ const setTerm = (newTerm, cell) => {
 	}
 };
 
+const getRawType = (cell, valueDescr) => {
+	const value = cell.value;
+	if (FunctionErrors.isError(value)) return 'string';
+	return isCellReference(value) ? typeof valueDescr : typeof value;
+};
+
 const displayName = (term) => term && term.func && term.func.displayName;
 
 class Cell {
@@ -111,7 +117,7 @@ class Cell {
 		const term = this._term;
 		const value = valueDescription(this.cellValue);
 		const descr = { formula: this.formula, value };
-		const rawtype = isCellReference(this.value) ? typeof value : typeof this.value;
+		const rawtype = getRawType(this, value);
 		// DL-4908: limit string values
 		if (this._sheet && rawtype === 'string') descr.value = limitString(value, this._sheet);
 		descr.type = term ? term.operand.type : typeof value;
