@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const { memoize } = require('@cedalo/commons');
+const { StringUtil } = require('@cedalo/util');
 
 const replaceRegEx = memoize.func((str) => new RegExp(str, 'g'), (str) => str);
 const replaceAllWith = (replace, replacement, str) => {
@@ -33,6 +34,7 @@ const nrString = (str = '', locale) => {
 	let nr;
 	const separators = locale.separators;
 	str = str.trim();
+	str = StringUtil.unwrap(str);
 	if (isValidNr(str, separators)) {
 		nr = replaceAllWith(separators.thousand, '', str);
 		nr = replaceAllWith(separators.decimal, '.', nr);

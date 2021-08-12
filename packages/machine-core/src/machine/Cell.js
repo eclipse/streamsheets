@@ -58,9 +58,10 @@ const limitString = (str, sheet) => {
 };
 
 // DL-4113 prevent displaying values like [object Object]...
-const valueDescription = (value) => {
+const valueDescription = (value, sheet) => {
 	if (Array.isArray(value)) return CELL_VALUE_REPLACEMENT;
 	if (isCellReference(value)) return value.value;
+	if (value.isSheetRange) return value.sheet !== sheet ? value.toReferenceString() : value.toString();
 	if (isType.object(value)) {
 		const descr = value.toString();
 		return descr.startsWith('[object Object]') ? CELL_VALUE_REPLACEMENT : descr;
@@ -86,6 +87,12 @@ const setTerm = (newTerm, cell) => {
 	}
 };
 
+const getRawType = (cell, valueDescr) => {
+	const value = cell.value;
+	if (FunctionErrors.isError(value)) return 'string';
+	return isCellReference(value) ? typeof valueDescr : typeof value;
+};
+
 const displayName = (term) => term && term.func && term.func.displayName;
 
 class Cell {
@@ -109,9 +116,9 @@ class Cell {
 
 	description() {
 		const term = this._term;
-		const value = valueDescription(this.cellValue);
+		const value = valueDescription(this.cellValue, this.sheet);
 		const descr = { formula: this.formula, value };
-		const rawtype = isCellReference(this.value) ? typeof value : typeof this.value;
+		const rawtype = getRawType(this, value);
 		// DL-4908: limit string values
 		if (this._sheet && rawtype === 'string') descr.value = limitString(value, this._sheet);
 		descr.type = term ? term.operand.type : typeof value;

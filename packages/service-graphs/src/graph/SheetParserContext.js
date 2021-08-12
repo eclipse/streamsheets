@@ -10,6 +10,7 @@
  ********************************************************************************/
 const fnshelp = require('@cedalo/functions/help');
 const JSG = require('@cedalo/jsg-core');
+const DotOperatorParserContext = require('./DotOperatorParserContext');
 
 const { GraphParserContext } = JSG;
 
@@ -23,10 +24,14 @@ const FN_NAMES = Object.values(fnshelp).reduce((all, { functions = {} } = {}) =>
 const ALL_FUNCTIONS = new Set(FN_NAMES);
 
 
-module.exports = class SheetParserContext extends GraphParserContext {
+class SheetParserContext extends GraphParserContext {
 	static updateFunctions(fnDefinitions = []) {
 		// seems we only need function names for copy paste => remove when c&p is done by machine server...
 		fnDefinitions.forEach((def) => ALL_FUNCTIONS.add(def.name));
+	}
+
+	get functionNames() {
+		return FN_NAMES;
 	}
 
 	createReferenceTerm(node, parent) {
@@ -40,4 +45,7 @@ module.exports = class SheetParserContext extends GraphParserContext {
 	getFunction(id) {
 		return this.hasFunction(id) ? FN_CALC : undefined;
 	}
-};
+}
+
+// add dot operator support...
+module.exports = DotOperatorParserContext(SheetParserContext);

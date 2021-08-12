@@ -229,11 +229,10 @@ const offset = (sheet, ...terms) =>
 				|| !endidx
 				|| !sheet.isValidIndex(startidx)
 				|| !sheet.isValidIndex(endidx), ERROR.REF);
-			return error || [startidx, endidx];
+			return error || [createSheetRange(startidx, endidx, range.sheet || sheet)];
 		})
-		.run((startidx, endidx) => {
+		.run((offRange) => {
 			// we return a CellRangeReference...
-			let offRange = createSheetRange(startidx, endidx, sheet);
 			const { start, height, width } = offRange;
 			// DL-1425: if range references only one cell we return its value...
 			if (width === 1 && height === 1) {
