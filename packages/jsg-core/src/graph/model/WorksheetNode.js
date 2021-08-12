@@ -110,13 +110,33 @@ module.exports = class WorksheetNode extends ContentNode {
 	}
 
 	get sourceSheet() {
+		const range = this.sourceRange;
+
+		return range ? range.getSheet() : undefined;
+	}
+
+	get sourceRange() {
 		const attr = this.getAttributeAtPath('range');
 		if (attr) {
 			const expr = attr.getExpression();
 			if (expr) {
 				const term = expr.getTerm();
-				const operand = term && term.operand;
-				return operand && operand instanceof SheetReference && operand._item;
+				if (term) {
+					if (term.operand && term.operand instanceof SheetReference) {
+						const range =  term.operand.getRange().copy();
+						range.shiftFromSheet();
+						return range;
+					} else {
+						const rangeString = attr.getValue();
+						if (rangeString !== undefined) {
+							const range = CellRange.parse(rangeString, this);
+							if (range) {
+								range.shiftFromSheet();
+								return range;
+							}
+						}
+					}
+				}
 			}
 		}
 
