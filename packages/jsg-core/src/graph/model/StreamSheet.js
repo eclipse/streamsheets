@@ -224,8 +224,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 		attr.setCalcOnDemand(true);
 	}
 
-	_assignName(/* id */) {
+	_assignName(id) {
 		if (this.getGraph()._reading) {
+			return;
+		}
+		const attr = this.getAttributeAtPath('range');
+		if (attr) {
+			this.setName(`S${id}`);
 			return;
 		}
 

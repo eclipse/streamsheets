@@ -441,18 +441,12 @@ module.exports = class LayoutNode extends Node {
 		this._virtualRowData.forEach((row, rowIndex) => {
 			row.columnData.forEach((column, columnIndex) => {
 				node = this.getItemAt(column.nodeIndex);
-				// let wrapValue = 0;
 				if (node) {
-					// wrapValue = node.getLayoutCellAttributes().getNewLine().getValue();
 					node.setOrigin(x, y);
 					node.setHeight(row.layoutSize);
 				}
 
 				x += column.layoutSize;
-				// if (size.x < wrapValue) {
-				// 	x = 0;
-				// 	y += row.layoutSize;
-				// }
 			});
 			y += row.layoutSize;
 			if (!rowIndex) {

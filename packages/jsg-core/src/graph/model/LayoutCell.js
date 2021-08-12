@@ -85,16 +85,18 @@ module.exports = class LayoutCell extends Node {
 			yInner += margin;
 			this.subItems.forEach((subItem, index) => {
 				subItem._expandable = this._expandable;
-				subItem.layout();
-				const height = subItem.getHeight().getValue();
-				if (!subItem.getWidth().hasFormula()) {
-					subItem.setWidth(size.x - margin * 2);
+				if (subItem.isVisible()) {
+					subItem.layout();
+					const height = subItem.getHeight().getValue();
+					if (!subItem.getWidth().hasFormula()) {
+						subItem.setWidth(size.x - margin * 2);
+					}
+					if (!subItem.getHeight().hasFormula()) {
+						subItem.setHeight(height);
+					}
+					subItem.setOrigin(margin, yInner);
+					yInner += height + (index === this.getItemCount() - 1 ? 0 : gap);
 				}
-				if (!subItem.getHeight().hasFormula()) {
-					subItem.setHeight(height);
-				}
-				subItem.setOrigin(margin, yInner);
-				yInner += height + (index === this.getItemCount() - 1? 0 : gap);
 			});
 			this._layoutHeight = yInner + margin;
 			break;

@@ -2299,10 +2299,10 @@ class GraphItem extends Model {
 			(JSG.idUpdater && JSG.idUpdater.isActive) || force || oldId === undefined ? this._createId() : undefined;
 		if (newId !== undefined) {
 			this.setId(newId);
-			const attr = this.getItemAttributes().getAttribute('sheetsource');
-			if (!attr || attr.getValue() !== 'cell') {
-				this._assignName(newId);
-			}
+			// const attr = this.getItemAttributes().getAttribute('sheetsource');
+			// if (!attr || attr.getValue() !== 'cell') {
+			this._assignName(newId);
+			// }
 			// save old/new id match to restore references to id in expressions, attributes and ports
 
 			// TODO: JSG.idUpdater is set by JSGGlobals
