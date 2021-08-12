@@ -677,6 +677,17 @@ export class GeometryProperties extends Component {
 						label={
 							<FormattedMessage id="GraphItemProperties.MinimumWidth" defaultMessage="Minimum Width" />
 						}
+					/>,
+					<TextField
+						variant="outlined"
+						fullWidth
+						size="small"
+						margin="normal"
+						value={this.getLayoutMode(item, 'maxwidth')}
+						onChange={event => this.handleLayoutMode(event, item, 'maxwidth', new JSG.NumberExpression(event.target.value))}
+						label={
+							<FormattedMessage id="GraphItemProperties.MaximumWidth" defaultMessage="Maximum Width" />
+						}
 					/>
 				] : null}
 			</FormGroup>

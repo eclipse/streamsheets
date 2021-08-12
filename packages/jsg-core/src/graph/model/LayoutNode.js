@@ -46,6 +46,7 @@ module.exports = class LayoutNode extends Node {
 
 		this.addAttribute(new StringAttribute('layoutmode', 'resize'));
 		this.addAttribute(new NumberAttribute('minwidth', 10000));
+		this.addAttribute(new NumberAttribute('maxwidth', 50000));
 	}
 
 	newInstance() {
