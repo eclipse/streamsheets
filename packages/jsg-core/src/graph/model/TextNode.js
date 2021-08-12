@@ -103,6 +103,10 @@ class TextNode extends Node {
 		}
 	}
 
+	isAddLabelAllowed() {
+		return false;
+	}
+
 	isAssociated() {
 		return this.getItemAttributes()
 			.getAssociated()
