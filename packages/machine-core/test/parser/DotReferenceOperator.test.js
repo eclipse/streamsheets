@@ -193,12 +193,12 @@ describe('DotReferenceOperator', () => {
 		const json = `json.from.text("${json2str({ key: 42 })}")`;
 		createCellAt('A2', { formula: 'A1.B1' }, sheet);
 		expect(sheet.cellAt('A2')).toBeDefined();
-		expect(sheet.cellAt('A2').value).toBe(ERROR.VALUE);
+		expect(sheet.cellAt('A2').value.code).toBe(ERROR.VALUE);
 		
 		createCellAt('A1', { formula: `${json}"` }, sheet);
 		createCellAt('A2', { formula: 'A1.B1' }, sheet);
 		expect(sheet.cellAt('A2')).toBeDefined();
-		expect(sheet.cellAt('A2').value).toBe(ERROR.VALUE);
+		expect(sheet.cellAt('A2').value.code).toBe(ERROR.VALUE);
 
 		createCellAt('A1', { formula: `${json}"` }, sheet);
 		createCellAt('B1', 'key', sheet);

@@ -11,6 +11,7 @@
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { BinaryOperator } = require('@cedalo/parser');
+const { createErrorInfo } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 
@@ -35,13 +36,13 @@ class DotReferenceOperator extends BinaryOperator {
 		if (FunctionErrors.isError(right)) return right;
 		// json from left
 		const json = getJSON(left);
-		if (!json) return ERROR.VALUE;
+		if (!json) return createErrorInfo(ERROR.VALUE, left);
 		// string from right
 		const key = right != null ? convert.toString(right.value) : undefined;
-		if (key == null) return ERROR.VALUE;
+		if (key == null) return createErrorInfo(ERROR.VALUE, right);
 		// check requested value. null might be wanted, but not undefined...
 		const value = json[key];
-		return value === undefined ? ERROR.NA : value;
+		return value === undefined ? createErrorInfo(ERROR.NA) : value;
 	}
 }
 
