@@ -116,6 +116,10 @@ module.exports = class WorksheetNode extends ContentNode {
 	}
 
 	get sourceRange() {
+		if (this._sourceRange) {
+			return this._sourceRange;
+		}
+
 		const attr = this.getAttributeAtPath('range');
 		if (attr) {
 			const expr = attr.getExpression();
@@ -125,6 +129,7 @@ module.exports = class WorksheetNode extends ContentNode {
 					if (term.operand && term.operand instanceof SheetReference) {
 						const range =  term.operand.getRange().copy();
 						range.shiftFromSheet();
+						this._sourceRange = range;
 						return range;
 					} else {
 						const rangeString = attr.getValue();
@@ -132,6 +137,7 @@ module.exports = class WorksheetNode extends ContentNode {
 							const range = CellRange.parse(rangeString, this);
 							if (range) {
 								range.shiftFromSheet();
+								this._sourceRange = range;
 								return range;
 							}
 						}
@@ -236,6 +242,7 @@ module.exports = class WorksheetNode extends ContentNode {
 
 		this._rowCount = wsattributes.getRows().getValue();
 		this._columnCount = wsattributes.getRows().getValue();
+		this._sourceRange = undefined;
 
 		this._corner.getItemAttributes().setVisible(header);
 		this._rows.getItemAttributes().setVisible(header);

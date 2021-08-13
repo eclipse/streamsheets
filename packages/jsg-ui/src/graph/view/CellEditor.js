@@ -10,7 +10,7 @@
  ********************************************************************************/
 /* global window document localStorage */
 
-import {CellRange, default as JSG, Point, Selection, SheetReference, Strings} from '@cedalo/jsg-core';
+import {CellRange, default as JSG, Point, Selection, GraphReference, SheetReference, Strings} from '@cedalo/jsg-core';
 
 const { Locale } = require('@cedalo/parser');
 
@@ -540,6 +540,7 @@ export default class CellEditor {
 
 		// reset
 		const ranges = this.activateEditRanges();
+		const items = [];
 
 		if (text.length && text.charAt(0) === '=' /* || alwaysReplace */) {
 			term = this.parseTextToTerm(text);
@@ -552,12 +553,24 @@ export default class CellEditor {
 
 		term.traverse((lterm) => {
 			const { operand } = lterm;
-			if (operand && operand instanceof SheetReference) {
-				const refRange = operand._range;
-				if (refRange /* && refRange.getSheet() === this.formulaSheet */) {
-					const copy = refRange.copy();
-					copy.shiftFromSheet();
-					ranges.add(copy, JSG.theme.rangeColors[ranges.getSize() % JSG.theme.rangeColors.length]);
+			if (operand) {
+
+				if (operand instanceof SheetReference) {
+					const refRange = operand._range;
+					if (refRange /* && refRange.getSheet() === this.formulaSheet */) {
+						const copy = refRange.copy();
+						copy.shiftFromSheet();
+						ranges.add(copy, JSG.theme.rangeColors[ranges.getSize() % JSG.theme.rangeColors.length]);
+					}
+				} else	if (operand instanceof GraphReference) {
+					const item = this.viewer.getGraph().getItemByName(operand._property);
+					if (item) {
+						items.push({
+							fname: operand._property,
+							rname: item.getName().getValue(),
+							item
+						});
+					}
 				}
 			}
 			// }
@@ -596,6 +609,10 @@ export default class CellEditor {
 		// formulaUpper = Strings.encodeXML(formulaUpper);
 		let formula = text;
 
+		items.forEach(item => {
+			formula = formula.replace(item.fname, item.rname);
+		});
+
 		// now for each range in ranges rangetostring -> find in textContent -> replace by span -> set
 		ranges.getRanges().forEach((range) => {
 			const copy = range.copy();
@@ -617,6 +634,7 @@ export default class CellEditor {
 
 			index += 1;
 		});
+
 
 		result += formula;
 
