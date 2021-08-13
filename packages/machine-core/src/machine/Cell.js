@@ -59,9 +59,10 @@ const limitString = (str, sheet) => {
 
 // DL-4113 prevent displaying values like [object Object]...
 const valueDescription = (value, sheet) => {
-	if (Array.isArray(value)) return CELL_VALUE_REPLACEMENT;
+	if (value == null) return value;
 	if (isCellReference(value)) return value.value;
 	if (value.isSheetRange) return value.sheet !== sheet ? value.toReferenceString() : value.toString();
+	if (Array.isArray(value)) return CELL_VALUE_REPLACEMENT;
 	if (isType.object(value)) {
 		const descr = value.toString();
 		return descr.startsWith('[object Object]') ? CELL_VALUE_REPLACEMENT : descr;
