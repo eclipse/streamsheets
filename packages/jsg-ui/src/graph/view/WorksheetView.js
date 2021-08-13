@@ -1910,15 +1910,15 @@ export default class WorksheetView extends ContentNodeView {
 			point.y > cellRect.y &&
 			point.y < cellRect.y + 300;
 	}
-	handleDataView(sheet, dataCell, targetRange, viewer) {
-		this.handleInfoView(WorksheetHitCode.DATAVIEW, sheet, dataCell, targetRange, viewer);
+	handleDataView(sheet, dataCell, target, viewer) {
+		this.handleInfoView(WorksheetHitCode.DATAVIEW, sheet, dataCell, target, viewer);
 	}
 
-	handleInfoView(infoType, sheet, dataCell, targetRange, viewer) {
-		if (targetRange != null) {
+	handleInfoView(infoType, sheet, dataCell, target, viewer) {
+		if (target != null) {
 			const data = sheet.getDataProvider();
 			const cell = data.get(dataCell);
-			if (cell != null) CellInfoView.of(infoType, viewer, this).showInfo(cell, targetRange);
+			if (cell != null) CellInfoView.of(infoType, viewer, this).showInfo(cell, target);
 		}
 	}
 

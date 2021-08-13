@@ -435,7 +435,7 @@ export default class GraphManager {
 		const info = graph && graph.infoView;
 		if (info) {
 			// data.view.showCellValues(data.viewer, data.cell, data.targetRange);
-			CellInfoView.of(info.type, info.viewer, info.view).showInfo(info.cell, info.targetRange);
+			CellInfoView.of(info.type, info.viewer, info.view).showInfo(info.cell, info.target);
 		}
 	}
 

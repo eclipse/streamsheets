@@ -100,6 +100,13 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 										const rangeTarget = operandTarget._range.copy();
 										rangeTarget.shiftFromSheet();
 										view.handleDataView(range._worksheet, {x: range._x1, y: range._y1}, rangeTarget, viewer);
+									} else {
+										const target = operandTarget.value;
+										const targetItem = item.getGraph().getItemByName(target);
+										if (targetItem) {
+											view.handleDataView(range._worksheet, { x: range._x1, y: range._y1 },
+												targetItem, viewer);
+										}
 									}
 								}
 							}
