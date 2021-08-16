@@ -93,8 +93,10 @@ class MathUtils {
 	}
 
 	static roundTo(value, decimals) {
-		// If the exp is undefined or zero...
-		if (typeof decimals === 'undefined' || +decimals === 0) {
+		if (Number.isInteger(value)) {
+			return value;
+		}
+		if (!decimals || Number.isInteger(value)) {
 			return Math.round(value);
 		}
 		// value = +value;

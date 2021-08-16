@@ -110,36 +110,40 @@ module.exports = class WorksheetNode extends ContentNode {
 	}
 
 	get sourceSheet() {
-		const range = this.sourceRange;
+		if (this._sourceAttr) {
+			const range = this.sourceRange;
 
-		return range ? range.getSheet() : undefined;
+			return range ? range.getSheet() : undefined;
+		}
+
+		return undefined;
 	}
 
 	get sourceRange() {
+		if (!this._sourceAttr) {
+			return undefined;
+		}
 		if (this._sourceRange) {
 			return this._sourceRange;
 		}
 
-		const attr = this.getAttributeAtPath('range');
-		if (attr) {
-			const expr = attr.getExpression();
-			if (expr) {
-				const term = expr.getTerm();
-				if (term) {
-					if (term.operand && term.operand instanceof SheetReference) {
-						const range =  term.operand.getRange().copy();
-						range.shiftFromSheet();
-						this._sourceRange = range;
-						return range;
-					} else {
-						const rangeString = attr.getValue();
-						if (rangeString !== undefined) {
-							const range = CellRange.parse(rangeString, this);
-							if (range) {
-								range.shiftFromSheet();
-								this._sourceRange = range;
-								return range;
-							}
+		const expr = this._sourceAttr.getExpression();
+		if (expr) {
+			const term = expr.getTerm();
+			if (term) {
+				if (term.operand && term.operand instanceof SheetReference) {
+					const range =  term.operand.getRange().copy();
+					range.shiftFromSheet();
+					this._sourceRange = range;
+					return range;
+				} else {
+					const rangeString = this._sourceAttr.getValue();
+					if (rangeString !== undefined) {
+						const range = CellRange.parse(rangeString, this);
+						if (range) {
+							range.shiftFromSheet();
+							this._sourceRange = range;
+							return range;
 						}
 					}
 				}
@@ -243,6 +247,7 @@ module.exports = class WorksheetNode extends ContentNode {
 		this._rowCount = wsattributes.getRows().getValue();
 		this._columnCount = wsattributes.getRows().getValue();
 		this._sourceRange = undefined;
+		this._sourceAttr = this.getAttributeAtPath('range');
 
 		this._corner.getItemAttributes().setVisible(header);
 		this._rows.getItemAttributes().setVisible(header);
