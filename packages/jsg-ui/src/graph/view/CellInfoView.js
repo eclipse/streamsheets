@@ -113,8 +113,6 @@ class CellInfoView {
 	}
 
 	setDivBounds(div, bounds) {
-
-		let  x = 0;
 		const align = this.options && this.options.align ? this.options.align : 'left';
 
 		switch (align) {
