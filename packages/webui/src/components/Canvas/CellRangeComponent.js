@@ -385,6 +385,10 @@ class CellRangeComponent extends React.Component {
 		return colors;
 	}
 
+	getRange() {
+		return this.props.range ? this.props.range : '';
+	}
+
 	render() {
 		const { theme } = this.props;
 		return (
@@ -415,7 +419,7 @@ class CellRangeComponent extends React.Component {
 					onDoubleClick={this.handleDoubleClick}
 					onSelect={this.handleSelect}
 				>
-					{this.props.range ? this.props.range : ''}
+					{this.getRange()}
 				</div>
 				{this.props.inputEditorType !== 'none' ? [
 					<IconButton
@@ -427,7 +431,6 @@ class CellRangeComponent extends React.Component {
 							display: 'inline',
 						}}
 						onMouseUp={(event) => this.onInputEditor(event)}
-						// disabled={this.state.inputEditorOpen}
 					>
 						<ArrowDropDownIcon fontSize="inherit" />
 					</IconButton>

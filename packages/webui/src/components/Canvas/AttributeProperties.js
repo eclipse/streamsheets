@@ -124,6 +124,9 @@ export class AttributeProperties extends Component {
 		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr.expression);
 
 		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
 	}
 
 	render() {
