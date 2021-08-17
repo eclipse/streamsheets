@@ -267,6 +267,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		const state = JSG.drawingDisabled;
 		JSG.setDrawingDisabled(true);
 		this.commandStack.execute(cmd);
+		cmd.sendNotification();
 		if (completionfunc !== undefined) {
 			completionfunc.call(this, cmd, this.viewer);
 		}
@@ -315,6 +316,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		JSG.setDrawingDisabled(true);
 		if (command !== undefined) {
 			command.undo();
+			command.sendNotification();
 			const selection = [];
 			command.doAfterUndo(selection, this.viewer);
 			if (selection.length > 0) {
@@ -367,6 +369,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		JSG.setDrawingDisabled(true);
 		if (command !== undefined) {
 			command.redo();
+			command.sendNotification();
 			const selection = [];
 			command.doAfterRedo(selection, this.viewer);
 			if (selection.length > 0) {
