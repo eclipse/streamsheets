@@ -35,17 +35,18 @@ const getTableElement = () => {
 };
 
 class CellInfoView {
-	static of(type, viewer, worksheetView) {
+	static of(type, viewer, worksheetView, options) {
 		return type === WorksheetHitCode.ERRORVIEW
 			// eslint-disable-next-line no-use-before-define
-			? new ErrorInfoView(viewer, worksheetView)
+			? new ErrorInfoView(viewer, worksheetView, options)
 			// eslint-disable-next-line no-use-before-define
-			: new DataInfoView(viewer, worksheetView);
+			: new DataInfoView(viewer, worksheetView, options);
 	}
 	// private
-	constructor(viewer, worksheetView) {
+	constructor(viewer, worksheetView, options) {
 		this.viewer = viewer;
 		this.wsView = worksheetView;
+		this.options = options;
 		this.removeInfoView = this.removeInfoView.bind(this);
 	}
 
@@ -54,7 +55,7 @@ class CellInfoView {
 	}
 
 	registerView(div, cell, target) {
-		this.wsView.registerAtGraph({ type: this.type, viewer: this.viewer, cell, target, div });
+		this.wsView.registerAtGraph({ type: this.type, viewer: this.viewer, cell, options: this.options, target, div });
 	}
 
 	getBounds(target) {
@@ -64,7 +65,7 @@ class CellInfoView {
 			const canvas = this.viewer.getCanvas();
 			const box = target.getBoundingBox();
 			const center = new Point(
-				box.getRight(),
+				box.getLeft(),
 				box.getBottom(),
 			);
 
@@ -74,10 +75,11 @@ class CellInfoView {
 			});
 
 			return {
-				x: canvas.clientWidth - (cs.logToDeviceX(center.x, false) + canvas.offsetLeft),
+				x: cs.logToDeviceX(center.x, false) + canvas.offsetLeft,
 				y: cs.logToDeviceY(center.y, false) + canvas.offsetTop,
 				height: undefined,
 				width: undefined,
+				itemWidth: cs.logToDeviceY(box.getWidth(), false),
 				minWidth: 50,
 				minHeight: 50,
 				maxHeight: 320,
@@ -110,8 +112,24 @@ class CellInfoView {
 		return div;
 	}
 
-	setDivBounds(div, bounds, align) {
-		div.style[align] = `${bounds.x}px`;
+	setDivBounds(div, bounds) {
+
+		let  x = 0;
+		const align = this.options && this.options.align ? this.options.align : 'left';
+
+		switch (align) {
+		case 'right':
+			bounds.x += bounds.itemWidth - div.clientWidth;
+			break;
+		case 'center':
+			bounds.x += bounds.itemWidth / 2 - div.clientWidth / 2;
+			break;
+		case 'left':
+		default:
+			break;
+		}
+
+		div.style.left = `${bounds.x}px`;
 		div.style.top = `${bounds.y}px`;
 		div.style.minWidth = `${bounds.minWidth - 1}px`;
 		div.style.minHeight = `${bounds.minHeight}px`;
@@ -138,8 +156,8 @@ class CellInfoView {
 			const bounds = this.getBounds(target);
 			const content = this.createInfoHTML(info, bounds);
 			const divView = this.createDiv(content);
-			this.setDivBounds(divView, bounds, target instanceof GraphItem ? 'right' : 'left');
 			this.appendDiv(divView);
+			this.setDivBounds(divView, bounds, target instanceof GraphItem ? this.options.align : 'left');
 			const rightBorderOverlap = (divView.offsetLeft + divView.offsetWidth) - (divView.parentNode.offsetLeft + divView.parentNode.offsetWidth);
 			if (rightBorderOverlap > 0) {
 				divView.style.left = `${divView.offsetLeft - rightBorderOverlap}px`;
@@ -198,7 +216,7 @@ class DataInfoView extends CellInfoView {
 
 		if (rowCount) {
 			let index;
-			for (index = 0; index < fields[0][1].length && index < 100; index += 1) {
+			for (index = 0; index < fields[0][1].length; index += 1) {
 			// fields[0][1].forEach((value, index) => {
 			// 	const value = fields[0][1][i];
 				html += '<tr>';
@@ -214,6 +232,9 @@ class DataInfoView extends CellInfoView {
 					}</td>`;
 				});
 				html += '</tr>';
+				if (this.options && this.options.limit && index === this.options.limit) {
+					break;
+				}
 			}
 			if (index < fields[0][1].length) {
 				html += `<tr><td>${JSG.getLocalizedString('MaxDataViewRows')}</td></tr>`;

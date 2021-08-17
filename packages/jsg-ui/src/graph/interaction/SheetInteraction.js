@@ -242,7 +242,7 @@ export default class SheetInteraction extends Interaction {
 					cellPos.y + 1,
 					cellPos.x,
 					cellPos.y + 1
-				), viewer);
+				), { limit: 100 }, viewer);
 				break;
 			}
 			case WorksheetView.HitCode.SHEET:
