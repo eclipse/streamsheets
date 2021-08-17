@@ -57,8 +57,8 @@ const jsonFromRange = (range) => {
 		}
 		if (cell) {
 			// first cell value always defines key...
-			if (node.key != null) node.value = cell.value != null ? cell.value : node.value;
-			node.key = node.key != null ? node.key : cell.value;
+			if (node.key != null) node.value = cell.cellValue != null ? cell.cellValue : node.value;
+			node.key = node.key != null ? node.key : cell.cellValue;
 			node.level = node.level != null ? node.level : cell.level;
 		}
 	});
