@@ -78,11 +78,18 @@ describe('date & time functions', () => {
 			const jsontime = createTerm(`excel2jsontime(${now})`, sheet).value;
 			expect(createTerm(`jsontime2excel("${jsontime}")`, sheet).value).toBe(now);
 		});
+		// DL-5135
+		it('should allow single month, day and hours, minutes, seconds and milliseconds', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('jsontime2excel("2012-4-23T18:25:43.511Z")', sheet).value).toBe(41022.76786471065);
+			expect(createTerm('jsontime2excel("2012-04-3T1:5:4.1Z")', sheet).value).toBe(41002.04518519676);			
+		});
 		it(`should return ${ERROR.VALUE} if given date string is not in UTC based ISO-8601 format `, () => {
 			const sheet = new StreamSheet().sheet;
 			expect(createTerm('jsontime2excel("2012-04-23T18:25:43.511")', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('jsontime2excel("2012-04-23T18:25:43Z")', sheet).value.code).toBe(ERROR.VALUE);
-			expect(createTerm('jsontime2excel("2012-4-2T18:25:43.511Z")', sheet).value.code).toBe(ERROR.VALUE);
+			// negative not supported by js Date class
+			expect(createTerm('jsontime2excel("-0333-04-11T8:5:3.1Z")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 
