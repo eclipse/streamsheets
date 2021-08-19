@@ -10,7 +10,7 @@
  ********************************************************************************/
 /* global document window */
 
-import { default as JSG, MathUtils, Numbers } from '@cedalo/jsg-core';
+import { default as JSG, GraphItem, GraphUtils, MathUtils, Numbers, Point } from '@cedalo/jsg-core';
 // import WorksheetView from './WorksheetView';
 import WorksheetHitCode from './WorksheetHitCode';
 
@@ -35,17 +35,18 @@ const getTableElement = () => {
 };
 
 class CellInfoView {
-	static of(type, viewer, worksheetView) {
+	static of(type, viewer, worksheetView, options) {
 		return type === WorksheetHitCode.ERRORVIEW
 			// eslint-disable-next-line no-use-before-define
-			? new ErrorInfoView(viewer, worksheetView)
+			? new ErrorInfoView(viewer, worksheetView, options)
 			// eslint-disable-next-line no-use-before-define
-			: new DataInfoView(viewer, worksheetView);
+			: new DataInfoView(viewer, worksheetView, options);
 	}
 	// private
-	constructor(viewer, worksheetView) {
+	constructor(viewer, worksheetView, options) {
 		this.viewer = viewer;
 		this.wsView = worksheetView;
+		this.options = options;
 		this.removeInfoView = this.removeInfoView.bind(this);
 	}
 
@@ -53,22 +54,50 @@ class CellInfoView {
 		document.getElementById('closeFunc').addEventListener('mousedown', this.removeInfoView, false);
 	}
 
-	registerView(div, cell, targetRange) {
-		this.wsView.registerAtGraph({ type: this.type, viewer: this.viewer, cell, targetRange, div });
+	registerView(div, cell, target) {
+		this.wsView.registerAtGraph({ type: this.type, viewer: this.viewer, cell, options: this.options, target, div });
 	}
 
-	getCellBounds(cellRange) {
+	getBounds(target) {
 		const cs = this.viewer.getCoordinateSystem();
-		const cellRect = this.wsView.getRangeRect(cellRange);
-		const pos = this.wsView.getDevCellPosition(this.viewer, { x: cellRange._x1, y: cellRange._y1 });
+
+		if (target instanceof GraphItem) {
+			const canvas = this.viewer.getCanvas();
+			const box = target.getBoundingBox();
+			const center = new Point(
+				box.getLeft(),
+				box.getBottom(),
+			);
+
+			GraphUtils.traverseUp(target.getParent(), this.viewer.getRootView(), (v) => {
+				v.translateToParent(center);
+				return true;
+			});
+
+			return {
+				x: cs.logToDeviceX(center.x, false) + canvas.offsetLeft,
+				y: cs.logToDeviceY(center.y, false) + canvas.offsetTop,
+				height: undefined,
+				width: undefined,
+				itemWidth: cs.logToDeviceY(box.getWidth(), false),
+				minWidth: 50,
+				minHeight: 50,
+				maxHeight: 320,
+				maxWidth: 1000
+			};
+		}
+
+		const cellRect = this.wsView.getRangeRect(target);
+		const pos = this.wsView.getDevCellPosition(this.viewer, { x: target._x1, y: target._y1 });
 		return {
 			x: pos.x,
 			y: pos.y,
-			height: cellRange.getHeight() > 1 ? cs.logToDeviceY(cellRect.height, false) : undefined,
-			width: cellRange.getWidth() > 1 ? cs.logToDeviceY(cellRect.width, false) : undefined,
+			height: target.getHeight() > 1 ? cs.logToDeviceY(cellRect.height, false) : undefined,
+			width: target.getWidth() > 1 ? cs.logToDeviceY(cellRect.width, false) : undefined,
 			minWidth: cs.logToDeviceY(cellRect.width, false),
 			minHeight: cs.logToDeviceY(cellRect.height, false),
-			maxHeight: cellRange.getHeight() > 1 ? cs.logToDeviceY(cellRect.height, false) : 320
+			maxHeight: target.getHeight() > 1 ? cs.logToDeviceY(cellRect.height, false) : 320,
+			maxWidth: 1000
 		};
 	}
 	createDiv(innerHTML) {
@@ -84,6 +113,20 @@ class CellInfoView {
 	}
 
 	setDivBounds(div, bounds) {
+		const align = this.options && this.options.align ? this.options.align : 'left';
+
+		switch (align) {
+		case 'right':
+			bounds.x += bounds.itemWidth - div.clientWidth;
+			break;
+		case 'center':
+			bounds.x += bounds.itemWidth / 2 - div.clientWidth / 2;
+			break;
+		case 'left':
+		default:
+			break;
+		}
+
 		div.style.left = `${bounds.x}px`;
 		div.style.top = `${bounds.y}px`;
 		div.style.minWidth = `${bounds.minWidth - 1}px`;
@@ -105,22 +148,19 @@ class CellInfoView {
 		throw new Error('Must be implemented by subclass');
 	};
 
-	addInfoView(cell, cellRange) {
+	addInfoView(cell, target) {
 		const info = this.getInfo(cell);
 		if (info) {
-			const bounds = this.getCellBounds(cellRange);
+			const bounds = this.getBounds(target);
 			const content = this.createInfoHTML(info, bounds);
 			const divView = this.createDiv(content);
-			const tableEl = getTableElement();
-			tableEl.storeScrollTop();
-			this.setDivBounds(divView, bounds);
 			this.appendDiv(divView);
+			this.setDivBounds(divView, bounds, target instanceof GraphItem ? this.options.align : 'left');
 			const rightBorderOverlap = (divView.offsetLeft + divView.offsetWidth) - (divView.parentNode.offsetLeft + divView.parentNode.offsetWidth);
 			if (rightBorderOverlap > 0) {
 				divView.style.left = `${divView.offsetLeft - rightBorderOverlap}px`;
 			}
-			tableEl.restoreScrollTop();
-			this.registerView(divView, cell, cellRange);
+			this.registerView(divView, cell, target);
 		}
 	}
 	removeInfoView() {
@@ -132,8 +172,11 @@ class CellInfoView {
 	}
 	showInfo(cell, cellRange) {
 		// remove previous view before adding new one
+		const tableEl = getTableElement();
+		tableEl.storeScrollTop();
 		this.removeInfoView();
 		this.addInfoView(cell, cellRange);
+		tableEl.restoreScrollTop();
 	}
 }
 
@@ -155,9 +198,9 @@ class DataInfoView extends CellInfoView {
 
 		let html = `<p style="color: ${
 			JSG.theme.text
-		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">Result (${rowCount}):</p>`;
+		}; height: 20px; padding-left: 5px; margin-bottom: 0px; margin-top: 5px; font-size: 10pt">${JSG.getLocalizedString('Result')} (${rowCount}):</p>`;
 		html += `<div id="closeFunc" style="width:15px;height:15px;position: absolute; top: 3px; right: 0px; font-size: 10pt; font-weight: bold; color: #777777;cursor: pointer">x</div>`;
-		html += `<div id="dataviewtable" style="overflow-y: auto; max-height: ${bounds.maxHeight - 25}px">`;
+		html += `<div id="dataviewtable" style="overflow-y: auto; max-width: ${bounds.maxWidth}px; max-height: ${bounds.maxHeight - 25}px">`;
 		html += `<table style="padding: 5px; color: ${JSG.theme.text}; width: ${
 			bounds.width ? '100%' : 'inherit'
 		}"><thead><tr>`;
@@ -170,8 +213,12 @@ class DataInfoView extends CellInfoView {
 		html += '<tbody>';
 
 		if (rowCount) {
-			fields[0][1].forEach((value, index) => {
+			let index;
+			for (index = 0; index < fields[0][1].length; index += 1) {
+			// fields[0][1].forEach((value, index) => {
+			// 	const value = fields[0][1][i];
 				html += '<tr>';
+				// eslint-disable-next-line no-loop-func
 				fields.forEach(([key, entry]) => {
 					let val = entry[index];
 					if (key === 'time') {
@@ -183,7 +230,14 @@ class DataInfoView extends CellInfoView {
 					}</td>`;
 				});
 				html += '</tr>';
-			});
+				if (this.options && this.options.limit && index === this.options.limit) {
+					break;
+				}
+			}
+			if (index < fields[0][1].length) {
+				html += `<tr><td>${JSG.getLocalizedString('MaxDataViewRows')}</td></tr>`;
+
+			}
 		}
 
 		html += '</tbody>';

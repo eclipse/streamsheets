@@ -37,9 +37,15 @@ const SEC_MS = 1000;
 const MIN_MS = 60 * SEC_MS;
 const HOUR_MS = 60 * MIN_MS;
 const timeregex = new RegExp(/(\d\d?):(\d\d?):?(\d?\d?)\s*(am|pm)?/, 'i');
-const isoregex = /^[+-]?(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$/;
+// seems sign is not supported by Date.parse()
+const isoregex = /^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})\.(\d{1,3})Z$/;
 
-const validateISOFormat = str => str && isoregex.test(str) ? str : ERROR.VALUE;
+const padZeros = (nr) => (str) => str.padStart(nr, '0');
+const padZeros2 = padZeros(2);
+const padZeros3 = padZeros(3);
+const isoFormat = (match, YYYY, MM, DD, hh, mm, ss, sss /* , offset, string */) =>
+	`${YYYY}-${padZeros2(MM)}-${padZeros2(DD)}T${padZeros2(hh)}:${padZeros2(mm)}:${padZeros2(ss)}.${padZeros3(sss)}Z`;
+const validateISOFormat = (str) => (isoregex.test(str) ? str.replace(isoregex, isoFormat) : ERROR.VALUE);
 
 const timeToSerial = (hrs = 0, mins = 0, secs = 0) => {
 	const ms = (hrs * HOUR_MS) + (mins * MIN_MS) + (secs * SEC_MS);

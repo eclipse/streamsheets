@@ -680,7 +680,12 @@ class Expression {
 		const ret =  {};
 
 		if (this._formula !== undefined) {
-			ret.f = Strings.encode(this._formula);
+			// always use term to update potentially changed sheet name
+			if (this._term === undefined) {
+				ret.f = Strings.encode(this._formula);
+			} else {
+				ret.f = Strings.encode(this._term.toString({useName: true, forceName: true}));
+			}
 		}
 		if (this._value !== undefined) {
 			if (this.getValue() !== undefined) {
@@ -711,7 +716,11 @@ class Expression {
 		writer.writeStartElement(name);
 
 		if (this._formula !== undefined) {
-			this._writeFormulaAttribute(writer);
+			if (this._term !== undefined) {
+				this._writeTermAttribute(writer);
+			} else {
+				this._writeFormulaAttribute(writer);
+			}
 		} else if (this._term !== undefined) {
 			this._writeTermAttribute(writer);
 		}
@@ -753,7 +762,7 @@ class Expression {
 	 * @private
 	 */
 	_writeTermAttribute(writer) {
-		writer.writeAttributeString('f', Strings.encode(this._term.toString()));
+		writer.writeAttributeString('f', Strings.encode(this._term.toString({useName: true, forceName: true})));
 	}
 
 	/**

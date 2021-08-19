@@ -239,7 +239,8 @@ class ContentNodeView extends NodeView {
 		if (viewSettings.active) {
 			this._viewpanel.getFormat().setFillColor(JSG.theme.sheet);
 		} else {
-			this._viewpanel.getFormat().setFillColor(JSG.theme.graph);
+			const attr = model.getAttributeAtPath('range');
+			this._viewpanel.getFormat().setFillColor(attr ? JSG.theme.sheet : JSG.theme.graph);
 		}
 		model._updateBoundingBox();
 		const box = JSG.boxCache.get();

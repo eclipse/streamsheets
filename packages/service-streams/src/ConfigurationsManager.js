@@ -117,6 +117,14 @@ class ConfigurationsManager {
 		];
 	}
 
+	getStreamIdsByConnectorId(connectorId) {
+		const hasConnector = (c) => c.connector && c.connector.id === connectorId;
+		return [
+			...[...this.producerConfigs.values()].filter(hasConnector),
+			...[...this.consumerConfigs.values()].filter(hasConnector)
+		].map((c) => c.id);
+	}
+
 	getDeepConsumerConfiguration(config) {
 		const connectorConfig_ = this.connectorConfigs.get(config.connector._id || config.connector.id);
 		const connectorConfig = this.getDeepConnectorConfiguration(connectorConfig_);

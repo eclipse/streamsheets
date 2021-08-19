@@ -239,6 +239,7 @@ export default class GraphManager {
 	updateGraph(machineDescriptor) {
 		const command = new LoadMachineCommand(this.getGraph(), machineDescriptor);
 		command.execute();
+		command.sendNotification();
 	}
 
 	loadGraph(graphDefinition, machine) {
@@ -309,9 +310,8 @@ export default class GraphManager {
 	}
 
 	undo() {
-		// const command = this.commandStack.undo();
-		this.redraw();	// TODO: why redraw()??
-		this.getGraphEditor().getInteractionHandler().undo(); // command);
+		this.getGraphEditor().getInteractionHandler().undo();
+		this.redraw();
 
 		// to update toolbar
 		const sheetView = this.getActiveSheetView();
@@ -322,8 +322,8 @@ export default class GraphManager {
 
 	redo() {
 		// const command = this.commandStack.redo();
-		this.redraw(); // TODO: why redraw()??
 		this.getGraphEditor().getInteractionHandler().redo(); // command)
+		this.redraw();
 
 		// to update toolbar
 		const sheetView = this.getActiveSheetView();
@@ -387,12 +387,7 @@ export default class GraphManager {
 			command.add(updateCellsCommand);
 		}
 		command.execute();
-		// if (stats.steps === 0) {
-		// 	this.getInbox(streamsheetId).resetViewports();
-		// 	this.getOutbox(streamsheetId).resetViewports();
-		// 	const itemsNode = this.getOutbox().getMessageListItems();
-		// 	this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
-		// }
+		command.sendNotification();
 
 		// this is because baseExecute set drawing disabled to false
 		this.setDrawingDisabled(true);
@@ -436,7 +431,7 @@ export default class GraphManager {
 		const info = graph && graph.infoView;
 		if (info) {
 			// data.view.showCellValues(data.viewer, data.cell, data.targetRange);
-			CellInfoView.of(info.type, info.viewer, info.view).showInfo(info.cell, info.targetRange);
+			CellInfoView.of(info.type, info.viewer, info.view, info.options).showInfo(info.cell, info.target);
 		}
 	}
 
@@ -457,6 +452,7 @@ export default class GraphManager {
 		if (machineDescriptor) {
 			const command = new SetMachineCommand(this.getGraph(), machineDescriptor);
 			command.execute();
+			command.sendNotification();
 		}
 	}
 
@@ -464,6 +460,7 @@ export default class GraphManager {
 		const updateCellsCommand = this.updateCells(streamsheetId, cells, shapes, namedCells);
 		if (updateCellsCommand) {
 			updateCellsCommand.execute();
+			updateCellsCommand.sendNotification();
 			// to update editbar
 			const processSheet = this.getStreamSheet(streamsheetId);
 			if (processSheet.getOwnSelection().getActiveCell()) {
@@ -899,6 +896,7 @@ export default class GraphManager {
 		const compoundCommand = new CompoundCommand();
 		commands.forEach(command => compoundCommand.add(command));
 		compoundCommand.execute();
+		compoundCommand.sendNotification();
 	}
 
 	updateStreamSheets(streamsheets) {

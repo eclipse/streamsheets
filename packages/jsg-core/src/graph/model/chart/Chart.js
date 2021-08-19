@@ -34,6 +34,7 @@ module.exports = class Chart {
 		this.dataInRows = true;
 		this.varyByCategories = false;
 		this.varyByThreshold = 'none';
+		this.menuVisible = false;
 		this.hiLoLines = new ChartElement();
 		this.seriesLines = new ChartElement();
 		this.upBars = new ChartElement();
@@ -105,6 +106,9 @@ module.exports = class Chart {
 		if (this.dataInRows === false) {
 			writer.writeAttributeNumber('datainrows', this.dataInRows ? 1 : 0);
 		}
+		if (this.menuVisible === true) {
+			writer.writeAttributeNumber('menuvisible', this.menuVisible ? 1 : 0);
+		}
 		if (this.varyByCategories === true) {
 			writer.writeAttributeNumber('varybycategories', this.varyByCategories ? 1 : 0);
 		}
@@ -165,6 +169,7 @@ module.exports = class Chart {
 		this.firstSeriesLabels = reader.getAttributeBoolean(object, 'firstseries', true);
 		this.dataInRows = reader.getAttributeBoolean(object, 'datainrows', true);
 		this.tooltips = reader.getAttributeBoolean(object, 'tooltips', false);
+		this.menuVisible = reader.getAttributeBoolean(object, 'menuvisible', false);
 		this.varyByCategories = reader.getAttributeBoolean(object, 'varybycategories', false);
 		this.varyByThreshold = reader.getAttributeString(object, 'varybythreshold', 'none');
 		this.gaugePointer = reader.getAttributeBoolean(object, 'gaugepointer', false);

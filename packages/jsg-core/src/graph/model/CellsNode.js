@@ -51,27 +51,11 @@ module.exports = class CellsNode extends Node {
 		return this.getParent() ? this.getParent().getParent() : undefined;
 	}
 
-	getSectionData() {
-		const sheet = this.getSheet();
-		if (sheet) {
-			const sourceSheet = sheet.sourceSheet;
-			if (sourceSheet) {
-				if (this instanceof JSG.RowHeaderNode) {
-					return sourceSheet._rows.sectionData;
-				}
-				return sourceSheet._columns.sectionData;
-			}
-		}
-
-
-		return this._sectionData;
-	}
-
 	getDataProvider() {
 		const sheet = this.getSheet();
 		if (sheet) {
 			const sourceSheet = sheet.sourceSheet;
-			if (sourceSheet) {
+			if (sourceSheet && sheet !== sourceSheet) {
 				return sourceSheet.getCells().getDataProvider();
 			}
 		}

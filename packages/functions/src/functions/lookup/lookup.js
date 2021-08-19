@@ -225,15 +225,15 @@ const offset = (sheet, ...terms) =>
 					startidx.col + (width == null ? range.width : width) - 1)
 				: null;
 			// check new indices (against sheet of function!!):
+			const rangeSheet = range.sheet || sheet;
 			const error = FunctionErrors.ifTrue(!startidx
 				|| !endidx
-				|| !sheet.isValidIndex(startidx)
-				|| !sheet.isValidIndex(endidx), ERROR.REF);
-			return error || [startidx, endidx];
+				|| !rangeSheet.isValidIndex(startidx)
+				|| !rangeSheet.isValidIndex(endidx), ERROR.REF);
+			return error || [createSheetRange(startidx, endidx, rangeSheet)];
 		})
-		.run((startidx, endidx) => {
+		.run((offRange) => {
 			// we return a CellRangeReference...
-			let offRange = createSheetRange(startidx, endidx, sheet);
 			const { start, height, width } = offRange;
 			// DL-1425: if range references only one cell we return its value...
 			if (width === 1 && height === 1) {

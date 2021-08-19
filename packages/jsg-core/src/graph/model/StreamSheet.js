@@ -110,8 +110,11 @@ module.exports = class StreamSheet extends WorksheetNode {
 		writer.writeStartDocument();
 		this.saveCondensed(writer, true);
 		writer.writeEndDocument();
+		writer.root.shapes = this.getCells().subItemsToJSON();
 
-		return writer.flush();
+		const json = writer.flush();
+
+		return json;
 	}
 
 	saveCondensed(writer, undo = false) {
@@ -155,6 +158,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getDataProvider().clear();
 
 		this.read(reader, root);
+		this.setShapes(reader.getRoot().shapes);
 	}
 
 
@@ -220,8 +224,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 		attr.setCalcOnDemand(true);
 	}
 
-	_assignName(/* id */) {
+	_assignName(id) {
 		if (this.getGraph()._reading) {
+			return;
+		}
+		const attr = this.getAttributeAtPath('range');
+		if (attr) {
+			this.setName(`S${id}`);
 			return;
 		}
 
@@ -377,10 +386,11 @@ module.exports = class StreamSheet extends WorksheetNode {
 			if (!node._lastJSON || node._lastJSON !== jsonShape) {
 				const eventEnabled = node.disableEvents();
 				node.fromJSON(shape);
+				node.evaluate();
 				node.enableEvents(eventEnabled);
-				if (shape.format && shape.format.pattern && shape.format.pattern.sv) {
+				let pattern = node.getFormat().getPattern().getValue();
+				if (pattern) {
 					node.getFormat().setPatternFromShape();
-					let pattern = shape.format.pattern.sv;
 					try {
 						const qr = pattern.indexOf('qrcode:');
 						if (qr !== -1) {
@@ -418,7 +428,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 					} catch (e) {
 					}
 				}
-                node.evaluate();
                 node.setRefreshNeeded(true);
 			}
 

@@ -496,6 +496,37 @@ class GraphContextComponent extends Component {
 										</MenuItem>
 									</Submenu>) : null
 								}
+								{this.isMultiSelection() ? (<Submenu
+									popupId='DistMenu' title={<FormattedMessage id='Shapes.Distribute'
+																				 defaultMessage='Distribute Shapes' />}
+								>
+									<MenuItem
+										onClick={() => this.onAlignShapes(popupState,
+											JSG.AlignItemsCommand.Alignment.HDISTRIBUTE)}
+										dense>
+										<ListItemIcon>
+											<SvgIcon style={styles.menuItem}>
+												<path
+													d="M9,11H15V8L19,12L15,16V13H9V16L5,12L9,8V11M2,20V4H4V20H2M20,20V4H22V20H20Z" />
+											</SvgIcon>
+										</ListItemIcon>
+										<ListItemText primary={<FormattedMessage id='Shapes.DistributeHorz'
+																				 defaultMessage='Horizontal' />} />
+									</MenuItem>
+									<MenuItem
+										onClick={() => this.onAlignShapes(popupState,
+											JSG.AlignItemsCommand.Alignment.VDISTRIBUTE)}
+										dense>
+										<ListItemIcon>
+											<SvgIcon style={styles.menuItem}>
+												<path
+													d="M13,9V15H16L12,19L8,15H11V9H8L12,5L16,9H13M4,2H20V4H4V2M4,20H20V22H4V20Z" />
+											</SvgIcon>
+										</ListItemIcon>
+										<ListItemText primary={<FormattedMessage id='Shapes.DistributeVert'
+																				 defaultMessage='Vertical' />} />
+									</MenuItem>
+								</Submenu>) : null}
 								{showEdit ? <Divider /> : null}
 								{showEdit ? (<MenuItem onClick={() => this.onEditPoints()} dense>
 										<ListItemIcon>

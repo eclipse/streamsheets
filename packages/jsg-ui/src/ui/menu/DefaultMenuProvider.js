@@ -8,9 +8,6 @@ import AddLayoutColumn from './entries/AddLayoutColumn';
 import AddLayoutRow from './entries/AddLayoutRow';
 import RemoveLayoutColumn from './entries/RemoveLayoutColumn';
 import RemoveLayoutRow from './entries/RemoveLayoutRow';
-import RowMenu from './entries/RowMenu';
-import ColumnMenu from './entries/ColumnMenu';
-import EditNode from './entries/EditNode';
 
 const MENU_STYLE = 'jsg-item-menu';
 const MENU_ROW_STYLE = 'jsg-item-menu-row';

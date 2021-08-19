@@ -78,6 +78,10 @@ module.exports = class StreamSheetContainer extends Node {
 		// this._drawEnabled = false;
 	}
 
+	get allowSubMarkers() {
+		return false;
+	}
+
 	addDashboardSettings() {
 		const layoutNode = new LayoutNode();
 		layoutNode.setSize(20000, 10000);
@@ -389,6 +393,10 @@ module.exports = class StreamSheetContainer extends Node {
 						break;
 					case 'pin':
 						this._pin.read(reader, child);
+						this._pin.setLocalCoordinate(
+							new JSG.NumberExpression(0, 'WIDTH * 0.5'),
+							new JSG.NumberExpression(0, 'HEIGHT * 0.5')
+						);
 						// after pin change we update origin cache, so that subsequent call to origin gets correct values...
 						this._updateOrigin();
 						break;
@@ -510,6 +518,7 @@ module.exports = class StreamSheetContainer extends Node {
 		if (layoutNode) {
 			const layoutMode = layoutNode.getAttributeValueAtPath('layoutmode');
 			const minWidth = layoutNode.getAttributeValueAtPath('minwidth');
+			const maxWidth = layoutNode.getAttributeValueAtPath('maxwidth');
 			let sheetSize = size.x - left;
 			const layoutSize = layoutNode.getSizeAsPoint();
 			switch (layoutMode) {
@@ -519,9 +528,18 @@ module.exports = class StreamSheetContainer extends Node {
 			case 'resize': {
 				layoutNode.setOrigin(0, 0);
 				sheetSize = Math.max(sheetSize, minWidth)
+				sheetSize = Math.min(sheetSize, maxWidth)
+				const scroll = (size.y - heightCaption) < layoutSize.y;
+				if (scroll) {
+					sheetSize -= JSG.ScrollBar.SIZE;
+				}
 				if (sheetSize !== layoutSize.x) {
 					layoutNode.setWidth(sheetSize);
 					layoutNode.layout();
+				}
+				const space = size.x - left - (scroll ? JSG.ScrollBar.SIZE : 0);
+				if (space > layoutSize.x) {
+					layoutNode.setOrigin(Math.max(0, (space - layoutSize.x) / 2), 0);
 				}
 				break;
 			}

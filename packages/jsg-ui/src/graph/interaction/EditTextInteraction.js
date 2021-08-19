@@ -275,8 +275,8 @@ class EditTextInteraction extends AbstractInteraction {
 
 		// this._item.setItemAttribute(ItemAttributes.VISIBLE, false);
 		this._item._editing = true;
-		this._select = this._item.getItemAttributes().getType().getValue() === 2;
-		this._selectSize = this._select ? 25 : 0;
+		this._controlType = this._item.getItemAttributes().getType().getValue();
+		this._selectSize = (this._controlType === 3 || this._controlType === 2) ? 25 : 0;
 
 		event.doRepaint = true;
 		this._item.getGraph().markDirty();
@@ -290,7 +290,7 @@ class EditTextInteraction extends AbstractInteraction {
 
 		const div = document.createElement('div');
 
-		if (!this.isViewMode(controller)) {
+		if (!this.isViewMode(controller) && this._controlType !== 2) {
 			div.contentEditable = 'true';
 		}
 
@@ -375,7 +375,7 @@ class EditTextInteraction extends AbstractInteraction {
 		// place div and scroll div into view, if necessary
 		this.updateTextArea(viewer, false, true);
 
-		if (this._select) {
+		if (this._controlType === 2 || this._controlType === 3) {
 			this.selectBtn = document.createElement('div');
 			this.selectBtn.id = 'jsgTextSelect';
 			this.selectBtn.tabIndex = '6';
@@ -395,7 +395,7 @@ class EditTextInteraction extends AbstractInteraction {
 		}
 
 		// select complete text
-		if (window.getSelection) {
+		if (window.getSelection && this._controlType !== 2) {
 			const selection = window.getSelection();
 			const range = document.createRange();
 			let elem = div;
@@ -453,8 +453,8 @@ class EditTextInteraction extends AbstractInteraction {
 						const cell = frange._worksheet.getDataProvider().getRC(frange.getX1(), i);
 						if (cell && cell.getValue() !== undefined) {
 							html += `<div id="option${i}" style="padding: 3px;background-color: ${JSG.theme.fill}">`;
-							html += `<p style="font-size: ${textFormat.getFontSize().getValue()}pt; font-family: ${textFormat.getFontName().getValue()};">${cell.getValue()}</p>`;
-							// }
+							html += `<p>${cell.getValue()}</p>`;
+							// html += `<p style="font-size: ${textFormat.getFontSize().getValue()}pt; font-family: ${textFormat.getFontName().getValue()};">${cell.getValue()}</p>`;
 							html += '</div>';
 						}
 					}
@@ -462,32 +462,20 @@ class EditTextInteraction extends AbstractInteraction {
 			}
 		}
 
-
-		// options.forEach((option, index) => {
-		// 		// if (index === this.funcIndex) {
-		// 		// 	html = `<div id="func${index}" style="padding: 3px;background-color: #DDDDDD">`;
-		// 		// 	html += `<p style="">${info[0]}</p>`;
-		// 		// 	html += `<p style="">${info[1][JSG.locale].description}</p>`;
-		// 		// } else {
-		// 			html += `<div id="option${index}" style="padding: 3px;background-color: ${JSG.theme.fill}">`;
-		// 			html += `<p style="">${option}</p>`;
-		// 		// }
-		// 		html += '</div>';
-		// 	});
-		//
 		return html;
 	}
 
 
 	handleOptionsMouseDown(canvas) {
 		const html = this.generateOptionsHTML();
+		const textFormat = this._item.getTextFormat();
 
 		if (this.optionsDiv === undefined) {
 			const y = this.div.offsetTop + this.div.clientHeight + 5;
 			this.optionsDiv = document.createElement('div');
 			this.optionsDiv.style.position = 'absolute';
-			this.optionsDiv.style.fontFamily = 'Roboto, Verdana, Arial, sans-serif';
-			this.optionsDiv.style.fontSize = '8pt';
+			this.optionsDiv.style.fontFamily = `${textFormat.getFontName().getValue()}`;
+			this.optionsDiv.style.fontSize = `${textFormat.getFontSize().getValue()}pt`;
 			this.optionsDiv.style.width = `${this.div.offsetWidth - 25}px`;
 			this.optionsDiv.style.zIndex = '1000';
 			this.optionsDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y}px`;
@@ -496,9 +484,10 @@ class EditTextInteraction extends AbstractInteraction {
 			this.optionsDiv.style.cursor = 'default';
 			this.optionsDiv.style.wordBreak = 'break-word';
 			this.optionsDiv.style.backgroundColor = JSG.theme.listback;
-			this.optionsDiv.style.border = `1px solid ${JSG.theme.listborder}`;
-			this.optionsDiv.style.boxShadow = '2px 2px 2px #CCCCCC';
-			this.optionsDiv.style.left = `${this.div.offsetLeft + 1}px`;
+			this.optionsDiv.style.borderRadius = `4px`;
+			this.optionsDiv.style.border = `none`;
+			this.optionsDiv.style.boxShadow = '0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%)';
+			this.optionsDiv.style.left = `${this.div.offsetLeft}px`;
 			this.optionsDiv.style.top = `${y}px`;
 			canvas.parentNode.appendChild(this.optionsDiv);
 		}
@@ -510,16 +499,8 @@ class EditTextInteraction extends AbstractInteraction {
 	};
 
 	handleOptionListMouseDown(event) {
-		const index = Number(event.currentTarget.id.substr(4));
 		this.div.innerHTML = event.currentTarget.textContent;
 		this.finishInteraction(undefined, this.getViewer());
-
-		// canvas.parentNode.removeChild(this.optionsDiv);
-		// this.optionsDiv = undefined;
-		// if (this.insertFunctionFromList()) {
-		// 	event.preventDefault();
-		// 	event.stopPropagation();
-		// }
 	}
 
 	/**

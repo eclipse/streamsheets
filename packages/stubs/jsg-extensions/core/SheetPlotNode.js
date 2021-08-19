@@ -600,11 +600,11 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 			}
 		});
 
-		this.actions.push({
-			position: new ChartRect(size.x - 500, 0, size.x, 800),
-			action: this.showActionMenu,
-			title: 'sysicon'
-		});
+		if (this.chart.menuVisible) {
+			this.actions.push({
+				position: new ChartRect(size.x - 500, 0, size.x, 800), action: this.showActionMenu, title: 'sysicon'
+			});
+		}
 
 		if (this.chart.mapZoom) {
 			this.actions.push({

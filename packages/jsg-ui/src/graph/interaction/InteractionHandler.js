@@ -539,6 +539,7 @@ class InteractionHandler {
 			JSG.setDrawingDisabled(true);
 		}
 		this.commandStack.execute(cmd);
+		cmd.sendNotification(cmd);
 		if (completionfunc !== undefined) {
 			completionfunc.call(this, cmd, this.viewer);
 		}
@@ -567,6 +568,7 @@ class InteractionHandler {
 			// getSelectionView().setRotationAngle(0);
 			const cmd = this.commandStack.undo();
 			if (cmd !== undefined) {
+				cmd.sendNotification();
 				// cmd.restoreStateAfterUndo(this.viewer);
 				const selection = [];
 				cmd.doAfterUndo(selection, this.viewer);
@@ -613,6 +615,7 @@ class InteractionHandler {
 			// this.viewer.getSelectionView().setRotationAngle(0);
 			const cmd = this.commandStack.redo();
 			if (cmd !== undefined) {
+				cmd.sendNotification();
 				const selection = [];
 				// cmd.restoreStateAfterRedo(this.viewer);
 				cmd.doAfterRedo(selection, this.viewer);

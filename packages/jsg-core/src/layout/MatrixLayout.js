@@ -13,11 +13,13 @@ const Layout = require('./Layout');
 const Settings = require('./Settings');
 
 const TYPE = 'jsg.matrix.layout';
+const DIRECTION = 'content.direction';
 const COLUMNS = 'content.columns';
 const MARGIN = 'content.margin';
 const EXPANDABLE = 'content.expandable';
 const settings = new Settings();
 settings.set(COLUMNS, 1);
+settings.set(DIRECTION, 'column');
 settings.set(MARGIN, 1000);
 settings.set(EXPANDABLE, false);
 
@@ -122,6 +124,10 @@ module.exports = class MatrixLayout extends Layout {
 
 	static get COLUMNS() {
 		return COLUMNS;
+	}
+
+	static get DIRECTION() {
+		return DIRECTION;
 	}
 
 	static get MARGIN() {

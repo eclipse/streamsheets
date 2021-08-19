@@ -69,20 +69,20 @@ module.exports = {
 			de: { argumentList: 'Datumswert,Runden', description: 'Gibt den Monat eines Zeitwertes zurück' }
 		},
 		MSTOSERIAL: {
-			en: { argumentList: 'TimeValue', description: 'Converts the given ellapsed milliseconds to a date value' },
-			de: { argumentList: 'Zeitwert', description: 'Wandelt die abgelaufenen Millisekunden in ein Datum um' }
+			en: { argumentList: 'TimeValue,UTC', description: 'Converts the given ellapsed milliseconds to a date value' },
+			de: { argumentList: 'Zeitwert,UTC', description: 'Wandelt die abgelaufenen Millisekunden in ein Datum um' }
 		},
 		NOW: {
-			en: { argumentList: '', description: 'Returns the current time' },
-			de: { argumentList: '', description: 'Gibt den aktuellen Zeitwert zurück' }
+			en: { argumentList: '', description: 'Returns the current local time' },
+			de: { argumentList: '', description: 'Gibt den aktuellen lokalen Zeitwert zurück' }
 		},
 		SECOND: {
 			en: { argumentList: 'TimeValue,Round', description: 'Returns the seconds of the time value' },
 			de: { argumentList: 'Zeitwert,Runden', description: 'Gibt die Sekunden eines Zeitwertes zurück' }
 		},
 		SERIALTOMS: {
-			en: { argumentList: 'Date', description: 'Converts the given date to the ellapsed milliseconds' },
-			de: { argumentList: '', description: 'Wandelt das Datum in abgelaufenen Millisekunden um' }
+			en: { argumentList: 'TimeValue,UTC', description: 'Converts the given date to the ellapsed milliseconds' },
+			de: { argumentList: 'Zeitwert,UTC', description: 'Wandelt das Datum in abgelaufenen Millisekunden um' }
 		},
 		TIME: {
 			en: {

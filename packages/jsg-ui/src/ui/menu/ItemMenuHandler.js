@@ -157,8 +157,8 @@ export default class ItemMenuHandler {
 
 				switch (menuHandle.position) {
 				case 'tri':
-					el.style.top = `${pos.y + 5}px`;
-					el.style.left = `${pos.x - el.offsetWidth - 5}px`;
+					el.style.top = `${pos.y - el.offsetHeight / 2}px`;
+					el.style.left = `${pos.x - el.offsetWidth / 2}px`;
 					break;
 				case 'tr':
 					el.style.top = `${pos.y + 5}px`;

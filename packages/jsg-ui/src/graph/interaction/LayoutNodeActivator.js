@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, NotificationCenter, Notification, StreamSheet, Rectangle, Shape, LayoutNode, GraphUtils } from '@cedalo/jsg-core';
+import { default as JSG, NotificationCenter, Notification, StreamSheet, LayoutCell, Rectangle, Shape, LayoutNode, GraphUtils } from '@cedalo/jsg-core';
 
 import InteractionActivator from './InteractionActivator';
 import Cursor from '../../ui/Cursor';
@@ -36,17 +36,23 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	_getControllerAt(location, viewer, dispatcher) {
 		let streamSheet = false;
 
+		this._layoutCellController = undefined;
+
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont, loc, index) => {
 			const item = cont.getModel()
 			if (item instanceof StreamSheet) {
 				streamSheet = true;
 			}
+			if ((item instanceof LayoutCell) && this._layoutCellController === undefined) {
+				this._layoutCellController = cont.getParent();
+			}
+
 			return (!streamSheet && (item instanceof LayoutNode));
 		});
 	}
 
 	getExpandRow(event, viewer, point, layoutNode) {
-		const data = layoutNode.rowData;
+		const data = layoutNode._virtualRowData ? layoutNode._virtualRowData : layoutNode.rowData;
 		const rect = new Rectangle();
 
 		rect.x = layoutNode.getWidth().getValue() - 700;
@@ -56,8 +62,8 @@ export default class LayoutNodeActivator extends InteractionActivator {
 
 		for (let i = 0; i < data.length; i += 1) {
 			const row = data[i];
-			if (rect.containsPoint(point)) {
-				return i;
+			if (row.expandable && rect.containsPoint(point)) {
+				return row.index === undefined ? i : row.index;
 			}
 			rect.y += row.layoutSize;
 		}
@@ -65,30 +71,77 @@ export default class LayoutNodeActivator extends InteractionActivator {
 		return -1;
 	}
 
+	getCellColumn(event, viewer) {
+		if (!this._layoutCellController) {
+			return -1;
+		}
+		const node = this._layoutCellController.getModel();
+		const data = node._columnData;
+		if (!data || !data.length) {
+			return -1;
+		}
+
+		const point = this.pointToNode(this._layoutCellController, event, viewer);
+		const rect = new Rectangle();
+
+		rect.x = 0;
+		rect.y = 0;
+		rect.height = node.getHeight().getValue();
+		rect.width = 300;
+
+		for (let i = 0; i < data.length - 1; i += 1) {
+			const column = data[i];
+			rect.x += column.layoutSize - 150;
+			if (rect.containsPoint(point)) {
+				return i;
+			}
+			rect.x += 150;
+		}
+
+		return -1;
+
+	}
+
 	getColumn(event, viewer, point, layoutNode) {
-		const data = layoutNode.columnData;
+		let data;
+
+		if (layoutNode._virtualRowData) {
+			const rowIndex = this.getRowInside(event, viewer, point, layoutNode);
+			if (rowIndex === -1) {
+				return - 1;
+			}
+			data = layoutNode._virtualRowData[rowIndex].columnData;
+		} else {
+			data = layoutNode.columnData;
+		}
 		const rect = new Rectangle();
 
 		rect.x = 0;
 		rect.y = 0;
 		rect.height = layoutNode.getHeight().getValue();
-		rect.width = 200;
+		rect.width = 300;
 
-		for (let i = 0; i < data.length; i += 1) {
+		for (let i = 0; i < data.length - 1; i += 1) {
 			const column = data[i];
-			rect.x += column.layoutSize - 100;
+			rect.x += column.layoutSize - 150;
 			if (rect.containsPoint(point)) {
-				const rowIndex = this.getRowInside(event, viewer, point, layoutNode);
-				if (rowIndex !== -1 && i < data.length - 1) {
-					const node = layoutNode.getItemAt(rowIndex * data.length + i + 1);
-					if (node._merged) {
+				if (layoutNode._virtualRowData) {
+					const node = layoutNode.getItemAt(column.nodeIndex + i + 1);
+					if (node && node._merged) {
 						return -1;
 					}
-
+				} else {
+					const rowIndex = this.getRowInside(event, viewer, point, layoutNode);
+					if (rowIndex !== -1 && i < data.length - 1) {
+						const node = layoutNode.getItemAt(rowIndex * data.length + i + 1);
+						if (node && node._merged) {
+							return -1;
+						}
+					}
 				}
 				return i;
 			}
-			rect.x += 100;
+			rect.x += 150;
 		}
 
 		return -1;
@@ -135,28 +188,28 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	}
 
 	getRow(event, viewer, point, layoutNode) {
-		const data = layoutNode.rowData;
+		const data = layoutNode._virtualRowData ? layoutNode._virtualRowData : layoutNode.rowData;
 		const rect = new Rectangle();
 
 		rect.x = 0;
 		rect.y = 0;
 		rect.width = layoutNode.getWidth().getValue();
-		rect.height = 200;
+		rect.height = 300;
 
 		for (let i = 0; i < data.length; i += 1) {
 			const row = data[i];
-			rect.y += row.layoutSize - 100;
+			rect.y += row.layoutSize - 150;
 			if (rect.containsPoint(point)) {
-				return i;
+				return row.index === undefined ? i : row.index;
 			}
-			rect.y += 100;
+			rect.y += 150;
 		}
 
 		return -1;
 	}
 
 	getRowInside(event, viewer, point, layoutNode) {
-		const data = layoutNode.rowData;
+		const data = layoutNode._virtualRowData ? layoutNode._virtualRowData : layoutNode.rowData;
 		const rect = new Rectangle();
 
 		rect.x = 0;
@@ -188,88 +241,94 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	}
 
 	onMouseDoubleClick(event, viewer, dispatcher) {
-		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() !== 1) {
-			return;
-		}
-
-		const controller = this._getControllerAt(event.location, viewer, dispatcher);
-		if (controller) {
-			const point = this.pointToNode(controller, event, viewer);
-			const layoutNode = controller.getModel();
-			let data = this.getRowHeader(event, viewer, point, layoutNode);
-			if (data === -1) {
-				data = this.getColumnHeader(event, viewer, point, layoutNode);
-			}
-			if (data !== -1) {
-				NotificationCenter.getInstance().send(new Notification(JSG.LAYOUT_DOUBLE_CLICK_NOTIFICATION, {
-					open: true
-				}));
-			}
-		}
-
+		// if (viewer.getGraph().getMachineContainer().getMachineState().getValue() !== 1) {
+		// 	return;
+		// }
+		//
+		// const controller = this._getControllerAt(event.location, viewer, dispatcher);
+		// if (controller) {
+		// 	const point = this.pointToNode(controller, event, viewer);
+		// 	const layoutNode = controller.getModel();
+		// 	let data = this.getRowHeader(event, viewer, point, layoutNode);
+		// 	if (data === -1) {
+		// 		data = this.getColumnHeader(event, viewer, point, layoutNode);
+		// 	}
+		// 	if (data !== -1) {
+		// 		NotificationCenter.getInstance().send(new Notification(JSG.LAYOUT_DOUBLE_CLICK_NOTIFICATION, {
+		// 			open: true
+		// 		}));
+		// 	}
+		// }
 	}
 
 	onMouseDown(event, viewer, dispatcher) {
-		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() !== 1) {
-			return;
-		}
-
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
+			let index;
 			const point = this.pointToNode(controller, event, viewer);
 			const layoutNode = controller.getModel();
-			let index = this.getColumn(event, viewer, point, layoutNode);
-			if (index !== -1) {
-				const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, false, index),
-					dispatcher);
-				interaction.onMouseDown(event, viewer);
-				event.hasActivated = true;
-				event.doRepaint = true;
-				return;
-			}
-			index = this.getRow(event, viewer, point, layoutNode);
-			if (index !== -1) {
-				const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, true, index),
-					dispatcher);
-				interaction.onMouseDown(event, viewer);
-				event.hasActivated = true;
-				event.doRepaint = true;
-				return;
-			}
-			index = this.getRowHeader(event, viewer, point, layoutNode);
-			if (index !== -1) {
-				const newSelection = [];
-				const selectionProvider = viewer.getSelectionProvider();
+			if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+				index = this.getCellColumn(event, viewer, point, this._layoutCellController);
+				if (index !== -1) {
+					const interaction = this.activateInteraction(new LayoutNodeInteraction(this._layoutCellController, false, index),
+						dispatcher);
+					interaction.onMouseDown(event, viewer);
+					event.hasActivated = true;
+					event.doRepaint = true;
+					return;
+				}
+				index = this.getColumn(event, viewer, point, layoutNode);
+				if (index !== -1) {
+					const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, false, index),
+						dispatcher);
+					interaction.onMouseDown(event, viewer);
+					event.hasActivated = true;
+					event.doRepaint = true;
+					return;
+				}
+				index = this.getRow(event, viewer, point, layoutNode);
+				if (index !== -1) {
+					const interaction = this.activateInteraction(new LayoutNodeInteraction(controller, true, index),
+						dispatcher);
+					interaction.onMouseDown(event, viewer);
+					event.hasActivated = true;
+					event.doRepaint = true;
+					return;
+				}
+				/* index = this.getRowHeader(event, viewer, point, layoutNode);
+				if (index !== -1) {
+					const newSelection = [];
+					const selectionProvider = viewer.getSelectionProvider();
 
-				layoutNode.columnData.forEach((column, columnIndex) => {
-					const node = layoutNode.getItemAt(index * layoutNode.columnData.length + columnIndex);
-					// if we store parent controller we can use getModelController which traverse only direct children...
-					const contr = controller.getControllerByModelId(node.getId());
-					if (contr !== undefined) {
-						newSelection.push(contr);
-					}
-				});
-				selectionProvider.setSelection(newSelection, {obj: 'layoutsectionrow', index});
-				event.hasActivated = true;
-				return;
-			}
-			index = this.getColumnHeader(event, viewer, point, layoutNode);
-			if (index !== -1) {
-				const newSelection = [];
-				const selectionProvider = viewer.getSelectionProvider();
+					layoutNode.columnData.forEach((column, columnIndex) => {
+						const node = layoutNode.getItemAt(index * layoutNode.columnData.length + columnIndex);
+						// if we store parent controller we can use getModelController which traverse only direct children...
+						const contr = controller.getControllerByModelId(node.getId());
+						if (contr !== undefined) {
+							newSelection.push(contr);
+						}
+					});
+					selectionProvider.setSelection(newSelection, { obj: 'layoutsectionrow', index });
+					event.hasActivated = true;
+					return;
+				}
+				index = this.getColumnHeader(event, viewer, point, layoutNode);
+				if (index !== -1) {
+					const newSelection = [];
+					const selectionProvider = viewer.getSelectionProvider();
 
-				layoutNode.rowData.forEach((row, rowIndex) => {
-					const node = layoutNode.getItemAt(
-						rowIndex * layoutNode.columnData.length + index);
-					// if we store parent controller we can use getModelController which traverse only direct children...
-					const contr = controller.getControllerByModelId(node.getId());
-					if (contr !== undefined) {
-						newSelection.push(contr);
-					}
-				});
-				selectionProvider.setSelection(newSelection, {obj: 'layoutsectioncolumn', index});
-				event.hasActivated = true;
-				return;
+					layoutNode.rowData.forEach((row, rowIndex) => {
+						const node = layoutNode.getItemAt(rowIndex * layoutNode.columnData.length + index);
+						// if we store parent controller we can use getModelController which traverse only direct children...
+						const contr = controller.getControllerByModelId(node.getId());
+						if (contr !== undefined) {
+							newSelection.push(contr);
+						}
+					});
+					selectionProvider.setSelection(newSelection, { obj: 'layoutsectioncolumn', index });
+					event.hasActivated = true;
+					return;
+				}*/
 			}
 			index = this.getExpandRow(event, viewer, point, layoutNode);
 			if (index !== -1) {
@@ -281,7 +340,8 @@ export default class LayoutNodeActivator extends InteractionActivator {
 					data.minSize,
 					data.sizeMode,
 					data.expandable,
-					!data.expanded);
+					!data.expanded,
+					data.copy());
 
 				viewer.getInteractionHandler().execute(cmd);
 				event.hasActivated = true;
@@ -302,29 +362,31 @@ export default class LayoutNodeActivator extends InteractionActivator {
 	}
 
 	onMouseMove(event, viewer, dispatcher) {
-		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() !== 1) {
-			return;
-		}
-
 		const controller = this._getControllerAt(event.location, viewer, dispatcher);
 		if (controller) {
 			const point = this.pointToNode(controller, event, viewer);
 			const layoutNode = controller.getModel();
-			if (this.getColumn(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.SHEETCOLUMNSIZE);
-			} else if (this.getRow(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.SHEETROWSIZE);
-			} else if (this.getColumnHeader(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.SHEETCOLUMN);
-			} else if (this.getRowHeader(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.SHEETROW);
-			} else if (this.getExpandRow(event, viewer, point, layoutNode) !== -1) {
-				dispatcher.setCursor(Cursor.Style.EXECUTE);
-			} else {
-				return;
+			let cursor;
+			if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+				if (this.getCellColumn(event, viewer, point, this._layoutCellController) !== -1) {
+					cursor = Cursor.Style.SHEETCOLUMNSIZE;
+				} else if (this.getColumn(event, viewer, point, layoutNode) !== -1) {
+					cursor = Cursor.Style.SHEETCOLUMNSIZE;
+				} else if (this.getRow(event, viewer, point, layoutNode) !== -1) {
+					cursor = Cursor.Style.SHEETROWSIZE;
+				}/* else if (this.getColumnHeader(event, viewer, point, layoutNode) !== -1) {
+					cursor = Cursor.Style.SHEETCOLUMN;
+				} else if (this.getRowHeader(event, viewer, point, layoutNode) !== -1) {
+					cursor = Cursor.Style.SHEETROW;
+				}*/
 			}
-			event.hasActivated = true;
-			event.doRepaint = true;
+			if (this.getExpandRow(event, viewer, point, layoutNode) !== -1) {
+				cursor = Cursor.Style.EXECUTE;
+			}
+			if (cursor !== undefined) {
+				dispatcher.setCursor(cursor);
+				event.hasActivated = true;
+			}
 		}
 	}
 

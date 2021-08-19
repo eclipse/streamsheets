@@ -68,7 +68,7 @@ class EditTextActivator extends InteractionActivator {
 		const controller = this.getEditController(event, viewer);
 		if (controller) {
 			const type = controller.getModel().getItemAttributes().getType().getValue();
-			dispatcher.setCursor(type === 1 ? Cursor.Style.TEXT : Cursor.Style.EXECUTE);
+			dispatcher.setCursor(type === 1 || type === 3 ? Cursor.Style.TEXT : Cursor.Style.EXECUTE);
 			event.isConsumed = true;
 			event.hasActivated = true;
 		}

@@ -107,6 +107,7 @@ export class EventProperties extends Component {
 
 		return (
 			<TextField
+				fullWidth
 				variant="outlined"
 				size="small"
 				margin="normal"
@@ -141,7 +142,11 @@ export class EventProperties extends Component {
 		}
 		const item = this.props.view.getItem();
 		return (
-			<FormGroup>
+			<FormGroup
+				style={{
+					width: '100%'
+				}}
+			>
 				{this.getAttributeHandler("GraphItemProperties.OnClick", item, JSG.EventAttributes.ONCLICK)}
 				{this.getAttributeHandler("GraphItemProperties.OnDoubleClick", item, JSG.EventAttributes.ONDOUBLECLICK)}
 				{this.getAttributeHandler("GraphItemProperties.OnMouseDown", item, JSG.EventAttributes.ONMOUSEDOWN)}

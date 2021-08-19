@@ -183,20 +183,14 @@ class ResourcesList extends React.Component {
 			canEdit,
 		} = this.props;
 		return (
-			<Paper
-				style={{
-					height: '100%',
-					overflowY: 'overlay',
-				}}
-				square
-			>
 				<Table
 					style={{ minWidth: '700px'}}
 				>
 					<TableSortHeader
 						height={48}
 						cells={[
-							{ id: 'name', numeric: false, padding: true, label: 'Name', width: '25%' },
+							{ id: 'gap', numeric: false, padding: false, label: '', width: '1%', minWidth: '16px' },
+							{ id: 'name', numeric: false, padding: false, label: 'Name', width: '25%' },
 							{ id: 'sheets', numeric: false, sort: false, label: 'Dashboard.sheets', width: '7%' },
 							{ id: 'consumers', numeric: false, label: 'Dashboard.consumers', width: '40%' },
 							{ id: 'lastModified', numeric: false, label: 'LastModified', width: '17%' },
@@ -217,7 +211,8 @@ class ResourcesList extends React.Component {
 								tabIndex={-1}
 								key={`${resource.className}-${resource.id}`}
 							>
-								<TableCell onClick={() => this.handleSelection(resource)} padding="default" component="th" scope="row">
+								<TableCell onClick={() => this.handleSelection(resource)} padding="none"></TableCell>
+								<TableCell style={{fontWeight: 'bold'}} onClick={() => this.handleSelection(resource)} padding="none" component="th" scope="row">
 									{resource.name}
 								</TableCell>
 								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.streamsheets.length}</TableCell>
@@ -262,7 +257,6 @@ class ResourcesList extends React.Component {
 						))}
 					</TableBody>
 				</Table>
-			</Paper>
 		);
 	}
 }

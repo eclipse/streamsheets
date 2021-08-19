@@ -11,7 +11,14 @@
 /* eslint-disable no-mixed-operators */
 /* global document */
 
-import { default as JSG, Shape, CellsNode, HeaderNode, SheetHeaderNode, StreamSheet } from '@cedalo/jsg-core';
+import {
+	default as JSG,
+	Shape,
+	CellsNode,
+	HeaderNode,
+	SheetHeaderNode,
+	StreamSheet, StreamSheetContainer
+} from '@cedalo/jsg-core';
 
 import WorksheetView from '../view/WorksheetView';
 import InteractionActivator from './InteractionActivator';
@@ -130,6 +137,9 @@ export default class SheetActivator extends InteractionActivator {
 						const interaction = this.activateInteraction(new SheetInteraction(), dispatcher);
 						interaction._controller = this._controller;
 						// interaction._hitCode = this._hitCode;
+					}
+					if (this._controller.getModel().getParent() instanceof StreamSheetContainer) {
+						this._controller.getView().getParent().moveSheetToTop(viewer);
 					}
 					break;
 			}

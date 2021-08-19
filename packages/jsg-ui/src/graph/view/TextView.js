@@ -68,7 +68,7 @@ class TextView extends NodeView {
 		const valign = textFormat.getVerticalAlignment().getValue();
 		const extra = this._item.getExtraLabel();
 		let xoffset = 0;
-		let yoffset = extra ? 150 : 0;
+		let yoffset = extra ? 200 : 0;
 
 		if (rect.width !== item._sizeText.x) {
 			switch (halign) {

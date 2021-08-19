@@ -31,8 +31,7 @@ class AddLayoutSectionCommand extends AbstractItemCommand {
 	}
 
 	execute() {
-		const section = new LayoutSection(this._size);
-		section.sizeMode = this._sizeMode;
+		const section = new LayoutSection(this._size, this._sizeMode);
 		if (this._row) {
 			this.getItem().addRow(section, this._index);
 		} else {

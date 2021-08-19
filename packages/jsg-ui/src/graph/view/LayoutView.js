@@ -38,8 +38,13 @@ export default class LayoutView extends NodeView {
 
 		const item = this.getItem();
 		const viewSettings = item.getGraph().viewSettings;
-		const rowData = item.rowData;
-		const columnData = item.columnData;
+		const rowData = item._virtualRowData;
+
+		if (!rowData) {
+			return;
+		}
+
+		// const columnData = item.columnData;
 		let y = 0;
 		let x = 0;
 		let node;
@@ -55,9 +60,9 @@ export default class LayoutView extends NodeView {
 				graphics.moveTo(0, y);
 				graphics.lineTo(rect.width, y);
 
-				columnData.forEach((column, columnIndex) => {
+				row.columnData.forEach((column, columnIndex) => {
 
-					node = item.getItemAt(rowIndex * columnData.length + columnIndex);
+					node = item.getItemAt(column.nodeIndex);
 					if (node && node._merged === false) {
 						graphics.moveTo(x, y);
 						graphics.lineTo(x, y + row.layoutSize);

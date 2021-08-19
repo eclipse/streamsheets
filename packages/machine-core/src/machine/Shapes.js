@@ -14,8 +14,11 @@ const SheetRange = require('./SheetRange');
 const checkNaN = (value) => (typeof value === 'number' && Number.isNaN(value) ? 0 : value);
 const checkTermValue = (term) => {
 	const value = checkNaN(term.value);
-	// eslint-disable-next-line no-nested-ternary
-	return value != null ? value : term.hasOperandOfType('CellReference') ? 0 : value;
+	if (value != null) {
+		// check for error
+		return value.isErrorInfo ? value.code : value;
+	}
+	return term.hasOperandOfType('CellReference') ? 0 : value;
 };
 const registerSheet = (term, sheet) => {
 	const setSheet = (t) => { t.sheet = sheet; return true; };

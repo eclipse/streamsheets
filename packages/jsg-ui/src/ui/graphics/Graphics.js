@@ -250,6 +250,7 @@ class Graphics {
 	 * @method restore
 	 */
 	restore() {
+		this._lastFont = undefined;
 		this._context2D.restore();
 		this.m = this.translateStack[this.translateStack.length - 1];
 		this.translateStack.pop();
@@ -761,7 +762,8 @@ class Graphics {
 			}
 		}
 
-		if (font !== this._context2D.font) {
+		if (font !== this._lastFont) {
+			this._lastFont = font;
 			this._context2D.font = font;
 		}
 
@@ -779,6 +781,7 @@ class Graphics {
 	}
 
 	setFontTo(font) {
+		this._lastFont = font;
 		this._context2D.font = font;
 	}
 

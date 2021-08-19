@@ -77,19 +77,9 @@ module.exports = class HeaderNode extends Node {
 	getViewRange() {
 		const sheet = this.getSheet();
 		if (sheet) {
-			const sourceSheet = sheet.sourceSheet;
-			if (sourceSheet) {
-				const attr = sheet.getAttributeAtPath('range');
-				if (attr) {
-					const rangeString = attr.getValue();
-					if (rangeString !== undefined) {
-						const range = CellRange.parse(rangeString, sheet);
-						if (range) {
-							range.shiftFromSheet();
-							return range;
-						}
-					}
-				}
+			const sourceRange = sheet.sourceRange;
+			if (sourceRange && sheet !== sourceRange.getSheet()) {
+				return sourceRange;
 			}
 		}
 		return undefined;
@@ -110,7 +100,7 @@ module.exports = class HeaderNode extends Node {
 		const sheet = this.getSheet();
 		if (sheet) {
 			const sourceSheet = sheet.sourceSheet;
-			if (sourceSheet) {
+			if (sourceSheet && sourceSheet !== sheet) {
 				return this.isRow() ?  sourceSheet._rows.sectionData : sourceSheet._columns.sectionData;
 			}
 		}

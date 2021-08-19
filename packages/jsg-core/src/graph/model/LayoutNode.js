@@ -15,6 +15,7 @@ const LayoutSection = require('./LayoutSection');
 const FormatAttributes = require('../attr/FormatAttributes');
 const StringAttribute = require('../attr/StringAttribute');
 const NumberAttribute = require('../attr/NumberAttribute');
+const LayoutCell = require('./LayoutCell');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Numbers = require('../../commons/Numbers');
 const Arrays = require('../../commons/Arrays');
@@ -29,8 +30,8 @@ module.exports = class LayoutNode extends Node {
 		this._columns = 2;
 
 		// LayoutSections
-		this._rowData = [new LayoutSection(2000)];
-		this._columnData = [];
+		this._rowData = [new LayoutSection(1000, 'auto'), new LayoutSection(1000, 'auto')];
+		this._columnData = [new LayoutSection(50, 'relative'), new LayoutSection(50, 'relative')];
 		this._data = [];
 
 		// LayoutCells
@@ -45,6 +46,7 @@ module.exports = class LayoutNode extends Node {
 
 		this.addAttribute(new StringAttribute('layoutmode', 'resize'));
 		this.addAttribute(new NumberAttribute('minwidth', 10000));
+		this.addAttribute(new NumberAttribute('maxwidth', 50000));
 	}
 
 	newInstance() {
@@ -74,6 +76,10 @@ module.exports = class LayoutNode extends Node {
 
 	getItemType() {
 		return 'layoutnode';
+	}
+
+	get allowSubMarkers() {
+		return false;
 	}
 
 	get rowData() {
@@ -133,6 +139,10 @@ module.exports = class LayoutNode extends Node {
 		}
 		this._columns += 1;
 
+		this.columnData.forEach(column => {
+			column.size = 100 / this.columnData.length
+		});
+
 		if (cells) {
 			for (let i = 0; i < this._rowData.length; i += 1) {
 				this.addItem(cells[this._rowData.length - i - 1], i * this._columnData.length + index);
@@ -157,89 +167,20 @@ module.exports = class LayoutNode extends Node {
 
 		Arrays.removeAt(this._columnData, index);
 
+		this.columnData.forEach(column => {
+			column.size = 100 / this.columnData.length
+		});
+
 		this.updateData();
 		this.getGraph().markDirty();
 
 		return removedCells;
 	}
 
-	prepareResize(row, index) {
-		this.resizeInfo = {
-			row,
-			index,
-			sectionSize: row ? this._rowData[index].size : this._columnData[index].size,
-			size: row ? this.getHeight().getValue() : this.getWidth().getValue(),
-			relativeSize: this.getRelativeSizeInfo()
-		};
-
-		if (row) {
-			this.resizeInfo.sectionSizes = [];
-			this.resizeInfo.sectionSizesSum = 0;
-			this._rowData.forEach((rowa, rowIndex) => {
-				this.resizeInfo.sectionSizes.push(rowa.size);
-				if (rowIndex !== index && rowa.sizeMode === 'relative') {
-					this.resizeInfo.sectionSizesSum += rowa.size;
-				}
-			});
-		} else {
-			this.resizeInfo.sectionSizes = [];
-			this.resizeInfo.sectionSizesSum = 0;
-			this._columnData.forEach((column, colIndex) => {
-				this.resizeInfo.sectionSizes.push(column.size);
-				if (colIndex !== index && column.sizeMode === 'relative') {
-					this.resizeInfo.sectionSizesSum += column.size;
-				}
-			});
-		}
-	}
-
-	resizeSection(delta) {
-		const layoutMode = this.getAttributeValueAtPath('layoutmode');
-		const info = this.resizeInfo;
-		const data = info.row ?
-			this._rowData[info.index] :
-			this._columnData[info.index];
-
-		if (data.sizeMode === 'relative') {
-			const factor = info.relativeSize.space ? info.relativeSize.sum / info.relativeSize.space : 1;
-			const size = (info.sectionSize + delta * factor) / factor;
-			if (size > data.minSize) {
-				data.size = Math.max(0, info.sectionSize + delta * factor);
-				if (layoutMode === 'resize') {
-					const fact = data.size - info.sectionSize;
-					this._columnData.forEach((column, index) => {
-						if (index !== info.index && column.sizeMode === 'relative') {
-							column.size = this.resizeInfo.sectionSizes[index] -
-								this.resizeInfo.sectionSizes[index] /
-								this.resizeInfo.sectionSizesSum * fact;
-						}
-					});
-				}
-			} else {
-				return;
-			}
-		} else {
-			data.size = Math.max(0, info.sectionSize + delta);
-		}
-		if (info.row) {
-			this.setHeight(info.size + delta);
-		} else if (layoutMode !== 'resize') {
-			this.setWidth(info.size + delta);
-		}
-
-		this.layout();
-	}
 
 	addCell(rowIndex, columnIndex) {
-		const node = new Node();
+		const node = new LayoutCell();
 
-		node.getFormat().setLineStyle(0);
-		node.getItemAttributes().setRotatable(false);
-		node.getItemAttributes().setMoveable(false);
-		node.getItemAttributes().setSizeable(false);
-		node.getItemAttributes().setDeleteable(false);
-		node.getItemAttributes().setEditMask(ItemAttributes.EditMask.ADDLABEL);
-		node.addAttribute(new NumberAttribute('mergecount', 0));
 		this.addItem(node, rowIndex * this._columnData.length + columnIndex);
 
 		return node;
@@ -253,22 +194,7 @@ module.exports = class LayoutNode extends Node {
 	}
 
 	updateData() {
-		// allocate missing sections
-		for (let i = 0; i < this._rows; i+= 1) {
-			if (this._rowData[i] === undefined) {
-				this._rowData[i] = new LayoutSection();
-			}
-		}
-		this._rowData.length = this._rows;
-		for (let i = 0; i < this._columns; i+= 1) {
-			if (this._columnData[i] === undefined) {
-				this._columnData[i] = new LayoutSection();
-			}
-		}
-		this._columnData.length = this._columns;
-
 		let node;
-		// const cmd = new CompoundCommand();
 
 		this._rowData.forEach((row, rowIndex) => {
 			this._columnData.forEach((column, columnIndex) => {
@@ -332,147 +258,174 @@ module.exports = class LayoutNode extends Node {
 		return json;
 	}
 
-	isAutoResizeNode(node) {
-		return ((node instanceof JSG.SheetPlotNode) || (node instanceof JSG.StreamSheetWrapper));
-	}
+	getMinimumLayoutSize() {
+		let node;
+		let total = 0;
 
-	getRelativeSizeInfo() {
-		const size = this.getSize().toPoint();
-		const ret = {
-			sum: 0,
-			space: size.x
-		};
-
-		this._columnData.forEach(column => {
-			switch (column.sizeMode) {
-			case 'absolute':
-				ret.space -= column.size;
-				break;
-			case 'relative':
-			default:
-				ret.sum += column.size;
-				break;
-			}
+		this._columnData.forEach((column, columnIndex) => {
+			let minSize = column.minSize;
+			this._rowData.forEach((row, rowIndex) => {
+				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+				if (node && node.getMinimumLayoutSize) {
+					minSize = Math.max(minSize, node.getMinimumLayoutSize());
+				}
+			});
+			column._layoutMinSize = minSize;
+			this._rowData.forEach((row, rowIndex) => {
+				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+				if (node) {
+					const size = node.getSizeAsPoint();
+					if (size.x < column._layoutMinSize) {
+						node.setWidth(column._layoutMinSize);
+					}
+				}
+			});
+			total += minSize;
 		});
 
-		return ret;
+		return total;
 	}
 
 	layout() {
-		super.layout();
+		const minimumSize = this.getMinimumLayoutSize();
+		const size = this.getSizeAsPoint();
+		let node;
 
-		const size = this.getSize().toPoint();
+		this._virtualRowData = [];
 
-		// do column layout first to get row heights
-		let sizeLeftOver = size.x;
-		let sumRelative = 0;
-		let layoutSize;
-		const columns = [];
+		if (size.x < minimumSize) {
+			this.setWidth(minimumSize);
+			size.x = minimumSize;
+		}
 
-		// deduct fixed sizes from available space
-		this._columnData.forEach(column => {
-			switch (column.sizeMode) {
-			case 'absolute':
-				sizeLeftOver -= column.size;
-				break;
-			case 'relative':
-			default:
-				sumRelative += column.size;
-				break;
-			}
-		});
+		let vRow = 0;
 
-		sumRelative = Math.max(1, sumRelative);
-		sizeLeftOver = Math.max(0, sizeLeftOver);
-
-		// check, if min size > relative size
-		this._columnData.forEach(column => {
-			const colData = {};
-			switch (column.sizeMode) {
-			case 'absolute':
-				colData.size = Math.max(column.minSize, column.size);
-				colData.sizeMode = column.sizeMode;
-				break;
-			case 'relative':
-			default:
-				layoutSize = column.size / sumRelative * sizeLeftOver;
-				if (layoutSize > column.minSize) {
-					colData.size = column.size;
-					colData.sizeMode = column.sizeMode;
-				} else {
-					colData.size = column.minSize;
-					colData.sizeMode = 'absolute';
+		// create virtual rows for wrapping
+		this._rowData.forEach((row, rowIndex) => {
+			this._columnData.forEach((column, columnIndex) => {
+				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+				let wrapValue = 0;
+				if (node) {
+					if (!this._virtualRowData[vRow]) {
+						this._virtualRowData[vRow] = row.copy();
+						this._virtualRowData[vRow].columnData = [];
+						this._virtualRowData[vRow].index = rowIndex;
+						this._virtualRowData[vRow].expandable = columnIndex === 0 && row.expandable;
+					}
+					const copy = column.copy()
+					copy.nodeIndex = rowIndex * this._columnData.length + columnIndex;
+					this._virtualRowData[vRow].columnData.push(copy);
+					wrapValue = node.getLayoutCellAttributes().getNewLine().getValue();
+					if (size.x < wrapValue && columnIndex < this._columns - 1) {
+						vRow += 1;
+					}
 				}
-				break;
-			}
-			columns.push(colData);
+			});
+			vRow += 1;
 		});
 
-		sumRelative = 0;
-		sizeLeftOver = size.x;
+		// do column layout first
 
-		columns.forEach(column => {
-			switch (column.sizeMode) {
-			case 'absolute':
-				sizeLeftOver -= column.size;
-				break;
-			case 'relative':
-			default:
-				sumRelative += column.size;
-				break;
-			}
-		});
+		this._virtualRowData.forEach((row, rowIndex) => {
+			let absSizes = size.x;
+			let relSizes = 0;
 
-		sumRelative = Math.max(1, sumRelative);
-		sizeLeftOver = Math.max(0, sizeLeftOver);
+			row.columnData.forEach((column, index) => {
+				relSizes += column.size;
+			});
 
-		columns.forEach((column, index) => {
-			switch (column.sizeMode) {
-			case 'absolute':
-				this.columnData[index].layoutSize = column.size;
-				break;
-			case 'relative':
-			default:
-				this.columnData[index].layoutSize = column.size / sumRelative * sizeLeftOver;
-				break;
-			}
+			row.columnData.forEach((column, index) => {
+				if (column.size / relSizes * size.x <= column._layoutMinSize) {
+					absSizes -= column._layoutMinSize;
+					relSizes -= column.size;
+				}
+			});
+
+			row.columnData.forEach((column, index) => {
+				let width;
+				if (column.size / relSizes * absSizes > column._layoutMinSize) {
+					width = column.size / relSizes * absSizes;
+				} else {
+					width = column._layoutMinSize;
+				}
+				column.layoutSize = width;
+			});
 		});
 
 		const margin = 200;
 
-		size.x = 0;
-		size.y = 0;
+		// update
 
-		this._rowData.forEach((row, rowIndex) => {
+		this._virtualRowData.forEach((row, rowIndex) => {
+			row.columnData.forEach((column, columnIndex) => {
+				node = this.getItemAt(column.nodeIndex);
+				if (node) {
+					node._expandable = row.expandable;
+					node._merged = false;
+				}
+			});
+			row.columnData.forEach((column, columnIndex) => {
+				node = this.getItemAt(column.nodeIndex);
+				if (node) {
+					let width = column.layoutSize;
+					if (node._merged === false && node.getLayoutCellAttributes) {
+						const mergeCount = node.getLayoutCellAttributes().getMergeCount().getValue();
+						node.getItemAttributes().setVisible(true);
+						for (let i = columnIndex + 1; i <= columnIndex + mergeCount; i += 1) {
+							if (i < row.columnData.length) {
+								width += row.columnData[i].layoutSize;
+								const mergeNode = this.getItemAt(column.nodeIndex + i);
+								if (mergeNode) {
+									if (mergeNode.isItemVisible()) {
+										mergeNode.getItemAttributes().setVisible(false);
+									}
+									mergeNode._merged = true;
+								}
+							}
+						}
+					}
+					node.setWidth(width);
+				}
+			});
+		});
+
+		// do sublayouts to set all widths and corresponding height
+
+		this.subItems.forEach(subItem => {
+			subItem.layout();
+		});
+
+
+		// set height depending on sublayout
+
+		this._virtualRowData.forEach((row, rowIndex) => {
+			const expanded = this._rowData[row.index].expanded;
+			const expandable = this._rowData[row.index].expandable;
 			switch (row.sizeMode) {
 			case 'absolute':
-				row.layoutSize = Numbers.isNumber(row.size) ? row.size : 3000;
+				if (expandable && !expanded) {
+					row.layoutSize = row.expandable ? 800 : 0;
+				} else {
+					row.layoutSize = Numbers.isNumber(row.size) ? row.size : 1000;
+				}
 				break;
 			case 'auto': {
 				let height = row._minSize;
-				if (row.expandable && !row.expanded) {
-					height = 800;
+				if (expandable && !expanded) {
+					height = row.expandable ? 800 : 0;
 				} else {
-					this._columnData.forEach((column, columnIndex) => {
-						let usedHeight = margin;
-						const node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+					let usedHeight = margin;
+					row.columnData.forEach((column, columnIndex) => {
+						node = this.getItemAt(column.nodeIndex);
 						if (node) {
-							if (node.getLayout()) {
-								node.getLayoutSettings().set(JSG.MatrixLayout.EXPANDABLE, row.expandable);
-								node.layout();
-								usedHeight = node._layoutHeight;
+							if (node._layoutHeight === undefined) {
+								// usedHeight = Numbers.isNumber(row.size) ? row.size : 1000;
 							} else {
-								node.subItems.forEach(subItem => {
-									usedHeight += subItem.getHeight().getValue();
-									usedHeight += margin;
-								});
+								usedHeight = Math.max(node._layoutHeight, usedHeight);
 							}
 						}
-						height = Math.max(height, usedHeight);
 					});
-					if (row.expandable) {
-						height += 600;
-					}
+					height = Math.max(row.minSize, usedHeight);
 				}
 				row.layoutSize = height;
 				row.size = height;
@@ -482,60 +435,17 @@ module.exports = class LayoutNode extends Node {
 			size.y += row.layoutSize;
 		});
 
-		// update
 		let x = 0;
 		let y = 0;
-		let node;
 
-		this._rowData.forEach((row, rowIndex) => {
-			this._columnData.forEach((column, columnIndex) => {
-				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
-				node._merged = false;
-			});
-			this._columnData.forEach((column, columnIndex) => {
-				node = this.getItemAt(rowIndex * this._columnData.length + columnIndex);
+		this._virtualRowData.forEach((row, rowIndex) => {
+			row.columnData.forEach((column, columnIndex) => {
+				node = this.getItemAt(column.nodeIndex);
 				if (node) {
 					node.setOrigin(x, y);
-					let width = column.layoutSize;
-					if (node._merged === false) {
-						const mergeCount = node.getAttributeValueAtPath('mergecount');
-						node.getItemAttributes().setVisible(true);
-						for (let i = columnIndex + 1; i <= columnIndex + mergeCount; i += 1) {
-							if (i < this._columnData.length) {
-								width += this._columnData[i].layoutSize;
-								const mergeNode = this.getItemAt(rowIndex * this._columnData.length + i);
-								if (mergeNode && mergeNode.isItemVisible()) {
-									mergeNode.getItemAttributes().setVisible(false);
-								}
-								mergeNode._merged = true;
-							}
-						}
-					}
-					node.setSize(width, row.layoutSize);
-					// node.getFormat().setLineStyle(0);
-					let yInner = row.expandable ? 600 : 0;
-					// if (node.getLayout()) {
-					// 	node.layout();
-					// }
-					node.subItems.forEach(subItem => {
-						if (row.expandable && !row.expanded) {
-							subItem.getItemAttributes().setVisible(false);
-						} else {
-							subItem.getItemAttributes().setVisible(true);
-							if (!node.getLayout()) {
-								const height = subItem.getHeight().getValue();
-								if (!subItem.getWidth().hasFormula()) {
-									subItem.setWidth(width - margin * 2);
-								}
-								if (!subItem.getHeight().hasFormula()) {
-									subItem.setHeight(height);
-								}
-								subItem.setOrigin(margin, yInner + margin);
-								yInner += height + margin;
-							}
-						}
-					});
+					node.setHeight(row.layoutSize);
 				}
+
 				x += column.layoutSize;
 			});
 			y += row.layoutSize;
@@ -545,8 +455,11 @@ module.exports = class LayoutNode extends Node {
 			x = 0;
 		});
 
-		// set height of layout node
+		size.y = y;
+
+		// finally set height of layout node
 		this.setSizeToPoint(size);
+		this.refresh(true);
 	}
 
 	isAddLabelAllowed() {

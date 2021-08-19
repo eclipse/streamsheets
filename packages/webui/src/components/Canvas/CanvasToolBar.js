@@ -3734,10 +3734,8 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('button')}>
 									<SvgIcon>
-										<path
-											// eslint-disable-next-line max-len
-											d='M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M10,16.5L16,12L10,7.5V16.5Z'
-										/>
+										<rect stroke="none" x="2" y="5" width="22" height="14"/>
+										<text fill="white" textAnchor="middle" fontSize="6pt" dominantBaseline="central" x="12" y="12">OK</text>
 									</SvgIcon>
 								</IconButton>
 							</Tooltip>
@@ -3749,10 +3747,8 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('checkbox')}>
 									<SvgIcon>
-										<path
-											// eslint-disable-next-line max-len
-											d='M19,19H5V5H15V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V11H19M7.91,10.08L6.5,11.5L11,16L21,6L19.59,4.58L11,13.17L7.91,10.08Z'
-										/>
+										<rect fill="none" strokeWidth="3" stroke="#888888" x="4" y="4" width="16" height="16"/>
+										<path fill="none" strokeWidth="2" stroke="#888888" d="M7 12 L12 16 L17 7"/>
 									</SvgIcon>
 								</IconButton>
 							</Tooltip>
@@ -3764,11 +3760,11 @@ export class CanvasToolBar extends Component {
 							>
 								<IconButton style={{ padding: '5px' }} onClick={() => this.onCreateControl('slider')}>
 									<SvgIcon>
-										<path
-											// eslint-disable-next-line max-len
-											d='M2,11 V13 H22 V11 Z'
-										/>
-										<circle cx='12' cy='12' r={4} />
+										<path fill="none" strokeWidth="1.5" stroke="#888888" d="M2 10 h20 v4 h-20 z"/>
+										<path fill="none" stroke="#888888" d="M7 10 v4"/>
+										<path fill="none" stroke="#888888" d="M12 10 v4"/>
+										<path fill="none" stroke="#888888" d="M17 10 v4"/>
+										<path fill="888888" stroke="#888888" d="M10 6 L8 9 L6 6z"/>
 									</SvgIcon>
 								</IconButton>
 							</Tooltip>
@@ -3782,7 +3778,7 @@ export class CanvasToolBar extends Component {
 									<SvgIcon>
 										<path
 											// eslint-disable-next-line max-len
-											d='M12,16A3,3 0 0,1 9,13C9,11.88 9.61,10.9 10.5,10.39L20.21,4.77L14.68,14.35C14.18,15.33 13.17,16 12,16M12,3C13.81,3 15.5,3.5 16.97,4.32L14.87,5.53C14,5.19 13,5 12,5A8,8 0 0,0 4,13C4,15.21 4.89,17.21 6.34,18.65H6.35C6.74,19.04 6.74,19.67 6.35,20.06C5.96,20.45 5.32,20.45 4.93,20.07V20.07C3.12,18.26 2,15.76 2,13A10,10 0 0,1 12,3M22,13C22,15.76 20.88,18.26 19.07,20.07V20.07C18.68,20.45 18.05,20.45 17.66,20.06C17.27,19.67 17.27,19.04 17.66,18.65V18.65C19.11,17.2 20,15.21 20,13C20,12 19.81,11 19.46,10.1L20.67,8C21.5,9.5 22,11.18 22,13Z'
+											d="M22,15C22,17.6 20.8,19.9 18.9,21.3L18.4,20.8L16.3,18.7L17.7,17.3L18.9,18.5C19.4,17.8 19.8,16.9 19.9,16H18V14H19.9C19.7,13.1 19.4,12.3 18.9,11.5L17.7,12.7L16.3,11.3L17.5,10.1C16.8,9.6 15.9,9.2 15,9.1V11H13V9.1C12.1,9.3 11.3,9.6 10.5,10.1L13.5,13.1C13.7,13.1 13.8,13 14,13A2,2 0 0,1 16,15A2,2 0 0,1 14,17A2,2 0 0,1 12,15C12,14.8 12,14.7 12.1,14.5L9.1,11.5C8.6,12.2 8.2,13.1 8.1,14H10V16H8.1C8.3,16.9 8.6,17.7 9.1,18.5L10.3,17.3L11.7,18.7L9.1,21.3C7.2,19.9 6,17.6 6,15A8,8 0 0,1 14,7A8,8 0 0,1 22,15"
 										/>
 									</SvgIcon>
 								</IconButton>

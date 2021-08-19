@@ -445,6 +445,36 @@ describe('lookup functions', () => {
 			term = createTerm('sum(offset(D4,0,0,2,1))', sheet);
 			expect(term.value).toBe(4);
 		});
+		it('should support external sheet reference', () => {
+			const machine = new Machine();
+			const s1 = new StreamSheet({ name: 'S1' });
+			const s2 = new StreamSheet({ name: 'S2' });
+			machine.addStreamSheet(s1);
+			machine.addStreamSheet(s2);
+			s2.sheet.loadCells({ D4: 23 });
+			let term = createTerm('offset(S2!A1:C1,0,0,2,2)', s1.sheet);
+			expect(term.value.isSheetRange).toBeTruthy();
+			expect(term.value.sheet).toBe(s2.sheet);
+			term = createTerm('offset(S2!D3,1,0)', s1.sheet);
+			// single cell, no range => value is returned
+			expect(term.value).toBe(23);
+		});
+		it('should validate offset against external sheet if referenced', () => {
+			const machine = new Machine();
+			const s1 = new StreamSheet({ name: 'S1' });
+			const s2 = new StreamSheet({ name: 'S2' });
+			machine.addStreamSheet(s1);
+			machine.addStreamSheet(s2);
+			s1.updateSettings({ settings: { maxrow: 2, maxcol: 2 } });
+			s2.sheet.loadCells({ D4: 23 });
+			let term = createTerm('offset(S2!A1:C1,0,0,8,8)', s1.sheet);
+			expect(term.value.isSheetRange).toBeTruthy();
+			expect(term.value.sheet).toBe(s2.sheet);
+			expect(term.value.toString()).toBe('A1:H8');
+			term = createTerm('offset(S2!D3,1,0)', s1.sheet);
+			// single cell, no range => value is returned
+			expect(term.value).toBe(23);
+		})
 	});
 	describe('row', () => {
 		it('should return row number of given cell reference', () => {

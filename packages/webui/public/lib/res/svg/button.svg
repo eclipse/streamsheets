@@ -1,0 +1,4 @@
+<svg fill="#888888" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+    <rect stroke-width="3" stroke="#888888" x="2" y="7" width="20" height="10"/>
+    <text fill="white" text-anchor="middle" font-size="6pt" dominant-baseline="central" x="12" y="12">OK</text>
+</svg>

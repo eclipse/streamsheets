@@ -203,7 +203,15 @@ export class StreamChartProperties extends Component {
 	}
 
 	getExpression(item, value) {
-		return this.getSheet(item).textToExpression(String(value));
+		try {
+			return this.getSheet(item).textToExpression(String(value));
+		} catch (e) {
+			this.getSheetView().notifyMessage({
+				message: e.message,
+				focusIndex: e.index !== undefined ? e.index + 1 : 1
+			});
+			return false;
+		}
 	}
 
 	finishCommand(cmd, key, notify = false) {
@@ -432,6 +440,13 @@ export class StreamChartProperties extends Component {
 		const cmd = this.prepareCommand('chart');
 		const item = this.state.plotView.getItem();
 		item.chart.varyByCategories = state;
+		this.finishCommand(cmd, 'chart');
+	};
+
+	handleMenuVisibleChange = (event, state) => {
+		const cmd = this.prepareCommand('chart');
+		const item = this.state.plotView.getItem();
+		item.chart.menuVisible = state;
 		this.finishCommand(cmd, 'chart');
 	};
 
@@ -1636,6 +1651,22 @@ export class StreamChartProperties extends Component {
 										}
 									/>
 								) : null}
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={item.chart.menuVisible}
+											onChange={(event, state) =>
+												this.handleMenuVisibleChange(event, state)
+											}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="StreamChartProperties.MenuVisible"
+											defaultMessage="Allow Visible Series Selection"
+										/>
+									}
+								/>
 								{map ? (
 									<FormControlLabel
 										control={
@@ -2131,12 +2162,17 @@ export class StreamChartProperties extends Component {
 							/>
 						</FormGroup>
 						{item.chart.coharentData ? (
-							<FormGroup>
-								<FormControl>
+							<FormGroup
+								style={{
+									width: '100%'
+								}}
+							>
+								<FormControl fullWidth>
 									<TextField
 										variant="outlined"
 										size="small"
 										margin="normal"
+										fullWidth
 										label={
 											<FormattedMessage
 												id="StreamChartProperties.ChartDataRange"
@@ -2242,15 +2278,17 @@ export class StreamChartProperties extends Component {
 									/* eslint-disable-next-line react/no-array-index-key */
 									key={`s${index}`}
 									style={{
-										borderBottom: '1px solid #CCCCCC'
+										borderBottom: '1px solid #CCCCCC',
+										width: '100%'
 									}}
 								>
-									<FormControl style={{}}>
+									<FormControl fullWidth>
 										<TextField
 											style={{
 												height: '30px'
 											}}
 											variant="outlined"
+											fullWidth
 											size="small"
 											margin="normal"
 											label={this.getLabel(series)}

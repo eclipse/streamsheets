@@ -1904,21 +1904,22 @@ export default class WorksheetView extends ContentNodeView {
 		const data = this.getItem().getDataProvider();
 		const cell = data.get(cellPos);
 		const cellRect = cell && cell.errorInfo ? this.getCellRect(cellPos) : undefined;
-		return cellRect && 
+		return cellRect &&
 			point.x > cellRect.x &&
 			point.x < cellRect.x + 300 &&
 			point.y > cellRect.y &&
 			point.y < cellRect.y + 300;
 	}
-	handleDataView(sheet, dataCell, targetRange, viewer) {
-		this.handleInfoView(WorksheetHitCode.DATAVIEW, sheet, dataCell, targetRange, viewer);
+
+	handleDataView(sheet, dataCell, target, options, viewer) {
+		this.handleInfoView(WorksheetHitCode.DATAVIEW, sheet, dataCell, target, options, viewer);
 	}
 
-	handleInfoView(infoType, sheet, dataCell, targetRange, viewer) {
-		if (targetRange != null) {
+	handleInfoView(infoType, sheet, dataCell, target, options, viewer) {
+		if (target != null) {
 			const data = sheet.getDataProvider();
 			const cell = data.get(dataCell);
-			if (cell != null) CellInfoView.of(infoType, viewer, this).showInfo(cell, targetRange);
+			if (cell != null) CellInfoView.of(infoType, viewer, this, options).showInfo(cell, target);
 		}
 	}
 
@@ -1932,14 +1933,27 @@ export default class WorksheetView extends ContentNodeView {
 		const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
 		const scrollView = this.getScrollView();
 		const pt = scrollView.getScrollPosition();
+		const ptOld = pt.copy();
 
 		if (event.event.shiftKey) {
 			pt.x += zDelta * 2000;
-		} else {
+		} else/* if (scrollView.getVerticalScrollbar().isVisible())*/ {
 			pt.y += zDelta * 1500;
 		}
 
 		scrollView.setScrollPositionTo(pt);
+
+		const ptNew = scrollView.getScrollPosition();
+		if (ptNew.x === ptOld.x && ptNew.y === ptOld.y) {
+			// if no scrollbar, pass to parent
+			let view = this.getParent();
+			while (view && !(view instanceof ContentNodeView)) {
+				view = view.getParent();
+			}
+			if (view && view.handleMouseWheel) {
+				view.handleMouseWheel(event, viewer);
+			}
+		}
 
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetView.SHEET_SCROLL_NOTIFICATION, {

@@ -14,8 +14,7 @@
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 import {
-	AppBar, IconButton, Paper, Slide,
-	TextField
+	AppBar, FormGroup, IconButton, Paper, Slide, TextField
 	// Typography
 } from '@material-ui/core';
 import { bindActionCreators } from 'redux';
@@ -143,11 +142,12 @@ export class LayoutSectionProperties extends Component {
 
 	handleSizeBlur = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.size = Number(event.target.value);
-		this.execute(data);
+		this.execute(data, oldState);
 	};
 
-	execute(data) {
+	execute(data, oldState) {
 		const viewer = graphManager.getGraphViewer();
 		const context = viewer.getSelectionProvider().getSelectionContext();
 		if (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow')) {
@@ -161,7 +161,8 @@ export class LayoutSectionProperties extends Component {
 				data.minSize,
 				data.sizeMode,
 				data.expandable,
-				data.expanded);
+				data.expanded,
+				oldState);
 			graphManager.synchronizedExecute(cmd);
 		}
 	}
@@ -172,31 +173,35 @@ export class LayoutSectionProperties extends Component {
 
 	handleMinimumSizeBlur = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.minSize = Number(event.target.value);
-		this.execute(data);
+		this.execute(data, oldState);
 	};
 
 	handleSizeMode = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.sizeMode = event.target.value;
 		this.setState({sizeMode: event.target.value});
-		this.execute(data);
+		this.execute(data, oldState);
 
 	};
 
 	handleExpandableChange = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.expandable = event.target.checked;
 		this.setState({expandable: event.target.checked});
-		this.execute(data);
+		this.execute(data, oldState);
 
 	};
 
 	handleExpandedChange = (event) => {
 		const data = this.getSection();
+		const oldState = data.copy();
 		data.expanded = event.target.checked;
 		this.setState({expanded: event.target.checked});
-		this.execute(data);
+		this.execute(data, oldState);
 
 	};
 
@@ -204,6 +209,7 @@ export class LayoutSectionProperties extends Component {
 		if (!this.props.showLayoutSectionProperties) {
 			return <div />;
 		}
+		const isRowSection = this.isRowSection();
 		return (
 			<Slide direction="left" in={this.props.showLayoutSectionProperties} mountOnEnter unmountOnExit>
 				<Paper
@@ -275,30 +281,30 @@ export class LayoutSectionProperties extends Component {
 								<FormattedMessage id="GraphItemProperties.SizeMode" defaultMessage="Size" />
 							}
 						>
-							<MenuItem value="absolute">
-								<FormattedMessage id="GraphItemProperties.Absolute" defaultMessage="Absolute"/>
-							</MenuItem>
-							{this.isRowSection() ? (
+							{isRowSection ? [
 								<MenuItem value="auto">
 									<FormattedMessage id="GraphItemProperties.Automatic" defaultMessage="Automatic"/>
+								</MenuItem>,
+								<MenuItem value="absolute">
+									<FormattedMessage id="GraphItemProperties.Absolute" defaultMessage="Absolute"/>
 								</MenuItem>
-								) : (
+								] : (
 								<MenuItem value="relative">
 									<FormattedMessage id="GraphItemProperties.Relative" defaultMessage="Relative"/>
 								</MenuItem>
 							)}
 						</TextField>
-						<TextField
-							variant="outlined"
-							size="small"
-							margin="normal"
-							fullWidth
-							value={Math.round(this.state.size)}
-							onChange={event => this.handleSize(event)}
-							onBlur={event => this.handleSizeBlur(event)}
-							label={
-							<FormattedMessage id="GraphItemProperties.Size" defaultMessage="Size" />}
-						/>
+						{/*<TextField*/}
+						{/*	variant="outlined"*/}
+						{/*	size="small"*/}
+						{/*	margin="normal"*/}
+						{/*	fullWidth*/}
+						{/*	value={Math.round(this.state.size)}*/}
+						{/*	onChange={event => this.handleSize(event)}*/}
+						{/*	onBlur={event => this.handleSizeBlur(event)}*/}
+						{/*	label={*/}
+						{/*	<FormattedMessage id="GraphItemProperties.Size" defaultMessage="Size" />}*/}
+						{/*/>*/}
 						<TextField
 							variant="outlined"
 							size="small"
@@ -310,34 +316,38 @@ export class LayoutSectionProperties extends Component {
 							label={
 								<FormattedMessage id="GraphItemProperties.MinimumSize" defaultMessage="Minimum Size" />}
 						/>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={this.state.expandable}
-									onChange={event => this.handleExpandableChange(event)}
-								/>
-							}
-							label={
-								<FormattedMessage
-									id="GraphItemProperties.Expandable"
-									defaultMessage="Expandable"
-								/>
-							}
-						/>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={this.state.expanded}
-									onChange={(event => this.handleExpandedChange(event))}
-								/>
-							}
-							label={
-								<FormattedMessage
-									id="GraphItemProperties.Expanded"
-									defaultMessage="Expanded"
-								/>
-							}
-						/>
+						{isRowSection ? [
+							<FormGroup>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={this.state.expandable}
+										onChange={event => this.handleExpandableChange(event)}
+									/>
+								}
+								label={
+									<FormattedMessage
+										id="GraphItemProperties.Expandable"
+										defaultMessage="Expandable"
+									/>
+								}
+							/>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={this.state.expanded}
+										onChange={(event => this.handleExpandedChange(event))}
+									/>
+								}
+								label={
+									<FormattedMessage
+										id="GraphItemProperties.Expanded"
+										defaultMessage="Expanded"
+									/>
+								}
+							/>
+							</FormGroup>
+						] : null}
 					</div>
 				</Paper>
 			</Slide>

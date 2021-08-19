@@ -284,7 +284,7 @@ export default class SheetSliderView extends NodeView {
 		return magMsd * magPow;
 	}
 
-	valueFromLocation(event, viewer) {
+	valueFromLocation(event, viewer, name) {
 		const point = event.location.copy();
 		const item = this.getItem();
 		const min = item.getAttributeValueAtPath('min');
@@ -297,11 +297,14 @@ export default class SheetSliderView extends NodeView {
 			return true;
 		});
 
+		const size = item.getSizeAsPoint();
+		if (name !== 'ONMOUSEDRAG' && name !== 'ONMOUSEUP' &&
+			(point.x < 150 || point.x > size.x - 150 || point.y < size.y / 2 - 500 || point.y > size.y / 2 + 500)) {
+			return false;
+		}
+
 		point.x -= 150;
-		const width =
-			this.getItem()
-				.getWidth()
-				.getValue() - 300;
+		const width = size.x - 300;
 
 		return Math.min(max, Math.max(min, (point.x / width) * (max - min) + min));
 	}
@@ -325,7 +328,11 @@ export default class SheetSliderView extends NodeView {
 			viewer.getInteractionHandler().execute(new SetAttributeAtPathCommand(item, 'value', val));
 		};
 
-		if (name !== 'ONMOUSEDRAG' && name !== 'ONMOUSEUP') {
+		if (name === 'ONMOUSEDRAG' && !this.dragging) {
+			return false;
+		}
+
+		if (name !== 'ONMOUSEDRAG' && name !== 'ONMOUSEDOWN' && name !== 'ONMOUSEUP') {
 			return false;
 		}
 
@@ -338,9 +345,19 @@ export default class SheetSliderView extends NodeView {
 			step = 1;
 		}
 
-		let sliderValue = this.valueFromLocation(event, viewer);
+		let sliderValue = this.valueFromLocation(event, viewer, name);
+		if (name === 'ONMOUSEDOWN' && sliderValue !== false) {
+			this.dragging = true;
+		}
+		if (this.dragging === false) {
+			return false;
+		}
 		sliderValue += (sliderValue >= 0 ? step / 2 : -step / 2);
 		sliderValue -= (sliderValue % step);
+
+		if (name === 'ONMOUSEUP') {
+			this.dragging = false;
+		}
 
 		if (value === sliderValue) {
 			return false;

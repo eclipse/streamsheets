@@ -1,6 +1,6 @@
-/* global document image */
+/* global document Image */
 
-import {default as JSG, ImagePool, Notification, NotificationCenter, LayoutNode, LayoutSection} from '@cedalo/jsg-core';
+import {default as JSG, LayoutCell} from '@cedalo/jsg-core';
 import ItemMenuEntry from '../ItemMenuEntry';
 
 
@@ -16,7 +16,7 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 	}
 
 	isVisible(item) {
-		return (item.getParent() instanceof LayoutNode) && !item.isProtected();
+		return (item instanceof LayoutCell) && !item.isProtected();
 	}
 
 	onEvent(event, item, editor) {
@@ -48,8 +48,11 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			}
 		};
 
-		toolBox.style.left = `${menu.offsetLeft + menu.clientWidth + 5}px`;
+		toolBox.style.left = menu.offsetLeft + menu.clientWidth + 221 < canvas.clientWidth ?
+			`${menu.offsetLeft + menu.clientWidth + 5}px` :
+			`${menu.offsetLeft - menu.clientWidth - 221}px`;
 		toolBox.style.top = `${menu.offsetTop}px`;
+		toolBox.style.width = '216px';
 		toolBox.style.position = 'absolute';
 		toolBox.style.backgroundColor = '#eeeeee';
 		toolBox.style.border = '1px solid #999999';
@@ -74,13 +77,22 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 		const addDashBoardItem = (ev, type) => {
 			let node;
 			switch (type) {
-			case 'layout':
-				node = new JSG.LayoutNode();
-				node.getPin().setLocalPoint(0, 0);
-				node.setOrigin(0, 0);
-				node._rowData = [new LayoutSection(3000), new LayoutSection(3000)];
+			case 'layout2':
+			case 'layout3':
+			case 'layout4':
+			case 'layout5':
+			case 'layout6': {
+				const cmp = new JSG.CompoundCommand();
+				let path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.LAYOUT);
+				cmp.add(new JSG.SetAttributeAtPathCommand(item, path, 'column'));
+				item.handleLayoutTypeChange('column', cmp);
+				path = JSG.AttributeUtils.createPath(JSG.LayoutCellAttributes.NAME, JSG.LayoutCellAttributes.SECTIONS);
+				cmp.add(new JSG.SetAttributeAtPathCommand(item, path, 2));
+				item.handleLayoutColumnChange(Number(type.charAt(6)), cmp);
+				editor.getInteractionHandler().execute(cmp);
 				break;
-			case 'text': {
+			}
+			case 'title': {
 				node = new JSG.TextNode('Title');
 				const f = node.getTextFormat();
 				f.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
@@ -91,6 +103,56 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node.setHeight(1000);
 				break;
 			}
+			case 'text': {
+				node = new JSG.TextNode('Text');
+				const tf = node.getTextFormat();
+				const f = node.getFormat();
+				tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+				tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+				f.setLineCorner(50);
+				f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+				tf.setRichText(false);
+				node.getItemAttributes().setLabel('Label');
+				node.associate(false);
+				node.setHeight(1000);
+				break;
+			}
+			case 'edit': {
+				node = new JSG.TextNode('Edit');
+				const tf = node.getTextFormat();
+				const f = node.getFormat();
+				tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+				tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+				f.setLineCorner(50);
+				f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+				tf.setRichText(false);
+				node.getItemAttributes().setType(1);
+				node.getItemAttributes().setLabel('Label');
+				node.getItemAttributes().setReturnAction(1);
+				node.associate(false);
+				node.setHeight(1000);
+				break;
+			}
+			case 'select': {
+				node = new JSG.TextNode('Select');
+				const tf = node.getTextFormat();
+				const f = node.getFormat();
+				tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+				tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+				f.setLineCorner(50);
+				f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+				tf.setRichText(false);
+				node.getItemAttributes().setType(2);
+				node.getItemAttributes().setReturnAction(1);
+				node.getItemAttributes().setLabel('Label');
+				node.associate(false);
+				node.setHeight(1000);
+				break;
+			}
+			case 'button':
+				node = new JSG.SheetButtonNode();
+				node.setHeight(1000);
+				break;
 			case 'check':
 				node = new JSG.SheetCheckboxNode();
 				node.setHeight(800);
@@ -103,15 +165,6 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 				node = new JSG.SheetKnobNode();
 				node.setHeight(3000);
 				break;
-			// case 'sheet': {
-			// 	NotificationCenter.getInstance().send(
-			// 		new Notification(NotificationCenter.ADD_SHEET_NOTIFICATION, this));
-			// 	node = new JSG.StreamSheetWrapper();
-			// 	editor.getGraph()._sheetWrapper = node;
-			// 	node.getFormat().setLineCorner(75);
-			// 	node.setHeight(5000);
-			// 	break;
-			// }
 			default:
 				node = new JSG.SheetPlotNode();
 				type = node.setChartType(type);
@@ -129,16 +182,24 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			}
 		};
 
+		const addBreak = (id, subtitle, icon) => {
+			const div = document.createElement('p');
+			toolBox.appendChild(div);
+		};
+
 		const addElement = (id, subtitle, icon) => {
 			const pdiv = document.createElement('div');
 			pdiv.style.textAlign = 'center';
 			pdiv.style.display = 'inline-block';
+			pdiv.style.marginRight = '5px';
+			pdiv.style.marginBottom = '5px';
+			pdiv.style.cursor = 'pointer';
 			pdiv.addEventListener('click', (ev) => addDashBoardItem(ev, id), false);
 			const div = document.createElement('div');
 			div.id = id;
 			// div.style.margin = '4px 4px 4px 0px';
-			div.style.height = '48px';
-			div.style.width = '48px';
+			div.style.height = '33px';
+			div.style.width = '38px';
 			div.style.backgroundImage = `url(${icon})`;
 			div.style.backgroundPosition = 'center center';
 			div.style.backgroundRepeat = 'no-repeat';
@@ -146,31 +207,38 @@ export default class AddDashBoardItem extends ItemMenuEntry {
 			const label = document.createElement('label');
 			label.innerHTML = subtitle;
 			label.style.fontFamily = "Roboto";
-			label.style.fontSize = '8pt';
+			label.style.fontSize = '6pt';
 			label.style.textAlign = 'center';
 			pdiv.appendChild(label);
 			toolBox.appendChild(pdiv);
 		};
 
-		addTitle('Timeline');
-		addElement('scatterline', 'Line (XY)', 'images/charts/line.png');
-		addElement('line', 'Line (Cat)', 'images/charts/line.png');
-		addElement('column', 'Column', 'images/charts/column.png');
-		addElement('area', 'Area', 'images/charts/area.png');
-		addElement('stateperiod', 'State', 'images/charts/stateperiod.png');
 		addTitle('Chart');
+		addElement('line', 'Line', 'images/charts/line.png');
 		addElement('column', 'Column', 'images/charts/column.png');
+		addElement('bar', 'Bar', 'images/charts/bar.png');
+		addElement('area', 'Area', 'images/charts/area.png');
+		addElement('scatterline', 'Line (XY)', 'images/charts/line.png');
+		// addBreak();
+		addElement('pie', 'Pie', 'images/charts/pie.png');
+		addElement('doughnut', 'Doughnut', 'images/charts/doughnut.png');
 		addElement('gauge', 'Gauge', 'images/charts/gauge.png');
-		addElement('pie', 'Pie', 'images/charts/Pie.png');
 		addElement('map', 'Map', 'images/charts/map.png');
 		addTitle('Control');
+		addElement('title', 'Title', 'lib/res/svg/label.svg');
+		addElement('text', 'Text', 'lib/res/svg/textview.svg');
+		addElement('edit', 'Edit', 'lib/res/svg/textedit.svg');
+		addElement('select', 'Select', 'lib/res/svg/select.svg');
 		addElement('check', 'Checkbox', 'lib/res/svg/checkbox.svg');
+		addElement('button', 'Button', 'lib/res/svg/button.svg');
 		addElement('slider', 'Slider', 'lib/res/svg/slider.svg');
 		addElement('knob', 'Knob', 'lib/res/svg/knob.svg');
-		addElement('text', 'Title', 'lib/res/svg/label.svg');
-		// addTitle('Table');
-		// addElement('sheet', 'Sheet', 'lib/res/svg/sheet.svg');
-		// addElement('layout', 'Layout', 'lib/res/svg/layout.svg');
+		addTitle('Layout');
+		addElement('layout2', 'Layout 2', 'lib/res/svg/layout2.svg');
+		addElement('layout3', 'Layout 3', 'lib/res/svg/layout3.svg');
+		addElement('layout4', 'Layout 4', 'lib/res/svg/layout4.svg');
+		addElement('layout5', 'Layout 5' , 'lib/res/svg/layout5.svg');
+		addElement('layout6', 'Layout 6', 'lib/res/svg/layout6.svg');
 
 
 		canvas.parentNode.appendChild(toolBox);

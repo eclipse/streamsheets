@@ -103,6 +103,10 @@ class TextNode extends Node {
 		}
 	}
 
+	isAddLabelAllowed() {
+		return false;
+	}
+
 	isAssociated() {
 		return this.getItemAttributes()
 			.getAssociated()
@@ -288,6 +292,10 @@ class TextNode extends Node {
 		if (tf.getIcon().getValue() !== 0) {
 			force = true;
 			text = String.fromCharCode(tf.getIcon().getValue());
+		}
+
+		if (text === '') {
+			text = 'M';
 		}
 
 		if (force !== true) {
@@ -818,7 +826,7 @@ class TextNode extends Node {
 		}
 
 		let label;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {

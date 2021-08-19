@@ -330,6 +330,10 @@ class GraphItem extends Model {
 		return path;
 	}
 
+	get allowSubMarkers() {
+		return true;
+	}
+
 	isFeedbackDetailed() {
 		return this.getReshapeCoordinates().length !== 0;
 	}
@@ -2295,10 +2299,10 @@ class GraphItem extends Model {
 			(JSG.idUpdater && JSG.idUpdater.isActive) || force || oldId === undefined ? this._createId() : undefined;
 		if (newId !== undefined) {
 			this.setId(newId);
-			const attr = this.getItemAttributes().getAttribute('sheetsource');
-			if (!attr || attr.getValue() !== 'cell') {
-				this._assignName(newId);
-			}
+			// const attr = this.getItemAttributes().getAttribute('sheetsource');
+			// if (!attr || attr.getValue() !== 'cell') {
+			this._assignName(newId);
+			// }
 			// save old/new id match to restore references to id in expressions, attributes and ports
 
 			// TODO: JSG.idUpdater is set by JSGGlobals
@@ -2932,7 +2936,7 @@ class GraphItem extends Model {
 			const tf = subitem.getTextFormat();
 			const tfparent = tf.getParent();
 			// parent is standard template? => use text format or parent...
-			if (!tf._pl && tfparent && tfparent.getName() === TextFormatAttributes.Template_ID) {
+			if (!tf._pl && tfparent && tfparent.getName() === TextFormatAttributes.TemplateID) {
 				tf.setParent(parent.getTextFormat());
 			}
 		}
@@ -3428,6 +3432,14 @@ class GraphItem extends Model {
 		]
 	}
 
+	getDefaultPropertyCategory() {
+		return 'general';
+	}
+
+	isValidPropertyCategory(category) {
+		return category === 'general' || category === 'format' || category === 'textformat' || category === 'attributes' || category === 'events';
+	}
+
 	fromJSON(json) {
 		this._id = json.id;
 		this.getPin().getX().fromJSON(json.x);
@@ -3460,6 +3472,10 @@ class GraphItem extends Model {
 		this._shape.fromJSON(json.shape);
 		if (json.format) {
 			this.getFormat().fromJSON(json.format);
+			const pattern = this.getFormat().getPattern().getValue();
+			if (pattern && json.patternImage) {
+				JSG.imagePool.set(json.patternImage, pattern);
+			}
 		}
 		if (json.textformat) {
 			this.getTextFormat().fromJSON(json.textformat);
@@ -3528,6 +3544,13 @@ class GraphItem extends Model {
 		ret.shape = this._shape.toJSON();
 
 		ret.format = this.getFormat().toJSON(true);
+		const pattern = this.getFormat().getPattern().getValue();
+		if (pattern && pattern.indexOf('dataimage') !== -1) {
+			const image = JSG.imagePool.get(pattern);
+			if (image !== undefined) {
+				ret.patternImage = image.src;
+			}
+		}
 		ret.textformat = this.getTextFormat().toJSON(true);
 		ret.attributes = this.getItemAttributes().toJSON(true);
 		ret.events = this.getEvents().toJSON();
@@ -3565,7 +3588,7 @@ class GraphItem extends Model {
 		const pin = this.getPin();
 		const size = this.getSize();
 		let expr;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -3763,7 +3786,7 @@ class GraphItem extends Model {
 		let expr;
 		let points;
 		let closed;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {
