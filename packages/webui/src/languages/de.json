@@ -184,6 +184,7 @@
 	"Product.name": "Streamsheets",
 	"Product.name.header": "Produktname",
 	"SettingsMenu.help.header": "Info",
+	"License.validUntil": "Lizenz gültig bis",
 	"DialogSettings.title": "App Einstellungen",
 	"DialogSettings.maximizeOnStart": "Streamsheet beim Laden maximieren",
 	"DialogSettings.showOutbox": "Nachrichtenausgang anzeigen",

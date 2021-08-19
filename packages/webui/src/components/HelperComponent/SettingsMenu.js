@@ -446,6 +446,20 @@ export class SettingsMenu extends React.Component {
 							{" "}
 							{VERSION}
 						</Typography>
+						<Typography variant="h3" style={{marginBottom: '15px', marginTop: '10px'}}>
+							{
+								this.props.meta.licenseInfo &&
+								this.props.meta.licenseInfo.validUntil &&
+								<>
+									<FormattedMessage
+										id="License.validUntil"
+										defaultMessage="License valid until"
+									/>
+									{" "}
+									{new Date(this.props.meta.licenseInfo.validUntil)}
+								</>
+							}
+						</Typography>
 						<Table size="small">
 							<TableHead>
 								<TableRow>
