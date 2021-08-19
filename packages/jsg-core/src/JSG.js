@@ -366,6 +366,7 @@ JSG.theme = {
 	border: '#000000',
 	text: '#000000',
 	textlight: '#222222',
+	textdisabled: '#AAAAAA',
 	fill: '#FFFFFF',
 	filllight: '#F1F1F1',
 	selectionback: '#ebebeb',
