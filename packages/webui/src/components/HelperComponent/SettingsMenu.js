@@ -450,14 +450,14 @@ export class SettingsMenu extends React.Component {
 							{
 								this.props.meta.licenseInfo &&
 								this.props.meta.licenseInfo.validUntil &&
-								<>
+								<React.Fragment>
 									<FormattedMessage
 										id="License.validUntil"
 										defaultMessage="License valid until"
 									/>
 									{" "}
 									{new Date(this.props.meta.licenseInfo.validUntil)}
-								</>
+								</React.Fragment>
 							}
 						</Typography>
 						<Table size="small">
