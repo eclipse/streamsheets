@@ -439,7 +439,7 @@ export default class TreeInteraction extends Interaction {
 		viewer.clearInteractionFeedback();
 		viewer.clearLayer(LayerId.TARGETCONTAINER);
 
-		if (this._feedback /* && !(this._feedback instanceof TreeFeedbackView) */) {
+		if (this._feedback) {
 			const defInteraction = this.getInteractionHandler().getDefaultInteraction();
 			const controller = defInteraction.getControllerAt(event.location, undefined, this._condition);
 			if (controller === undefined) {
