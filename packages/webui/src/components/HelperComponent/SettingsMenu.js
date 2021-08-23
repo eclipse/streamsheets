@@ -465,7 +465,6 @@ export class SettingsMenu extends React.Component {
 									{
 										this.getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)
 									}
-									{new Date(this.props.meta.licenseInfo.validUntil)}
 								</React.Fragment>
 							}
 						</Typography>
