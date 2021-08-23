@@ -156,7 +156,7 @@ export class SettingsMenu extends React.Component {
 	getLicenseValidUntil = (daysLeft) => {
 		const date = new Date();
 		date.setDate(date.getDate() + daysLeft);
-		return result;
+		return date;
 	}
 
 	async handleLanguageChange(event) {
