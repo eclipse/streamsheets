@@ -153,6 +153,12 @@ export class SettingsMenu extends React.Component {
 		this.setState({tab})
 	};
 
+	getLicenseValidUntil = (daysLeft) => {
+		const date = new Date();
+		date.setDate(date.getDate() + daysLeft);
+		return result;
+	}
+
 	async handleLanguageChange(event) {
 		const locale = event.target.value;
 		this.props.setUserSettings({
@@ -449,17 +455,20 @@ export class SettingsMenu extends React.Component {
 						<Typography variant="h3" style={{marginBottom: '15px', marginTop: '10px'}}>
 							{
 								this.props.meta.licenseInfo &&
-								this.props.meta.licenseInfo.validUntil &&
+								this.props.meta.licenseInfo.daysLeft &&
 								<>
 									<FormattedMessage
 										id="License.validUntil"
 										defaultMessage="License valid until"
 									/>
 									{" "}
-									{new Date(this.props.meta.licenseInfo.validUntil)}
+									{
+										this.getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)
+									}
 								</>
 							}
 						</Typography>
+						
 						<Table size="small">
 							<TableHead>
 								<TableRow>
