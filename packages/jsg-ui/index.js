@@ -180,6 +180,7 @@ import LayoutNodeInteraction from './src/graph/interaction/LayoutNodeInteraction
 import SheetGraphItemEventInteraction from './src/graph/interaction/SheetGraphItemEventInteraction';
 import SheetPlotInteraction from './src/graph/interaction/SheetPlotInteraction';
 import ChartSelectionFeedbackView from './src/graph/feedback/ChartSelectionFeedbackView';
+import ChartDragFeedbackView from './src/graph/feedback/ChartDragFeedbackView';
 import SplitterInteraction from './src/graph/interaction/SplitterInteraction';
 import TreeActivator from './src/graph/interaction/TreeActivator';
 import TreeInteraction from './src/graph/interaction/TreeInteraction';
@@ -378,6 +379,7 @@ JSG.SheetGraphItemEventInteraction = SheetGraphItemEventInteraction;
 JSG.SheetPlotActivator = SheetPlotActivator;
 JSG.SheetPlotInteraction = SheetPlotInteraction;
 JSG.ChartSelectionFeedbackView = ChartSelectionFeedbackView;
+JSG.ChartDragFeedbackView = ChartDragFeedbackView;
 JSG.SplitterInteraction = SplitterInteraction;
 JSG.TreeActivator = TreeActivator;
 JSG.TreeInteraction = TreeInteraction;

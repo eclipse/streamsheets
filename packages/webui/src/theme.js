@@ -253,6 +253,7 @@ const createByName = () => {
 			border: '#FFFFFF',
 			text: '#FFFFFF',
 			textlight: '#DDDDDD',
+			textdisabled: '#AAAAAA',
 			fill: '#000000',
 			filllight: '#222222',
 			selectionback: '#606060',

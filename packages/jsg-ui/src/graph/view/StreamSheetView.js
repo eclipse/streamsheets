@@ -385,7 +385,7 @@ export default class StreamSheetView extends WorksheetView {
 						}
 					}
 					}
-				} else if (item.getParent() instanceof JSG.LayoutNode) {
+				} else if (item.getParent() instanceof JSG.LayoutCell) {
 					const node = new JSG.TextNode('Title');
 					const tf = node.getTextFormat();
 					tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
