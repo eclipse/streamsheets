@@ -156,7 +156,7 @@ export class SettingsMenu extends React.Component {
 	getLicenseValidUntil = (daysLeft) => {
 		const date = new Date();
 		date.setDate(date.getDate() + daysLeft);
-		return date.toString();
+		return date.toLocaleDateString();
 	}
 
 	async handleLanguageChange(event) {
@@ -452,14 +452,14 @@ export class SettingsMenu extends React.Component {
 							{" "}
 							{VERSION}
 						</Typography>
-						<Typography variant="h3" style={{marginBottom: '15px', marginTop: '10px'}}>
+						<Typography variant="subtitle2" style={{marginBottom: '15px', marginTop: '10px'}}>
 							{
 								this.props.meta.licenseInfo &&
 								this.props.meta.licenseInfo.daysLeft &&
 								<React.Fragment>
 									<FormattedMessage
 										id="License.validUntil"
-										defaultMessage="License valid until"
+										defaultMessage="License valid until:"
 									/>
 									{" "}
 									{
