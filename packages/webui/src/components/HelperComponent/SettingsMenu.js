@@ -463,22 +463,6 @@ export class SettingsMenu extends React.Component {
 							{" "}
 							{VERSION}
 						</Typography>
-						{/* <Typography variant="subtitle2" style={{marginBottom: '15px', marginTop: '10px'}}>
-							{
-								this.props.meta.licenseInfo &&
-								this.props.meta.licenseInfo.daysLeft &&
-								<React.Fragment>
-									<FormattedMessage
-										id="License.validUntil"
-										defaultMessage="License valid until:"
-									/>
-									{" "}
-									{
-										this.getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)
-									}
-								</React.Fragment>
-							}
-						</Typography> */}
 
 						{this.props.meta.licenseInfo && (
 							<Table size="small">
