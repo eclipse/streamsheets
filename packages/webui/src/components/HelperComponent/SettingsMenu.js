@@ -62,6 +62,12 @@ const getPremium = () => {
 	);
 };
 
+const getLicenseValidUntil = (daysLeft) => {
+	const date = new Date();
+	date.setDate(date.getDate() + daysLeft);
+	return date.toLocaleDateString();
+}
+
 /**
  * A modal dialog can only be closed by selecting one of the actions.
  */
@@ -163,12 +169,6 @@ export class SettingsMenu extends React.Component {
 	handleTabChange = (event, tab) => {
 		this.setState({tab})
 	};
-
-	getLicenseValidUntil = (daysLeft) => {
-		const date = new Date();
-		date.setDate(date.getDate() + daysLeft);
-		return date.toLocaleDateString();
-	}
 
 	async handleLanguageChange(event) {
 		const locale = event.target.value;
