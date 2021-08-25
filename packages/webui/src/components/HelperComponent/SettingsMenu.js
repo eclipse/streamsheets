@@ -549,7 +549,7 @@ export class SettingsMenu extends React.Component {
 								</TableBody>
 							</Table>
 					)}
-						
+						<br />
 						<Table size="small">
 							<TableHead>
 								<TableRow>
