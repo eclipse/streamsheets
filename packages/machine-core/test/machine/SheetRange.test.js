@@ -13,6 +13,7 @@ const { Sheet, SheetIndex } = require('../..');
 const SheetRange = require('../../src/machine/SheetRange');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
+
 describe('SheetRange', () => {
 	describe('creation', () => {
 		it('should create new range with a start and end index', () => {

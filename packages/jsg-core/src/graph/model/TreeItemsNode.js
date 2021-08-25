@@ -182,6 +182,29 @@ module.exports = class TreeItemsNode extends Node {
 		return result;
 	}
 
+	getItemPathDot(treeitem) {
+		const parts = [];
+		let { depth, level } = treeitem;
+		let result = '';
+		const tree = this.getJsonTree();
+
+		while (depth >= 1) {
+			const modelItem = tree[level];
+			parts.push(modelItem.key);
+			level = tree[level].parent;
+			depth -= 1;
+		}
+
+		for (let i = parts.length - 1; i >= 0; i -= 1) {
+			result += `"${parts[i]}"`;
+			if (i > 0) {
+				result += '.';
+			}
+		}
+
+		return result;
+	}
+
 	getTreeItemById(id) {
 		if (id === undefined) {
 			return undefined;

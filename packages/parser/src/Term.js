@@ -558,6 +558,10 @@ class NullTerm extends Term {
 		return null; // <-- return undefined can cause NaN e.g. 1 * undefined!
 	}
 
+	get isNullTerm() {
+		return true;
+	}
+
 	newInstance() {
 		return new NullTerm();
 	}

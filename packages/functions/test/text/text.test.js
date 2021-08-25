@@ -316,7 +316,7 @@ describe('lower', () => {
 		expect(createTerm('lower("world")', sheet).value).toBe('world');
 	});
 	it('should except cell reference', () => {
-		const sheet = new StreamSheet().sheet.loadCells({ A1: 'HELLO', B1: 'jOHn DoE' });;
+		const sheet = new StreamSheet().sheet.loadCells({ A1: 'HELLO', B1: 'jOHn DoE' });
 		expect(createTerm('lower(A1)', sheet).value).toBe('hello');
 		expect(createTerm('lower(B1)', sheet).value).toBe('john doe');
 	});
@@ -328,7 +328,7 @@ describe('lower', () => {
 		expect(createTerm('lower("!§$%&/()")', sheet).value).toBe('!§$%&/()');
 	});
 	it(`should return ${ERROR.VALUE} or empty string if referenced cell returns no text`, () => {
-		const sheet = new StreamSheet().sheet.loadCells({ A1: null });;
+		const sheet = new StreamSheet().sheet.loadCells({ A1: null });
 		expect(createTerm('lower(A1)', sheet).value.code).toBe(ERROR.VALUE);
 		expect(createTerm('lower(D3)', sheet).value.code).toBe(ERROR.VALUE);
 	});
@@ -653,7 +653,7 @@ describe('upper', () => {
 		expect(createTerm('upper("WORLD")', sheet).value).toBe('WORLD');
 	});
 	it('should except cell reference', () => {
-		const sheet = new StreamSheet().sheet.loadCells({ A1: 'hello', B1: 'jOHn DoE' });;
+		const sheet = new StreamSheet().sheet.loadCells({ A1: 'hello', B1: 'jOHn DoE' });
 		expect(createTerm('upper(A1)', sheet).value).toBe('HELLO');
 		expect(createTerm('upper(B1)', sheet).value).toBe('JOHN DOE');
 	});
@@ -665,7 +665,7 @@ describe('upper', () => {
 		expect(createTerm('upper("!§$%&/()")', sheet).value).toBe('!§$%&/()');
 	});
 	it(`should return ${ERROR.VALUE} or empty string if referenced cell returns no text`, () => {
-		const sheet = new StreamSheet().sheet.loadCells({ A1: null });;
+		const sheet = new StreamSheet().sheet.loadCells({ A1: null });
 		expect(createTerm('upper(A1)', sheet).value.code).toBe(ERROR.VALUE);
 		expect(createTerm('upper(D3)', sheet).value.code).toBe(ERROR.VALUE);
 	});
@@ -683,6 +683,16 @@ describe('value', () => {
 		expect(createTerm('value("22.45")', sheet).value).toBe(22.45);
 		expect(createTerm('value("0.0045")', sheet).value).toBe(0.0045);
 		expect(createTerm('value("-0.00123")', sheet).value).toBe(-0.00123);
+	});
+	// DL-4836
+	it('should convert a textual number beginning with quotes', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('value("\\"00042\\"")', sheet).value).toBe(42);
+		expect(createTerm('value("\\”00042\\”")', sheet).value).toBe(42);
+		expect(createTerm('value("\'00042\'")', sheet).value).toBe(42);
+		expect(createTerm('value("`00042`")', sheet).value).toBe(42);
+		expect(createTerm('value("´00042´")', sheet).value).toBe(42);
+		expect(createTerm('value("´00042´")', sheet).value).toBe(42);
 	});
 	it('should ignore different machine locales, because converting is left to client', () => {
 		// german

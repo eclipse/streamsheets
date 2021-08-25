@@ -102,6 +102,24 @@ module.exports = class ChartSeries {
 			writer.writeAttributeString('tooltip', this.tooltip);
 		}
 
+		if (this.formulaCategories) {
+			writer.writeStartArray('formulacategories');
+			this.formulaCategories.forEach(formula => {
+				formula.save('formula', writer);
+			});
+			writer.writeEndArray('formulacategories');
+		}
+		if (this.formulaValues) {
+			writer.writeStartArray('formulavalues');
+			this.formulaValues.forEach(formula => {
+				formula.save('formula', writer);
+			});
+			writer.writeEndArray('formulavalues');
+		}
+		if (this.formulaLabelY) {
+			this.formulaLabelY.save('formulalabely', writer);
+		}
+
 		this.formula.save('formula', writer);
 		this.format.save('format', writer);
 		this.marker.save('marker', writer);
@@ -134,11 +152,35 @@ module.exports = class ChartSeries {
 		this.pointerLength = reader.getAttributeString(object, 'pointerlength', 'center');
 		this.tooltip = reader.getAttributeString(object, 'tooltip', 'value');
 
+		let formula;
+		this.formulaValues = undefined;
+		this.formulaCategories = undefined;
+
 		reader.iterateObjects(object, (name, child) => {
 			switch (name) {
 				case 'formula':
 					this.formula = new Expression(0);
 					this.formula.read(reader, child);
+					break;
+				case 'formulacategories':
+					if (this.formulaCategories === undefined || !(this.formulaCategories instanceof Array)) {
+						this.formulaCategories = [];
+					}
+					formula = new Expression(0);
+					formula.read(reader, child);
+					this.formulaCategories.push(formula);
+					break;
+				case 'formulavalues':
+					if (this.formulaValues === undefined || !(this.formulaValues instanceof Array)) {
+						this.formulaValues = [];
+					}
+					formula = new Expression(0);
+					formula.read(reader, child);
+					this.formulaValues.push(formula);
+					break;
+				case 'formulalabely':
+					this.formulaLabelY = new Expression(0);
+					this.formulaLabelY.read(reader, child);
 					break;
 				case 'format':
 					this.format = new ChartFormat();

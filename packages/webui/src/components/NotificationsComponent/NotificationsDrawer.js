@@ -94,6 +94,9 @@ class NotificationsDrawer extends React.Component {
 												</span> --
 												{notification.message}
 											</div>
+											<div style={{ maxWidth: '250px' }}>
+												{notification.reference}
+											</div>
 										</React.Fragment>
 									}
 								/>

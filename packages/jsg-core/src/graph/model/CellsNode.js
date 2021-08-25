@@ -47,13 +47,23 @@ module.exports = class CellsNode extends Node {
 		return copy;
 	}
 
+	getSheet() {
+		return this.getParent() ? this.getParent().getParent() : undefined;
+	}
+
 	getDataProvider() {
+		const sheet = this.getSheet();
+		if (sheet) {
+			const sourceSheet = sheet.sourceSheet;
+			if (sourceSheet && sheet !== sourceSheet) {
+				return sourceSheet.getCells().getDataProvider();
+			}
+		}
+
 		if (this._data._sheet === undefined) {
 			// init with sheet, if not done yet
-			let parent = this.getParent();
-			if (parent) {
-				parent = parent.getParent();
-				this._data._sheet = parent;
+			if (sheet) {
+				this._data._sheet = sheet;
 			}
 		}
 		return this._data;

@@ -324,6 +324,9 @@ class StreamsManager {
 		const stream = this.getStreamById(configId);
 		if(stream) {
 			await stream._dispose(true);
+		} else {
+			const streamIds = this.configsManager.getStreamIdsByConnectorId(configId);
+			await Promise.all(streamIds.map(id => this.deleteConfiguration(id)));
 		}
 		const config = this.configsManager.getConfigurationById(configId);
 		this.configsManager.removeConfiguration(configId);

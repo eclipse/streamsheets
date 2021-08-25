@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -22,6 +22,11 @@ const validateResult = (expr, result, context = DEF_CONTEXT) => {
 	expect(Parser.resultFrom(ast, context)).toBe(result);
 };
 
+const validateNode = (node, { type, operator, value }) => {
+	if (type) expect(node.type).toBe(type);
+	if (operator) expect(node.operator).toBe(operator);
+	if (value) expect(node.value).toBe(value);
+};
 describe('Tokenizer', () => {
 	describe('createAST', () => {
 		it('should parse simple values', () => {
@@ -47,7 +52,6 @@ describe('Tokenizer', () => {
 			testexpr = '-1+1';
 			ast = Tokenizer.createAST(testexpr, DEF_CONTEXT);
 			expect(Parser.resultFrom(ast)).toBe(0);
-
 
 			validateResult('1 * 2', 2);
 			validateResult('42--23', 65);
@@ -249,7 +253,7 @@ describe('Tokenizer', () => {
 			validateResult('SUM(1,2,3,4,5)', 15, context);
 			validateResult('SUM(1,2,3,4) + MAX(5,3,4)', 15, context);
 			validateResult('SUM (1,2,MAX  (0,3,2,1),4,MAX (5,3,4))', 15, context);
-			validateResult('PI() + 1', (Math.PI + 1), context);
+			validateResult('PI() + 1', Math.PI + 1, context);
 		});
 		it('should ignore character case', () => {
 			validateResult('maX(2, sum(1,2,3,4), 23, 9, 8)', 23, context);
@@ -269,7 +273,7 @@ describe('Tokenizer', () => {
 			expect(ast.params[1].value).toBeUndefined();
 			expect(ast.params[2].type).toBe('undef');
 			expect(ast.params[2].value).toBeUndefined();
-			
+
 			ast = Tokenizer.createAST('test("","","")', _context);
 			expect(ast.params).toBeDefined();
 			expect(ast.params.length).toBe(3);
@@ -280,7 +284,7 @@ describe('Tokenizer', () => {
 			expect(ast.params[2].type).toBe('string');
 			expect(ast.params[2].value).toBe('');
 		});
-		
+
 		// DL-3412
 		it('should ignore IFs inside function names', () => {
 			const _context = new ParserContext();

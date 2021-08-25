@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -153,7 +153,8 @@ class CreateStreamSheetRequestHandler extends RequestHandler {
 			machineId,
 			streamsheetId,
 			streamsheetName /* , activeItemId */,
-			position
+			position,
+			sheetType
 		} = request;
 		const graphWrapper = graphManager.getGraphWrapperByMachineId(machineId);
 		const graph = graphWrapper.graph;
@@ -165,8 +166,9 @@ class CreateStreamSheetRequestHandler extends RequestHandler {
 		item.setOrigin(position.x + 500, position.y + 500);
 		item.getStreamSheetContainerAttributes().setSheetId(streamsheetId);
 		item.getStreamSheetContainerAttributes().setStep(0);
+		item.getStreamSheetContainerAttributes().setSheetType(sheetType);
 		item.getStreamSheet().setName(streamsheetName);
-		item.getSheetCaption().setName(`Process Sheet - ${streamsheetName}`);
+		item.getSheetCaption().setName(`${streamsheetName}`);
 		const command = new AddItemCommand(item, processContainer);
 		const commandString = command.toObject();
 		const executed = await graphManager.executeCommands(

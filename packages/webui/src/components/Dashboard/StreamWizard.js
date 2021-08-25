@@ -12,6 +12,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -1058,43 +1059,53 @@ class StreamWizard extends React.Component {
 										height: '85px'
 									}}
 								>
-									<TextField
-										inputRef={(el) => {
-											this.nameRef = el;
-										}}
-										variant="outlined"
-										size="small"
-										label={<FormattedMessage id="Stream.NameField" defaultMessage="Name" />}
-										id="name"
-										name="name"
-										fullWidth
-										margin="normal"
-										value={activeStep === 'connectorname' ? connectorName : streamName}
-										onChange={this.handleNameChange}
-										error={typeof error === 'string' && error.length > 0}
-										helperText={error}
-									/>
-									<TextField
-										label={
-											<FormattedMessage
-												id="Stream.DescriptionField"
-												defaultMessage="Please enter a Description"
-											/>
-										}
-										id="description"
-										name="description"
-										variant="outlined"
-										size="small"
-										fullWidth
-										multiline
-										margin="normal"
-										value={
-											activeStep === 'connectorname'
-												? this.state.connectorDescription
-												: this.state.streamDescription
-										}
-										onChange={this.handleDescriptionChange}
-									/>
+									<Tooltip
+										title={<FormattedMessage id="Stream.NameTool" defaultMessage="Stream Name" />}
+										placement='top-start'
+									>
+										<TextField
+											inputRef={(el) => {
+												this.nameRef = el;
+											}}
+											variant="outlined"
+											size="small"
+											label={<FormattedMessage id="Stream.NameField" defaultMessage="Name" />}
+											id="name"
+											name="name"
+											fullWidth
+											margin="normal"
+											value={activeStep === 'connectorname' ? connectorName : streamName}
+											onChange={this.handleNameChange}
+											error={typeof error === 'string' && error.length > 0}
+											helperText={error}
+										/>
+									</Tooltip>
+									<Tooltip
+										title={<FormattedMessage id="Stream.DescriptionTool" defaultMessage="Stream Description" />}
+										placement='top-start'
+									>
+										<TextField
+											label={
+												<FormattedMessage
+													id="Stream.DescriptionField"
+													defaultMessage="Please enter a Description"
+												/>
+											}
+											id="description"
+											name="description"
+											variant="outlined"
+											size="small"
+											fullWidth
+											multiline
+											margin="normal"
+											value={
+												activeStep === 'connectorname'
+													? this.state.connectorDescription
+													: this.state.streamDescription
+											}
+											onChange={this.handleDescriptionChange}
+										/>
+									</Tooltip>
 								</div>
 							) : null}
 							{activeStep === 'consumersettings' || activeStep === 'connectorsettings'  || activeStep === 'producersettings'? (

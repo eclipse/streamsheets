@@ -33,7 +33,7 @@ const testRequest = (sheet, ...terms) =>
 				.request(() => new Promise(noop))
 				.reqId()
 		);
-SheetParser.context.functions['TEST.REQUEST'] = testRequest;
+SheetParser.context.updateFunctions({ 'TEST.REQUEST': testRequest });
 
 const resolveRequestAt = async (index, sheet) => {
 	const reqId = sheet.cellAt(index).value;

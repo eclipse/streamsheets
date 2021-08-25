@@ -72,20 +72,23 @@ describe('logical functions', () => {
 			expect(createTerm('if(A1, "hello", "world")', sheet).value).toBe('hello');
 			expect(createTerm('if(A2, "hello", "world")', sheet).value).toBe('world');
 		});
-		it('should return false as default if condition is false and no false value is provided', () => {
+		// DL-5187
+		it('should return null for truthy or falsy value if not specified', () => {
 			const sheet = new StreamSheet().sheet;
+			createCellAt('A1', true, sheet);
 			createCellAt('A2', false, sheet);
-			expect(createTerm('if(A2, "hello")', sheet).value).toBe(false);
+			expect(createTerm('if(A1)', sheet).value).toBe(null);
+			expect(createTerm('if(A2, "hello")', sheet).value).toBe(null);
 		});
-		it('should require condition and true value', () => {
+		it('should require condition', () => {
 			const sheet = new StreamSheet().sheet;
 			createCellAt('A1', true, sheet);
 			createCellAt('A2', false, sheet);
 			expect(createTerm('if()', sheet).value.code).toBe(ERROR.ARGS);
-			expect(createTerm('if(,)', sheet).value).toBe(false);
-			expect(createTerm('if(A1)', sheet).value.code).toBe(ERROR.ARGS);
-			expect(createTerm('if(A1,)', sheet).value).toBe(true);
-			expect(createTerm('if(A2,,)', sheet).value).toBe(false);
+			expect(createTerm('if(,)', sheet).value).toBe(null);
+			expect(createTerm('if(A1)', sheet).value).toBe(null);
+			expect(createTerm('if(A1,)', sheet).value).toBe(null);
+			expect(createTerm('if(A2,,)', sheet).value).toBe(null);
 			expect(createTerm('if(A2,,,)', sheet).value.code).toBe(ERROR.ARGS);
 		});
 		// DL-4099

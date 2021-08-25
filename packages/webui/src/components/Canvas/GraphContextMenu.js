@@ -53,13 +53,16 @@ const submenuStyles = theme => ({
 
 const Submenu = withStyles(submenuStyles)(// Unfortunately, MUI <Menu> injects refs into its children, which causes a
 	// warning in some cases unless we use forwardRef here.
-	React.forwardRef(({ classes, title, popupId, children, ...props }, ref) => (<ParentPopupState.Consumer>
-			{parentPopupState => (<PopupState
+	React.forwardRef(({ classes, title, popupId, children, ...props }, ref) => (
+		<ParentPopupState.Consumer>
+			{parentPopupState => (
+				<PopupState
 					variant='popover'
 					popupId={popupId}
 					parentPopupState={parentPopupState}
 				>
-					{popupState => (<ParentPopupState.Provider value={popupState}>
+					{popupState => (
+						<ParentPopupState.Provider value={popupState}>
 							<MenuItem
 								dense
 								{...bindHover(popupState)}
@@ -231,6 +234,16 @@ class GraphContextComponent extends Component {
 		return selection.length > 1;
 	}
 
+	isLayoutSectionSelected() {
+		const viewer = graphManager.getGraphViewer();
+		if (viewer === undefined) {
+			return false;
+		}
+
+		const context = viewer.getSelectionProvider().getSelectionContext();
+		return (context && (context.obj === 'layoutsectioncolumn' || context.obj === 'layoutsectionrow'));
+	}
+
 	canEditPoints() {
 		const viewer = graphManager.getGraphViewer();
 		if (viewer === undefined) {
@@ -255,6 +268,10 @@ class GraphContextComponent extends Component {
 			return false;
 		}
 	}
+
+	onShowLayoutSectionProperties = () => {
+		this.props.setAppState({ showLayoutSectionProperties: true });
+	};
 
 	onShowChartProperties = () => {
 		// const sheetView = graphManager.getActiveSheetView();
@@ -302,20 +319,33 @@ class GraphContextComponent extends Component {
 								{...bindHover(popupState)}
 								{...bindMenu(popupState)}
 							>
-								<MenuItem onClick={this.onShowChartProperties} dense>
-									{item instanceof JSG.SheetPlotNode ? [<ListItemIcon>
-										<SvgIcon style={styles.menuItem}>
-											<path d='M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z' />
-										</SvgIcon>
-									</ListItemIcon>, <ListItemText
-										primary={<FormattedMessage id='EditChart' defaultMessage='Edit Chart' />}
-									/>] : [<ListItemIcon>
-										<SettingsIcon style={styles.menuItem} />
-									</ListItemIcon>, <ListItemText
-										primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
-									/>]}
-								</MenuItem>
-								<Divider />
+								{this.isLayoutSectionSelected() ? [
+										<MenuItem onClick={this.onShowLayoutSectionProperties} dense>
+											<ListItemIcon>
+												<SettingsIcon style={styles.menuItem} />
+											</ListItemIcon>
+											<ListItemText
+												primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
+											/>
+										</MenuItem>,
+										<Divider />
+									] : null}
+								{!this.isMultiSelection() ? [
+										<MenuItem onClick={this.onShowChartProperties} dense>
+											{item instanceof JSG.SheetPlotNode ? [<ListItemIcon>
+												<SvgIcon style={styles.menuItem}>
+													<path d='M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z' />
+												</SvgIcon>
+											</ListItemIcon>, <ListItemText
+												primary={<FormattedMessage id='EditChart' defaultMessage='Edit Chart' />}
+											/>] : [<ListItemIcon>
+												<SettingsIcon style={styles.menuItem} />
+											</ListItemIcon>, <ListItemText
+												primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
+											/>]}
+										</MenuItem>,
+										<Divider />
+									] : null}
 								<MenuItem onClick={this.onCut} dense>
 									<ListItemIcon>
 										<IconCut style={styles.menuItem} />
@@ -466,6 +496,37 @@ class GraphContextComponent extends Component {
 										</MenuItem>
 									</Submenu>) : null
 								}
+								{this.isMultiSelection() ? (<Submenu
+									popupId='DistMenu' title={<FormattedMessage id='Shapes.Distribute'
+																				 defaultMessage='Distribute Shapes' />}
+								>
+									<MenuItem
+										onClick={() => this.onAlignShapes(popupState,
+											JSG.AlignItemsCommand.Alignment.HDISTRIBUTE)}
+										dense>
+										<ListItemIcon>
+											<SvgIcon style={styles.menuItem}>
+												<path
+													d="M9,11H15V8L19,12L15,16V13H9V16L5,12L9,8V11M2,20V4H4V20H2M20,20V4H22V20H20Z" />
+											</SvgIcon>
+										</ListItemIcon>
+										<ListItemText primary={<FormattedMessage id='Shapes.DistributeHorz'
+																				 defaultMessage='Horizontal' />} />
+									</MenuItem>
+									<MenuItem
+										onClick={() => this.onAlignShapes(popupState,
+											JSG.AlignItemsCommand.Alignment.VDISTRIBUTE)}
+										dense>
+										<ListItemIcon>
+											<SvgIcon style={styles.menuItem}>
+												<path
+													d="M13,9V15H16L12,19L8,15H11V9H8L12,5L16,9H13M4,2H20V4H4V2M4,20H20V22H4V20Z" />
+											</SvgIcon>
+										</ListItemIcon>
+										<ListItemText primary={<FormattedMessage id='Shapes.DistributeVert'
+																				 defaultMessage='Vertical' />} />
+									</MenuItem>
+								</Submenu>) : null}
 								{showEdit ? <Divider /> : null}
 								{showEdit ? (<MenuItem onClick={() => this.onEditPoints()} dense>
 										<ListItemIcon>

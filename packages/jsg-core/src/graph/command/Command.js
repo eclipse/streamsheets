@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-// const JSG = require('../../JSG');
+const JSG = require('../../JSG');
 // const Graph = require('../model/Graph');
 
 /**
@@ -224,7 +224,12 @@ class Command {
 			view.showCell(cell);
 			// view.notifySelectionChange(viewer);
 		}
-	};
+	}
+
+	sendNotification() {
+		// eslint-disable-next-line
+		JSG.NotificationCenter.getInstance().send(new JSG.Notification(JSG.COMMAND_EXECUTED_NOTIFICATION, { command: this }));
+	}
 }
 
 module.exports = Command;

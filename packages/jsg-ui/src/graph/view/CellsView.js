@@ -62,7 +62,7 @@ export default class CellsView extends NodeView {
 		this._wsItem = this.getWorksheetNode();
 		this._columns = this.getColumns();
 		this._rows = this.getRows();
-		if (!this._wsView || !this._wsItem) {
+		if (!this._wsView || !this._wsItem || this._wsItem.getLayoutNode()) {
 			return;
 		}
 
@@ -88,8 +88,7 @@ export default class CellsView extends NodeView {
 
 		this.drawData(graphics, rect, viewRect);
 
-		const id = graph.getTopStreamSheetContainerId();
-
+		const id = this.getGraphView().getActiveViewId();
 		if (id !== undefined && id !== this._wsItem.getId()) {
 			this.drawSelections(graphics, rect);
 		}
@@ -97,6 +96,15 @@ export default class CellsView extends NodeView {
 		if (id !== undefined && id !== this._wsItem.getId()) {
 			this.drawCopyMarker(graphics, rect);
 		}
+	}
+
+	drawFill(graphics, format, rect) {
+		this._wsItem = this.getWorksheetNode();
+		if (!this._wsItem || this._wsItem.getLayoutNode()) {
+			return;
+		}
+
+		super.drawFill(graphics, format, rect);
 	}
 
 	drawData(graphics, rect, viewRect) {
@@ -1576,6 +1584,9 @@ export default class CellsView extends NodeView {
 	drawSelections(graphics) {
 		const wsView = this._wsView;
 		const ws = this._wsItem;
+		if (!ws) {
+			return;
+		}
 		const focus =
 			this.getGraphView().getFocus() &&
 			this.getGraphView()

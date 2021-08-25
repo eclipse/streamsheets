@@ -41,12 +41,12 @@ class SetTextCommand extends AbstractItemCommand {
 				readObject(
 					'oldtext',
 					data.oldText,
-					new StringExpression()
+					new Expression()
 				),
 				readObject(
 					'newtext',
 					data.newText,
-					new StringExpression()
+					new Expression()
 				)
 			).initWithObject(data)
 			: undefined;
@@ -58,10 +58,10 @@ class SetTextCommand extends AbstractItemCommand {
 		this._oldText =
 			undoText instanceof Expression
 				? undoText.copy()
-				: new StringExpression(undoText);
+				: new Expression(undoText);
 		this._newText =	text instanceof Expression
 			? text.copy()
-			: new StringExpression(text);
+			: new Expression(text);
 		;
 	}
 

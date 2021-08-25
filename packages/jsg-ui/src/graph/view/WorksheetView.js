@@ -104,9 +104,9 @@ export default class WorksheetView extends ContentNodeView {
 			this.getOwnSelection().toStringMulti()
 		);
 		cmd._noDraw = true;
-		viewer.activeView = this;
+		viewer.getGraphView().activeView = this;
 		viewer.getInteractionHandler().execute(cmd);
-		viewer.activeView = this;
+		viewer.getGraphView().activeView = this;
 
 		this.activateLayerSelection();
 	}
@@ -735,11 +735,6 @@ export default class WorksheetView extends ContentNodeView {
 		const item = this.getItem();
 		const rect = item.getCellRect(range);
 		const offset = this.getScrollOffset();
-		const viewport = this.getViewPort();
-
-		if (!viewport) {
-			return undefined;
-		}
 
 		const colSize = item.getColumns().getInternalHeight();
 		const rowSize = item.getRows().getInternalWidth();
@@ -859,11 +854,18 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	getHitCode(location, viewer, checkSelectedRange = false) {
-		const bounds = this.getScrollView().getBounds();
+		const item = this.getItem();
+		if (item.getLayoutNode()) {
+			return WorksheetView.HitCode.NONE;
+		}
+
+		const scrollView = this.getScrollView();
+		const bounds = scrollView.getBounds();
 		let point = location.copy();
-		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
-		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const hScrollSize = scrollView.getHorizontalScrollbar().isVisible() ? ScrollBar.SIZE : 0;
+		const vScrollSize = scrollView.getVerticalScrollbar().isVisible() ? ScrollBar.SIZE : 0;
+			// item.getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		// const vScrollSize = item.getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
 
 		point = this.translateToSheet(point, viewer);
 
@@ -887,11 +889,11 @@ export default class WorksheetView extends ContentNodeView {
 				: WorksheetHitCode.SHEET;
 		}
 
-		if (this.getItem().isProtected() === false) {
-			const colHeight = this.getItem()
+		if (item.isProtected() === false) {
+			const colHeight = item
 				.getColumns()
 				.getInternalHeight();
-			const rowWidth = this.getItem()
+			const rowWidth = item
 				.getRows()
 				.getInternalWidth();
 			let cv;
@@ -1902,21 +1904,22 @@ export default class WorksheetView extends ContentNodeView {
 		const data = this.getItem().getDataProvider();
 		const cell = data.get(cellPos);
 		const cellRect = cell && cell.errorInfo ? this.getCellRect(cellPos) : undefined;
-		return cellRect && 
+		return cellRect &&
 			point.x > cellRect.x &&
 			point.x < cellRect.x + 300 &&
 			point.y > cellRect.y &&
 			point.y < cellRect.y + 300;
 	}
-	handleDataView(sheet, dataCell, targetRange, viewer) {
-		this.handleInfoView(WorksheetHitCode.DATAVIEW, sheet, dataCell, targetRange, viewer);
+
+	handleDataView(sheet, dataCell, target, options, viewer) {
+		this.handleInfoView(WorksheetHitCode.DATAVIEW, sheet, dataCell, target, options, viewer);
 	}
 
-	handleInfoView(infoType, sheet, dataCell, targetRange, viewer) {
-		if (targetRange != null) {
+	handleInfoView(infoType, sheet, dataCell, target, options, viewer) {
+		if (target != null) {
 			const data = sheet.getDataProvider();
 			const cell = data.get(dataCell);
-			if (cell != null) CellInfoView.of(infoType, viewer, this).showInfo(cell, targetRange);
+			if (cell != null) CellInfoView.of(infoType, viewer, this, options).showInfo(cell, target);
 		}
 	}
 
@@ -1930,14 +1933,27 @@ export default class WorksheetView extends ContentNodeView {
 		const zDelta = event.getWheelDelta() < 0 ? 1 : -1;
 		const scrollView = this.getScrollView();
 		const pt = scrollView.getScrollPosition();
+		const ptOld = pt.copy();
 
 		if (event.event.shiftKey) {
 			pt.x += zDelta * 2000;
-		} else {
+		} else/* if (scrollView.getVerticalScrollbar().isVisible())*/ {
 			pt.y += zDelta * 1500;
 		}
 
 		scrollView.setScrollPositionTo(pt);
+
+		const ptNew = scrollView.getScrollPosition();
+		if (ptNew.x === ptOld.x && ptNew.y === ptOld.y) {
+			// if no scrollbar, pass to parent
+			let view = this.getParent();
+			while (view && !(view instanceof ContentNodeView)) {
+				view = view.getParent();
+			}
+			if (view && view.handleMouseWheel) {
+				view.handleMouseWheel(event, viewer);
+			}
+		}
 
 		NotificationCenter.getInstance().send(
 			new Notification(WorksheetView.SHEET_SCROLL_NOTIFICATION, {

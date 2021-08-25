@@ -103,7 +103,7 @@ class GraphItemController extends ModelController {
 	 * @return {GraphItem []} Array of GraphItems.
 	 */
 	getModelChildren() {
-		return this.getModel().getItems();
+		return this.getModel().subItems;
 	}
 
 	/**
@@ -479,7 +479,7 @@ class GraphItemController extends ModelController {
 	 */
 	createFeedback() {
 		const model = this.getModel();
-		const detailed = model.getReshapeCoordinates().length !== 0;
+		const detailed = model.isFeedbackDetailed();
 		const fbItem = this.createFeedbackItem(detailed);
 		const fbView = this.createFeedbackView(fbItem, detailed);
 
@@ -508,7 +508,7 @@ class GraphItemController extends ModelController {
 			}
 			format.setLineColor(JSG.theme.feedbackBorder);
 		}
-		const subitems = item.getItems();
+		const subitems = item.subItems;
 		if (detailed === true) {
 			subitems.forEach((litem) => {
 				// we can filter out text nodes here, if wanted...

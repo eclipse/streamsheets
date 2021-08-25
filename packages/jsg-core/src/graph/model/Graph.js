@@ -553,7 +553,7 @@ class Graph extends GraphItem {
 
 	// overwritten to simply return corresponding template because a graph has no TextFormat...
 	getTextFormat() {
-		const template = JSG.tmplStore.getTemplate(TextFormatAttributes.Template_ID);
+		const template = JSG.tmplStore.getTemplate(TextFormatAttributes.TemplateID);
 		return template || super.getTextFormat();
 	}
 

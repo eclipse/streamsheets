@@ -126,3 +126,22 @@ describe('randbetween', () => {
 		expect(cell.value).toBeLessThan(cellValue);
 	});
 });
+describe('round',() => {
+	it('should return rounded value, with specified precision', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('round(10.234,0)', sheet).value).toBe(10);
+		expect(createTerm('round(10.234,2)', sheet).value).toBe(10.23);
+		expect(createTerm('round(10.2345,3)', sheet).value).toBe(10.235);
+		expect(createTerm('round(10.2344,3)', sheet).value).toBe(10.234);
+	});
+	it('should use 0 as default precision', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('round(10.234)', sheet).value).toBe(10);
+		expect(createTerm('round(-210.234)', sheet).value).toBe(-210);
+	});
+	it(`should return ${ERROR.ARGS} if called with to less or to many arguments`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('round()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('round(10.234,2,45)', sheet).value.code).toBe(ERROR.ARGS);
+	});
+});

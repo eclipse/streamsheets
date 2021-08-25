@@ -129,6 +129,7 @@ JSG.drawingDisabled = false;
  * @type String
  * @static
  */
+JSG.COMMAND_EXECUTED_NOTIFICATION = 'jsg.command.executed.notification';
 JSG.DRAW_DISABLED_NOTIFICATION = 'jsg.draw.disabled.notification';
 JSG.LOCALE_CHANGED_NOTIFICATION = 'jsg.locale.changed.notification';
 JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION = 'graph_show_context_menu_notification';
@@ -155,7 +156,7 @@ JSG.setDrawingDisabled = (status) => {
 JSG.copyItems = (selection) => {
 	const file = new JSG.JSONWriter();
 	const items = selection.length === undefined ? [selection] : selection;
-	const graphItems = items[0].getModel().getParent().getItems();
+	const graphItems = items[0].getModel().getParent().subItems;
 
 	// sort items first, so drawing order of copied items does not change
 	items.sort((a, b) => {

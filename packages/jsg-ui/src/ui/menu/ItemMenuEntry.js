@@ -8,6 +8,8 @@ export default class ItemMenuEntry {
 		this.group = undefined;
 		// html element which represents entry
 		this.element = undefined;
+		// position: tr = top-right, bl = bottom-left
+		this.position = 'tr';
 	}
 
 	createIcon(url) {

@@ -57,7 +57,7 @@ class TextNode extends Node {
 		format.setLineStyle(FormatAttributes.LineStyle.NONE);
 		format.setFillStyle(FormatAttributes.FillStyle.NONE);
 
-		this._text = new StringExpression(txt || 'Text');
+		this._text = new Expression(txt || 'Text');
 
 		this.invalidateSize();
 
@@ -101,6 +101,10 @@ class TextNode extends Node {
 			this.getItemAttributes().setSizeMode(TextNodeAttributes.SizeMode.WIDTH);
 			this.getItemAttributes().setPortMode(ItemAttributes.PortMode.DEFAULT);
 		}
+	}
+
+	isAddLabelAllowed() {
+		return false;
 	}
 
 	isAssociated() {
@@ -288,6 +292,10 @@ class TextNode extends Node {
 		if (tf.getIcon().getValue() !== 0) {
 			force = true;
 			text = String.fromCharCode(tf.getIcon().getValue());
+		}
+
+		if (text === '') {
+			text = 'M';
 		}
 
 		if (force !== true) {
@@ -554,6 +562,11 @@ class TextNode extends Node {
 
 		this._sizeText.x = cs.deviceToLogXNoZoom(div.getBoundingClientRect().width, false);
 		this._sizeText.y = cs.deviceToLogYNoZoom(div.getBoundingClientRect().height, false);
+
+		const label = this.getExtraLabel();
+		if (label) {
+			this._sizeText.y += 200;
+		}
 		// this._sizeText.x = cs.deviceToLogXNoZoom(div.clientWidth);
 		// this._sizeText.y = cs.deviceToLogYNoZoom(div.clientHeight);
 		this._heightLimit = this.getHeightLimit();
@@ -813,7 +826,7 @@ class TextNode extends Node {
 		}
 
 		let label;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {

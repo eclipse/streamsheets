@@ -11,6 +11,7 @@
 const { Machine, SheetIndex, SheetRange, StreamSheet } = require('../..');
 const DEF_PROPS = require('../../defproperties.json');
 
+
 const setup = () => {
 	const machine = new Machine();
 	const t1 = new StreamSheet({ name: 'S1' });

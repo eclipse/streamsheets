@@ -22,10 +22,13 @@ const NotificationCenter = require('../notifications/NotificationCenter');
 const Notification = require('../notifications/Notification');
 const Numbers = require('../../commons/Numbers');
 const Rectangle = require('../../geometry/Rectangle');
+const Point = require('../../geometry/Point');
+const GraphUtils = require('../GraphUtils');
 
 const RowHeaderNode = require('./RowHeaderNode');
 const CellsNode = require('./CellsNode');
 const ContentNode = require('./ContentNode');
+const LayoutNode = require('./LayoutNode');
 const Cell = require('./Cell');
 const DataProvider = require('./DataProvider');
 const HeaderSection = require('./HeaderSection');
@@ -106,6 +109,50 @@ module.exports = class WorksheetNode extends ContentNode {
 		return new WorksheetNode();
 	}
 
+	get sourceSheet() {
+		if (this._sourceAttr) {
+			const range = this.sourceRange;
+
+			return range ? range.getSheet() : undefined;
+		}
+
+		return undefined;
+	}
+
+	get sourceRange() {
+		if (!this._sourceAttr) {
+			return undefined;
+		}
+		if (this._sourceRange) {
+			return this._sourceRange;
+		}
+
+		const expr = this._sourceAttr.getExpression();
+		if (expr) {
+			const term = expr.getTerm();
+			if (term) {
+				if (term.operand && term.operand instanceof SheetReference) {
+					const range =  term.operand.getRange().copy();
+					range.shiftFromSheet();
+					this._sourceRange = range;
+					return range;
+				} else {
+					const rangeString = this._sourceAttr.getValue();
+					if (rangeString !== undefined) {
+						const range = CellRange.parse(rangeString, this);
+						if (range) {
+							range.shiftFromSheet();
+							this._sourceRange = range;
+							return range;
+						}
+					}
+				}
+			}
+		}
+
+		return undefined;
+	}
+
 	getDefaultFormat() {
 		return this._defaultCell.getFormat();
 	}
@@ -146,12 +193,36 @@ module.exports = class WorksheetNode extends ContentNode {
 		}
 	}
 
+	getLayoutNode() {
+		let ret;
+
+		this._cells.subItems.some(subItem => {
+			if (subItem instanceof LayoutNode) {
+				ret = subItem;
+				return true;
+			}
+			return false;
+		});
+
+		return ret;
+	}
+
 	removeSelection(id) {
 		super.removeSelection(id);
 		const mySelectionId = String(this.getSelectionId());
 		if (id === mySelectionId) {
 			this._selection.clear();
 		}
+
+		const layoutNode = this.getLayoutNode();
+		if (layoutNode) {
+			GraphUtils.traverseItem(layoutNode, item => {
+				if (item instanceof WorksheetNode) {
+					item.removeSelection();
+				}
+			}, false);
+		}
+
 	}
 
 	/**
@@ -162,17 +233,28 @@ module.exports = class WorksheetNode extends ContentNode {
 	layout() {
 		const wsattributes = this.getWorksheetAttributes();
 		const header = this.isHeaderVisible();
+		const source = this.sourceSheet;
+		const layoutNode = this.getLayoutNode();
+
+		if (source)  {
+			const sattributes = source.getWorksheetAttributes();
+			const rowCount = sattributes.getRows().getValue();
+			const columnCount = sattributes.getRows().getValue();
+			this.setColumnCount(columnCount);
+			this.setRowCount(rowCount);
+		}
 
 		this._rowCount = wsattributes.getRows().getValue();
 		this._columnCount = wsattributes.getRows().getValue();
+		this._sourceRange = undefined;
+		this._sourceAttr = this.getAttributeAtPath('range');
 
 		this._corner.getItemAttributes().setVisible(header);
 		this._rows.getItemAttributes().setVisible(header);
 		this._columns.getItemAttributes().setVisible(header);
 
-		const colSize = this._columns.getInternalSize();
-		const rowSize = this._rows.getInternalSize();
-
+		const colSize = layoutNode ? new Point(0, 0) : this._columns.getInternalSize();
+		const rowSize = layoutNode ? new Point(0, 0) : this._rows.getInternalSize();
 		const box = JSG.boxCache.get();
 
 		if (header) {
@@ -383,6 +465,22 @@ module.exports = class WorksheetNode extends ContentNode {
 
 	getItemType() {
 		return 'worksheetnode';
+	}
+
+	toJSON() {
+		const ret = super.toJSON();
+
+		ret.worksheetattributes = this.getWorksheetAttributes().toJSON(true);
+
+		return ret;
+	}
+
+	fromJSON(json) {
+		super.fromJSON(json);
+
+		if (json.worksheetattributes) {
+			this.getWorksheetAttributes().fromJSON(json.worksheetattributes);
+		}
 	}
 
 	saveContent(writer, absolute) {
@@ -1100,7 +1198,7 @@ module.exports = class WorksheetNode extends ContentNode {
 			throw e;
 		}
 
-		const formula = term ? term.toLocaleString('en', { item: this, useName: true }) : '';
+		const formula = term ? term.toLocaleString('en', { item: this, useName: true, forceName: true }) : '';
 		const expr = isFormula ? new Expression(0, formula) : ExpressionHelper.createExpressionFromValueTerm(term);
 
 		if (term) {

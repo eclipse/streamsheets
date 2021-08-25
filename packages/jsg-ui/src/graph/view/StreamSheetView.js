@@ -15,15 +15,25 @@ import {
 	InboxContainer,
 	OutboxContainer,
 	StreamSheet,
+	StreamSheetContainer,
+	TextNode,
+	StringExpression,
+	SheetPlotNode,
+	SheetCheckboxNode,
+	SheetSliderNode,
+	SheetKnobNode,
+	Expression,
+	NumberExpression,
 	SheetCommandFactory,
 	Point,
-	BoundingBox, Shape
+	BoundingBox,
+	Shape,
+	SetAttributeAtPathCommand,
 } from '@cedalo/jsg-core';
 import CellFeedbackView from '../feedback/CellFeedbackView';
 import WorksheetView from './WorksheetView';
 import ClientEvent from '../../ui/events/ClientEvent';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
-import ContentNodeView from "./ContentNodeView";
 
 const SHEET_DROP_FROM_OUTBOX = 'sheet_drop_from_outbox';
 
@@ -40,19 +50,18 @@ const SHEET_DROP_FROM_OUTBOX = 'sheet_drop_from_outbox';
 export default class StreamSheetView extends WorksheetView {
 	// to allow scrolling while formula editing
 	handleMouseEvent(ev, viewer) {
+		const node = this.getItem();
 		// content hidden -> ignore
-		if (!this.getItem().isVisible()) {
+		if (!node.isVisible()) {
 			return;
 		}
 
 		this._scrollview.handleMouseEvent(ev);
 		if (ev.isConsumed) {
-			const node = this.getItem();
 			ev.keepFocus = true;
 
 			node.getGraph().markDirty();
-
-			if (viewer !== undefined) {
+			if (viewer !== undefined && (node.getParent() instanceof StreamSheetContainer)) {
 				this.getParent().moveSheetToTop(viewer);
 			}
 		}
@@ -257,6 +266,155 @@ export default class StreamSheetView extends WorksheetView {
 		}
 
 		return undefined;
+	}
+
+	onDropShape(controller, title, sourceView, event, viewer) {
+		const item = controller.getModel();
+		const selection = sourceView.getSelectedItem();
+		const treeItems = sourceView.getItem().getSubTreeForItem(selection);
+		treeItems.unshift(selection);
+		const cmd = new JSG.CompoundCommand();
+		let guessSerie;
+		let chartTitle;
+
+		if (treeItems.length > 1 && treeItems[1].level > treeItems[0].level) {
+			chartTitle = treeItems[0].key;
+		}
+
+		for (let i = treeItems.length - 1; i >= 0; i -= 1) {
+			const treeItem = treeItems[i];
+			if (treeItem.type < 3 || treeItem.type > 5) {
+				JSG.Arrays.remove(treeItems, treeItem);
+			}
+		}
+
+		treeItems.forEach((treeItem, index) => {
+			if (treeItem && treeItem.type >= 3 && treeItem.type <= 5) {
+				const label = treeItem.key || '';
+				const itemPath = sourceView.getItem().getItemPathDot(treeItem);
+				if (item instanceof TextNode) {
+					const expr = new Expression(0, `INBOXDATA.${itemPath}`);
+					cmd.add(SheetCommandFactory.create('command.SetTextCommand', item, item.getText(), expr));
+				} else if (item instanceof SheetCheckboxNode) {
+					const expr = new Expression(0, `INBOXDATA.${itemPath}`);
+					cmd.add(new SetAttributeAtPathCommand(item, 'value', expr));
+					cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
+				} else if ((item instanceof SheetSliderNode) || (item instanceof SheetKnobNode)) {
+					const expr = new NumberExpression(0, `INBOXDATA.${itemPath}`);
+					cmd.add(new SetAttributeAtPathCommand(item, 'value', expr));
+					cmd.add(new SetAttributeAtPathCommand(item, 'title', new StringExpression(label)));
+				} else if (item instanceof SheetPlotNode) {
+					switch (item.chart.type) {
+					case 'scatterline':
+					case 'column':
+					case 'area':
+					case 'stateperiod':
+					case 'line': {
+						const expr = new Expression(0, `TIMEAGGREGATE(INBOXDATA.${itemPath},,,,,,,30)`);
+						const cmdTitle = item.prepareCommand('title');
+						const cmdSeries = item.prepareCommand('series');
+						const cmdAxes = item.prepareCommand('axes');
+						let serie;
+						if (treeItems.length > 1) {
+							if (index === 0) {
+								serie = item.series[0];
+								item.series.length = 1;
+							} else {
+								serie = item.series[item.series.length - 1].copy();
+								item.series.push(serie);
+							}
+						} else if (event.event.ctrlKey) {
+							serie = item.series[item.series.length - 1].copy();
+							item.series.push(serie);
+						} else {
+							serie = item.series[0];
+							item.series.length = 1;
+						}
+						serie.formulaValues = [];
+						serie.formulaValues.push(expr);
+						serie.formulaLabelY = new StringExpression(label);
+						item.xAxes[0].type = 'time';
+						item.xAxes[0].format.localCulture = `time;en`;
+						item.xAxes[0].format.numberFormat = 'h:mm:ss';
+						item.xAxes[0].format.linkNumberFormat = false;
+						if (chartTitle && index === 0) {
+							item.title.formula = new StringExpression(chartTitle);
+						}
+						item.finishCommand(cmdTitle, 'title');
+						item.finishCommand(cmdSeries, 'series');
+						item.finishCommand(cmdAxes, 'axes');
+						cmd.add(cmdTitle);
+						cmd.add(cmdSeries);
+						cmd.add(cmdAxes);
+						break;
+					}
+					default: {
+						const expr = new Expression(0, `INBOXDATA.${itemPath}`);
+						const cmdTitle = item.prepareCommand('title');
+						const cmdSeries = item.prepareCommand('series');
+						const serie = item.series[0];
+						if (treeItems.length > 1) {
+							if (index === 0) {
+								serie.formulaValues = [];
+								serie.formulaCategories = [];
+							}
+							serie.formulaValues.push(expr);
+							serie.formulaCategories.push(new StringExpression(label));
+						} else if (event.event.ctrlKey) {
+							serie.formulaValues.push(expr);
+							serie.formulaCategories.push(new StringExpression(label));
+						} else {
+							serie.formulaValues = [expr];
+							serie.formulaCategories = [new StringExpression(label)];
+						}
+						if (chartTitle && index === 0) {
+							// const f = item.getFormat();
+							// f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+							// f.setLineCorner(75);
+							// const path = JSG.AttributeUtils.createPath(JSG.ItemAttributes.NAME, 'label');
+							// cmd.add(new JSG.AddAttributeCommand(item, path, 'label', new StringExpression(label)));
+							item.title.formula = new StringExpression(chartTitle);
+						}
+
+						item.finishCommand(cmdTitle, 'title');
+						item.finishCommand(cmdSeries, 'series');
+						cmd.add(cmdTitle);
+						cmd.add(cmdSeries);
+						if (serie.type === 'map') {
+							guessSerie = serie;
+						}
+					}
+					}
+				} else if (item.getParent() instanceof JSG.LayoutCell) {
+					const node = new JSG.TextNode('Title');
+					const tf = node.getTextFormat();
+					tf.setHorizontalAlignment(JSG.TextFormatAttributes.TextAlignment.LEFT);
+					tf.setVerticalAlignment(JSG.TextFormatAttributes.VerticalTextAlignment.TOP);
+					tf.setRichText(false);
+					tf.setFontSize(10);
+					const f = node.getFormat();
+					f.setLineStyle(JSG.FormatAttributes.LineStyle.SOLID);
+					f.setLineCorner(75);
+					node.setText(new Expression(0, `INBOXDATA.${itemPath}`));
+					node.associate(false);
+					node.setHeight(1000);
+					node.getItemAttributes().setLabel(label);
+					cmd.add(new JSG.AddItemCommand(node, item));
+				}
+			}
+		});
+
+		if (cmd) {
+			viewer.getInteractionHandler().execute(cmd);
+			if (guessSerie) {
+				const cmdSeries = item.prepareCommand('series');
+				item.guessMap(guessSerie);
+				guessSerie.map.mapData = undefined;
+				guessSerie.map.requesting = undefined;
+				item.finishCommand(cmdSeries, 'series');
+				viewer.getInteractionHandler().execute(cmdSeries);
+			}
+		}
 	}
 
 	/**

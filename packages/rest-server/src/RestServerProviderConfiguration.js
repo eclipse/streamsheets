@@ -27,7 +27,8 @@ module.exports = class RestServerProviderConfiguration extends ProviderConfigura
 		this.addConsumerDefinition({
 			id: 'topics',
 			label: 'URL Paths',
-			type: ProviderConfiguration.FIELDTYPES.TEXTLIST
+			type: ProviderConfiguration.FIELDTYPES.TEXTLIST,
+			basePath: 'baseUrl'
 		});
 	}
 };

@@ -28,6 +28,7 @@ import { graphManager } from '../../GraphManager';
 import ContextMenu from './ContextMenu';
 import TreeContextMenu from './TreeContextMenu';
 import GraphContextMenu from './GraphContextMenu';
+import LayoutContextMenu from './LayoutContextMenu';
 import EditPointsContextMenu from './EditPointsContextMenu';
 import SheetDeleteDialog from './SheetDeleteDialog';
 import MachineHelper from '../../helper/MachineHelper';
@@ -35,6 +36,7 @@ import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
 import GraphItemProperties from "./GraphItemProperties";
 import ViewModeProperties from "./ViewModeProperties";
+import LayoutSectionProperties from './LayoutSectionProperties';
 // import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 
 export class CanvasComponent extends Component {
@@ -77,6 +79,7 @@ export class CanvasComponent extends Component {
 	componentDidMount() {
 		const graphEditor = this.initGraphEditor();
 		JSG.NotificationCenter.getInstance().register(this, JSG.NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
+		JSG.NotificationCenter.getInstance().register(this, JSG.NotificationCenter.ADD_SHEET_NOTIFICATION, 'onAddDashboardSheet');
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX,
@@ -95,6 +98,7 @@ export class CanvasComponent extends Component {
 	componentWillUnmount() {
 		const { canvas } = this;
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ZOOM_NOTIFICATION);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ADD_SHEET_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 		canvas._jsgEditor.destroy();
@@ -187,7 +191,14 @@ export class CanvasComponent extends Component {
 		this.setState({ graph: sheet.getGraph() });
 	};
 
-	onAdd = () => {
+	onAddDashboardSheet() {
+		const graph = graphManager.getGraph();
+		const cnt = graph.getStreamSheetContainerCount() % 8;
+
+		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, 'cellsheet');
+	}
+
+	onAdd = (event) => {
 		const graph = graphManager.getGraph();
 		let cnt = graph.getStreamSheetContainerCount();
 
@@ -211,7 +222,7 @@ export class CanvasComponent extends Component {
 
 		graph.setViewMode(undefined, 0);
 
-		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt });
+		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, event.shiftKey ? 'dashboard' : 'sheet');
 	};
 
 	initGraphEditor() {
@@ -292,6 +303,7 @@ export class CanvasComponent extends Component {
 						<ContextMenu />
 						<TreeContextMenu />
 						<GraphContextMenu />
+						<LayoutContextMenu />
 						<EditPointsContextMenu />
 					</React.Fragment>
 				)}
@@ -312,6 +324,7 @@ export class CanvasComponent extends Component {
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
 				{viewMode.active === true || !canEdit ? null : <GraphItemProperties dummy={this.state.dummy} />}
+				{viewMode.active === true || !canEdit ? null : <LayoutSectionProperties dummy={this.state.dummy} />}
 				{viewMode.active === true && canEdit ?  <ViewModeProperties viewMode={viewMode}/> : null}
 				{viewMode.active === true || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>
@@ -336,7 +349,7 @@ export class CanvasComponent extends Component {
 								right: '30px',
 								bottom: '26px',
 							}}
-							onClick={this.onAdd}
+							onClick={(event) => this.onAdd(event)}
 						>
 							<AddIcon
 								style={{

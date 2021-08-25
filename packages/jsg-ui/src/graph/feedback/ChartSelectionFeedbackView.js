@@ -136,7 +136,7 @@ export default class ChartSelectionFeedbackView extends View {
 					}
 
 					const axes = item.getAxes(serie);
-					const ref = item.getDataSourceInfo(serie.formula);
+					const ref = item.getDataSourceInfo(serie);
 					if (!ref || !axes) {
 						return;
 					}
@@ -335,7 +335,7 @@ export default class ChartSelectionFeedbackView extends View {
 				break;
 			case 'serieslabel':
 				{
-					const ref = item.getDataSourceInfo(data.formula);
+					const ref = item.getDataSourceInfo(data);
 					if (ref) {
 						const axes = item.getAxes(data);
 						let index = 0;
@@ -503,7 +503,7 @@ export default class ChartSelectionFeedbackView extends View {
 				break;
 			case 'point':
 			case 'series': {
-				const ref = item.getDataSourceInfo(data.formula);
+				const ref = item.getDataSourceInfo(data);
 				if (ref) {
 					const axes = item.getAxes(data);
 					let index = 0;

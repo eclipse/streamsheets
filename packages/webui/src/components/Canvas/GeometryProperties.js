@@ -36,6 +36,23 @@ function MyInputComponent(props) {
 export class GeometryProperties extends Component {
 	state = {
 		dummy: 0,
+		errors: [],
+	}
+
+	componentDidMount() {
+		JSG.NotificationCenter.getInstance().register(
+			this,
+			JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION,
+			'onGraphSelectionChanged',
+		);
+	}
+
+	componentWillUnmount() {
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.SelectionProvider.SELECTION_CHANGED_NOTIFICATION);
+	}
+
+	onGraphSelectionChanged() {
+		this.setState({errors: []});
 	}
 
 	getSheetView() {
@@ -80,18 +97,23 @@ export class GeometryProperties extends Component {
 
 	getExpression(item, event) {
 		try {
-			return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+			return this.getSheet(item).textToExpression(String(event.target.textContent));
 		} catch (e) {
+			this.getSheetView().notifyMessage({
+				message: e.message,
+				focusIndex: e.index !== undefined ? e.index + 1 : 1
+			});
 			return undefined;
 		}
 	}
 
-	getAttributeHandler(label, item, name, round = 0) {
+	getAttributeHandler(label, item, name, round = 0, options) {
 		const sheetView = this.getSheetView();
 
 		return (
 			<TextField
 				variant="outlined"
+				fullWidth
 				size="small"
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
@@ -102,6 +124,8 @@ export class GeometryProperties extends Component {
 					inputProps: {
 						onlyReference: false,
 						component: CellRangeComponent,
+						inputEditorType: options instanceof Array ? 'string' : options,
+						inputEditorOptions: options instanceof Array ? options : undefined,
 						sheetView,
 						range: this.getFormula(item.getAttributeAtPath(name).getExpression(), round)
 					}
@@ -110,25 +134,39 @@ export class GeometryProperties extends Component {
 		)
 	}
 
-	getPropertyHandler(label, handler, expression, round = 0) {
+	getError(label) {
+		const res = this.state.errors.filter(error => {
+			return error.label === label;
+		});
+
+		return res.length ? res[0] : undefined;
+	}
+
+	getPropertyHandler(label, handler, expression, validate, round = 0) {
 		const sheetView = this.getSheetView();
+		const error = this.getError(label);
 
 		return (
 			<TextField
 				key={label}
 				variant="outlined"
 				size="small"
+				fullWidth
+				error={error !== undefined}
+				helperText={error === undefined ? undefined : error.message}
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
-				onBlur={(event) => handler(event)}
+				onBlur={(event) => handler(event, error)}
 				InputLabelProps={{shrink: true}}
 				InputProps={{
 					inputComponent: MyInputComponent,
 					inputProps: {
+						label,
+						validate,
 						onlyReference: false,
 						component: CellRangeComponent,
 						sheetView,
-						range: this.getFormula(expression, round)
+						range: error ? error.value : this.getFormula(expression, round)
 					}
 				}}
 			/>
@@ -251,6 +289,70 @@ export class GeometryProperties extends Component {
 		graphManager.synchronizedExecute(cmd);
 	}
 
+	handleName = (event) => {
+		if (this.getError('GraphItemProperties.Name')) {
+			return;
+		}
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+
+		const cmd = new JSG.SetNameCommand(item, expr.expression);
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	validateCoordinate = (value, label) => {
+		if (!JSG.Numbers.isNumber(Number(value))) {
+			if (!this.getError(label)) {
+				this.state.errors.push({
+					value,
+					label,
+					message: intl.formatMessage({ id: 'Alert.InvalidNumber' }, {})
+				});
+				this.setState({ errors: this.state.errors });
+			}
+			return false;
+		}
+
+		const error = this.getError(label);
+		if (error) {
+			JSG.Arrays.remove(this.state.errors, error);
+			this.setState({errors : this.state.errors});
+		}
+
+		return true;
+	};
+
+	validateName = (name, label) => {
+		const item = this.props.view.getItem();
+		let used = false;
+
+		JSG.GraphUtils.traverseItem(graphManager.getGraph(), litem => {
+			if (item !== litem && name === litem.getName().getValue()) {
+				used = true;
+			}
+		}, false);
+
+		if (used || name === '') {
+			if (!this.getError(label)) {
+				this.state.errors.push({
+					value: name,
+					label,
+					message: intl.formatMessage({ id: 'Alert.SheetDoubleName' }, {})
+				});
+				this.setState({ errors: this.state.errors });
+			}
+			return false;
+		}
+
+		const error = this.getError(label);
+		if (error) {
+			JSG.Arrays.remove(this.state.errors, error);
+			this.setState({errors : this.state.errors});
+		}
+
+		return true;
+	}
+
 	handleRotationCenter = (event) => {
 		const item = this.props.view.getItem();
 		const pin = item.getPin();
@@ -322,6 +424,13 @@ export class GeometryProperties extends Component {
 	}
 
 	handleText = (event) => {
+		const item = this.props.view.getItem();
+		const expr = this.getExpression(item, event);
+		const cmd = new JSG.SetTextCommand(item, item.getText(), expr.expression);
+		graphManager.synchronizedExecute(cmd);
+	}
+
+	handleType = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
 		const cmd = new JSG.SetTextCommand(item, item.getText(), expr.expression);
@@ -422,6 +531,19 @@ export class GeometryProperties extends Component {
 		return ret;
 	}
 
+	getLayoutMode(item, name) {
+		return item.getAttributeAtPath(name).getValue();
+	}
+
+	handleLayoutMode = (event, item, name, expr) => {
+		const cmd = new JSG.SetAttributeAtPathCommand(item, name, expr);
+
+		graphManager.synchronizedExecute(cmd);
+		this.setState({
+			dummy: Math.random()
+		})
+	};
+
 	render() {
 		const sheetView = this.getSheetView();
 		if (!sheetView) {
@@ -430,16 +552,21 @@ export class GeometryProperties extends Component {
 		const item = this.props.view.getItem();
 		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		return (
-			<FormGroup>
-				{this.getPropertyHandler(line ? "GraphItemProperties.StartX" : "GraphItemProperties.HorizontalPosition", this.handleX, this.getX())}
-				{this.getPropertyHandler(line ? "GraphItemProperties.StartY" : "GraphItemProperties.VerticalPosition", this.handleY, this.getY())}
-				{this.getPropertyHandler(line ? "GraphItemProperties.EndX" : "GraphItemProperties.Width", this.handleWidth, this.getWidth())}
-				{this.getPropertyHandler(line ? "GraphItemProperties.EndY" : "GraphItemProperties.Height", this.handleHeight, this.getHeight())}
-				{line ? null : this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), 2)}
+			<FormGroup
+				style={{
+					width: '100%'
+				}}
+			>
+				{this.getPropertyHandler(line ? "GraphItemProperties.StartX" : "GraphItemProperties.HorizontalPosition", this.handleX, this.getX(), this.validateCoordinate)}
+				{this.getPropertyHandler(line ? "GraphItemProperties.StartY" : "GraphItemProperties.VerticalPosition", this.handleY, this.getY(), this.validateCoordinate)}
+				{this.getPropertyHandler(line ? "GraphItemProperties.EndX" : "GraphItemProperties.Width", this.handleWidth, this.getWidth(), this.validateCoordinate)}
+				{this.getPropertyHandler(line ? "GraphItemProperties.EndY" : "GraphItemProperties.Height", this.handleHeight, this.getHeight(), this.validateCoordinate)}
+				{line ? null : this.getPropertyHandler("GraphItemProperties.Rotation", this.handleRotation, item.getAngle(), undefined, 2)}
 				{line ? null : (
 					<TextField
 						variant="outlined"
 						size="small"
+						fullWidth
 						margin="normal"
 						select
 						value={this.getRotationCenter()}
@@ -477,12 +604,24 @@ export class GeometryProperties extends Component {
 						</MenuItem>
 					</TextField>
 				)}
+				{this.getPropertyHandler("GraphItemProperties.Name", this.handleName, item.getName(), this.validateName)}
 				{item.getShape() instanceof JSG.PolygonShape ? (
 					this.getPropertyHandler("GraphItemProperties.PointRange", this.handlePointRange, item.getShape().getSource())
 				) : null}
-				{item instanceof JSG.TextNode ? (
-					this.getPropertyHandler("GraphItemProperties.Text", this.handleText, item.getText())
-				) : null}
+				{item instanceof JSG.TextNode ? [
+					this.getPropertyHandler("GraphItemProperties.Text", this.handleText, item.getText()),
+					this.getAttributeHandler("GraphItemProperties.Type", item, 'GRAPHITEM:type', 0, [
+						{ value: '0', label: 'GraphItemProperties.View'},
+						{ value: '1', label: 'GraphItemProperties.Edit'},
+						{ value: '2', label: 'GraphItemProperties.Select'},
+						{ value: '3', label: 'GraphItemProperties.SelectEdit'},
+					]),
+					this.getAttributeHandler("GraphItemProperties.ReturnAction", item, 'GRAPHITEM:returnaction', 0, [
+						{ value: '0', label: 'GraphItemProperties.NewLine'},
+						{ value: '1', label: 'GraphItemProperties.AcceptValue'},
+					]),
+					this.getAttributeHandler("GraphItemProperties.OptionsRange", item, 'GRAPHITEM:optionsrange'),
+				] : null}
 				{(item instanceof JSG.SheetButtonNode) ||
 				(item instanceof JSG.SheetSliderNode) ||
 				(item instanceof JSG.SheetKnobNode) ||
@@ -501,6 +640,55 @@ export class GeometryProperties extends Component {
 				{(item instanceof JSG.SheetKnobNode) ? [
 					this.getAttributeHandler("GraphItemProperties.StartAngle", item, 'start', 2),
 					this.getAttributeHandler("GraphItemProperties.EndAngle", item, 'end', 2),
+				] : null}
+				{(item instanceof JSG.StreamSheet) ? [
+					this.getAttributeHandler("GraphItemProperties.SourceRange", item, 'range')
+				] : null}
+				{(item instanceof JSG.LayoutNode) ? [
+					<TextField
+						variant="outlined"
+						size="small"
+						fullWidth
+						margin="normal"
+						select
+						value={this.getLayoutMode(item, 'layoutmode')}
+						onChange={event => this.handleLayoutMode(event, item, 'layoutmode', new JSG.StringExpression(event.target.value))}
+						label={
+							<FormattedMessage id="GraphItemProperties.LayoutMode" defaultMessage="Layout Mode" />
+						}
+					>
+						<MenuItem value="left">
+							<FormattedMessage id="GraphItemProperties.LayoutLeft" defaultMessage="Left"/>
+						</MenuItem>
+						<MenuItem value="center">
+							<FormattedMessage id="GraphItemProperties.LayoutCenter" defaultMessage="Center"/>
+						</MenuItem>
+						<MenuItem value="resize">
+							<FormattedMessage id="GraphItemProperties.LayoutResize" defaultMessage="Resize"/>
+						</MenuItem>
+					</TextField>,
+					<TextField
+						variant="outlined"
+						fullWidth
+						size="small"
+						margin="normal"
+						value={this.getLayoutMode(item, 'minwidth')}
+						onChange={event => this.handleLayoutMode(event, item, 'minwidth', new JSG.NumberExpression(event.target.value))}
+						label={
+							<FormattedMessage id="GraphItemProperties.MinimumWidth" defaultMessage="Minimum Width" />
+						}
+					/>,
+					<TextField
+						variant="outlined"
+						fullWidth
+						size="small"
+						margin="normal"
+						value={this.getLayoutMode(item, 'maxwidth')}
+						onChange={event => this.handleLayoutMode(event, item, 'maxwidth', new JSG.NumberExpression(event.target.value))}
+						label={
+							<FormattedMessage id="GraphItemProperties.MaximumWidth" defaultMessage="Maximum Width" />
+						}
+					/>
 				] : null}
 			</FormGroup>
 		);

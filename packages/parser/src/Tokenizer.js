@@ -115,7 +115,6 @@ function isUnitOperator(c) {
 }
 
 function isValidIdentifier(_ch) {
-	let valid = true;
 	switch (_ch) {
 	case KEY_CODES.QUOTE:
 	case KEY_CODES.LEFT_QUOTE:
@@ -133,12 +132,10 @@ function isValidIdentifier(_ch) {
 	case KEY_CODES.BSLASH:
 	case KEY_CODES.PARAM_SEP:
 	// case POINT: <-- we use it e.g. for attribute IDs: model.attributes
-		valid = false;
-		break;
+		return false;
 	default:
-		valid = true;
+		return true;
 	}
-	return !!valid;
 }
 function precedenceOfBinary(op) {
 	let prec = 0;
@@ -150,9 +147,13 @@ function precedenceOfBinary(op) {
 	return prec;
 }
 
-function isOperator(c1, c2) {
+function validateBinaryOperator(str) {
+	return isBinaryOperatorStr(str) ? str : undefined;
+}
+function getBinaryOperator(c1, c2) {
 	const op = String.fromCharCode(c1);
-	return isBinaryOperatorStr(op) || (c2 ? isBinaryOperatorStr(op + String.fromCharCode(c2)) : false);
+	return validateBinaryOperator(op) || (c2 && validateBinaryOperator(op + String.fromCharCode(c2)));
+	// return isBinaryOperatorStr(op) || (c2 ? isBinaryOperatorStr(op + String.fromCharCode(c2)) : false);
 }
 
 function parseConditionPart() {
@@ -345,7 +346,11 @@ function parseIdentifier(prefix) {
 		ch = expr.charCodeAt(index);
 		index += 1;
 		const ch2 = expr.charCodeAt(index);
-		if (ch === KEY_CODES.QMARK || !isValidIdentifier(ch) || isOperator(ch, ch2)) {
+		const op = getBinaryOperator(ch, ch2);
+		if (ch === KEY_CODES.QMARK
+			|| !isValidIdentifier(ch)
+			|| (op && !ctxt.isFunctionPrefix(`${identifier}${op}`, expr, token.start))) {
+			// || (op && !ctxt.isFunctionPrefix(`${identifier}${op}`), expr, token.start)) {
 			break;
 		}
 		identifier += String.fromCharCode(ch);

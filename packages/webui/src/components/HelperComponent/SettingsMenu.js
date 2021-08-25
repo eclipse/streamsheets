@@ -41,6 +41,7 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import Typography from '@material-ui/core/es/Typography/Typography';
 import {Assignment, ExitToApp, Info, Security, Settings} from '@material-ui/icons';
+import PremiumVersionIcon from '@material-ui/icons/VerifiedUser';
 
 import * as Actions from '../../actions/actions';
 import {graphManager} from '../../GraphManager';
@@ -50,6 +51,16 @@ import ListItemText from "@material-ui/core/ListItemText";
 
 const VERSION = process.env.REACT_APP_VERSION || '2.3';
 // const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
+
+const isPremiumLicense = (license) => license && license.edition === 'pro';
+
+const getPremium = () => {
+	return (
+		<span>
+			<PremiumVersionIcon fontSize="small" style={{ color: '#ffc107', verticalAlign: 'middle' }} /> Premium
+		</span>
+	);
+};
 
 /**
  * A modal dialog can only be closed by selecting one of the actions.
@@ -152,6 +163,12 @@ export class SettingsMenu extends React.Component {
 	handleTabChange = (event, tab) => {
 		this.setState({tab})
 	};
+
+	getLicenseValidUntil = (daysLeft) => {
+		const date = new Date();
+		date.setDate(date.getDate() + daysLeft);
+		return date.toLocaleDateString();
+	}
 
 	async handleLanguageChange(event) {
 		const locale = event.target.value;
@@ -446,6 +463,93 @@ export class SettingsMenu extends React.Component {
 							{" "}
 							{VERSION}
 						</Typography>
+						{/* <Typography variant="subtitle2" style={{marginBottom: '15px', marginTop: '10px'}}>
+							{
+								this.props.meta.licenseInfo &&
+								this.props.meta.licenseInfo.daysLeft &&
+								<React.Fragment>
+									<FormattedMessage
+										id="License.validUntil"
+										defaultMessage="License valid until:"
+									/>
+									{" "}
+									{
+										this.getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)
+									}
+								</React.Fragment>
+							}
+						</Typography> */}
+
+						{this.props.meta.licenseInfo && (
+							<Table size="small">
+								<TableBody>
+									<TableRow>
+										<TableCell>
+											<b>
+												<FormattedMessage
+													id="License.edition"
+													defaultMessage="Edition"
+												/>
+											</b>
+										</TableCell>
+										<TableCell>{isPremiumLicense(this.props.meta.licenseInfo) ? getPremium() : this.props.meta.licenseInfo.edition}</TableCell>
+									</TableRow>
+									{isPremiumLicense(this.props.meta.licenseInfo) && (
+										<TableRow>
+											<TableCell>
+												<b>
+													<FormattedMessage
+														id="License.validUntil"
+														defaultMessage="License valid until"
+													/>
+												</b>
+											</TableCell>
+											<TableCell>{this.getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)}</TableCell>
+										</TableRow>
+									)}
+									{isPremiumLicense(this.props.meta.licenseInfo) && (
+										<TableRow>
+											<TableCell>
+												<b>
+													<FormattedMessage
+														id="License.issuedBy"
+														defaultMessage="Issued by"
+													/>
+												</b>
+											</TableCell>
+											<TableCell>{this.props.meta.licenseInfo.issuedBy}</TableCell>
+										</TableRow>
+									)}
+									{isPremiumLicense(this.props.meta.licenseInfo) && (
+										<TableRow>
+											<TableCell>
+												<b>
+													<FormattedMessage
+														id="License.issuedTo"
+														defaultMessage="Issued to"
+													/>
+												</b>
+											</TableCell>
+											<TableCell>{this.props.meta.licenseInfo.issuedTo}</TableCell>
+										</TableRow>
+									)}
+									{isPremiumLicense(this.props.meta.licenseInfo) && (
+										<TableRow>
+											<TableCell>
+												<b>
+													<FormattedMessage
+														id="License.maxInstallations"
+														defaultMessage="Maximum installations"
+													/>
+												</b>
+											</TableCell>
+											<TableCell>{this.props.meta.licenseInfo.maxInstallations}</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+					)}
+						<br />
 						<Table size="small">
 							<TableHead>
 								<TableRow>

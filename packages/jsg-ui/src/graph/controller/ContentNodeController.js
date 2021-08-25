@@ -8,13 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { Event, NotificationCenter, StreamSheet, WorksheetNode } from '@cedalo/jsg-core';
+import { Event, NotificationCenter, StreamSheet, StreamSheetWrapper, WorksheetNode } from '@cedalo/jsg-core';
 import NodeController from './NodeController';
 import GraphItemController from './GraphItemController';
 import StreamSheetView from '../view/StreamSheetView';
 import WorksheetView from '../view/WorksheetView';
 import ContentPaneView from '../view/ContentPaneView';
 import ContentNodeView from '../view/ContentNodeView';
+import StreamSheetWrapperView from '../view/StreamSheetWrapperView';
 
 class ContentPaneController extends GraphItemController {
 	createFeedback() {
@@ -85,6 +86,9 @@ class ContentNodeController extends NodeController {
 		}
 		if (model instanceof WorksheetNode) {
 			return new WorksheetView(model);
+		}
+		if (model instanceof StreamSheetWrapper) {
+			return new StreamSheetWrapperView(model);
 		}
 
 		return new ContentNodeView(model, this._viewer.getCoordinateSystem());

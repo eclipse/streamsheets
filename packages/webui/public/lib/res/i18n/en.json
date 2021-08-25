@@ -17,6 +17,8 @@
   "Summary": "Summary",
   "More Info": "More Info",
   "Reset Zoom": "Reset Zoom",
+  "Result": "Result",
+  "MaxDataViewRows": "Display is limited to 100 rows...",
   "Increase": "Increase",
   "Decrease": "Decrease",
   "Total": "Total"

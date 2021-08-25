@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -83,6 +83,8 @@ class Field {
 		this.secret = definition.secret;
 		this.value = definition.value;
 		this.advanced = definition.advanced === true;
+		this.basePath = definition.basePath;
+		this.baseValue = null;
 	}
 
 	toJSON() {
@@ -99,7 +101,8 @@ class Field {
 			value: this.value,
 			advanced: this.advanced,
 			disabled: !!this._disabled,
-			help: this._help
+			help: this._help,
+			basePath: this.basePath
 		};
 	}
 
@@ -135,6 +138,13 @@ class Field {
 
 	get value() {
 		return this._value;
+	}
+
+	getBaseValue(model) {
+		if (!this.basePath) {
+			return null;
+		}
+		return model.connector.getFieldValue(this.basePath);
 	}
 
 	isShow(model) {
@@ -229,7 +239,7 @@ class Field {
 			}
 			return this._help[locale];
 		}
-		return null;
+		return '';
 	}
 
 	getLabel(locale = 'en') {

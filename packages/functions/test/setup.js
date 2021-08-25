@@ -33,4 +33,5 @@ const helperFunctions = {
 };
 
 // setup parser and its context...
-Object.assign(SheetParser.context.functions, functions, helperFunctions);
+SheetParser.context.updateFunctions(Object.assign({}, functions, helperFunctions));
+

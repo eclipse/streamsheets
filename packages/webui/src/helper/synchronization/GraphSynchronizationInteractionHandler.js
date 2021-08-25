@@ -205,6 +205,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 
 	isShapeChangingCommand(command) {
 		return (command instanceof JSG.PasteCellsFromClipboardCommand) ||
+			((command instanceof JSG.CompoundCommand) && command.hasCommands() && (command.commands[0] instanceof JSG.SetNameCommand)) ||
 			(command instanceof JSG.DeleteCellsCommand) ||
 			(command instanceof JSG.InsertCellsCommand);
 	}
@@ -217,14 +218,21 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 			return item;
 		}
 
-		if (command instanceof JSG.ZoomChartCommand) {
+		if (command instanceof JSG.ZoomChartCommand ||
+			command instanceof JSG.SetCellsCommand) {
 			return false;
 		}
-		if (command instanceof JSG.PasteItemsCommand) {
+		if ((command instanceof JSG.PasteItemsCommand) ||
+			(command instanceof JSG.SetTextCommand) ||
+			(command instanceof JSG.SetLayoutSectionCommand) ||
+			(command instanceof JSG.SetPlotDataCommand)) {
 			return true;
 		}
 		if (command instanceof JSG.AddItemCommand) {
 			return isShape(command._parent);
+		}
+		if (command instanceof JSG.CompoundCommand) {
+			return this.isShapeCommand(command.commands[0]);
 		}
 
 		const selection = this.viewer.getSelection();
@@ -246,6 +254,9 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 	}
 
 	getStreamSheetIdFromProcessSheet(processSheet) {
+		if (processSheet && processSheet.sourceSheet) {
+			processSheet = processSheet.sourceSheet;
+		}
 		const processSheetContainer = processSheet && processSheet.getStreamSheetContainer();
 		return (processSheetContainer) ?
 			processSheetContainer.getStreamSheetContainerAttributes().getSheetId().getValue() : undefined;
@@ -256,6 +267,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		const state = JSG.drawingDisabled;
 		JSG.setDrawingDisabled(true);
 		this.commandStack.execute(cmd);
+		cmd.sendNotification();
 		if (completionfunc !== undefined) {
 			completionfunc.call(this, cmd, this.viewer);
 		}
@@ -286,7 +298,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				if (!command.isRequest) {
 					Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, true, false);
 				}
-				if (commandJSON.name !== 'command.PasteCellsFromClipboardCommand') {
+				if (this.isShapeChangingCommand(command)) {
 					this.updateGraphItems(true);
 				}
 			}
@@ -304,6 +316,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		JSG.setDrawingDisabled(true);
 		if (command !== undefined) {
 			command.undo();
+			command.sendNotification();
 			const selection = [];
 			command.doAfterUndo(selection, this.viewer);
 			if (selection.length > 0) {
@@ -337,7 +350,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 				if (!command.isRequest) {
 					Actions.sendCommand(this.graphWrapper.id, commandJSON, this.graphWrapper.machineId, false, true);
 				}
-				if (commandJSON.name !== 'command.PasteCellsFromClipboardCommand') {
+				if (this.isShapeChangingCommand(command)) {
 					this.updateGraphItems(false);
 				}
 			}
@@ -356,6 +369,7 @@ export default class GraphSynchronizationInteractionHandler extends InteractionH
 		JSG.setDrawingDisabled(true);
 		if (command !== undefined) {
 			command.redo();
+			command.sendNotification();
 			const selection = [];
 			command.doAfterRedo(selection, this.viewer);
 			if (selection.length > 0) {

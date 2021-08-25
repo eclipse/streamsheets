@@ -72,7 +72,7 @@ class Group extends Node {
 		// we store pin, angle and size of each item for later restore...
 
 		const save = (group) => {
-			const items = group.getItems();
+			const items = group.subItems;
 			const info = {
 				pin: group.getPin().copy(),
 				size: group.getSize(true).copy(),
@@ -102,7 +102,7 @@ class Group extends Node {
 			group.setSizeTo(linfo.size);
 			group.setAngle(linfo.angle);
 
-			const items = group.getItems();
+			const items = group.subItems;
 			let subinfo;
 
 			items.forEach((item, i) => {
@@ -142,7 +142,7 @@ class Group extends Node {
 		const sizes = [];
 		let size;
 
-		this.getItems().forEach((item) => {
+		this.subItems.forEach((item) => {
 			// get pins and sizes
 			pin = item.getPinPoint();
 			pin.x += oldPin.x - oldSize.x / 2;
@@ -165,7 +165,7 @@ class Group extends Node {
 		const groupHeight = newbox.getHeight();
 		const Expression = NumberExpression;
 
-		this.getItems().forEach((item, i) => {
+		this.subItems.forEach((item, i) => {
 			// get origin
 			pin = pins[i];
 
@@ -199,7 +199,7 @@ class Group extends Node {
 
 	_calcBBox(reusebox) {
 		// bounding box is total box of all items:
-		const items = this.getItems();
+		const items = this.subItems;
 		let i;
 		const n = items.length;
 		const newbox = reusebox || new BoundingBox();

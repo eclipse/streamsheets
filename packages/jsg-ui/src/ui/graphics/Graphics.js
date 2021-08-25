@@ -250,6 +250,7 @@ class Graphics {
 	 * @method restore
 	 */
 	restore() {
+		this._lastFont = undefined;
 		this._context2D.restore();
 		this.m = this.translateStack[this.translateStack.length - 1];
 		this.translateStack.pop();
@@ -761,7 +762,8 @@ class Graphics {
 			}
 		}
 
-		if (font !== this._context2D.font) {
+		if (font !== this._lastFont) {
+			this._lastFont = font;
 			this._context2D.font = font;
 		}
 
@@ -779,6 +781,7 @@ class Graphics {
 	}
 
 	setFontTo(font) {
+		this._lastFont = font;
 		this._context2D.font = font;
 	}
 
@@ -2438,12 +2441,17 @@ class Graphics {
 	 * @private
 	 */
 	getImage(url) {
+		// let image;
+		// if (url.indexOf('raw:') !== -1) {
+		// const arrayBufferView = new Uint8Array( url, 4 );
+		// 	const blob = new Blob( [ bytes ], { type: "image/png" } );
+		// 	const urlCreator = window.URL || window.webkitURL;
+		// 	const imageUrl = urlCreator.createObjectURL( blob );
+		// 	image = new Image();
+		// 	image.src = imageUrl;
+		// } else {
 		let image = JSG.imagePool.get(url);
-		if (
-			image === undefined ||
-			image.complete === false ||
-			(typeof image.naturalWidth !== 'undefined' && image.naturalWidth === 0)
-		) {
+		if (image === undefined || image.complete === false || (typeof image.naturalWidth !== 'undefined' && image.naturalWidth === 0)) {
 			if (image && image._backupImage !== undefined) {
 				image = image._backupImage;
 			} else {

@@ -91,11 +91,13 @@ const noRequest = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.run(() => AsyncRequest.create(sheet, noRequest.context).reqId());
-SheetParser.context.functions['TEST.REQUEST'] = testRequest;
-SheetParser.context.functions['TEST.REQUEST.FAILING'] = testRequestFailing;
-SheetParser.context.functions['TEST.REQUEST.RESPONSE.FAILING'] = testRequestResponseFailing;
-SheetParser.context.functions['TEST.NOREQUEST'] = noRequest;
-SheetParser.context.functions['TEST.SEQUENTIALREQUEST'] = sequentialRequest;
+SheetParser.context.updateFunctions({
+	'TEST.REQUEST': testRequest,
+	'TEST.REQUEST.FAILING': testRequestFailing,
+	'TEST.REQUEST.RESPONSE.FAILING': testRequestResponseFailing,
+	'TEST.NOREQUEST': noRequest,
+	'TEST.SEQUENTIALREQUEST': sequentialRequest
+});
 
 beforeEach(() => {
 	error = undefined;

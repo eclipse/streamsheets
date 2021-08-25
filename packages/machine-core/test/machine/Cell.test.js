@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { description } = require('./utils');
-const { Cell, Machine, SheetParser, StreamSheet } = require('../..');
-const { Term } = require('@cedalo/parser');
 const { FunctionErrors } = require('@cedalo/error-codes');
+const { Term } = require('@cedalo/parser');
+const { Cell, Machine, SheetParser, StreamSheet } = require('../..');
+const { description } = require('./utils');
 
 describe('Cell', () => {
 	const streamsheet = new StreamSheet();
@@ -123,7 +123,7 @@ describe('Cell', () => {
 			const sheet1 = new StreamSheet().sheet.load({
 				cells: { 
 					A1: 'key', B1: 42,
-					A2: {formula: 'JSON(A1:B1)'},
+					A2: {formula: 'json(A1:B1)'},
 					A3: {formula: 'A2'}
 				}
 			});

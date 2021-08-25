@@ -16,7 +16,7 @@
  const VERSION = require('../../package.json').version;
  const BUILD_NUMBER = require('../../meta.json').buildNumber;
  const ServerCommandsRequestHandlers = require('./ServerCommandsRequestHandlers');
- 
+
  const addAll = (fromMap, toMap) => {
 	 fromMap.forEach((value, key) => toMap.set(key, value));
 	 return toMap;
@@ -33,15 +33,15 @@
 			 return t;
 	 }
  };
- 
+
  const getUserId = (request) => {
 	 const { session = {} } = request;
 	 const user = session.user;
 	 return user && user.userId;
  };
- 
+
  const fixCellRange = (str) => (str && str.indexOf(':') < 0 ? `${str}:${str}` : str);
- 
+
  const parseExpression = trycatch((expr) => JSON.parse(expr), logger);
  const getCellDescriptorFromCommand = (command, undo) => {
 	 const { json, expr } = undo ? command.undo : command;
@@ -57,7 +57,7 @@
 	 }
 	 return undefined;
  };
- 
+
  const filterRequestCellDescriptors = (descriptors = []) =>
 	 descriptors.filter((descr) => {
 		 const { value, formula, type } = descr;
@@ -65,7 +65,7 @@
 		 // filter cells without value, formula or type...
 		 return value != null || formula || (type && type !== 'undefined' && type !== 'null');
 	 });
- 
+
  const descriptorsToCellDescriptorsObject = (descriptors = []) => {
 	 const cells = {};
 	 descriptors.forEach((descr) => {
@@ -75,7 +75,7 @@
 	 });
 	 return cells;
  };
- 
+
  const handleRequest = async (handler, machineserver, request, type, props = {}) => {
 	 logger.info(`handle request: ${type}...`);
 	 const runner = machineserver.getMachineRunner(request.machineId);
@@ -89,7 +89,7 @@
 	 logger.error(`handle request failed. no machine with id ${request.machineId}!`);
 	 throw handler.reject(request, `No machine found with id '${request.machineId}'!`);
  };
- 
+
  class GetMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.GET_MACHINE_MESSAGE_TYPE);
@@ -105,12 +105,12 @@
 		 throw this.reject(request, `No machine found with id '${request.machineId}'!`);
 	 }
  }
- 
+
  class UnloadMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.UNLOAD_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const machineId = request.machineId;
 		 const result = { machine: { id: machineId, unloaded: true } };
@@ -120,12 +120,12 @@
 		 return this.confirm(request, result);
 	 }
  }
- 
+
  class DeleteMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.DELETE_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const machineId = request.machineId;
 		 const result = { machine: { id: machineId, deleted: true } };
@@ -135,42 +135,42 @@
 		 return this.confirm(request, result);
 	 }
  }
- 
+
  class StartMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.START_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 return handleRequest(this, machineserver, request, 'start', undefined);
 	 }
  }
- 
+
  class PauseMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.PAUSE_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 return handleRequest(this, machineserver, request, 'pause', undefined);
 	 }
  }
- 
+
  class StopMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.STOP_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 return handleRequest(this, machineserver, request, 'stop', undefined);
 	 }
  }
- 
+
  class RenameMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.RENAME_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver, repositoryManager) {
 		 const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(
 			 request.machineId,
@@ -185,23 +185,23 @@
 		 });
 	 }
  }
- 
+
  class UpdateMachineImageRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.UPDATE_MACHINE_IMAGE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const { previewImage, titleImage } = request;
 		 return handleRequest(this, machineserver, request, 'update', { props: { previewImage, titleImage } });
 	 }
  }
- 
+
  class UpdateStreamSheetStreamsRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.EVENTS.STREAMSHEET_STREAM_UPDATE_EVENT); // FIXME: in protocols
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 // const settings = request.streams; // FIXME: replace and fix in client etc after demo
 		 const { streamsheetId, streams } = request;
@@ -211,22 +211,22 @@
 		 });
 	 }
  }
- 
+
  class StepMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.STEP_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 return handleRequest(this, machineserver, request, 'step', undefined);
 	 }
  }
- 
+
  class SubscribeMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.SUBSCRIBE_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const clientId = request.sender ? request.sender.id : undefined;
 		 return handleRequest(this, machineserver, request, 'subscribe', {
@@ -234,48 +234,48 @@
 		 });
 	 }
  }
- 
+
  /** @deprecated REVIEW: is this really good? will affect all clients, even those which can handle fast updates... */
  class SetMachineUpdateIntervalRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_MACHINE_UPDATE_INTERVAL_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const stepUpdateInterval = request.streamsheetStepInterval || -1;
 		 return handleRequest(this, machineserver, request, 'updateMachineMonitor', { props: { stepUpdateInterval } });
 	 }
  }
- 
+
  class SetMachineCycleTimeRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_MACHINE_CYCLE_TIME_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 return handleRequest(this, machineserver, request, 'update', {
 			 props: { cycletime: request.cycleTime }
 		 });
 	 }
  }
- 
+
  class SetMachineLocaleRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_MACHINE_LOCALE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 return handleRequest(this, machineserver, request, 'update', {
 			 props: { locale: request.locale }
 		 });
 	 }
  }
- 
+
  class MachineUpdateExtensionSettingsRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_UPDATE_EXTENSION_SETTINGS);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const { extensionId, settings } = request;
 		 return handleRequest(this, machineserver, request, 'extensionUpdate', {
@@ -286,12 +286,12 @@
 		 });
 	 }
  }
- 
+
  class MachineUpdateSettingsRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_UPDATE_SETTINGS);
 	 }
- 
+
 	 async handle(request, machineserver, repositoryManager) {
 		 const { settings = {} } = request;
 		 const { cycleTime, isOPCUA, locale, newName, view } = settings;
@@ -317,12 +317,12 @@
 		 });
 	 }
  }
- 
+
  class UnsubscribeMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.UNSUBSCRIBE_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const { machineId, sender } = request;
 		 const clientId = sender ? sender.id : undefined;
@@ -335,12 +335,12 @@
 		 }
 	 }
  }
- 
+
  class CreateStreamSheetRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.CREATE_STREAMSHEET_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const { machineId } = request;
 		 const userId = getUserId(request);
@@ -350,18 +350,19 @@
 			 // REVIEW: for what?
 			 result.position = request.position;
 			 result.activeItemId = request.activeItemId;
+			 result.sheetType = request.sheetType;
 			 return this.confirm(request, result);
 		 }
 		 // no runner, no machine:
 		 throw this.reject(request, `No machine found with id '${request.machineId}'!`);
 	 }
  }
- 
+
  class DeleteStreamSheetRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.DELETE_STREAMSHEET_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const { streamsheetId } = request;
 		 return handleRequest(this, machineserver, request, 'deleteStreamSheet', {
@@ -369,23 +370,23 @@
 		 });
 	 }
  }
- 
+
  class SetStreamSheetsOrderRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.STREAMSHEETS_ORDER_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const { streamsheetIDs } = request;
 		 return handleRequest(this, machineserver, request, 'setStreamSheetsOrder', { streamsheetIDs });
 	 }
  }
- 
+
  class OpenMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.OPEN_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 logger.info(`open machine: ${request.machineId}...`);
 		 try {
@@ -399,12 +400,12 @@
 		 }
 	 }
  }
- 
+
  class LoadMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver, repositoryManager) {
 		 logger.info(`load machine: ${request.machineId}...`);
 		 const { machineId, migrations, scope } = request;
@@ -430,19 +431,19 @@
 		 }
 	 }
  }
- 
+
  class LoadSubscribeMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE);
 	 }
- 
+
 	 createSubscribeRequest(response, loadRequest) {
 		 const { machine } = response || {};
 		 const { requestId, scope, sender, session } = loadRequest;
 		 const machineId = machine ? machine.id : undefined;
 		 return { type: 'subscribe', machineId, scope, session, sender, requestId }; // : IdGenerator.generate() };
 	 }
- 
+
 	 async send(request, machineserver) {
 		 try {
 			 const subscribeHandler = new SubscribeMachineRequestHandler();
@@ -459,12 +460,12 @@
 		 return result;
 	 }
  }
- 
+
  class LoadSheetCellsRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.LOAD_SHEET_CELLS);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 logger.info('LoadSheetCellsRequestHandler...');
 		 const { machineId, machineDescriptor, command } = request;
@@ -486,7 +487,7 @@
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.ADD_INBOX_MESSAGE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 logger.info('AddInboxMessageRequestHandler...');
 		 // messages = [ data1, data2,...]
@@ -516,12 +517,12 @@
 		 throw this.reject(request, `No machine found with id '${machineId}'!`);
 	 }
  }
- 
+
  class GetCellRawValueRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.GET_CELL_RAW_VALUE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const { machineId, reference, streamsheetId } = request;
 		 const runner = machineserver.getMachineRunner(machineId);
@@ -540,12 +541,12 @@
 		 throw this.reject(request, `No machine found with id '${machineId}'!`);
 	 }
  }
- 
+
  class SetNamedCellsRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_NAMED_CELLS);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 logger.info('SetNamedCellsRequestHandler...');
 		 // namedCells = { name: { newName, formula, value, type } }
@@ -567,13 +568,13 @@
 		 throw this.reject(request, `No machine found with id '${machineId}'!`);
 	 }
  }
- 
+
  // deprecated? corresponding message topic seems to be unused...
  class SetSheetCellsRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.SET_SHEET_CELLS);
 	 }
- 
+
 	 // TODO: maybe remove LoadSheetCells and handle that with a clear property within request...
 	 async handle(request, machineserver) {
 		 logger.info('SetSheetCellsRequestHandler...');
@@ -600,7 +601,7 @@
 		 throw this.reject(request, `No machine found with id '${request.machineId}'!`);
 	 }
  }
- 
+
  // DL-1668
  class SetCellsCommandRequestHandler {
 	 toReferences(all, descr) {
@@ -619,13 +620,13 @@
 		 });
 		 return cellDescriptors;
 	 }
- 
+
 	 async handleCommand(command, runner, streamsheetId, userId, undo) {
 		 const cellDescriptors = undo ? command.undo.cellDescriptors : command.cells;
 		 const cells = this.adjustCellDescriptors(cellDescriptors);
 		 return runner.request('setCells', userId, { cells, streamsheetId });
 	 }
- 
+
 	 getRequest(command) {
 		 return {
 			 type: 'setCells',
@@ -634,7 +635,7 @@
 		 };
 	 }
  }
- 
+
  class SetCellDataCommandRequestHandler {
 	 async handleCommand(command, runner, streamsheetId, userId, undo) {
 		 let result = {};
@@ -660,14 +661,14 @@
 		 return result;
 	 }
  }
- 
+
  class SetGraphItemsCommandRequestHandler {
 	 async handleCommand(command, runner, streamsheetId, userId /* , undo */) {
 		 const { streamsheetIds, graphItems } = command;
 		 return runner.request('replaceGraphItems', userId, { graphItems, streamsheetIds });
 	 }
  }
- 
+
  class SetCellLevelsCommandRequestHandler {
 	 async handleCommand(command, runner, streamsheetId, userId) {
 		 return command.levels
@@ -675,7 +676,7 @@
 			 : { warning: 'No levels object within SetCellLevelsCommand!' };
 	 }
  }
- 
+
  class DeleteCellContentCommandRequestHandler {
 	 getCellRanges(reference) {
 		 let cellranges;
@@ -710,7 +711,7 @@
 		 };
 	 }
  }
- 
+
  class ExecuteFunctionCommandRequestHandler {
 	 async handleCommand(command, runner, streamsheetId, userId) {
 		 return runner.request('executeFunction', userId, {
@@ -719,7 +720,7 @@
 		 });
 	 }
  }
- 
+
  class DeleteTreeItemCommandRequestHandler {
 	 async handleCommand(command, runner, streamsheetId, userId) {
 		 const cmdinfo = command.custom || {};
@@ -731,7 +732,7 @@
 		 });
 	 }
  }
- 
+
  class MarkCellValuesCommandRequestHandler {
 	 async handleCommand(command, runner, streamsheetId, userId) {
 		 return runner.request('markRequests', userId, {
@@ -752,7 +753,7 @@
 		 this.handlers = allHandlers;
 		 this.requestReducer = this.requestReducer.bind(this);
 	 }
- 
+
 	 sortCommands(cmd1, cmd2) {
 		 // command.MarkCellValuesCommand always first
 		 if (cmd1.name === 'command.MarkCellValuesCommand') return -1;
@@ -773,7 +774,7 @@
 			 : Promise.resolve({ error: 'ZoomChartCommand contains unsupported commands!' });
 	 }
  }
- 
+
  class UpdateSheetNamesCommandRequestHandler {
 	 mapCommand(command) {
 		 let cmd = {};
@@ -791,7 +792,7 @@
 		 }
 		 return cmd;
 	 }
- 
+
 	 async handleCommand(command, runner, streamsheetId, userId) {
 		 const namedCells = {};
 		 command.commands.forEach((cmd) => {
@@ -803,7 +804,7 @@
 			 : { warning: 'Ignore UpdateSheetNamesCommand because it contains no update commands' };
 	 }
  }
- 
+
  class CommandRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.COMMAND_MESSAGE_TYPE);
@@ -827,7 +828,7 @@
 		 // include editable-web-component:
 		 // this.compoundCommandHandler = new CompoundCommandRequestHandler(this._commandRequestHandlers);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 const { command, machineId } = request;
 		 const streamsheetId = request.streamsheetId || command.streamsheetId;
@@ -846,18 +847,18 @@
 		 logger.info(`Ignore command "${command.name}"! No machine found for id ${machineId}.`);
 		 return this.confirm(request, { warning: `No machine found for id ${machineId}.` });
 	 }
- 
+
 	 async handleCommand(command, runner, streamsheetId, userId, undo) {
 		 // include editable-web-component:
 		 // const requestHandler = command.name === 'command.CompoundCommand'
 		 // 		? this.compoundCommandHandler
 		 // 		: this._commandRequestHandlers.get(command.name);
 		 // ~
- 
+
 		 // delete editable-web-component:
 		 const requestHandler = this._commandRequestHandlers.get(command.name);
 		 // ~
- 
+
 		 if (requestHandler) {
 			 const result = await requestHandler.handleCommand(command, runner, streamsheetId, userId, undo);
 			 return result;
@@ -866,12 +867,12 @@
 		 return { warning: `Unknown command: ${command.name}.` };
 	 }
  }
- 
+
  class MetaInformationRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.META_INFORMATION_MESSAGE_TYPE);
 	 }
- 
+
 	 handle(request /* , machineserver */) {
 		 logger.info('MetaInformationRequestHandler');
 		 return new Promise((resolve /* , reject */) => {
@@ -883,12 +884,12 @@
 		 });
 	 }
  }
- 
+
  class MachineActionRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.MACHINE_ACTION_MESSAGE_TYPE);
 	 }
- 
+
 	 async handle(request, machineserver) {
 		 logger.info('MachineActionRequestHandler');
 		 const { action, machineId } = request;
@@ -904,7 +905,7 @@
 		 return this.reject(request, `No machine found with id '${request.machineId}'.`);
 	 }
  }
- 
+
  module.exports = {
 	 CommandRequestHandler,
 	 AddInboxMessageRequestHandler,
@@ -938,4 +939,3 @@
 	 UnsubscribeMachineRequestHandler,
 	 UpdateMachineImageRequestHandler
  };
- 

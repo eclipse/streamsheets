@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -1061,12 +1061,12 @@ class ItemAttributes extends AttributeList {
 		return (editmask & mask) === mask;
 	}
 
-	setScaleType(type) {
-		this.setAttribute(ItemAttributes.SCALETYPE, type);
+	setLabel(type) {
+		this.setAttribute(ItemAttributes.LABEL, type);
 	}
 
-	getScaleType() {
-		return this.getAttribute(ItemAttributes.SCALETYPE);
+	getLabel() {
+		return this.getAttribute(ItemAttributes.LABEL);
 	}
 
 	setScaleShow(flag) {
@@ -1374,8 +1374,8 @@ class ItemAttributes extends AttributeList {
 		return 'editmask';
 	}
 
-	static get SCALETYPE() {
-		return 'scaletype';
+	static get LABEL() {
+		return 'label';
 	}
 
 	static get SCALESHOW() {
@@ -1453,7 +1453,7 @@ class ItemAttributes extends AttributeList {
 			new NumberAttribute(ItemAttributes.EDITMASK),
 			ItemAttributes.EditMask.NONE
 		);
-		addAttribute(new StringAttribute(ItemAttributes.SCALETYPE), 'top');
+		addAttribute(new StringAttribute(ItemAttributes.LABEL), '');
 		addAttribute(new BooleanAttribute(ItemAttributes.SCALESHOW), false);
 
 		return attributes.toTemplate(ItemAttributes.TemplateID);

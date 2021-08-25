@@ -15,12 +15,13 @@ class Operand {
 		let operand;
 		if (str.length > 0) {
 			if (isNaN(str)) {
-				if (str === false || str === true) {
-					operand = new Operand(Operand.TYPE.BOOL, Boolean(str));
-				} else if (str.toUpperCase() === 'FALSE') {
+				const upperStr = str.toUpperCase();
+				if (upperStr === 'FALSE') {
 					operand = new Operand(Operand.TYPE.BOOL, false);
-				} else if (str.toUpperCase() === 'TRUE') {
+				} else if (upperStr === 'TRUE') {
 					operand = new Operand(Operand.TYPE.BOOL, true);
+				// } else if (upperStr === 'NULL') {
+				// 	operand = Operand.UNDEF;
 				} else {
 					// eslint-disable-next-line no-use-before-define
 					operand = new StringOperand(str);
@@ -115,6 +116,15 @@ class StringOperand extends Operand {
 		return `"${this._value}"`;
 	}
 }
+class IdentifierOperand extends StringOperand {
+	copy() {
+		return new IdentifierOperand(this._value);
+	}
+
+	toString() {
+		return this._value;
+	}
+}
 
 // DL-2012
 const referenceIdentifierRegEx = /^[\w]+$/;
@@ -170,5 +180,6 @@ class Reference extends Operand {
 module.exports = {
 	Operand,
 	Reference,
-	StringOperand
+	StringOperand,
+	IdentifierOperand
 };

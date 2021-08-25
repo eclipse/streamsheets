@@ -10,28 +10,11 @@
  ********************************************************************************/
 const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { BinaryOperator, BoolOperator, UnaryOperator } = require('@cedalo/parser');
+const DotReferenceOperator = require('./DotReferenceOperator');
+const { calc, createErrorInfo, getTermValue } = require('./utils');
 
 const ERROR = FunctionErrors.code;
 const DIV0 = () => ErrorInfo.create(ERROR.DIV0);
-
-const termValue = (term, defval) => {
-	const val = term != null ? term.value : null;
-	return val != null ? val : defval;
-};
-
-const calc = (left, right, op) => {
-	left = left != null ? Number(left) : 0;
-	right = right != null ? Number(right) : 0;
-	return isNaN(left) || isNaN(right) ? ErrorInfo.create(ERROR.VALUE) : op(left, right);
-};
-
-
-const createErrorInfo = (error, term) => {
-	const errorInfo = error.isErrorInfo ? error : ErrorInfo.create(error);
-	if (errorInfo.paramIndex == null) return errorInfo.setParamIndex(term.toString());
-	if (term.name) return errorInfo.setFunctionName(term.name);
-	return errorInfo;
-};
 
 
 class SheetBinaryOperator extends BinaryOperator {
@@ -90,7 +73,7 @@ module.exports.ConcatOperator = class ConcatOperator extends SheetBinaryOperator
 	}
 
 	calc(left, right) {
-		return `${termValue(left, '')}${termValue(right, '')}`;
+		return `${getTermValue(left, '')}${getTermValue(right, '')}`;
 	}
 };
 
@@ -100,3 +83,5 @@ module.exports.AndOperator = class AndOperator extends SheetBoolOperator {
 		super('&&', (left, right) => left && right);
 	}
 };
+
+module.exports.DotOperator = DotReferenceOperator;

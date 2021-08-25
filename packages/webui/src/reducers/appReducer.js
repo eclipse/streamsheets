@@ -15,6 +15,7 @@ const defaultState = {
 	deviceRatio: true,
 	drawerOpen: false,
 	showStreamChartProperties: false,
+	showLayoutSectionProperties: false,
 	showViewModeProperties: false,
 	showViewMode: false,
 	showImportDialog: false,

@@ -148,7 +148,7 @@ class EventAttributes extends AttributeList {
 		addAttribute(new StringAttribute(EventAttributes.ONMOUSEDOWN), '');
 		addAttribute(new StringAttribute(EventAttributes.ONMOUSEUP), '');
 
-		return attributes.toTemplate(EventAttributes.Template_ID);
+		return attributes.toTemplate(EventAttributes.TemplateID);
 	}
 }
 

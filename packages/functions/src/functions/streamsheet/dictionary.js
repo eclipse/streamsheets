@@ -38,7 +38,7 @@ const createDictionaries = (range, byrow) => {
 	iterate.call(range, (cell, index, next) => {
 		// eslint-disable-next-line
 		arr = next ? (!keys.length ? keys : nextRow(values)) : (!values.length ? keys : arr);
-		arr.push(cell ? cell.value : '');
+		arr.push(cell ? cell.cellValue : '');
 	});
 	return createObjects(keys, values);
 };

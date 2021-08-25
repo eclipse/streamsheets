@@ -248,29 +248,28 @@ class GraphEditor {
 		this.getGraph().save(file);
 
 		// save all data uri images to restore them
-		file.writeStartElement('images');
-
-		GraphUtils.traverseItem(this.getGraph(), (item) => {
-			const pattern = item
-				.getFormat()
-				.getPattern()
-				.getValue();
-			if (pattern.indexOf('dataimage') !== -1) {
-				file.writeStartElement(pattern);
-				const image = JSG.imagePool.get(pattern);
-				if (image !== undefined) {
-					file.writeStartElement('data');
-					file.writeString(image.src);
-					file.writeEndElement();
-				}
-				file.writeEndElement();
-			}
-		});
+		// file.writeStartElement('images');
+		//
+		// GraphUtils.traverseItem(this.getGraph(), (item) => {
+		// 	const pattern = item
+		// 		.getFormat()
+		// 		.getPattern()
+		// 		.getValue();
+		// 	if (pattern.indexOf('dataimage') !== -1) {
+		// 		file.writeStartElement(pattern);
+		// 		const image = JSG.imagePool.get(pattern);
+		// 		if (image !== undefined) {
+		// 			file.writeStartElement('data');
+		// 			file.writeString(image.src);
+		// 			file.writeEndElement();
+		// 		}
+		// 		file.writeEndElement();
+		// 	}
+		// });
+		//
+		// file.writeEndElement();
 
 		file.writeEndElement();
-
-		file.writeEndElement();
-
 		file.writeEndDocument();
 
 		return file.flush();
@@ -309,7 +308,7 @@ class GraphEditor {
 		if (this.jsgShape) {
 			this.setDisplayMode(GraphSettings.DisplayMode.ENDLESS);
 		}
-		this._readImages(reader);
+		// this._readImages(reader);
 		this._readDocSettings(reader);
 	}
 

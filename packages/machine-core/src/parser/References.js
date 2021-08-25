@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -304,6 +304,58 @@ class MessageBoxReference extends AbstractReference {
 	}
 }
 
+class ShapeReference extends AbstractReference {
+	static fromString(str, scope, streamSheetId) {
+		let sheet = scope;
+		if (streamSheetId) {
+			const machine = scope.machine;
+			if (machine && machine.getStreamSheet) {
+				sheet = machine.getStreamSheet(streamSheetId);
+				if (!sheet) {
+					return undefined;
+				}
+				sheet = sheet.sheet;
+			}
+		}
+		const shape = sheet && sheet.shapes.getShapeByName(str);
+		return shape ? new ShapeReference(scope, str) : undefined;
+	}
+
+	constructor(scope, refstr /*, shape */) {
+		super();
+		this.scope = scope;
+		this._refstr = refstr;
+		this._streamsheetId = undefined;
+	}
+
+	get isShapeReference() {
+		return true;
+	}
+
+	get value() {
+		const shape = this.sheet.shapes.getShapeByName(this._refstr);
+		return shape || ERROR.REF;
+	}
+
+	copy() {
+		const ref = ShapeReference.fromString(this._refstr, this.scope);
+		ref._streamsheetId = this._streamsheetId;
+		return ref;
+	}
+
+	isTypeOf(type) {
+		return type === 'ShapeReference' || super.isTypeOf(type);
+	}
+
+	isEqualTo(operand) {
+		return operand.isShapeReference && operand._refstr === this._refstr;
+	}
+
+	toString() {
+		return this.description(this._refstr);
+	}
+}
+
 const referenceFromString = (str, scope) => {
 	// sheet reference
 	let streamsheetId;
@@ -320,6 +372,7 @@ const referenceFromString = (str, scope) => {
 	const reference =
 		NamedCellReference.fromString(str, scope) ||
 		MessageBoxReference.fromString(str, scope) ||
+		ShapeReference.fromString(str, scope, streamsheetId) ||
 		CellReference.fromString(str, scope, externalRef) ||
 		CellRangeReference.fromString(str, scope, externalRef);
 	if (reference) reference._streamsheetId = streamsheetId;
@@ -335,6 +388,7 @@ module.exports = {
 	CellRangeReference,
 	NamedCellReference,
 	MessageBoxReference,
+	ShapeReference,
 	referenceFromNode,
 	referenceFromString
 };

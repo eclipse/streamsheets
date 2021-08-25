@@ -17,7 +17,12 @@ const CELL_VALUE_REPLACEMENT = '{ JSON }';
 const isValueType = (term) => {
 	const type = term.operand.type;
 	// we treat unit terms as value types!
-	return term.isUnit || term.isError || !!(type && type !== Operand.TYPE.UNDEF && type !== Operand.TYPE.REFERENCE);
+	return (
+		term.isUnit ||
+		term.isError ||
+		term.isNullTerm ||
+		!!(type && type !== Operand.TYPE.UNDEF && type !== Operand.TYPE.REFERENCE)
+	);
 };
 
 const checkNaN = (value) => (typeof value === 'number' && Number.isNaN(value) ? 0 : value);
@@ -28,9 +33,10 @@ const checkTermValue = (term) => {
 	return value != null ? value : term.hasOperandOfType('CellReference') ? 0 : value;
 };
 const evaluate = (cell, newValue) => {
-	cell._isInited = true;
 	// remove any previous error
-	cell.setCellInfo('error', undefined);
+	const oldError = cell._info.error;
+	cell._info.error = undefined;
+	cell._isInited = true;
 	if (newValue != null) {
 		cell._value = checkNaN(newValue);
 		cell._cellValue = undefined;
@@ -40,9 +46,11 @@ const evaluate = (cell, newValue) => {
 		cell._cellValue = term && term.cellValue != null ? checkNaN(term.cellValue) : undefined;
 		// error handling
 		if (cell._value != null && cell._value.isErrorInfo) {
-			cell.setCellInfo('error', cell._value);
+			cell._info.error = cell._value;
 			cell._cellValue = cell._cellValue || cell._value.code;
-		} 
+		} else if(cell._cellValue && FunctionErrors.isError(cell._cellValue)) {
+			cell._info.error = oldError;
+		}
 	}
 	// DL-4088: treat error as false for if columns => should we generally return only true/false for IF
 	if (cell.col === -1 && FunctionErrors.isError(cell._value)) cell._value = false;
@@ -55,9 +63,11 @@ const limitString = (str, sheet) => {
 };
 
 // DL-4113 prevent displaying values like [object Object]...
-const valueDescription = (value) => {
-	if (Array.isArray(value)) return CELL_VALUE_REPLACEMENT;
+const valueDescription = (value, sheet) => {
+	if (value == null) return value;
 	if (isCellReference(value)) return value.value;
+	if (value.isSheetRange) return value.sheet !== sheet ? value.toReferenceString() : value.toString();
+	if (Array.isArray(value)) return CELL_VALUE_REPLACEMENT;
 	if (isType.object(value)) {
 		const descr = value.toString();
 		return descr.startsWith('[object Object]') ? CELL_VALUE_REPLACEMENT : descr;
@@ -83,6 +93,12 @@ const setTerm = (newTerm, cell) => {
 	}
 };
 
+const getRawType = (cell, valueDescr) => {
+	const value = cell.value;
+	if (FunctionErrors.isError(value)) return 'string';
+	return isCellReference(value) ? typeof valueDescr : typeof value;
+};
+
 const displayName = (term) => term && term.func && term.func.displayName;
 
 class Cell {
@@ -106,9 +122,9 @@ class Cell {
 
 	description() {
 		const term = this._term;
-		const value = valueDescription(this.cellValue);
+		const value = valueDescription(this.cellValue, this.sheet);
 		const descr = { formula: this.formula, value };
-		const rawtype = isCellReference(this.value) ? typeof value : typeof this.value;
+		const rawtype = getRawType(this, value);
 		// DL-4908: limit string values
 		if (this._sheet && rawtype === 'string') descr.value = limitString(value, this._sheet);
 		descr.type = term ? term.operand.type : typeof value;
@@ -169,13 +185,18 @@ class Cell {
 		this._info = Object.assign({}, obj);
 	}
 
+	get references() {
+		return this._references;
+	}
+
+	get sheet() {
+		return this._sheet;
+	}
+
 	get term() {
 		return this._term;
 	}
 
-	get references() {
-		return this._references;
-	}
 
 	set term(term) {
 		setTerm(term, this);
@@ -195,6 +216,11 @@ class Cell {
 	set value(newValue) {
 		//  valid until next evaluation
 		evaluate(this, newValue);
+	}
+
+	setInternalValue(newValue) {
+		this._info = {};
+		this._value = newValue;
 	}
 
 	copy() {

@@ -51,6 +51,20 @@ class SheetDeleteDialog extends React.Component {
 			const item = info.button;
 			const cnt = graphManager.getGraph().getStreamSheetContainerCount();
 			if (item && item.getName().getValue() === 'delete') {
+				const type = info.container.getSheetType();
+				if (type === 'cellsheet') {
+					const path = JSG.AttributeUtils.createPath(JSG.ItemAttributes.NAME, 'visible');
+					const cmd = new JSG.CompoundCommand();
+					const sheet = info.container.getStreamSheet();
+					const graph = sheet.getGraph();
+					if (info.container.getItemAttributes().getViewMode().getValue() === 2) {
+						graph.setViewMode(graph.getDashboardContainer(), 2);
+					}
+					cmd.add(new JSG.RemoveSelectionCommand(sheet, sheet.getSelectionId()));
+					cmd.add(new JSG.SetAttributeAtPathCommand(info.container, path, false));
+					graphManager.synchronizedExecute(cmd);
+					return;
+				}
 				if (cnt === 1) {
 					NotificationCenter.getInstance().send(
 						new Notification(WorksheetView.SHEET_MESSAGE_NOTIFICATION, {

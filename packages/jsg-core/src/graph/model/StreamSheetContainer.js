@@ -19,6 +19,7 @@ const Notification = require('../notifications/Notification');
 const StreamSheet = require('./StreamSheet');
 const InboxContainer = require('./InboxContainer');
 const CaptionNode = require('./CaptionNode');
+const LayoutNode = require('./LayoutNode');
 const ButtonNode = require('./ButtonNode');
 const SplitterNode = require('./SplitterNode');
 const StreamSheetContainerAttributes = require('../attr/StreamSheetContainerAttributes');
@@ -75,6 +76,20 @@ module.exports = class StreamSheetContainer extends Node {
 		this.getItemAttributes().setClipChildren(true);
 
 		// this._drawEnabled = false;
+	}
+
+	get allowSubMarkers() {
+		return false;
+	}
+
+	addDashboardSettings() {
+		const layoutNode = new LayoutNode();
+		layoutNode.setSize(20000, 10000);
+		layoutNode.getPin().setLocalPoint(0, 0);
+		layoutNode.setOrigin(0, 0);
+		layoutNode.getItemAttributes().setMoveable(false);
+		layoutNode.getItemAttributes().setDeleteable(false);
+		this._processSheet.getCells().addItem(layoutNode);
 	}
 
 	createButtons() {
@@ -198,6 +213,11 @@ module.exports = class StreamSheetContainer extends Node {
 		return this.getModelAttributes().getAttribute(StreamSheetContainerAttributes.NAME);
 	}
 
+	getSheetType() {
+		const type = this.getStreamSheetContainerAttributes().getSheetType();
+		return type ? type.getValue() : 'sheet';
+	}
+
 	setStream(source) {
 		JSG.propertyEventsDisabled = true;
 		this._inboxCaption.setName(`${JSG.getLocalizedString('Inbox')} - ${JSG.getLocalizedString(source)}`);
@@ -290,7 +310,7 @@ module.exports = class StreamSheetContainer extends Node {
 	}
 
 	_assignItems() {
-		this.getItems().forEach((item) => {
+		this.subItems.forEach((item) => {
 			if (item instanceof StreamSheet) {
 				this._processSheet = item;
 			} else if (item instanceof SplitterNode) {
@@ -319,6 +339,7 @@ module.exports = class StreamSheetContainer extends Node {
 		writer.writeStartElement('graphitem');
 
 		writer.writeAttributeNumber('id', this.getId(), 0);
+		writer.writeAttributeNumber('visible', this.getItemAttributes().getVisible().getValue() ? 1 : 0, 0);
 
 		// save StreamSheetContainer Attributes, Pin, Size
 		this.getStreamSheetContainerAttributes().saveCondensed(writer, 'attributes');
@@ -327,7 +348,6 @@ module.exports = class StreamSheetContainer extends Node {
 
 		// inbox save content
 		this._inboxContainer.saveCondensed(writer, 'inbox');
-
 		this._processSheet.saveCondensed(writer);
 
 		writer.writeEndElement('graphitem');
@@ -359,6 +379,10 @@ module.exports = class StreamSheetContainer extends Node {
 					id = Number(id);
 				}
 				this.setId(id);
+				const visible = reader.getAttribute(object, 'visible');
+				if (visible !== undefined) {
+					this.getItemAttributes().setVisible(!!Number(visible));
+				}
 			} else {
 				this.setId(1);
 			}
@@ -369,6 +393,10 @@ module.exports = class StreamSheetContainer extends Node {
 						break;
 					case 'pin':
 						this._pin.read(reader, child);
+						this._pin.setLocalCoordinate(
+							new JSG.NumberExpression(0, 'WIDTH * 0.5'),
+							new JSG.NumberExpression(0, 'HEIGHT * 0.5')
+						);
 						// after pin change we update origin cache, so that subsequent call to origin gets correct values...
 						this._updateOrigin();
 						break;
@@ -408,6 +436,7 @@ module.exports = class StreamSheetContainer extends Node {
 		let inbox;
 		let hideButtons = false;
 		let captions = true;
+		const layoutNode = this._processSheet.getLayoutNode();
 
 		const settings = this.viewSettings;
 		if (settings.active === true) {
@@ -434,11 +463,11 @@ module.exports = class StreamSheetContainer extends Node {
 
 		if (captions) {
 			this._sheetCaption.getItemAttributes().setVisible(true);
-			this._sheetCaption.getItems().forEach((subItem) => {
+			this._sheetCaption.subItems.forEach((subItem) => {
 				subItem.getItemAttributes().setVisible(hideButtons === false);
 			});
 
-			this._inboxCaption.getItems().forEach((subItem) => {
+			this._inboxCaption.subItems.forEach((subItem) => {
 				subItem.getItemAttributes().setVisible(hideButtons === false);
 			});
 		} else {
@@ -485,6 +514,40 @@ module.exports = class StreamSheetContainer extends Node {
 		box.setHeight(size.y - heightCaption);
 
 		this._processSheet.setBoundingBoxTo(box);
+
+		if (layoutNode) {
+			const layoutMode = layoutNode.getAttributeValueAtPath('layoutmode');
+			const minWidth = layoutNode.getAttributeValueAtPath('minwidth');
+			const maxWidth = layoutNode.getAttributeValueAtPath('maxwidth');
+			let sheetSize = size.x - left;
+			const layoutSize = layoutNode.getSizeAsPoint();
+			switch (layoutMode) {
+			case 'center':
+				layoutNode.setOrigin(Math.max(0, (sheetSize - layoutSize.x) / 2), 0);
+				break;
+			case 'resize': {
+				layoutNode.setOrigin(0, 0);
+				sheetSize = Math.max(sheetSize, minWidth)
+				sheetSize = Math.min(sheetSize, maxWidth)
+				const scroll = (size.y - heightCaption) < layoutSize.y;
+				if (scroll) {
+					sheetSize -= JSG.ScrollBar.SIZE;
+				}
+				if (sheetSize !== layoutSize.x) {
+					layoutNode.setWidth(sheetSize);
+					layoutNode.layout();
+				}
+				const space = size.x - left - (scroll ? JSG.ScrollBar.SIZE : 0);
+				if (space > layoutSize.x) {
+					layoutNode.setOrigin(Math.max(0, (space - layoutSize.x) / 2), 0);
+				}
+				break;
+			}
+			case 'left':
+				layoutNode.setOrigin(0, 0);
+				break;
+			}
+		}
 
 		if (captions) {
 			box.setTop(0);

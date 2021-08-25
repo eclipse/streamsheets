@@ -13,16 +13,11 @@
 /* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 import {FormGroup, TextField} from '@material-ui/core';
-// import PropTypes from 'prop-types' ;
-// import { FormattedMessage } from 'react-intl';
 import JSG from '@cedalo/jsg-ui';
 
 import { graphManager } from '../../GraphManager';
 import CellRangeComponent from './CellRangeComponent';
 import {intl} from "../../helper/IntlGlobalProvider";
-import { FormattedMessage } from 'react-intl';
-import MenuItem from '@material-ui/core/MenuItem';
-// import {FormattedMessage} from "react-intl";
 
 function MyInputComponent(props) {
 	const { inputRef, ...other } = props;
@@ -81,7 +76,15 @@ export class AttributeProperties extends Component {
 	}
 
 	getExpression(item, event) {
-		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+		try {
+			return this.getSheet(item).textToExpression(String(event.target.textContent));
+		} catch (e) {
+			this.getSheetView().notifyMessage({
+				message: e.message,
+				focusIndex: e.index !== undefined ? e.index + 1 : 1
+			});
+			return false;
+		}
 	}
 
 	getAttributeHandler(label, item, name, options) {
@@ -92,6 +95,7 @@ export class AttributeProperties extends Component {
 				key={name}
 				variant="outlined"
 				size="small"
+				fullWidth
 				margin="normal"
 				label={intl.formatMessage({ id: label })}
 				onBlur={(event) => this.handleAttribute(event, item, name)}
@@ -113,24 +117,17 @@ export class AttributeProperties extends Component {
 
 	handleAttribute(event, item, name) {
 		const expr = this.getExpression(item, event);
+		if (!expr) {
+			return;
+		}
 		const path = JSG.AttributeUtils.createPath(JSG.ItemAttributes.NAME, name);
 		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr.expression);
 
 		graphManager.synchronizedExecute(cmd);
-	}
-
-	handleLayoutColumns = (event) => {
-		const item = this.props.view.getItem();
-		const settings = new JSG.Settings();
-		settings.set(JSG.MatrixLayout.COLUMNS, Number(event.target.value));
-		settings.set(JSG.MatrixLayout.MARGIN, 1000);
-		const cmd = new JSG.SetLayoutSettingCommand(item, settings);
-		graphManager.synchronizedExecute(cmd);
 		this.setState({
 			dummy: Math.random()
 		})
-
-	};
+	}
 
 	render() {
 		const sheetView = this.getSheetView();
@@ -139,7 +136,12 @@ export class AttributeProperties extends Component {
 		}
 		const item = this.props.view.getItem();
 		return (
-			<FormGroup>
+			<FormGroup id={this.props.dummy}
+			   style={{
+				   width: '100%'
+			   }}
+			>
+				{this.getAttributeHandler("GraphItemProperties.Label", item, JSG.ItemAttributes.LABEL)}
 				{this.getAttributeHandler("GraphItemProperties.Container", item, JSG.ItemAttributes.CONTAINER)}
 				{this.getAttributeHandler("GraphItemProperties.Selection", item, JSG.ItemAttributes.SELECTIONMODE,  [
 					{ value: '0', label: 'GraphItemProperties.NotSelectable'},
@@ -158,34 +160,6 @@ export class AttributeProperties extends Component {
 					{ value: '2', label: 'GraphItemProperties.OnlyHorizontal'},
 					{ value: '3', label: 'GraphItemProperties.MoveFree'},
 					])}
-				{
-					item.getLayout() && item.getLayout().getType() === 'jsg.matrix.layout' ? (
-						<TextField
-							variant="outlined"
-							size="small"
-							margin="normal"
-							select
-							value={item.getLayoutSettings().get(JSG.MatrixLayout.COLUMNS)}
-							onChange={event => this.handleLayoutColumns(event)}
-							label={
-								<FormattedMessage id="GraphItemProperties.LayoutColumns" defaultMessage="Layout Columns" />
-							}
-						>
-							<MenuItem value="1">
-								1
-							</MenuItem>
-							<MenuItem value="2">
-								2
-							</MenuItem>
-							<MenuItem value="3">
-								3
-							</MenuItem>
-							<MenuItem value="4">
-								4
-							</MenuItem>
-						</TextField>
-					) : null
-				}
 			</FormGroup>
 		);
 	}

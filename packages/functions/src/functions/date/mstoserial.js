@@ -17,9 +17,11 @@ const ERROR = FunctionErrors.code;
 
 const mstoserial = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withArgCount(1)
-		.mapNextArg((ms) => convert.toNumber(ms.value, ERROR.INVALID_PARAM))
-		.run((ms) => ms2serial(ms));
+		.withMinArgs(1)
+		.withMaxArgs(2)
+		.mapNextArg((ms) => convert.toNumber(ms.value, ERROR.VALUE))
+		.mapNextArg((utc) => convert.toBoolean(utc && utc.value, false))
+		.run(ms2serial);
 
 
 module.exports = mstoserial;

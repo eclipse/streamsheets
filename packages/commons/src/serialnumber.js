@@ -25,6 +25,7 @@ const getFraction = (nr) => ((nr * FRACTION_FACTOR) % FRACTION_FACTOR) / FRACTIO
 const toSeconds = (serial, floor) => roundTo(floor)(SECONDS_FACTOR * getFraction(serial));
 const toMilliseconds = (serial) => Math.round(1000 * SECONDS_FACTOR * getFraction(serial));
 // const toMilliseconds = (serial, floor) => roundTo(floor)(1000 * SECONDS_FACTOR * getFraction(serial));
+const timezoneOffset = (date) => (date.getTimezoneOffset() * MIN_IN_MS);
 
 const hours = (serial, floor) => Math.floor(toSeconds(serial, floor) / 3600) % 24;
 const minutes = (serial, floor) => Math.floor(toSeconds(serial, floor) / 60) % 60;
@@ -54,15 +55,19 @@ const weekday = (serial, floor) => {
 	return wday < 1 || serial < 1 ? 7 : wday;
 };
 
-const serial2ms = (serial) => Math.round(asMillis(serial));
+const serial2ms = (serial, utc) => {
+	const ms = Math.round(asMillis(serial));
+	return utc ? ms + timezoneOffset(new Date(ms)) : ms;
+};
 const serial2date = (serial) => new Date(serial2ms(serial));
 
-const ms2serial = (ms) => {
+const ms2serial = (ms, utc) => {
+	if (utc) ms -= timezoneOffset(new Date(ms));
 	const serial = ms / DAY_IN_MS + 25569;
 	return serial > 61 ? serial : serial - 1;
 };
 const date2serial = (date) => ms2serial(date.getTime());
-const dateLocal2serial = (date) => ms2serial(date.getTime() - (date.getTimezoneOffset() * MIN_IN_MS));
+const dateLocal2serial = (date) => ms2serial(date.getTime() - timezoneOffset(date));
 const now = () => dateLocal2serial(new Date());
 const nowUTC = () => ms2serial(Date.now());
 

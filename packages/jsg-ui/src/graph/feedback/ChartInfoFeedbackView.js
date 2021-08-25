@@ -114,7 +114,7 @@ export default class ChartInfoFeedbackView extends View {
 			const height = 400;
 			const getLabel = (value, xValue) => {
 				const { serie } = value;
-				const ref = item.getDataSourceInfo(serie.formula);
+				const ref = item.getDataSourceInfo(serie);
 
 				let label = '';
 				let axis;
@@ -179,7 +179,7 @@ export default class ChartInfoFeedbackView extends View {
 					return;
 				}
 				const serie = item.series[this.selection.dataPoints[0].index];
-				const ref = item.getDataSourceInfo(serie.formula);
+				const ref = item.getDataSourceInfo(serie);
 
 				pieInfo = item.getPieInfo(ref, serie, plotRect, this.selection.dataPoints[0].index);
 				let currentAngle = pieInfo.startAngle;
@@ -224,7 +224,7 @@ export default class ChartInfoFeedbackView extends View {
 					return;
 				}
 				const features = serie.map.mapData.features;
-				const ref = item.getDataSourceInfo(serie.formula);
+				const ref = item.getDataSourceInfo(serie);
 				mapInfo = item.getMapInfo(plotRect, serie, ref);
 				if (!mapInfo) {
 					return;

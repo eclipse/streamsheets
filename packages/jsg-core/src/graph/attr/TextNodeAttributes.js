@@ -1,13 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const Attribute = require('./Attribute');
 const ItemAttributes = require('./ItemAttributes');
 const BooleanAttribute = require('./BooleanAttribute');
 const NumberAttribute = require('./NumberAttribute');
@@ -145,11 +146,50 @@ class TextNodeAttributes extends ItemAttributes {
 		);
 	}
 
+	getType() {
+		return this.getAttribute(
+			TextNodeAttributes.TYPE
+		);
+	}
+
+	setType(type) {
+		this.setAttribute(
+			TextNodeAttributes.TYPE,
+			type
+		);
+	}
+
+	getReturnAction() {
+		return this.getAttribute(
+			TextNodeAttributes.RETURNACTION
+		);
+	}
+
+	setReturnAction(action) {
+		this.setAttribute(
+			TextNodeAttributes.RETURNACTION,
+			action
+		);
+	}
+
+	getOptionsRange() {
+		return this.getAttribute(
+			TextNodeAttributes.OPTIONSRANGE
+		);
+	}
+
+	setOptionsRange(action) {
+		this.setAttribute(
+			TextNodeAttributes.OPTIONSRANGE,
+			action
+		);
+	}
+
 	doSaveParentRef() {
 		return (
 			this._parent &&
 			this._parent.getName() !==
-				TextNodeAttributes.Template_ID
+				TextNodeAttributes.TemplateID
 		);
 	}
 	// OUR PREDEFINED ATTRIBUTES:
@@ -202,6 +242,18 @@ class TextNodeAttributes extends ItemAttributes {
 		return 'associated';
 	}
 
+	static get TYPE() {
+		return 'type';
+	}
+
+	static get RETURNACTION() {
+		return 'returnaction';
+	}
+
+	static get OPTIONSRANGE() {
+		return 'optionsrange';
+	}
+
 	static get TemplateID() {
 		return TemplateID;
 	}
@@ -241,10 +293,19 @@ class TextNodeAttributes extends ItemAttributes {
 		);
 		addAttribute(new NumberAttribute(TXT_ATTR.MINIMUMHEIGHT), 0);
 		addAttribute(new NumberAttribute(TXT_ATTR.MAXIMUMHEIGHT), 0);
+		addAttribute(new NumberAttribute(TXT_ATTR.TYPE), TXT_ATTR.Type.VIEW);
+		addAttribute(new NumberAttribute(TXT_ATTR.RETURNACTION), 0);
+		addAttribute(new Attribute(TXT_ATTR.OPTIONSRANGE), '');
 
 		return attributes.toTemplate(TextNodeAttributes.TemplateID);
 	}
 }
+
+TextNodeAttributes.Type = {
+	VIEW: 0,
+	EDIT: 1,
+	SELECT: 2,
+};
 
 /**
  * Size mode definitions.</br>

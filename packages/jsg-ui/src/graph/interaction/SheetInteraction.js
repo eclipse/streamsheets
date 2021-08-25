@@ -25,15 +25,18 @@ import {
 	CellRange,
 	Expression,
 	WorksheetNode,
+	LayoutNode,
 	ExecuteFunctionCommand,
 	TreeItemsNode,
 	StreamSheet,
+	StreamSheetContainer,
 	// DeleteCellContentCommand
 	SheetCommandFactory
 } from '@cedalo/jsg-core';
 import { FuncTerm, Term } from '@cedalo/parser';
 import CellFeedbackView from '../feedback/CellFeedbackView';
 import WorksheetView from '../view/WorksheetView';
+import LayoutView from '../view/LayoutView';
 import TreeItemsView from '../view/TreeItemsView';
 import EditCellInteraction from './EditCellInteraction';
 import CellEditor from '../view/CellEditor';
@@ -43,6 +46,8 @@ import ClientEvent from '../../ui/events/ClientEvent';
 import ScrollBar from '../../ui/scrollview/ScrollBar';
 import Cursor from '../../ui/Cursor';
 import ContentNodeView from "../view/ContentNodeView";
+import Highlighter from './Highlighter';
+import LayerId from '../view/LayerId';
 
 const SHEET_SHOW_CONTEXT_MENU_NOTIFICATION = 'sheet_show_context_menu_notification';
 
@@ -122,7 +127,9 @@ export default class SheetInteraction extends Interaction {
 		this._hitCode = view.getHitCode(event.location, viewer);
 
 		view.activateLayerSelection();
-		view.getParent().moveSheetToTop(viewer);
+		if (view.getItem().getParent() instanceof StreamSheetContainer) {
+			view.getParent().moveSheetToTop(viewer);
+		}
 
 		const cellEditor = CellEditor.getActiveCellEditor();
 		if (cellEditor) {
@@ -235,7 +242,7 @@ export default class SheetInteraction extends Interaction {
 					cellPos.y + 1,
 					cellPos.x,
 					cellPos.y + 1
-				), viewer);
+				), { limit: 100 }, viewer);
 				break;
 			}
 			case WorksheetView.HitCode.SHEET:
@@ -409,14 +416,21 @@ export default class SheetInteraction extends Interaction {
 		return ext > threshold;
 	}
 
-	_getTargetView(event, viewer) {
+	_getTargetController(event, viewer) {
 		let controller = viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => cont.getModel().isVisible());
 		if (!controller) {
-			return this._controller.getView();
+			return this._controller;
 		}
 
 		if (controller.getModel() instanceof TreeItemsNode) {
-			return controller.getView();
+			return controller;
+		}
+
+		const parentController = controller.getParent();
+		if (parentController) {
+			if (parentController.getModel() instanceof LayoutNode) {
+				return controller;
+			}
 		}
 
 		if (
@@ -424,12 +438,11 @@ export default class SheetInteraction extends Interaction {
 			!(controller.getModel() instanceof HeaderNode) &&
 			!(controller.getModel() instanceof SheetHeaderNode)
 		) {
-			return this._controller.getView();
-			// return undefined;
+			return undefined;
+			// return this._controller;
 		}
 
-		controller = controller.getParent().getParent();
-
+		controller = parentController.getParent();
 		if (controller === undefined) {
 			return undefined;
 		}
@@ -447,7 +460,7 @@ export default class SheetInteraction extends Interaction {
 
 		const point = this.getViewer().translateFromParent(event.location.copy());
 
-		return bounds.containsPoint(point) ? view : undefined;
+		return bounds.containsPoint(point) ? controller : undefined;
 	}
 
 	_getTargetRange(view, event, viewer) {
@@ -675,13 +688,20 @@ export default class SheetInteraction extends Interaction {
 				if (!this._doExceedThreshold(event, viewer)) {
 					return;
 				}
+				viewer.clearLayer(LayerId.TARGETCONTAINER);
+				viewer.clearInteractionFeedback();
 				if (this.isFarOut(event.location, viewer)) {
 					this.deActivateTimer();
-					const targetView = this._getTargetView(event, viewer);
-					if (targetView === undefined) {
+					const targetController = this._getTargetController(event, viewer);
+					if (targetController === undefined) {
 						return;
 					}
-					if (targetView instanceof WorksheetView) {
+					const targetView = targetController.getView();
+					if (targetView.getParent() instanceof LayoutView) {
+						Highlighter.getDefault().highlightController(targetController, viewer);
+						this._targetController = targetController;
+						return;
+					} else if (targetView instanceof WorksheetView) {
 						this._updateFeedback(targetView, event, viewer);
 					} else {
 						const feedback = targetView.getFeedback(
@@ -693,7 +713,7 @@ export default class SheetInteraction extends Interaction {
 							event,
 							viewer
 						);
-						viewer.clearInteractionFeedback();
+						// viewer.clearInteractionFeedback();
 						viewer.addInteractionFeedback(feedback);
 						this._feedback = undefined;
 					}
@@ -951,11 +971,30 @@ export default class SheetInteraction extends Interaction {
 				if (!this._doExceedThreshold(event, viewer)) {
 					break;
 				}
-				const targetView = this._getTargetView(event, viewer);
-				if (targetView === undefined) {
+				const targetController = this._getTargetController(event, viewer);
+				if (targetController === undefined) {
 					return;
 				}
-				if (targetView instanceof TreeItemsView) {
+				const targetView = targetController.getView();
+				if (targetView.getParent() instanceof LayoutView) {
+					const node = new JSG.StreamSheet();
+					// editor.getGraph()._sheetWrapper = node;
+					// node.addAttribute(new JSG.NumberAttribute('streamsheet', this._controller.getModel().getId()));
+					const range = this._controller
+						.getModel()
+						.getOwnSelection()
+						.getAt(0).copy();
+					range.shiftToSheet();
+					node.getFormat().setLineCorner(75);
+					node.setHeight(5000);
+					node.getItemAttributes().setSelectionMode(JSG.ItemAttributes.SelectionMode.DEFAULT);
+					node.getWorksheetAttributes().setShowHeader(false);
+					node.getWorksheetAttributes().setShowGrid(false);
+					node.addAttribute(new JSG.Attribute('range', new Expression(0, range.toString({ item: node, useName: true, forceName: true }))));
+					viewer
+						.getInteractionHandler()
+						.execute(new JSG.AddItemCommand(node, targetController.getModel()));
+				} else if (targetView instanceof TreeItemsView) {
 					const json = view.getOwnSelection().toJson();
 					targetView.getItem().pasteJson(json);
 				} else {

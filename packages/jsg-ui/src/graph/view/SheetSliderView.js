@@ -88,18 +88,18 @@ export default class SheetSliderView extends NodeView {
 					frange.shiftFromSheet();
 					for (let i = frange.getY1(); i <= frange.getY2(); i += 1) {
 						const def = {};
-						let cell = sheet.getDataProvider().getRC(frange.getX1(), i);
+						let cell = frange._worksheet.getDataProvider().getRC(frange.getX1(), i);
 						if (cell && cell.getValue() !== undefined) {
 							def.start = Number(cell.getValue());
 						}
 						if (frange.getWidth() > 1) {
-							cell = sheet.getDataProvider().getRC(frange.getX1() + 1, i);
+							cell = frange._worksheet.getDataProvider().getRC(frange.getX1() + 1, i);
 							if (cell && cell.getValue()) {
 								def.label = String(cell.getValue());
 							}
 						}
 						if (frange.getWidth() > 2) {
-							cell = sheet.getDataProvider().getRC(frange.getX1() + 2, i);
+							cell = frange._worksheet.getDataProvider().getRC(frange.getX1() + 2, i);
 							if (cell && cell.getValue()) {
 								def.color = String(cell.getValue());
 							}
@@ -112,7 +112,7 @@ export default class SheetSliderView extends NodeView {
 
 		let pos = ((value - min) / range) * tmpRect.width;
 
-		graphics.setFillColor('#FFFFFF');
+		graphics.setFillColor(JSG.theme.fill);
 		graphics.fillRect(tmpRect);
 
 		if (ranges.length && ranges[0].color) {
@@ -284,7 +284,7 @@ export default class SheetSliderView extends NodeView {
 		return magMsd * magPow;
 	}
 
-	valueFromLocation(event, viewer) {
+	valueFromLocation(event, viewer, name) {
 		const point = event.location.copy();
 		const item = this.getItem();
 		const min = item.getAttributeValueAtPath('min');
@@ -297,11 +297,14 @@ export default class SheetSliderView extends NodeView {
 			return true;
 		});
 
+		const size = item.getSizeAsPoint();
+		if (name !== 'ONMOUSEDRAG' && name !== 'ONMOUSEUP' &&
+			(point.x < 150 || point.x > size.x - 150 || point.y < size.y / 2 - 500 || point.y > size.y / 2 + 500)) {
+			return false;
+		}
+
 		point.x -= 150;
-		const width =
-			this.getItem()
-				.getWidth()
-				.getValue() - 300;
+		const width = size.x - 300;
 
 		return Math.min(max, Math.max(min, (point.x / width) * (max - min) + min));
 	}
@@ -325,7 +328,11 @@ export default class SheetSliderView extends NodeView {
 			viewer.getInteractionHandler().execute(new SetAttributeAtPathCommand(item, 'value', val));
 		};
 
-		if (name !== 'ONMOUSEDRAG' && name !== 'ONMOUSEUP') {
+		if (name === 'ONMOUSEDRAG' && !this.dragging) {
+			return false;
+		}
+
+		if (name !== 'ONMOUSEDRAG' && name !== 'ONMOUSEDOWN' && name !== 'ONMOUSEUP') {
 			return false;
 		}
 
@@ -338,9 +345,19 @@ export default class SheetSliderView extends NodeView {
 			step = 1;
 		}
 
-		let sliderValue = this.valueFromLocation(event, viewer);
+		let sliderValue = this.valueFromLocation(event, viewer, name);
+		if (name === 'ONMOUSEDOWN' && sliderValue !== false) {
+			this.dragging = true;
+		}
+		if (this.dragging === false) {
+			return false;
+		}
 		sliderValue += (sliderValue >= 0 ? step / 2 : -step / 2);
 		sliderValue -= (sliderValue % step);
+
+		if (name === 'ONMOUSEUP') {
+			this.dragging = false;
+		}
 
 		if (value === sliderValue) {
 			return false;
@@ -348,39 +365,37 @@ export default class SheetSliderView extends NodeView {
 
 		const attr = item.getAttributeAtPath('value');
 		const expr = attr.getExpression();
-		if (sheet && expr._cellref) {
-			const range = CellRange.parse(expr._cellref, sheet);
-			if (range) {
-				range.shiftFromSheet();
-				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
-				if (cell) {
-					value = cell.getValue();
-					if (value === sliderValue) {
+		if (sheet && expr && expr.hasFormula()) {
+			if (expr._cellref) {
+				const range = CellRange.parse(expr._cellref, sheet);
+				if (range) {
+					range.shiftFromSheet();
+					const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
+					if (cell) {
+						value = cell.getValue();
+						if (value === sliderValue) {
+							return false;
+						}
+						expr.setTermValue(sliderValue);
+						cell.setValue(sliderValue);
+						cell.setTargetValue(sliderValue);
+						range.shiftToSheet();
+						const cellData = [];
+						cellData.push({
+							reference: range.toString(), value: sliderValue
+						});
+						const cmd = SheetCommandFactory.create('command.SetCellsCommand', range.getSheet(), cellData,
+							false);
+						viewer.getInteractionHandler().execute(cmd);
+						this.onValueChange(viewer);
 						return false;
 					}
-					expr.setTermValue(sliderValue);
-					cell.setValue(sliderValue);
-					cell.setTargetValue(sliderValue);
-					range.shiftToSheet();
-					const cellData = [];
-					cellData.push({
-						reference: range.toString(),
-						value: sliderValue
-					});
-					const cmd = SheetCommandFactory.create(
-						'command.SetCellsCommand',
-						range.getSheet(),
-						cellData,
-						false
-					);
-					viewer.getInteractionHandler().execute(cmd);
-					this.onValueChange(viewer);
-					return false;
 				}
 			}
+		} else {
+			setValue(sliderValue);
 		}
 
-		setValue(sliderValue);
 		this.onValueChange(viewer);
 
 		return true;

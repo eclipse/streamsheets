@@ -74,7 +74,8 @@ describe('Sheet', () => {
 			sheet.namedCells.set('n4', new Cell(null, createTerm('A1:A2', sheet)));
 			const sheetjson = sheet.toJSON();
 			sheet2 = new Sheet();
-			sheet2.load(sheetjson);
+			// named cells are preloaded, so
+			sheet2.preload(sheetjson).load(sheetjson);
 			expect(isEmpty(sheet2)).toBeFalsy();
 			expect(cellcount(sheet2)).toBe(4);
 			expect(sheet2.namedCells.isEmpty()).toBe(false);
@@ -404,7 +405,8 @@ describe('Sheet', () => {
 				'n4': { formula: 'A1' },
 				'n5': { formula: 'A1:C1' }
 			};
-			const sheet = new Sheet().load({ namedCells, cells: { A1: 23 } });
+			// named cells are preloaded, so
+			const sheet = new Sheet().preload({ namedCells }).load({ cells: { A1: 23 } });
 			expect(isEmpty(sheet)).toBe(false);
 			expect(sheet.namedCells.isEmpty()).toBe(false);
 			expect(sheet.namedCells.get('n1').value).toBe('hello');

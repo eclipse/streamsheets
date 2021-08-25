@@ -1,3 +1,4 @@
+
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
@@ -12,6 +13,7 @@ const JSG = require('../../JSG');
 const Arrays = require('../../commons/Arrays');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Node = require('./Node');
+const CellRange = require('./CellRange');
 const Point = require('../../geometry/Point');
 const HeaderSection = require('./HeaderSection');
 const HeaderAttributes = require('../attr/HeaderAttributes');
@@ -72,8 +74,42 @@ module.exports = class HeaderNode extends Node {
 		return 100;
 	}
 
+	getViewRange() {
+		const sheet = this.getSheet();
+		if (sheet) {
+			const sourceRange = sheet.sourceRange;
+			if (sourceRange && sheet !== sourceRange.getSheet()) {
+				return sourceRange;
+			}
+		}
+		return undefined;
+	}
+
+	layout() {
+		this._viewRange = this.getViewRange();
+		this._sectionDataSource = this.getSectionData();
+
+		super.layout();
+	}
+
+	isRow() {
+		return this instanceof JSG.RowHeaderNode;
+	}
+
 	getSectionData() {
+		const sheet = this.getSheet();
+		if (sheet) {
+			const sourceSheet = sheet.sourceSheet;
+			if (sourceSheet && sourceSheet !== sheet) {
+				return this.isRow() ?  sourceSheet._rows.sectionData : sourceSheet._columns.sectionData;
+			}
+		}
+
 		return this._sectionData;
+	}
+
+	get sectionData() {
+		return this._sectionDataSource || this.getSectionData();
 	}
 
 	setSectionData(data) {
@@ -85,16 +121,16 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	insertSectionsAt(index, num, max) {
-		Arrays.insertEmpty(this._sectionData, index, num, max);
+		Arrays.insertEmpty(this.sectionData, index, num, max);
 	}
 
 	removeSectionsAt(index, num) {
-		Arrays.removeElements(this._sectionData, index, num);
+		Arrays.removeElements(this.sectionData, index, num);
 	}
 
 	getSectionsSize() {
 		let i;
-		let pos = 0;
+		let pos =- 0;
 
 		for (i = 0; i < this.getSections(); i += 1) {
 			pos += this.getSectionSize(i);
@@ -118,16 +154,27 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	getSectionSize(index) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
+		const range = this._viewRange || this.getViewRange();
+
+		if (range) {
+			if (this.isRow()) {
+				if (index < range.getY1() || index > range.getY2()) {
+					return 0;
+				}
+			} else if (index < range.getX1() || index > range.getX2()) {
+				return 0;
+			}
+		}
 
 		if (data) {
 			if (data._parent !== undefined) {
-				let parent = this._sectionData[data._parent];
+				let parent = this.sectionData[data._parent];
 				while (parent) {
 					if (parent && parent._closed) {
 						return 0;
 					}
-					parent = parent._parent === undefined ? undefined : this._sectionData[parent._parent];
+					parent = parent._parent === undefined ? undefined : this.sectionData[parent._parent];
 				}
 			}
 			return data._visible ? data._size : 0;
@@ -137,7 +184,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	setSectionClosed(index, closed) {
-		if (closed === undefined && this._sectionData[index] === undefined) {
+		if (closed === undefined && this.sectionData[index] === undefined) {
 			return;
 		}
 
@@ -169,7 +216,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	getSectionClosed(index) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 
 		if (data) {
 			return data._closed === true;
@@ -183,7 +230,7 @@ module.exports = class HeaderNode extends Node {
 			section._size = size < 0 ? 0 : size;
 			section._visible = size > 0;
 			if (section._parent) {
-				const data = this._sectionData[section._parent];
+				const data = this.sectionData[section._parent];
 				if (data && data._closed) {
 					data._closed = undefined;
 				}
@@ -192,7 +239,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	getSectionLevel(index) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 
 		return data ? data.level : 0;
 	}
@@ -205,7 +252,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	getSectionParent(index) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 
 		return data ? data.parent : undefined;
 	}
@@ -225,7 +272,7 @@ module.exports = class HeaderNode extends Node {
 				section.setSize(this.getDefaultSectionSize());
 			}
 			if (section._parent !== undefined) {
-				const data = this._sectionData[section._parent];
+				const data = this.sectionData[section._parent];
 				if (data && data._closed) {
 					data._closed = undefined;
 				}
@@ -238,7 +285,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	getSectionFormat(index) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 		if (data) {
 			return data._format;
 		}
@@ -251,14 +298,14 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	setSectionFormat(index, format) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 		if (data) {
 			data._format = format;
 		}
 	}
 
 	getSectionTextFormat(index) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 		if (data) {
 			return data._textFormat;
 		}
@@ -271,14 +318,14 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	setSectionTextFormat(index, format) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 		if (data) {
 			data._textFormat = format;
 		}
 	}
 
 	getSectionAttributes(index) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 		if (data) {
 			return data._attributes;
 		}
@@ -291,7 +338,7 @@ module.exports = class HeaderNode extends Node {
 	}
 
 	setSectionAttributes(index, format) {
-		const data = this._sectionData[index];
+		const data = this.sectionData[index];
 		if (data) {
 			data._attributes = format;
 		}
@@ -299,13 +346,13 @@ module.exports = class HeaderNode extends Node {
 
 	getSectionAt(index) {
 		if (index >= 0) {
-			return this._sectionData[index];
+			return this.sectionData[index];
 		}
 		return undefined;
 	}
 
 	setSectionAt(index, data) {
-		this._sectionData[index] = data;
+		this.sectionData[index] = data;
 	}
 
 	getOrCreateSectionAt(index) {
@@ -313,7 +360,7 @@ module.exports = class HeaderNode extends Node {
 		if (section === undefined) {
 			section = new HeaderSection();
 			section._size = this.getDefaultSectionSize();
-			this._sectionData[index] = section;
+			this.sectionData[index] = section;
 		}
 
 		return section;
@@ -324,7 +371,7 @@ module.exports = class HeaderNode extends Node {
 		let index = 0;
 
 		current = 0;
-		while (pos >= current) {
+		while (pos >= current && index <= this.getSections()) {
 			current += this.getSectionSize(index);
 			index += 1;
 		}
@@ -371,11 +418,12 @@ module.exports = class HeaderNode extends Node {
 		let i;
 		let ret;
 		const n = this.getSections();
+		const sectionData = this.sectionData;
 
 		defSection.setSize(this.getDefaultSectionSize());
 
 		for (i = 0; i < n; i += 1) {
-			section = this._sectionData[i];
+			section = sectionData[i];
 			if (section) {
 				ret = callback(section, i);
 			} else {
@@ -390,7 +438,7 @@ module.exports = class HeaderNode extends Node {
 	getMaxLevel() {
 		let level = 0;
 
-		this._sectionData.forEach((section) => {
+		this.sectionData.forEach((section) => {
 			level = Math.max(section.level, level);
 		})
 
@@ -405,7 +453,7 @@ module.exports = class HeaderNode extends Node {
 
 		writer.writeStartArray('section');
 
-		this._sectionData.forEach((data, index) => {
+		this.sectionData.forEach((data, index) => {
 			data.save(writer, index);
 		});
 
@@ -423,7 +471,7 @@ module.exports = class HeaderNode extends Node {
 		writer.writeStartElement('sections');
 		writer.writeStartArray('section');
 
-		this._sectionData.forEach((data, index) => {
+		this.sectionData.forEach((data, index) => {
 			data.save(writer, index);
 		});
 
@@ -458,7 +506,7 @@ module.exports = class HeaderNode extends Node {
 						section._size = this.getDefaultSectionSize();
 						section.read(reader, child);
 						if (!section.isDefault(this.getDefaultSectionSize())) {
-							this._sectionData[Number(index)] = section;
+							this.sectionData[Number(index)] = section;
 						}
 					}
 					break;
@@ -516,7 +564,7 @@ module.exports = class HeaderNode extends Node {
 				}
 
 				const closed = size ? undefined : true
-				let data = this._sectionData[index];
+				let data = this.sectionData[index];
 				if (closed || data) {
 					data = this.getOrCreateSectionAt(index);
 					data._closed = closed;
@@ -539,7 +587,7 @@ module.exports = class HeaderNode extends Node {
 				}
 
 				const closed = size ? undefined : true
-				let data = this._sectionData[index];
+				let data = this.sectionData[index];
 				if (closed || data) {
 					data = this.getOrCreateSectionAt(index);
 					data._closed = closed;
@@ -554,7 +602,7 @@ module.exports = class HeaderNode extends Node {
 		let j;
 		const parent = [];
 		const direction = this.getHeaderAttributes().getOutlineDirection().getValue();
-		const max = this._sectionData.length + 1;
+		const max = this.sectionData.length + 1;
 
 		if (direction === 'above') {
 			for (let i = 0; i < max; i += 1) {
