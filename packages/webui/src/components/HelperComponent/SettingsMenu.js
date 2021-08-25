@@ -488,46 +488,6 @@ export class SettingsMenu extends React.Component {
 													/>
 												</b>
 											</TableCell>
-											<TableCell>{this.getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)}</TableCell>
-										</TableRow>
-									)}
-									{isPremiumLicense(this.props.meta.licenseInfo) && (
-										<TableRow>
-											<TableCell>
-												<b>
-													<FormattedMessage
-														id="License.issuedBy"
-														defaultMessage="Issued by"
-													/>
-												</b>
-											</TableCell>
-											<TableCell>{this.props.meta.licenseInfo.issuedBy}</TableCell>
-										</TableRow>
-									)}
-									{isPremiumLicense(this.props.meta.licenseInfo) && (
-										<TableRow>
-											<TableCell>
-												<b>
-													<FormattedMessage
-														id="License.issuedTo"
-														defaultMessage="Issued to"
-													/>
-												</b>
-											</TableCell>
-											<TableCell>{this.props.meta.licenseInfo.issuedTo}</TableCell>
-										</TableRow>
-									)}
-									{isPremiumLicense(this.props.meta.licenseInfo) && (
-										<TableRow>
-											<TableCell>
-												<b>
-													<FormattedMessage
-														id="License.maxInstallations"
-														defaultMessage="Maximum installations"
-													/>
-												</b>
-											</TableCell>
-											<TableCell>{this.props.meta.licenseInfo.maxInstallations}</TableCell>
 										</TableRow>
 									)}
 								</TableBody>
