@@ -158,7 +158,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				de: 'TODO'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.MULTITEXTFIELDPAIRS,
-			dependsOnPath: 'protocolVersion',
+			dependsOnPath: 'connector.protocolVersion',
 			dependsOnValue: [5],
 			advanced: true,
 		});
