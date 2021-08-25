@@ -467,6 +467,7 @@ export class SettingsMenu extends React.Component {
 						{this.props.meta.licenseInfo && (
 							<Table size="small">
 								<TableBody>
+									{isPremiumLicense(this.props.meta.licenseInfo) && (
 									<TableRow>
 										<TableCell>
 											<b>
@@ -478,6 +479,7 @@ export class SettingsMenu extends React.Component {
 										</TableCell>
 										<TableCell>{isPremiumLicense(this.props.meta.licenseInfo) ? getPremium() : this.props.meta.licenseInfo.edition}</TableCell>
 									</TableRow>
+									)}
 									{isPremiumLicense(this.props.meta.licenseInfo) && (
 										<TableRow>
 											<TableCell>
@@ -488,6 +490,7 @@ export class SettingsMenu extends React.Component {
 													/>
 												</b>
 											</TableCell>
+											<TableCell>{getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)}</TableCell>
 										</TableRow>
 									)}
 								</TableBody>
