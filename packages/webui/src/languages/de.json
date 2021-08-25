@@ -256,6 +256,7 @@
 	"Dashboard.queues": "Queues",
 	"Dashboard.connectors": "Konnektoren",
 	"Dashboard.database": "Datenbank",
+	"Dashboard.license": "Lizenz",
 	"Dashboard.workspaces": "Arbeitsbereiche",
 	"Dashboard.schemas": "Schemata",
 	"Dashboard.consumers": "Konsumenten",
