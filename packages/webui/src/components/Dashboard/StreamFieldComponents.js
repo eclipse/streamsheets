@@ -66,7 +66,11 @@ export default class StreamFieldComponents {
 		};
 		if (fields && Array.isArray(fields)) {
 			fields.forEach((field) => {
-				if (field.isShow(configuration.fields)) {
+				const fieldValues = {
+					...configuration.fields,
+					connector: configuration.connector ? configuration.connector.fields : undefined
+				};
+				if (field.isShow(fieldValues)) {
 					const value = configuration.fields[field.id];
 					field.value = value;
 					field.baseValue = field.getBaseValue(configuration);

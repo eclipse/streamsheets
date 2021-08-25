@@ -1,209 +1,133 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
-import Fab from '@material-ui/core/Fab';
-import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from '@material-ui/icons/Delete';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
+import DeleteIcon from '@material-ui/icons/Clear';
+import React, { useEffect, useState } from 'react';
+import { FormattedMessage } from 'react-intl';
+import IdGenerator from '@cedalo/id-generator';
 
-const styles = {
-	fieldSet: {
-		margin: '20px 0px',
-		display: 'flex',
-		flexDirection: 'row'
-	},
-	legend: {
-	},
-	fab: {
-		width: '25px',
-		height: '20px',
-		minHeight: '25px',
-		marginTop: '15px',
-		marginLeft: '10px',
-	},
-	textField: {
-		display: 'inline',
-		minWidth: '150px',
-		width: 'calc(50% - 15px)',
-		marginLeft: '5px'
-	},
-};
-
-export default class MultiTextFieldPairs extends Component {
-	static propTypes = {
-		// eslint-disable-next-line react/forbid-prop-types
-		value: PropTypes.object,
-		onChange: PropTypes.func,
-		label: PropTypes.element,
-		name: PropTypes.string,
-		disabled: PropTypes.bool,
-	};
-
-	static defaultProps = {
-		label: undefined,
-		value: [],
-		onChange: undefined,
-		name: new Date().getMilliseconds(),
-		disabled: false,
-	};
-
-	constructor(props) {
-		super(props);
-		this.errors = [];
-		this.state = {
-			pairs: props.value || {},
-		};
+const buildEvent = (name, value) => ({
+	target: {
+		name,
+		value,
+		type: 'TextFieldsPair'
 	}
+});
 
-	onChangeKey = (idx, pair) => (event) => {
-		const prop = Object.keys(pair)[0];
-		const newProp = event.target.value;
-		const newPairs = {...this.state.pairs};
-		newPairs[newProp] = pair[prop];
-		delete newPairs[prop];
-		if (typeof this.props.onChange === 'function') {
-			const fakeEvent = {
-				target: {
-					name: this.props.name,
-					value: newPairs,
-					type: 'TextFieldsPair',
-				},
-			};
-			this.props.onChange(fakeEvent, newPairs, idx, event);
-		}
-		this.setState({ pairs: newPairs });
+export default function MultiTextFieldPairs(props) {
+	const [pairs, setPairs] = useState([]);
+	const [focusIndex, setFocusIndex] = useState(0);
+	useEffect(() => {
+		setPairs([...Object.entries(props.value), []].map((pair) => ({ key: IdGenerator.generate(), pair })));
+	}, []);
+
+	useEffect(() => {
+		const pairsNoDuplicatKeys = pairs
+			.map(({ pair }) => pair)
+			.reduce((acc, p) => (p[0] && p[1] ? { ...acc, [p[0]]: acc[p[0]] || p[1] } : acc), {});
+		props.onChange(buildEvent(props.name, pairsNoDuplicatKeys));
+	}, [pairs]);
+
+	const updatePairs = (newPairs) => {
+		const newPairs_ = [
+			...newPairs.filter(({ pair }) => pair[0] || pair[1]),
+			{ key: IdGenerator.generate(), pair: [] }
+		];
+		setPairs(newPairs_);
 	};
 
-	onChangeValue = (idx, pair) => (event) => {
-		const prop = Object.keys(pair)[0];
-		const newPairs = {...this.state.pairs};
-		newPairs[prop] = event.target.value;
-		if (typeof this.props.onChange === 'function') {
-			const fakeEvent = {
-				target: {
-					name: this.props.name,
-					value: newPairs,
-					type: 'TextFieldsPair',
-				},
-			};
-			this.props.onChange(fakeEvent, newPairs, idx, event);
-		}
-		this.setState({ pairs: newPairs });
-	};
-
-	handleAddItem = () => {
-		const pairs = {
-			...this.state.pairs,
-			'': ''
-		};
-		if (typeof this.props.onChange === 'function') {
-			const fakeEvent = {
-				target: {
-					name: this.props.name,
-					value: pairs,
-					type: 'TextFieldsPair',
-				},
-			};
-			this.props.onChange(fakeEvent, pairs, Object.keys(this.state.pairs).length);
-		}
-		this.setState({
-			pairs,
-		});
-	};
-
-	handleRemoveItem = (idx, pair) => () => {
-		const prop = Object.keys(pair)[0];
-		const pairs = {...this.state.pairs};
-		delete pairs[prop];
-		this.setState({
-			pairs,
-		});
-		if (typeof this.props.onChange === 'function') {
-			const fakeEvent = {
-				target: {
-					name: this.props.name,
-					value: pairs,
-					type: 'TextFieldsPair',
-				},
-			};
-			this.props.onChange(fakeEvent, pairs, idx);
-		}
-
-	};
-
-	render() {
-		const { label, name, disabled } = this.props;
-		const { pairs } = this.state;
-		return (
-			<fieldset style={styles.fieldSet}>
-				<legend style={styles.legend}>{label}</legend>
-				{Object.keys(pairs).map(k => ({ [k]: pairs[k] })).map((pair, idx) => (
-					<div style={{display: 'flex'}}>
-						<TextField
-							disabled={disabled}
-							name={`${name}_key`}
-							error={!!this.errors[idx]}
-							value={Object.keys(pair)[0] || ''}
-							onChange={this.onChangeKey(idx, pair)}
-							style={styles.textField}
-							InputProps={{
-								style: {
-									width: '90%',
-									minWidth: '150px',
-								},
-							}}
-						/>
-						<TextField
-							disabled={disabled}
-							name={`${name}_value`}
-							error={!!this.errors[idx]}
-							value={Object.values(pair)[0] || ''}
-							onChange={this.onChangeValue(idx, pair)}
-							style={styles.textField}
-							InputProps={{
-								style: {
-									width: '90%',
-									minWidth: '150px',
-								},
-							}}
-						/>
-						<Fab
-							size="small"
-							onClick={this.handleRemoveItem(idx, pair)}
-							aria-label="Add"
-							style={styles.fab}
-						>
-							<DeleteIcon/>
-						</Fab>
-						{this.errors[idx]
-							?
-							<FormHelperText>{this.errors[idx]}</FormHelperText>
-							: null}
-					</div>
-				))}
-				<Fab
-					size="small"
-					onClick={this.handleAddItem}
-					aria-label="Remove"
-					style={{
-						...styles.fab,
-						marginTop: '10px',
-					}}
-
-				>
-					<AddIcon/>
-				</Fab>
-			</fieldset>
+	const onRemovePair = (index) => updatePairs([...pairs.slice(0, index), ...pairs.slice(index + 1, pairs.length)]);
+	const onChangeKey = (index, newKey) =>
+		updatePairs(
+			pairs.map((keyedPair, i) => (i === index ? { ...keyedPair, pair: [newKey, keyedPair.pair[1]] } : keyedPair))
 		);
-	}
+	const onChangeValue = (index, newValue) =>
+		updatePairs(
+			pairs.map((keyedPair, i) =>
+				i === index ? { ...keyedPair, pair: [keyedPair.pair[0], newValue] } : keyedPair
+			)
+		);
+
+	const firstOccurence = pairs
+		.map(({ pair }) => pair)
+		.reduce((acc, [k], i) => (k ? { ...acc, [k]: acc[k] === undefined ? i : acc[k] } : acc), {});
+
+	// Don't show error for empty last row and current row
+	const showError = (i) => i !== pairs.length - 1 && i !== focusIndex;
+	return (
+		<Grid container direction="column" style={{ maringTop: '10px', marginBottom: '10px' }}>
+			<Grid item xs={12} style={{ marginBottom: '8px' }}>
+				<Typography>{props.label}</Typography>
+			</Grid>
+			{pairs.map(({ key, pair: [k, v] }, i) => {
+				const isDuplicate = firstOccurence[k] !== undefined && firstOccurence[k] !== i;
+				const missingKey = showError(i) && !k;
+				const missingValue = showError(i) && !v;
+				return (
+					// eslint-disable-next-line
+					<Grid container item key={key}>
+						<Grid item xs={5} style={{ marginLeft: '10px', marginBottom: '5px' }}>
+							<TextField
+								variant="outlined"
+								size="small"
+								disabled={props.disabled}
+								value={k || ''}
+								onChange={(event) => onChangeKey(i, event.target.value)}
+								style={{ width: '100%' }}
+								error={isDuplicate || missingKey}
+								helperText={isDuplicate ? <FormattedMessage
+									id="Stream.MultiTextFieldPair.DuplicateKey"
+									defaultMessage="Key already in use"
+								/> : null}
+								onFocus={() => setFocusIndex(i)}
+								onBlur={() => setFocusIndex(-1)}
+							/>
+						</Grid>
+						<Grid item xs={5} style={{ marginLeft: '10px' }}>
+							<TextField
+								variant="outlined"
+								size="small"
+								disabled={props.disabled}
+								value={v}
+								onChange={(event) => onChangeValue(i, event.target.value)}
+								style={{ width: '100%' }}
+								error={missingValue}
+								onFocus={() => setFocusIndex(i)}
+								onBlur={() => setFocusIndex(-1)}
+							/>
+						</Grid>
+						{k || v ? (
+							<Grid item style={{ marginLeft: '10px' }}>
+								<Tooltip
+									enterDelay={300}
+									title={
+										<FormattedMessage
+											id="Extensions.Machinedata.Delete.Tooltip"
+											defaultMessage="Delete"
+										/>
+									}
+								>
+									<IconButton style={{ padding: '8px' }} onClick={() => onRemovePair(i)}>
+										<DeleteIcon />
+									</IconButton>
+								</Tooltip>{' '}
+							</Grid>
+						) : null}
+					</Grid>
+				);
+			})}
+		</Grid>
+	);
 }

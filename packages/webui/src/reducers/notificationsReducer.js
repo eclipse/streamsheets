@@ -199,7 +199,7 @@ export default function notificationsReducer(state = defaultNotificationsState, 
 			notification = {
 				title: e.streamName,
 				message: '',
-				reference: createReference(action.event.data.error),
+				reference: action.event.data.error ? createReference(action.event.data.error) : undefined,
 				icon: !e.error ? <IconConsumer /> : <ErrorIcon />,
 				timestamp: action.event.data.timestamp,
 			};

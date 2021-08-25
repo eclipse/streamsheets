@@ -553,6 +553,7 @@
   "Stream.AddTopic": "Add Topic",
   "Stream.HideExtendedSettings": "Hide Extended Settings",
   "Stream.ShowExtendedSettings": "Show Extended Settings",
+  "Stream.MultiTextFieldPair.DuplicateKey": "Key already in use",
   "StreamStep.connector": "Connector",
   "StreamStep.provider": "Provider",
   "StreamStep.connectorDesc": "Please select an existing Connector or create one.",
