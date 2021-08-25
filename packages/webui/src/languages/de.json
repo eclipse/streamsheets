@@ -551,6 +551,7 @@
     "Stream.AddTopic": "Topic hinzufügen",
 	"Stream.HideExtendedSettings": "Erweiterte Einstellungen ausblenden",
 	"Stream.ShowExtendedSettings": "Erweiterte Einstellungen anzeigen",
+	"Stream.MultiTextFieldPair.DuplicateKey": "Dieser Key wird bereits verwendet",
 	"StreamStep.connector": "Konnektor",
 	"StreamStep.provider": "Provider",
 	"StreamStep.connectorDesc": "Bitte wählen Sie einen Konnektor aus oder erstellen Sie einen.",
