@@ -643,7 +643,11 @@ const initWith = (formula = '', context) => {
 class Tokenizer {
 	static createAST(formula, context) {
 		initWith(formula, context);
-		return parseExpression();
+		const ast = parseExpression();
+		if (index < length) {
+			throwException(`Unexpected character: ${formula.charAt(index - 1)}`, index, ErrorCode.UNEXPECTED_CHAR);
+		}
+		return ast;
 	}
 
 	static createValueNode(str, context) {

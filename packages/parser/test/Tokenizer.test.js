@@ -22,11 +22,7 @@ const validateResult = (expr, result, context = DEF_CONTEXT) => {
 	expect(Parser.resultFrom(ast, context)).toBe(result);
 };
 
-const validateNode = (node, { type, operator, value }) => {
-	if (type) expect(node.type).toBe(type);
-	if (operator) expect(node.operator).toBe(operator);
-	if (value) expect(node.value).toBe(value);
-};
+
 describe('Tokenizer', () => {
 	describe('createAST', () => {
 		it('should parse simple values', () => {
@@ -357,7 +353,6 @@ describe('Tokenizer', () => {
 			expect(ast.right.value).toBe('5.6');
 
 			validateResult('2,4 + 5,6', 8, context);
-			validateResult('2,4 + 5.6', 7.4, context);
 			validateResult('2+2*?(4>1;2;0)', 6, context);
 			validateResult('SUM(1;2;3;4;5)', 15, context);
 			validateResult('SUM(1,5; 2,5; 3,5; 4,5; 5,5)', 17.5, context);
@@ -389,7 +384,9 @@ describe('Tokenizer', () => {
 		});
 		it('should throw an error on wrong decimal separator', () => {
 			const ctxt = new ParserContext();
-			expect(() => { Tokenizer.createAST('2,3+2.4', ctxt); }).toThrow();
+			expect(() => { Tokenizer.createAST('1 + 0,001', ctxt); }).toThrow();
+			expect(() => { Tokenizer.createAST('2,3 + 2.4', ctxt); }).toThrow();
+			expect(() => { Tokenizer.createAST('2,4 + 5.6', ctxt); }).toThrow();
 		});
 		// DL-2549
 		it('should throw an error if decimal separator is used multiple times', () => {
