@@ -18,7 +18,7 @@ module.exports = {
 	'paramIndex': 'Parameter',
 	'message': 'Nachricht',
 	// ERROR CODES:
-	'#ARG_NUM': 'Zu wenig Argumente',
+	'#ARG_NUM': 'Zu wenige oder zuviele Argumente',
 	'#DISCONNECTED': 'Verwendeter Stream nicht verbunden',
 	'#DIV0': 'Division durch Null',
 	'#ERR': 'Fehler beim parsen oder in der Anfrage',
