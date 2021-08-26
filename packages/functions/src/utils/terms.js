@@ -134,24 +134,24 @@ const getCellReferencesFromTerm = (term, sheet) => {
 };
 
 
-
-const callCallback = (termOrCell, cb) => {
-	const value = termOrCell ? termOrCell.value : undefined;
-	const error = value != null ? FunctionErrors.isError(value) : undefined;
-	if (value != null) cb(value, error);
-	return error;
+const invoke = (callback) => (term) => {
+	const val = term ? term.value : undefined;
+	const error = val != null ? FunctionErrors.isError(val) : undefined;
+	return callback(val, error);
 };
-const iterateTermValues = (sheet, term, callback) => {
-	const cellrange = getCellRangeFromTerm(term, sheet);
-	let error = FunctionErrors.isError(cellrange); // e.g. illegal reference or range
-	if (error) callback(undefined, error);
-	else if (cellrange) return !cellrange.some((cell) => !!callCallback(cell, callback));
-	else error = callCallback(term, callback);
-	return !error;
-};
-const iterateAllTermsValues = (sheet, terms, callback) => {
-	// stop on first error!!
-	terms.every((term) => iterateTermValues(sheet, term, callback));
+// callback: return truthy value to stop iteration
+const iterateValues = (sheet, terms = [], callback) => {
+	const callCallback = invoke(callback);
+	terms = Array.isArray(terms) ? terms : [terms];
+	terms.some((term) => {
+		const cellrange = getCellRangeFromTerm(term, sheet);
+		if (cellrange) {
+			// cell-range can be an error
+			const err = FunctionErrors.isError(cellrange);
+			return err ? callback(undefined, err) : cellrange.some(callCallback);
+		}
+		return callCallback(term);
+	});
 };
 
 const isFuncTerm = (term, func) =>
@@ -220,8 +220,7 @@ module.exports = {
 	isInboxMetaDataTerm,
 	isOutboxTerm,
 	isOutboxDataTerm,
-	iterateTermValues,
-	iterateAllTermsValues,
+	iterateValues,
 	termAsString,
 	termAsNumber,
 	termFromValue
