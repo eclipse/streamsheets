@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -71,12 +71,18 @@ export const glue = <
 ): GenericRequestContext<APIS, AUTH> => {
 	const rawApi = globalContext.rawApi;
 	const rawAuth = globalContext.rawAuth;
+	const filterMap = globalContext.filterMap;
 	const context = {
 		...globalContext,
 		actor
-	} as Omit<GenericRequestContext<APIS, AUTH>, 'api' | 'auth'> &
-		Partial<Pick<GenericRequestContext<APIS, AUTH>, 'api' | 'auth'>>;
+	} as Omit<GenericRequestContext<APIS, AUTH>, 'api' | 'auth' | 'runFilter'> &
+		Partial<Pick<GenericRequestContext<APIS, AUTH>, 'api' | 'auth' | 'runFilter'>>;
 	context.api = createApis(rawApi, context as GenericRequestContext<APIS, AUTH>);
 	context.auth = createAuthorization(rawAuth, context as GenericRequestContext<APIS, AUTH>);
+	context.runFilter = (key: string, toFilter: any, ...args: any[]) => {
+		const filters = filterMap[key];
+		return !filters ? toFilter : filters.reduce(async (result, func) => func(context, await result, ...args), toFilter);
+	};
+
 	return context as GenericRequestContext<APIS, AUTH>;
 };
