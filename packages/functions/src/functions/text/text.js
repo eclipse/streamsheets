@@ -149,7 +149,7 @@ const concat = (sheet, ...terms) =>
 	runFunction(sheet, terms).run(() => {
 		let error;
 		let result = '';
-		onTerms.iterateAllTermsValues(sheet, terms, (value, err) => {
+		onTerms.iterateValues(sheet, terms, (value, err) => {
 			error = error || err || (Number.isNaN(value) ? ERROR.VALUE : null);
 			if (!error) result += value != null ? value : '';
 		});

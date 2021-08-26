@@ -21,7 +21,7 @@ const runWith = (sheet, terms, logic) =>
 		.run(() => {
 			let error;
 			let res;
-			onTerms.iterateAllTermsValues(sheet, terms, (value, err) => {
+			onTerms.iterateValues(sheet, terms, (value, err) => {
 				error = error || err;
 				const bool = convert.toBoolean(value);
 				// ignore values which could not be converted
