@@ -24,7 +24,7 @@ const expiresInDays = (validUntil) => Math.ceil(msToDays(validUntil - Date.now()
 const createLicenseInfo = (licenseInfo = {}) => {
 	// TODO: extract every information from license object?
 	const {
-		edition,
+		edition = 'Open Source',
 		service,
 		validUntil,
 		issuedBy,
