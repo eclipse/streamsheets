@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { createTerm } = require('../utilities');
-const { StreamSheet } = require('@cedalo/machine-core');
+const { StreamSheet, Machine } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
@@ -103,6 +103,77 @@ describe('statistical functions', () => {
 			expect(createTerm('count(C2:E2)', sheet).value).toBe(0);
 			expect(createTerm('count(A2:G2)', sheet).value).toBe(3);
 			expect(createTerm('count(A2:B2, C2:E2, F2)', sheet).value).toBe(3);
+		});
+	});
+	describe('counta', () => {
+		it('should count the number of cells which are defined', () => {
+			const sheet = new StreamSheet().sheet.loadCells({ 
+				 A2: 0, B2: 1, C2: -1,
+				 A3: true, B3: false,
+				 A4: "hello", B4: "world",
+				 A5: { formula: 'json(A4:B4)' },
+				 A6: undefined, B6: null
+			});
+			// single cell or cell-range
+			expect(createTerm('counta(A2)', sheet).value).toBe(1);
+			expect(createTerm('counta(B3:B3)', sheet).value).toBe(1);
+			expect(createTerm('counta(A5)', sheet).value).toBe(1);
+			expect(createTerm('counta(A6)', sheet).value).toBe(0);
+			expect(createTerm('counta(B6:B6)', sheet).value).toBe(0);
+			expect(createTerm('counta(A2:C6)', sheet).value).toBe(8);
+		});
+		it('should support specifying multiple cells and or ranges', () => {
+			const sheet = new StreamSheet().sheet.loadCells({ 
+				A2: 0, B2: 1, C2: -1,
+				A3: true, B3: false,
+				A4: "hello", B4: "world",
+				A5: { formula: 'json(A4:B4)' },
+				A6: undefined, B6: null
+		   });
+		   expect(createTerm('counta(A2:C2, A3:B4, A5, A6:B6)', sheet).value).toBe(8);
+		   expect(createTerm('counta(A6, B6:B6)', sheet).value).toBe(0);
+		});
+		it('should count cells which empty string values too', () => {
+			const sheet = new StreamSheet().sheet.loadCells({ A2: "hello", B2: "world", C2: "" });
+			expect(createTerm('counta(A2:C2)', sheet).value).toBe(3);
+			expect(createTerm('counta(A2:A2, B2:B2, C2)', sheet).value).toBe(3);
+		});
+		it('should count cells with errors too', () => {
+			// should not stop on error!!
+			const sheet = new StreamSheet().sheet.loadCells({ 
+				A2: 0, B2: null,
+				A3: false, B3: ERROR.VALUE,
+				A4: undefined, B4: ERROR.DIV0,
+				A5: 'hello',
+		   });
+		   expect(createTerm('counta(B3:B3)', sheet).value).toBe(1);
+		   expect(createTerm('counta(A2:B5)', sheet).value).toBe(5);
+		});
+		it('should count cells in different sheet', () => {
+			const machine = new Machine();
+			const sheet1 = new StreamSheet({ name: 'S1' }).sheet;
+			const sheet2 = new StreamSheet({ name: 'S2' }).sheet.loadCells({ 
+				A2: 0, B2: 1, C2: -1,
+				A3: true, B3: false,
+				A4: "hello", B4: "world",
+				A5: { formula: 'json(A4:B4' },
+				A6: undefined, B6: null
+		   });
+		   machine.addStreamSheet(sheet1.streamsheet);
+		   machine.addStreamSheet(sheet2.streamsheet);
+		   // single cell
+		   expect(createTerm('counta(S2!A2:A2)', sheet1).value).toBe(1);
+		   expect(createTerm('counta(S2!B3)', sheet1).value).toBe(1);
+		   expect(createTerm('counta(S2!A6:A6)', sheet1).value).toBe(0);
+		   expect(createTerm('counta(S2!B6)', sheet1).value).toBe(0);
+		   expect(createTerm('counta(S2!A6:B6)', sheet1).value).toBe(0);
+		   expect(createTerm('counta(S2!A2:C2, S2!A3:B4, S2!A5:A5, S2!A6:B6)', sheet1).value).toBe(8);
+		});
+		it(`should return ${ERROR.ARGS} if no value is given`, () => {
+			const sheet1 = new StreamSheet({ name: 'S1' }).sheet;
+			expect(createTerm('counta()', sheet1).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('counta(,)', sheet1).value).toBe(0);
+			expect(createTerm('counta(,,,)', sheet1).value).toBe(0);
 		});
 	});
 	describe('forecast', () => {

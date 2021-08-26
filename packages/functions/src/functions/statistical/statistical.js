@@ -14,26 +14,42 @@ const { calculate, runFunction, terms: onTerms } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 
-const toNumbers = (sheet, terms, iteratorFn) => {
-	let error;
-	const values = [];
-	iteratorFn(sheet, terms, (value, err) => {
-		error = error || err;
-		const nr = !error ? convert.toNumberStrict(value) : undefined;
-		if (nr != null) values.push(nr);
-	});
-	return error || values;
-};
 const testValues = (min, error) => (values) => (values.length > min ? values : error);
 const doIfNoError = (fn) => (values) => FunctionErrors.isError(values) ? values : fn(values);
+const collect = (numbers = []) => (value, err) => {
+	if (value != null && err == null) {
+		const nr = convert.toNumberStrict(value);
+		if (nr != null) numbers.push(nr);
+	}
+	return err;
+};
+// stops on first error
+const getNumbers = (sheet, terms) => {
+	let error;
+	const numbers = [];
+	const collectNumbers = collect(numbers);
+	onTerms.iterateValues(sheet, terms, (value, err) => {
+		error = err;
+		return collectNumbers(value, err);
+	});
+	return error || numbers;
+}
+const countDefinedCells = (sheet, terms) => {
+	let total = 0;
+	onTerms.iterateValues(sheet, terms, (value, err) => {
+		if (err || (value != null && value !== '')) total += 1;
+	});
+	return total;
+};
 
-const runWith = (fn, sheet, terms) => fn(toNumbers(sheet, terms, onTerms.iterateAllTermsValues));
+const runWith = (fn, sheet, terms) => fn(getNumbers(sheet, terms));
 
 const avg = pipe(testValues(0, ERROR.DIV0), doIfNoError(calculate.avg));
 const average = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(() => runWith(avg, sheet, terms));
 
 const cnt = pipe(doIfNoError((numbers) => numbers.length));
 const count = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(() => runWith(cnt, sheet, terms));
+const counta = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(() => countDefinedCells(sheet, terms));
 
 const mx = pipe(doIfNoError(calculate.max));
 const max = (sheet, ...terms) => runFunction(sheet, terms).run(() => runWith(mx, sheet, terms));
@@ -48,8 +64,8 @@ const stdev = (sheet, ...terms) => runFunction(sheet, terms).withMinArgs(1).run(
 const correl = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(2)
-		.mapNextArg((xValues) => toNumbers(sheet, xValues, onTerms.iterateTermValues))
-		.mapNextArg((yValues) => toNumbers(sheet, yValues, onTerms.iterateTermValues))
+		.mapNextArg((xValues) => getNumbers(sheet, xValues))
+		.mapNextArg((yValues) => getNumbers(sheet, yValues))
 		.validate((arrayX, arrayY) => (arrayX.length === 0 || arrayY.length === 0 ? ERROR.DIV0 : undefined))
 		.validate((arrayX, arrayY) => (arrayX.length !== arrayY.length ? ERROR.NA : undefined))
 		.run((arrayX, arrayY) => {
@@ -75,8 +91,8 @@ const forecast = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(3)
 		.mapNextArg((xTerm) => (xTerm ? convert.toNumberStrict(xTerm.value, ERROR.VALUE) : ERROR.VALUE))
-		.mapNextArg((yKnown) => toNumbers(sheet, yKnown, onTerms.iterateTermValues))
-		.mapNextArg((xKnown) => toNumbers(sheet, xKnown, onTerms.iterateTermValues))
+		.mapNextArg((yKnown) => getNumbers(sheet, yKnown))
+		.mapNextArg((xKnown) => getNumbers(sheet, xKnown))
 		.validate((xVal, arrayY, arrayX) =>
 			arrayX.length !== arrayY.length || arrayX.length === 0 || arrayY.length === 0 ? ERROR.NA : undefined
 		)
@@ -104,6 +120,7 @@ module.exports = {
 	AVERAGE: average,
 	CORREL: correl,
 	COUNT: count,
+	COUNTA: counta,
 	FORECAST: forecast,
 	MAX: max,
 	MIN: min,

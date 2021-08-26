@@ -60,6 +60,10 @@ module.exports = {
 					'Zählt alle Werte, die einer Zahl entsprechen, aus den angegebenen Zellen oder Zellbereiche'
 			}
 		},
+		COUNTA: {
+			en: { argumentList: 'Value1,ValueN', description: 'Counts the amount of defined cells in given range' },
+			de: { argumentList: 'Wert1,WertN', description: 'Zählt alle definierten Zellen im angegebenen Zellbereich' }
+		},
 		COUNTIF: {
 			en: {
 				argumentList: 'CellRange,Criterion',
