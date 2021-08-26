@@ -37,7 +37,7 @@ const getNumbers = (sheet, terms) => {
 const countDefinedCells = (sheet, terms) => {
 	let total = 0;
 	onTerms.iterateValues(sheet, terms, (value, err) => {
-		if (err || (value != null && value !== '')) total += 1;
+		if (err || value != null) total += 1;
 	});
 	return total;
 };
