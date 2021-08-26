@@ -39,7 +39,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Tooltip from '@material-ui/core/Tooltip';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import Typography from '@material-ui/core/es/Typography/Typography';
 import {Assignment, ExitToApp, Info, Security, Settings} from '@material-ui/icons';
 import PremiumVersionIcon from '@material-ui/icons/VerifiedUser';
 
@@ -49,7 +48,7 @@ import {withStyles} from '@material-ui/core/styles';
 import {Path} from '../../helper/Path';
 import ListItemText from "@material-ui/core/ListItemText";
 
-const VERSION = process.env.REACT_APP_VERSION || '2.3';
+const VERSION = process.env.REACT_APP_VERSION || '2.4';
 // const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
 
 const isPremiumLicense = (license) => license && license.edition === 'pro';
@@ -441,33 +440,26 @@ export class SettingsMenu extends React.Component {
 				>
 					<DialogTitle>
 						<FormattedMessage
-							id="SettingsMenu.help.header"
-							defaultMessage="Info"
+							id="Product.name"
+							defaultMessage="Streamsheets"
 						/>
+						{" "}
+						<FormattedMessage
+							id="Version"
+							defaultMessage="Version"
+						/>
+						{" "}
+						{VERSION}
 					</DialogTitle>
 					<DialogContent
 						style={{
 							width: '470px'
 						}}
 					>
-						<Typography variant="h5" style={{marginBottom: '15px', marginTop: '10px'}}>
-							<FormattedMessage
-								id="Product.name"
-								defaultMessage="Streamsheets"
-							/>
-							{" "}
-							<FormattedMessage
-								id="Version"
-								defaultMessage="Version"
-							/>
-							{" "}
-							{VERSION}
-						</Typography>
 
 						{this.props.meta.licenseInfo && (
 							<Table size="small">
 								<TableBody>
-									{isPremiumLicense(this.props.meta.licenseInfo) && (
 									<TableRow>
 										<TableCell>
 											<b>
@@ -479,7 +471,6 @@ export class SettingsMenu extends React.Component {
 										</TableCell>
 										<TableCell>{isPremiumLicense(this.props.meta.licenseInfo) ? getPremium() : this.props.meta.licenseInfo.edition}</TableCell>
 									</TableRow>
-									)}
 									{isPremiumLicense(this.props.meta.licenseInfo) && (
 										<TableRow>
 											<TableCell>
