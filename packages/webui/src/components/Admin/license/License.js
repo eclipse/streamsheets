@@ -56,7 +56,6 @@ const License = (props) => {
 					<TableContainer component={Paper} className={classes.tableContainer}>
 							<Table size="medium">
 								<TableBody>
-									{isPremiumLicense(props.meta.licenseInfo) && (
 									<TableRow>
 										<TableCell>
 											<b>
@@ -68,7 +67,6 @@ const License = (props) => {
 										</TableCell>
 										<TableCell>{isPremiumLicense(props.meta.licenseInfo) ? getPremium() : props.meta.licenseInfo.edition}</TableCell>
 									</TableRow>
-									)}
 									{isPremiumLicense(props.meta.licenseInfo) && (
 										<TableRow>
 											<TableCell>
