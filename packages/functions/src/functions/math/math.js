@@ -18,7 +18,10 @@ const ERROR = FunctionErrors.code;
 // eslint-disable-next-line no-nested-ternary
 const _sign = (nr) => (nr > 0 ? 1 : nr < 0 ? -1 : 0);
 
-const _trunc = (nr, digits) => Math.trunc(nr * 10 ** digits) / 10 ** digits;
+const _trunc = (nr, digits) => {
+	const res = Math.trunc(nr * 10 ** digits) / 10 ** digits;
+	return isNaN(res) ? ERROR.NUM : res;
+};
 
 const toNumberOrError = (value) => {
 	let nr = value != null ? convert.toNumber(value) : 0;
