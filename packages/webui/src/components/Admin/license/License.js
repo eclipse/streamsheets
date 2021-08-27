@@ -39,9 +39,8 @@ const getLicenseValidUntil = (daysLeft) => {
 
 const useStyles = makeStyles(() => ({
 	tableContainer: {
-		minHeight: '500px',
-		'& td:nth-child(2)': {
-			minWidth: '100%'
+		'& td:first-child': {
+			width: '30%'
 		}
 	},
 }));
@@ -56,6 +55,22 @@ const License = (props) => {
 					<TableContainer component={Paper} className={classes.tableContainer}>
 							<Table size="medium">
 								<TableBody>
+									<TableRow>
+										<TableCell>
+											<b>
+												<FormattedMessage
+													id="Product.name.header"
+													defaultMessage="Name"
+												/>
+											</b>
+										</TableCell>
+										<TableCell>
+											<FormattedMessage
+												id="Product.name"
+												defaultMessage="Streamsheets"
+											/>
+										</TableCell>
+									</TableRow>
 									<TableRow>
 										<TableCell>
 											<b>
