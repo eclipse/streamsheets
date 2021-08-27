@@ -57,6 +57,7 @@ import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import HelpButton from './HelpButton';
+import ThemeButton from './ThemeButton';
 // import { ResizeHandler } from './ResizeHandler';
 import { Path } from '../helper/Path';
 import { DialogExtensions } from '@cedalo/webui-extensions';
@@ -319,6 +320,7 @@ export function MachineDetailPage(props) {
 									>
 										<NotificationsComponent />
 										<HelpButton />
+										<ThemeButton />
 										<SettingsMenu />
 									</Toolbar>
 								</div>

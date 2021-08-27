@@ -589,6 +589,7 @@
   "Tooltip.Save": "Save",
   "Tooltip.Add": "Add",
   "Tooltip.Help": "Show Help",
+  "Tooltip.SwitchMode": "Switch Mode",
   "Tooltip.StopHeader": "Stop App",
   "Tooltip.StopMessage": "The app will be stopped and no stream messages will be received and processed.",
   "Tooltip.StartHeader": "Start App",

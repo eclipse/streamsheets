@@ -588,6 +588,7 @@
 	"Tooltip.Save": "Speicher",
 	"Tooltip.Add": "Hinzufügen",
 	"Tooltip.Help": "Hilfe anzeigen",
+	"Tooltip.SwitchMode": "Modus wechseln",
 	"Tooltip.StopHeader": "Maschine stoppen",
 	"Tooltip.StopMessage": "Die Maschine wird gestoppt und es werden keine Streamnachrichten mehr empfangen und verarbeitet.",
 	"Tooltip.StartHeader": "Maschine starten",

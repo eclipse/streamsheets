@@ -39,6 +39,7 @@ import DecisionDialog from '../components/SheetDialogs/DecisionDialog';
 import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import HelpButton from '../layouts/HelpButton';
+import ThemeButton from '../layouts/ThemeButton';
 import theme from '../theme';
 
 const DASHBOARD_QUERY = `
@@ -174,6 +175,7 @@ export function DashboardPageComponent(props) {
 								>
 									<NotificationsComponent />
 									<HelpButton />
+									<ThemeButton />
 									<SettingsMenu />
 								</Toolbar>
 							</div>
