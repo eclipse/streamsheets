@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -31,7 +31,7 @@ export interface StreamImportInfo {
 	name: string;
 }
 
-export type ImportSelection = {	
+export type ImportSelection = {
 	id: ID;
 	connectorId?: ID;
 	newName: string;
@@ -166,7 +166,7 @@ const createMachineImport = ({
 };
 
 const doImport = async (
-	{ repositories, api }: RequestContext,
+	{ repositories, api, runFilter }: RequestContext,
 	scope: Scope,
 	importData: ExportImportData,
 	machineSelection: ImportSelection[] = [],
@@ -248,13 +248,17 @@ const doImport = async (
 							graph: await repositories.graphRepository.findGraphByMachineId(existingMachine.id)
 					  }
 					: null;
-				return createMachineImport({
-					mwg: selection.mwg,
-					existing,
-					name: selection.newName,
-					oldNewStreamId,
-					oldNewStreamName
-				});
+				return runFilter(
+					'importMachine',
+					createMachineImport({
+						mwg: selection.mwg,
+						existing,
+						name: selection.newName,
+						oldNewStreamId,
+						oldNewStreamName
+					}),
+					existing
+				);
 			} catch (error) {
 				logger.info(`Failed to prepare import! Machine#${selection.id}(${selection.newName})`, error.message);
 				return null;
