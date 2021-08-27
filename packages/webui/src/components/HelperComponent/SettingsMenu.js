@@ -227,7 +227,7 @@ export class SettingsMenu extends React.Component {
 							onClick={event =>
 								this.props.setAppState({ anchorEl: event.currentTarget, openMoreSettingMenu: true })}
 						>
-							<Avatar alt="Remy Sharp" src="images/avatar.png" />
+							<Avatar alt="User" src="images/avatar.png" />
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -249,7 +249,7 @@ export class SettingsMenu extends React.Component {
 							<CardHeader
 								title={<div style={{color: Colors.grey[50]}}>{displayName}</div>}
 								subheader={<address style={{color: Colors.grey[50]}}>{user ? user.mail : ""}</address>}
-								avatar={<Avatar alt="Remy Sharp" src="images/avatar.png"/>}
+								avatar={<Avatar alt="User" src="images/avatar.png" onClick={this.showPreferencesDialog} />}
 								disabled
 								style={{
 									backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
