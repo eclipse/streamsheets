@@ -52,7 +52,7 @@ const updateValue = (obj) => {
 	}
 	if (obj.term) {
 		obj.ref = obj.term.hasOperandOfType('CellReference') ? obj.term.operand.toString() : undefined;
-		obj.info = obj.term.cell.info;
+		obj.info = obj.term.info;
 	}
 };
 
