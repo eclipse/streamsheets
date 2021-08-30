@@ -177,6 +177,7 @@ class Aggregator {
 		const info = { marker, xvalue: 'time', values: entries.reduce(entriesReduce, { time: [], value: [] }) };
 		if (cell) {
 			cell.info = info;
+			term.info = undefined;
 		} else if (term) {
 			term.info = info;
 		}
@@ -194,7 +195,10 @@ const getAggregator = (term, settings) => {
 	}
 	return term._timeaggregator;
 };
-
+const initInfo = (term) => {
+	const target = term.cell || term;
+	if (!target.info) target.info = { xvalue: 'time', values: { time: [], value: [] } };
+}
 
 const timeaggregate = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -211,7 +215,7 @@ const timeaggregate = (sheet, ...terms) =>
 		.mapNextArg(doSort => doSort != null ? convert.toBoolean(doSort.value) : false)
 		.mapNextArg(limit => convert.toNumberStrict(limit != null ? limit.value || DEF_LIMIT : DEF_LIMIT, ERROR.VALUE))
 		.validate((v, p, m, t, interval) => ((interval != null && interval < MIN_INTERVAL) ? ERROR.VALUE : undefined))
-		.beforeRun(() => setCellInfo('xvalue', 'time', timeaggregate.term))
+		.beforeRun(() => initInfo(timeaggregate.term))
 		.run((val, period, method, timestamp, interval, targetrange, sorted, limit) => {
 			period *= 1000; // in ms
 			interval = interval != null ? interval * 1000 : -1;
