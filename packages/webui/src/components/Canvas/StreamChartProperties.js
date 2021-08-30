@@ -45,6 +45,7 @@ import { intl } from '../../helper/IntlGlobalProvider';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import ValueRangesDialog from '../SheetDialogs/ValueRangesDialog';
 import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const markerSizes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -214,14 +215,22 @@ export class StreamChartProperties extends Component {
 		}
 	}
 
-	finishCommand(cmd, key, notify = false) {
+	finishCommand(cmd, key, notify = false, delay = false) {
 		const item = this.state.plotView.getItem();
 		item.finishCommand(cmd, key);
+		item._lastJSON = undefined;
 		graphManager
 			.getGraphViewer()
 			.getInteractionHandler()
 			.execute(cmd);
-		this.updateState(notify);
+		if (delay) {
+			// wait for server response
+			setTimeout(() => {
+				this.updateState();
+			}, 300);
+		} else {
+			this.updateState(notify);
+		}
 	}
 
 	handleDataModeChange = (event) => {
@@ -507,21 +516,153 @@ export class StreamChartProperties extends Component {
 		this.finishCommand(cmd, 'title');
 	};
 
-	handleSeriesFormulaBlur = (event, series) => {
+	handleSeriesTimeSeriesChange = (event, series, state) => {
+		const cmd = this.prepareCommand('series');
+
+		series.timeSeries = state;
+
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleCategoriesLabelFormulaBlur = (event, series) => {
 		const cmd = this.prepareCommand('series');
 		const item = this.state.plotView.getItem();
-		const newFormula = event.target.textContent.replace(/^=/, '');
 
-		if (series.formula && newFormula !== series.formula.getFormula()) {
-			item.chart.formula = new JSG.Expression('');
-		}
+		item.chart.formula = new JSG.Expression('');
 
 		const expr = this.getExpression(item, event.target.textContent);
 		if (expr && expr.expression) {
-			series.formula = expr.expression;
+			series.formulaXLabel = expr.expression;
 		}
 
-		this.finishCommand(cmd, 'series');
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleSeriesLabelFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression('');
+
+		const expr = this.getExpression(item, event.target.textContent);
+		if (expr && expr.expression) {
+			series.formulaYLabel = expr.expression;
+		}
+
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleSeriesTimeValuesFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression('');
+
+		const expr = this.getExpression(item, event.target.textContent);
+		if (expr && expr.expression) {
+			series.formulaTime = expr.expression;
+		}
+
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleSeriesTimeXFieldFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression('');
+
+		const expr = this.getExpression(item, event.target.textContent);
+		if (expr && expr.expression) {
+			series.formulaTimeXKey = expr.expression;
+		}
+
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleSeriesTimeYFieldFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression('');
+
+		const expr = this.getExpression(item, event.target.textContent);
+		if (expr && expr.expression) {
+			series.formulaTimeYKey = expr.expression;
+		}
+
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleSeriesTimeCFieldFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression('');
+
+		const expr = this.getExpression(item, event.target.textContent);
+		if (expr && expr.expression) {
+			series.formulaTimeCKey = expr.expression;
+		}
+
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleSeriesCategoriesFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression('');
+
+		const formulas = event.target.textContent.split(JSG.getParserLocaleSettings().separators.parameter);
+
+		series.formulaXValues = [];
+		formulas.forEach((formula, index) => {
+			const expr = this.getExpression(item, index ? `=${formula}` : formula);
+			if (expr && expr.expression) {
+				series.formulaXValues.push(expr.expression);
+			}
+		});
+
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleSeriesValuesFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression('');
+
+		const formulas = event.target.textContent.split(JSG.getParserLocaleSettings().separators.parameter);
+
+		series.formulaYValues = [];
+		formulas.forEach((formula, index) => {
+			const expr = this.getExpression(item, index ? `=${formula}` : formula);
+			if (expr && expr.expression) {
+				series.formulaYValues.push(expr.expression);
+			}
+		});
+
+		this.finishCommand(cmd, 'series', false, true);
+	};
+
+	handleSeriesExtraValuesFormulaBlur = (event, series) => {
+		const cmd = this.prepareCommand('series');
+		const item = this.state.plotView.getItem();
+
+		item.chart.formula = new JSG.Expression('');
+
+		const formulas = event.target.textContent.split(JSG.getParserLocaleSettings().separators.parameter);
+
+		series.formulaCValues = [];
+		formulas.forEach((formula, index) => {
+			const expr = this.getExpression(item, index ? `=${formula}` : formula);
+			if (expr && expr.expression) {
+				series.formulaCValues.push(expr.expression);
+			}
+		});
+
+		this.finishCommand(cmd, 'series', false, true);
 	};
 
 	handleSeriesDuplicate = (index) => {
@@ -1289,6 +1430,10 @@ export class StreamChartProperties extends Component {
 		return !!item.getFirstSerieOfType('line');
 	}
 
+	usesCValues(serie) {
+		return serie.type === 'bubble' || serie.type === 'state' || serie.type === 'heatmap';
+	}
+
 	isFunnelChart() {
 		const item = this.state.plotView.getItem();
 		return !!item.getFirstSerieOfType('funnelbar') || !!item.getFirstSerieOfType('funnelcolumn');
@@ -1410,6 +1555,29 @@ export class StreamChartProperties extends Component {
 			}
 		}
 		return '';
+	}
+
+	getLocalFormula(expr, sheet) {
+		if (!expr) {
+			return '';
+		}
+
+		if (expr instanceof Array) {
+			let formula = '';
+			expr.forEach((expression, index) => {
+				formula +=  expression ? expression.toLocaleString(JSG.getParserLocaleSettings(), {
+					item: sheet, useName: true, noEqual: index > 0
+				}) : undefined;
+				if (index < expr.length - 1) {
+					formula += JSG.getParserLocaleSettings().separators.parameter;
+				}
+			});
+			return formula;
+		}
+
+		return expr ? expr.toLocaleString(JSG.getParserLocaleSettings(), {
+			item: sheet, useName: true
+		}) : undefined;
 	}
 
 	render() {
@@ -2185,10 +2353,6 @@ export class StreamChartProperties extends Component {
 												this.handleChartFormulaBlur(event);
 											}
 										}}
-										value={item.chart.formula.toLocaleString(JSG.getParserLocaleSettings(), {
-											item: sheetItem,
-											useName: true
-										})}
 										InputLabelProps={{ shrink: true }}
 										InputProps={{
 											inputComponent: MyInputComponent,
@@ -2278,56 +2442,25 @@ export class StreamChartProperties extends Component {
 									/* eslint-disable-next-line react/no-array-index-key */
 									key={`s${index}`}
 									style={{
-										borderBottom: '1px solid #CCCCCC',
+										borderTop: '1px solid #CCCCCC',
 										width: '100%'
 									}}
 								>
-									<FormControl fullWidth>
-										<TextField
-											style={{
-												height: '30px'
-											}}
-											variant="outlined"
-											fullWidth
-											size="small"
-											margin="normal"
-											label={this.getLabel(series)}
-											onBlur={(event) => this.handleSeriesFormulaBlur(event, series)}
-											onKeyPress={(event) => {
-												if (event.key === 'Enter') {
-													this.handleSeriesFormulaBlur(event, series);
-												}
-											}}
-											value={series.formula.toLocaleString(JSG.getParserLocaleSettings(), {
-												item: sheetItem,
-												useName: true
-											})}
-											InputLabelProps={{ shrink: true }}
-											InputProps={{
-												inputComponent: MyInputComponent,
-												inputProps: {
-													component: CellRangeComponent,
-													onlyReference: false,
-													sheetView,
-													value: {},
-													range: series.formula.toLocaleString(
-														JSG.getParserLocaleSettings(),
-														{ item: sheetItem, useName: true }
-													)
-												}
-											}}
-										/>
-									</FormControl>
 									<FormGroup
 										style={{
 											margin: '0px',
 											flexDirection: 'row',
-											justifyContent: 'center'
+											justifyContent: 'space-between'
 										}}
 									>
+										<Typography color="textSecondary" variant="caption" style={{ fontSize: '0.75rem', marginTop: '4px' }}>
+											{intl.formatMessage({ id: 'StreamChartProperties.SeriesRanges' }, {series: this.getLabel(series)})}
+										</Typography>
+										<div>
 										<IconButton
 											style={{
-												display: 'inline'
+												display: 'inline',
+												padding: '4px 4px 0px 4px'
 											}}
 											onClick={() => this.handleSeriesDuplicate(index)}
 										>
@@ -2338,7 +2471,8 @@ export class StreamChartProperties extends Component {
 										{item.series.length > 1 ? (
 											<IconButton
 												style={{
-													display: 'inline'
+													display: 'inline',
+													padding: '4px 4px 0px 4px'
 												}}
 												onClick={() => this.handleSeriesDelete(index)}
 											>
@@ -2348,7 +2482,8 @@ export class StreamChartProperties extends Component {
 										{index ? (
 											<IconButton
 												style={{
-													display: 'inline'
+													display: 'inline',
+													padding: '4px 4px 0px 4px'
 												}}
 												onClick={() => this.handleSeriesMoveUp(index)}
 											>
@@ -2360,7 +2495,8 @@ export class StreamChartProperties extends Component {
 										{index < item.series.length - 1 ? (
 											<IconButton
 												style={{
-													display: 'inline'
+													display: 'inline',
+													padding: '4px 4px 0px 4px'
 												}}
 												onClick={() => this.handleSeriesMoveDown(index)}
 											>
@@ -2369,7 +2505,264 @@ export class StreamChartProperties extends Component {
 												</SvgIcon>
 											</IconButton>
 										) : null}
+										</div>
 									</FormGroup>
+
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={series.timeSeries}
+												onChange={(event, state) => this.handleSeriesTimeSeriesChange(event, series, state)}
+											/>
+										}
+										label={<FormattedMessage id="StreamChartProperties.TimeSeries" defaultMessage="Time Series" />}
+									/>
+									{series.timeSeries ? [
+											<TextField
+												variant="outlined"
+												fullWidth
+												size="small"
+												margin="normal"
+												label={<FormattedMessage id="StreamChartProperties.CategoriesLabel" defaultMessage="Category Label" />}
+												onBlur={(event) => this.handleCategoriesLabelFormulaBlur(event, series)}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleCategoriesLabelFormulaBlur(event, series);
+													}
+												}}
+												InputLabelProps={{ shrink: true }}
+												InputProps={{
+													inputComponent: MyInputComponent,
+													inputProps: {
+														component: CellRangeComponent,
+														onlyReference: false,
+														sheetView,
+														value: {},
+														range: this.getLocalFormula(series.formulaXLabel, sheetItem)
+													}
+												}}
+											/>,
+											<TextField
+												variant="outlined"
+												fullWidth
+												size="small"
+												margin="normal"
+												label={<FormattedMessage id="StreamChartProperties.SeriesLabel" defaultMessage="Label" />}
+												onBlur={(event) => this.handleSeriesLabelFormulaBlur(event, series)}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesLabelFormulaBlur(event, series);
+													}
+												}}
+												InputLabelProps={{ shrink: true }}
+												InputProps={{
+													inputComponent: MyInputComponent,
+													inputProps: {
+														component: CellRangeComponent,
+														onlyReference: false,
+														sheetView,
+														value: {},
+														range: this.getLocalFormula(series.formulaYLabel, sheetItem)
+													}
+												}}
+											/>,
+										<TextField
+											variant="outlined"
+											fullWidth
+											size="small"
+											margin="normal"
+											label={<FormattedMessage id="StreamChartProperties.SeriesValues" defaultMessage="Values" />}
+											onBlur={(event) => this.handleSeriesTimeValuesFormulaBlur(event, series)}
+											onKeyPress={(event) => {
+												if (event.key === 'Enter') {
+													this.handleSeriesTimeValuesFormulaBlur(event, series);
+												}
+											}}
+											InputLabelProps={{ shrink: true }}
+											InputProps={{
+												inputComponent: MyInputComponent,
+												inputProps: {
+													component: CellRangeComponent,
+													onlyReference: false,
+													sheetView,
+													value: {},
+													range: this.getLocalFormula(series.formulaTime, sheetItem)
+												}
+											}}
+										/>,
+										<TextField
+											variant="outlined"
+											fullWidth
+											size="small"
+											margin="normal"
+											label={<FormattedMessage id="StreamChartProperties.SeriesXKey" defaultMessage="Field to use for X Categories or X Values" />}
+											onBlur={(event) => this.handleSeriesTimeXFieldFormulaBlur(event, series)}
+											onKeyPress={(event) => {
+												if (event.key === 'Enter') {
+													this.handleSeriesTimeXFieldFormulaBlur(event, series);
+												}
+											}}
+											InputLabelProps={{ shrink: true }}
+											InputProps={{
+												inputComponent: MyInputComponent,
+												inputProps: {
+													component: CellRangeComponent,
+													onlyReference: false,
+													sheetView,
+													value: {},
+													range: this.getLocalFormula(series.formulaTimeXKey, sheetItem)
+												}
+											}}
+										/>,
+										<TextField
+											variant="outlined"
+											fullWidth
+											size="small"
+											margin="normal"
+											label={<FormattedMessage id="StreamChartProperties.SeriesYKey" defaultMessage="Field to use for Values" />}
+											onBlur={(event) => this.handleSeriesTimeYFieldFormulaBlur(event, series)}
+											onKeyPress={(event) => {
+												if (event.key === 'Enter') {
+													this.handleSeriesTimeYFieldFormulaBlur(event, series);
+												}
+											}}
+											InputLabelProps={{ shrink: true }}
+											InputProps={{
+												inputComponent: MyInputComponent,
+												inputProps: {
+													component: CellRangeComponent,
+													onlyReference: false,
+													sheetView,
+													value: {},
+													range: this.getLocalFormula(series.formulaTimeYKey, sheetItem)
+												}
+											}}
+										/>
+										] : [
+											<TextField
+												variant="outlined"
+												fullWidth
+												size="small"
+												margin="normal"
+												label={<FormattedMessage id="StreamChartProperties.SeriesLabel" defaultMessage="Label" />}
+												onBlur={(event) => this.handleSeriesLabelFormulaBlur(event, series)}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesLabelFormulaBlur(event, series);
+													}
+												}}
+												InputLabelProps={{ shrink: true }}
+												InputProps={{
+													inputComponent: MyInputComponent,
+													inputProps: {
+														component: CellRangeComponent,
+														onlyReference: false,
+														sheetView,
+														value: {},
+														range: this.getLocalFormula(series.formulaYLabel, sheetItem)
+													}
+												}}
+											/>,
+											<TextField
+												variant="outlined"
+												fullWidth
+												size="small"
+												margin="normal"
+												label={<FormattedMessage id="StreamChartProperties.SeriesCategories" defaultMessage="X Values or Categories" />}
+												onBlur={(event) => this.handleSeriesCategoriesFormulaBlur(event, series)}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesCategoriesFormulaBlur(event, series);
+													}
+												}}
+												InputLabelProps={{ shrink: true }}
+												InputProps={{
+													inputComponent: MyInputComponent,
+													inputProps: {
+														component: CellRangeComponent,
+														onlyReference: false,
+														sheetView,
+														value: {},
+														range: this.getLocalFormula(series.formulaXValues, sheetItem)
+													}
+												}}
+											/>,
+											<TextField
+												variant="outlined"
+												fullWidth
+												size="small"
+												margin="normal"
+												label={<FormattedMessage id="StreamChartProperties.SeriesValues" defaultMessage="Values" />}
+												onBlur={(event) => this.handleSeriesValuesFormulaBlur(event, series)}
+												onKeyPress={(event) => {
+													if (event.key === 'Enter') {
+														this.handleSeriesValuesFormulaBlur(event, series);
+													}
+												}}
+												InputLabelProps={{ shrink: true }}
+												InputProps={{
+													inputComponent: MyInputComponent,
+													inputProps: {
+														component: CellRangeComponent,
+														onlyReference: false,
+														sheetView,
+														value: {},
+														range: this.getLocalFormula(series.formulaYValues, sheetItem)
+													}
+												}}
+											/>
+										]
+									}
+									{series.timeSeries && this.usesCValues(series) ? (
+									<TextField
+										variant="outlined"
+										fullWidth
+										size="small"
+										margin="normal"
+										label={<FormattedMessage id="StreamChartProperties.SeriesCKey" defaultMessage="Field to use for Radius, Heat, State" />}
+										onBlur={(event) => this.handleSeriesTimeCFieldFormulaBlur(event, series)}
+										onKeyPress={(event) => {
+											if (event.key === 'Enter') {
+												this.handleSeriesTimeCFieldFormulaBlur(event, series);
+											}
+										}}
+										InputLabelProps={{ shrink: true }}
+										InputProps={{
+											inputComponent: MyInputComponent,
+											inputProps: {
+												component: CellRangeComponent,
+												onlyReference: false,
+												sheetView,
+												value: {},
+												range: this.getLocalFormula(series.formulaTimeCKey, sheetItem)
+											}
+										}}
+									/>) : null}
+									{!series.timeSeries && this.usesCValues(series) ? (
+										<TextField
+											variant="outlined"
+											fullWidth
+											size="small"
+											margin="normal"
+											label={<FormattedMessage id="StreamChartProperties.SeriesExtraValues" defaultMessage="Radius, State, Heat" />}
+											onBlur={(event) => this.handleSeriesExtraValuesFormulaBlur(event, series)}
+											onKeyPress={(event) => {
+												if (event.key === 'Enter') {
+													this.handleSeriesExtraValuesFormulaBlur(event, series);
+												}
+											}}
+											InputLabelProps={{ shrink: true }}
+											InputProps={{
+												inputComponent: MyInputComponent,
+												inputProps: {
+													component: CellRangeComponent,
+													onlyReference: false,
+													sheetView,
+													value: {},
+													range: this.getLocalFormula(series.formulaCValues, sheetItem)
+												}
+											}}
+										/>) : null}
 								</FormGroup>
 							))
 						)}

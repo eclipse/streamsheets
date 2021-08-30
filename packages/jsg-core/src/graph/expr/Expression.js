@@ -548,7 +548,7 @@ class Expression {
 		// let str = this._formula != null ? this._formula : null;
 		let str =
 			this._term != null
-				? `=${this._term.toLocaleString(locale, ...params)}`
+				? `${params[0].noEqual === true ? '' : '='}${this._term.toLocaleString(locale, ...params)}`
 				: null;
 		if (str == null) {
 			const value = this.getValue();

@@ -44,10 +44,8 @@ export default class ChartDragFeedbackView extends View {
 			graphics.setFillColor(JSG.theme.filllight);
 		}
 
-		graphics.beginPath();
-		graphics.rect(rect.x + 100, rect.y + 100, rect.width - 200, rect.height - 200);
-		graphics.stroke();
-		graphics.fill();
+		graphics.fillRoundedRectangle(rect.x + 100, rect.y + 100, rect.width - 200, rect.height - 200, 150, 150, 150, 150);
+		graphics.drawRoundedRectangle(rect.x + 100, rect.y + 100, rect.width - 200, rect.height - 200, 150, 150, 150, 150);
 
 		if (active) {
 			graphics.setFillColor(JSG.theme.text);
@@ -80,12 +78,13 @@ export default class ChartDragFeedbackView extends View {
 		const item = this.chartView.getItem();
 		const size = item.getSizeAsPoint();
 		const time = item.isTimeBasedChart();
-		const canbeTime = item.series.length === 1 && (
+		const canbeTime = (
 			item.chart.type === 'line' ||
+			item.chart.type === 'area' ||
 			item.chart.type === 'column');
 		const columns = 1;
 		let row = 0;
-		let buttons;
+		let buttons = 0;
 		const selectedItem = this.sourceView.getSelectedItem();
 		const treeItems = this.sourceView.getItem().getSubTreeForItem(selectedItem);
 		treeItems.unshift(selectedItem);
@@ -100,12 +99,20 @@ export default class ChartDragFeedbackView extends View {
 		graphics.setFont();
 
 		if (time) {
-			buttons = treeItems.length === 1 ? item.series.length + 2 : 2;
+			const max = Math.min(item.series.length, 8);
+			buttons = treeItems.length === 1 ? max + 1 : 1;
+			buttons += max > 1 || treeItems.length  > 1 ? 1 : 0;
 		} else {
-			buttons = canbeTime ? item.series.length + 2 : item.series.length + 1;
-			this.drawButton(graphics, 'Add Series', size, row, 0, columns, buttons, mousePoint);
+			item.series.forEach((serie, index) => {
+				if (index < 4) {
+					buttons += 1;
+					if (serie.formulaYValues) {
+						buttons += 1;
+					}
+				}
+			});
+			buttons += canbeTime ? 3 : 2;
 		}
-		buttons = Math.min(10, buttons);
 
 		this.action = 'none';
 		this.actionSeriesIndex = -1;
@@ -113,7 +120,7 @@ export default class ChartDragFeedbackView extends View {
 		if (time) {
 			if (treeItems.length === 1) {
 				item.series.forEach((serie, index) => {
-					if (row < 9) {
+					if (index < 8) {
 						if (this.drawButton(graphics, `Replace Series: ${this.getLabel(item, serie)}`, size, row, 0,
 							columns, buttons, mousePoint)) {
 							this.action = 'replaceAggregation';
@@ -123,38 +130,65 @@ export default class ChartDragFeedbackView extends View {
 					}
 				});
 			}
-			if (this.drawButton(graphics, `Replace all aggregating Series`, size, row, 0, columns, buttons, mousePoint)) {
-				this.action = 'replaceAggregation';
-			}
-			row += 1;
 			if (this.drawButton(graphics, `Add aggregating Series`, size, row, 0, columns, buttons, mousePoint)) {
 				this.action = 'addAggregation';
 			}
+			row += 1;
+			if (item.series.length > 1 || treeItems.length > 1) {
+				if (this.drawButton(graphics, `Replace all aggregating Series`, size, row, 0, columns, buttons,
+					mousePoint)) {
+					this.action = 'replaceAggregation';
+				}
+				row += 1;
+			}
 		} else {
+			item.series.forEach((serie, index) => {
+				if (index < 4) {
+					if (this.drawButton(graphics, `Replace Series: ${this.getLabel(item, serie)}`, size, row, 0, columns,
+						buttons, mousePoint)) {
+						this.action = 'replaceSeries';
+						this.actionSeriesIndex = index;
+					}
+					row += 1;
+					if (serie.formulaYValues) {
+						if (this.drawButton(graphics, `Add to Series: ${this.getLabel(item, serie)}`, size, row, 0,
+							columns, buttons, mousePoint)) {
+							this.action = 'addCategory';
+							this.actionSeriesIndex = index;
+						}
+						row += 1;
+					}
+				}
+			});
 			if (this.drawButton(graphics, 'Add Series', size, row, 0, columns, buttons, mousePoint)) {
 				this.action = 'addSeries';
 			}
 			row += 1;
-			item.series.forEach((serie, index) => {
-				if (row < 8) {
-					if (this.drawButton(graphics, `Add to Series: ${this.getLabel(item, serie)}`, size, row, 0, columns,
-						buttons, mousePoint)) {
-						this.action = 'addCategory';
-						this.actionSeriesIndex = index;
-					}
-					row += 1;
-				}
-			});
+			if (this.drawButton(graphics, 'Replace all Series', size, row, 0, columns, buttons, mousePoint)) {
+				this.action = 'replaceSeries';
+			}
+			row += 1;
 			if (canbeTime) {
 				if (this.drawButton(graphics, 'Replace all by aggregating Series', size, row, 0, columns, buttons, mousePoint)) {
 					this.action = 'replaceAggregation';
-					this.actionSeriesIndex = -1;
 				}
+				row += 1;
 			}
 		}
 
+		this.buttonRect = new Rectangle(size.x / 2 - 5000 / 2, size.y / 2 - (buttons / 2) * 800, 5000, buttons * 800);
+
 		graphics.rotate(-angle);
 		graphics.translate(-point.x, -point.y);
+	}
+
+	isHit(point) {
+		GraphUtils.traverseUp(this.chartView, this.viewer.getGraphView(), (v) => {
+			v.translateFromParent(point);
+			return true;
+		});
+
+		return this.buttonRect ? this.buttonRect.containsPoint(point) : false;
 	}
 
 	getLabel(item, serie) {
