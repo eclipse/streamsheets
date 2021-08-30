@@ -1567,7 +1567,7 @@ export class StreamChartProperties extends Component {
 			expr.forEach((expression, index) => {
 				formula +=  expression ? expression.toLocaleString(JSG.getParserLocaleSettings(), {
 					item: sheet, useName: true, noEqual: index > 0
-				}) : undefined;
+				}) : '';
 				if (index < expr.length - 1) {
 					formula += JSG.getParserLocaleSettings().separators.parameter;
 				}

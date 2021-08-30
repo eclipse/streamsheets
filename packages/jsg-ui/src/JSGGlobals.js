@@ -327,6 +327,7 @@ JSG.init = (jsghome, locale) => {
 		Cursor.Style.SHEETROW = `url(${jsghome}/res/sheetrow.cur), move`;
 		Cursor.Style.SHEETCOLUMN = `url(${jsghome}/res/sheetcolumn.cur), move`;
 		Cursor.Style.SHEETROWSIZE = `url(${jsghome}/res/rowsize.cur), move`;
+		Cursor.Style.SHEETROWSIZEDISABLED = `url(${jsghome}/res/rowsizedisabled.cur), move`;
 		Cursor.Style.SHEETCOLUMNSIZE = `url(${jsghome}/res/columnsize.cur), move`;
 		Cursor.Style.DENY = `url(${jsghome}/res/deny.cur), auto`;
 		Cursor.Style.SPLITV = `url(${jsghome}/res/splitv.cur), move`;
@@ -339,6 +340,7 @@ JSG.init = (jsghome, locale) => {
 		Cursor.Style.SHEETROW = `url("${jsghome}/res/sheetrow.png") 15 15, move`;
 		Cursor.Style.SHEETCOLUMN = `url("${jsghome}/res/sheetcolumn.png") 15 15, move`;
 		Cursor.Style.SHEETROWSIZE = `url("${jsghome}/res/rowsize.png") 15 15, move`;
+		Cursor.Style.SHEETROWSIZEDISABLED = `url(${jsghome}/res/rowsizedisabled.png) 15 15, move`;
 		Cursor.Style.SHEETCOLUMNSIZE = `url("${jsghome}/res/columnsize.png") 15 15, move`;
 		Cursor.Style.DENY = `url("${jsghome}/res/deny.png") 15 15, auto`;
 		Cursor.Style.SPLITV = `url("${jsghome}/res/splitv.png") 15 15, move`;

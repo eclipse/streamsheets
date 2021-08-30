@@ -301,7 +301,7 @@ export class GeometryProperties extends Component {
 	}
 
 	validateCoordinate = (value, label) => {
-		if (!JSG.Numbers.isNumber(Number(value))) {
+		if (!this.isFormula(value) && !JSG.Numbers.isNumber(Number(value))) {
 			if (!this.getError(label)) {
 				this.state.errors.push({
 					value,
@@ -322,26 +322,30 @@ export class GeometryProperties extends Component {
 		return true;
 	};
 
+	isFormula(value) {
+		return (value.length && value.charAt(0) === '=');
+	}
+
 	validateName = (name, label) => {
 		const item = this.props.view.getItem();
 		let used = false;
 
-		JSG.GraphUtils.traverseItem(graphManager.getGraph(), litem => {
-			if (item !== litem && name === litem.getName().getValue()) {
-				used = true;
-			}
-		}, false);
+		if (!this.isFormula(name) && name !== '') {
+			JSG.GraphUtils.traverseItem(graphManager.getGraph(), litem => {
+				if (item !== litem && name === litem.getName().getValue()) {
+					used = true;
+				}
+			}, false);
 
-		if (used || name === '') {
-			if (!this.getError(label)) {
-				this.state.errors.push({
-					value: name,
-					label,
-					message: intl.formatMessage({ id: 'Alert.SheetDoubleName' }, {})
-				});
-				this.setState({ errors: this.state.errors });
+			if (used || name === '') {
+				if (!this.getError(label)) {
+					this.state.errors.push({
+						value: name, label, message: intl.formatMessage({ id: 'Alert.SheetDoubleName' }, {})
+					});
+					this.setState({ errors: this.state.errors });
+				}
+				return false;
 			}
-			return false;
 		}
 
 		const error = this.getError(label);

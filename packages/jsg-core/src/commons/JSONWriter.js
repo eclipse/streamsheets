@@ -67,6 +67,7 @@ module.exports = class JSONWriter extends Writer {
 		}
 
 		this.active = node;
+		return node;
 	}
 
 	writeEndElement(cancel) {

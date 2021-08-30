@@ -117,8 +117,9 @@ module.exports = class ChartSeries {
 
 		if (this.formulaXValues) {
 			writer.writeStartArray('fxvalues');
-			this.formulaXValues.forEach(formula => {
-				formula.save('formula', writer);
+			this.formulaXValues.forEach((formula, index) => {
+				const node = formula.save('formula', writer);
+				node.index = index;
 			});
 			writer.writeEndArray('fxvalues');
 		}
@@ -222,7 +223,11 @@ module.exports = class ChartSeries {
 					}
 					formula = new Expression(0);
 					formula.read(reader, child);
-					this.formulaXValues.push(formula);
+					if (child.index !== undefined) {
+						this.formulaXValues[child.index] = formula;
+					} else {
+						this.formulaXValues.push(formula);
+					}
 					break;
 				case 'formulavalues':
 				case 'fyvalues':
