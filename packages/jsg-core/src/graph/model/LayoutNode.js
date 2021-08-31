@@ -371,9 +371,9 @@ module.exports = class LayoutNode extends Node {
 					if (node._merged === false && node.getLayoutCellAttributes) {
 						const mergeCount = node.getLayoutCellAttributes().getMergeCount().getValue();
 						node.getItemAttributes().setVisible(true);
-						for (let i = columnIndex + 1; i <= columnIndex + mergeCount; i += 1) {
+						for (let i = 1; i <= mergeCount; i += 1) {
 							if (i < row.columnData.length) {
-								width += row.columnData[i].layoutSize;
+								width += row.columnData[columnIndex + i].layoutSize;
 								const mergeNode = this.getItemAt(column.nodeIndex + i);
 								if (mergeNode) {
 									if (mergeNode.isItemVisible()) {
