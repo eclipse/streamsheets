@@ -511,22 +511,22 @@ export class GeometryProperties extends Component {
 		if (x === undefined) {
 			if (y === undefined) {
 				ret = 0;
-			} else if (y === 'HEIGHT * 0.5') {
+			} else if (y.indexOf('HEIGHT*0.5') !== -1) {
 				ret = 3;
 			} else {
 				ret = 6;
 			}
-		} else if (x === 'WIDTH * 0.5') {
+		} else if (x.indexOf('WIDTH*0.5') !== -1) {
 			if (y === undefined) {
 				ret = 1;
-			} else if (y === 'HEIGHT * 0.5') {
+			} else if (y.indexOf('HEIGHT*0.5') !== -1) {
 				ret = 4;
 			} else {
 				ret = 7;
 			}
 		} else if (y === undefined) {
 			ret = 2;
-		} else if (y === 'HEIGHT * 0.5') {
+		} else if (y.indexOf('HEIGHT*0.5') !== -1) {
 			ret = 5;
 		} else {
 			ret = 8;
