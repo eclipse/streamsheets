@@ -126,7 +126,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 			rect.x += column.layoutSize - 150;
 			if (rect.containsPoint(point)) {
 				if (layoutNode._virtualRowData) {
-					const node = layoutNode.getItemAt(column.nodeIndex + i + 1);
+					const node = layoutNode.getItemAt(column.nodeIndex + 1);
 					if (node && node._merged) {
 						return -1;
 					}
