@@ -14,6 +14,8 @@ import React, { Component } from 'react';
 import { Button, Typography, Slide } from '@material-ui/core';
 import { connect } from 'react-redux';
 import AddIcon from '@material-ui/icons/Add';
+import SheetIcon from '@material-ui/icons/GridOn';
+import DashboardIcon from '@material-ui/icons/Dashboard';
 import CloseIcon from '@material-ui/icons/Close';
 import SettingsIcon from '@material-ui/icons/Settings';
 import * as Colors from '@material-ui/core/colors';
@@ -22,6 +24,9 @@ import SvgIcon from '@material-ui/core/SvgIcon/SvgIcon';
 import { FormattedMessage } from 'react-intl';
 import Tooltip from '@material-ui/core/Tooltip';
 import Fab from '@material-ui/core/Fab';
+import SpeedDial from '@material-ui/lab/SpeedDial';
+import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
@@ -37,7 +42,6 @@ import { intl } from '../../helper/IntlGlobalProvider';
 import GraphItemProperties from "./GraphItemProperties";
 import ViewModeProperties from "./ViewModeProperties";
 import LayoutSectionProperties from './LayoutSectionProperties';
-// import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
 
 export class CanvasComponent extends Component {
 	static getDerivedStateFromProps(props, state) {
@@ -72,6 +76,7 @@ export class CanvasComponent extends Component {
 			graph: null,
 			loaded: false,
 			loading: 1,
+			speedOpen: false,
 			dummy: ''
 		};
 	}
@@ -173,6 +178,14 @@ export class CanvasComponent extends Component {
 	 * Resize canvas and inform GraphEditor
 	 */
 
+	handleSpeedOpen = () => {
+		this.setState({speedOpen: true});
+	}
+
+	handleSpeedClose = () => {
+		this.setState({speedOpen: false});
+	}
+
 	onShowSheet = (sheet) => {
 		sheet.getGraph().setViewMode(sheet, 0);
 		graphManager.redraw();
@@ -198,7 +211,7 @@ export class CanvasComponent extends Component {
 		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, 'cellsheet');
 	}
 
-	onAdd = (event) => {
+	onAdd = (type) => {
 		const graph = graphManager.getGraph();
 		let cnt = graph.getStreamSheetContainerCount();
 
@@ -222,7 +235,7 @@ export class CanvasComponent extends Component {
 
 		graph.setViewMode(undefined, 0);
 
-		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, event.shiftKey ? 'dashboard' : 'sheet');
+		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, type);
 	};
 
 	initGraphEditor() {
@@ -333,31 +346,69 @@ export class CanvasComponent extends Component {
 				)}
 
 				{viewMode.active === true || !canEdit ? null : (
-					<Tooltip
-						enterDelay={300}
-						title={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}
-					>
-						<Fab
-							id="addSheet"
-							aria-label="add"
-							color="primary"
-							size="medium"
-							style={{
-								visibility: this.props.showTools ? 'visible' : 'hidden',
-								position: 'absolute',
-								zIndex: 1200,
-								right: '30px',
-								bottom: '26px',
-							}}
-							onClick={(event) => this.onAdd(event)}
-						>
-							<AddIcon
+					<div>
+						{graph.getDashboardContainer() ? (
+								<Tooltip
+									enterDelay={300}
+									title={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}
+								>
+							<Fab
+								id="addSheet"
+								aria-label="add"
+								color="primary"
+								size="medium"
 								style={{
-									color: '#FFFFFF',
+									visibility: this.props.showTools ? 'visible' : 'hidden',
+									position: 'absolute',
+									zIndex: 1200,
+									right: '30px',
+									bottom: '26px',
 								}}
-							/>
-						</Fab>
-					</Tooltip>
+								onClick={() => this.onAdd('sheet')}
+							>
+								<AddIcon
+									style={{
+										color: '#FFFFFF',
+									}}
+								/>
+							</Fab>
+								</Tooltip>
+							) : (
+							<SpeedDial
+								style={{
+									visibility: this.props.showTools ? 'visible' : 'hidden',
+									position: 'absolute',
+									zIndex: 1200,
+									right: '30px',
+									bottom: '26px',
+								}}
+								ariaLabel="Add"
+								// className={classes.speedDial}
+								FabProps={{
+									size: "medium"
+								}}
+								icon={<SpeedDialIcon />}
+								onClose={this.handleSpeedClose}
+								onOpen={this.handleSpeedOpen}
+								open={this.state.speedOpen}
+								direction="up"
+							>
+								<SpeedDialAction
+									key="sheet"
+									icon={<SheetIcon/>}
+									tooltipTitle={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}
+									onClick={() => this.onAdd('sheet')}
+								/>
+								<SpeedDialAction
+									key="dash"
+									icon={<DashboardIcon/>}
+									tooltipTitle={<FormattedMessage id="Tooltip.AddDashboard" defaultMessage="Add Dashboard" />}
+									onClick={() => this.onAdd('dashboard')}
+								/>
+							</SpeedDial>
+							)
+						}
+						</div>
 				)}
 				{viewMode.active === true && canEdit ? [
 					<Tooltip
