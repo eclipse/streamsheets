@@ -1111,9 +1111,10 @@ module.exports = class WorksheetNode extends ContentNode {
 		if (isFormula) {
 			text = text.substring(1);
 		}
-		// eslint-disable-next-line no-useless-catch
+
+		JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;
+
 		try {
-			JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;
 			if (isFormula) {
 				term = JSG.FormulaParser.parse(text, graph, this);
 			} else {
@@ -1193,10 +1194,11 @@ module.exports = class WorksheetNode extends ContentNode {
 					term = JSG.FormulaParser.parseValue(text, graph, this);
 				}
 			}
-			JSG.FormulaParser.context.separators = Locale.EN.separators;
 		} catch (e) {
 			throw e;
 		}
+
+		JSG.FormulaParser.context.separators = Locale.EN.separators;
 
 		const formula = term ? term.toLocaleString('en', { item: this, useName: true, forceName: true }) : '';
 		const expr = isFormula ? new Expression(0, formula) : ExpressionHelper.createExpressionFromValueTerm(term);

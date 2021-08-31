@@ -35,7 +35,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import DeleteIcon from '@material-ui/icons/Delete';
 import JSG from '@cedalo/jsg-ui';
-import { NullTerm } from '@cedalo/parser';
+import { Locale, NullTerm, Term } from '@cedalo/parser';
 
 import CellRangeComponent from './CellRangeComponent';
 import * as Actions from '../../actions/actions';
@@ -204,15 +204,29 @@ export class StreamChartProperties extends Component {
 	}
 
 	getExpression(item, value) {
-		try {
-			return this.getSheet(item).textToExpression(String(value));
-		} catch (e) {
-			this.getSheetView().notifyMessage({
-				message: e.message,
-				focusIndex: e.index !== undefined ? e.index + 1 : 1
-			});
-			return false;
+		let expr;
+
+		if (value.length && value.charAt(0) === '=') {
+			value = value.substring(1);
+			try {
+				JSG.FormulaParser.context.separators = JSG.getParserLocaleSettings().separators;
+				const term = JSG.FormulaParser.parse(value, item.getGraph(), item);
+				JSG.FormulaParser.context.separators = Locale.EN.separators;
+				if (term) {
+					const formula = term.toLocaleString('en', { item, useName: true, forceName: true });
+					expr = new JSG.Expression(0, formula)
+				}
+			} catch (e) {
+				this.getSheetView().notifyMessage({
+					message: e.message,
+					focusIndex: e.index !== undefined ? e.index + 1 : 1
+				});
+			}
+		} else {
+			expr = JSG.ExpressionHelper.createExpressionFromValueTerm(Term.fromString(value));
 		}
+
+		return expr;
 	}
 
 	finishCommand(cmd, key, notify = false, delay = false) {
@@ -531,8 +545,8 @@ export class StreamChartProperties extends Component {
 		item.chart.formula = new JSG.Expression('');
 
 		const expr = this.getExpression(item, event.target.textContent);
-		if (expr && expr.expression) {
-			series.formulaXLabel = expr.expression;
+		if (expr) {
+			series.formulaXLabel = expr;
 		}
 
 		this.finishCommand(cmd, 'series', false, true);
@@ -545,8 +559,8 @@ export class StreamChartProperties extends Component {
 		item.chart.formula = new JSG.Expression('');
 
 		const expr = this.getExpression(item, event.target.textContent);
-		if (expr && expr.expression) {
-			series.formulaYLabel = expr.expression;
+		if (expr) {
+			series.formulaYLabel = expr;
 		}
 
 		this.finishCommand(cmd, 'series', false, true);
@@ -559,8 +573,8 @@ export class StreamChartProperties extends Component {
 		item.chart.formula = new JSG.Expression('');
 
 		const expr = this.getExpression(item, event.target.textContent);
-		if (expr && expr.expression) {
-			series.formulaTime = expr.expression;
+		if (expr) {
+			series.formulaTime = expr;
 		}
 
 		this.finishCommand(cmd, 'series', false, true);
@@ -573,8 +587,8 @@ export class StreamChartProperties extends Component {
 		item.chart.formula = new JSG.Expression('');
 
 		const expr = this.getExpression(item, event.target.textContent);
-		if (expr && expr.expression) {
-			series.formulaTimeXKey = expr.expression;
+		if (expr) {
+			series.formulaTimeXKey = expr;
 		}
 
 		this.finishCommand(cmd, 'series', false, true);
@@ -587,8 +601,8 @@ export class StreamChartProperties extends Component {
 		item.chart.formula = new JSG.Expression('');
 
 		const expr = this.getExpression(item, event.target.textContent);
-		if (expr && expr.expression) {
-			series.formulaTimeYKey = expr.expression;
+		if (expr) {
+			series.formulaTimeYKey = expr;
 		}
 
 		this.finishCommand(cmd, 'series', false, true);
@@ -601,8 +615,8 @@ export class StreamChartProperties extends Component {
 		item.chart.formula = new JSG.Expression('');
 
 		const expr = this.getExpression(item, event.target.textContent);
-		if (expr && expr.expression) {
-			series.formulaTimeCKey = expr.expression;
+		if (expr) {
+			series.formulaTimeCKey = expr;
 		}
 
 		this.finishCommand(cmd, 'series', false, true);
@@ -611,16 +625,17 @@ export class StreamChartProperties extends Component {
 	handleSeriesCategoriesFormulaBlur = (event, series) => {
 		const cmd = this.prepareCommand('series');
 		const item = this.state.plotView.getItem();
+		const formula = event.target.textContent;
 
 		item.chart.formula = new JSG.Expression('');
 
-		const formulas = event.target.textContent.split(JSG.getParserLocaleSettings().separators.parameter);
+		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter);
 
 		series.formulaXValues = [];
-		formulas.forEach((formula, index) => {
-			const expr = this.getExpression(item, index ? `=${formula}` : formula);
-			if (expr && expr.expression) {
-				series.formulaXValues.push(expr.expression);
+		formulas.forEach((form) => {
+			const expr = this.getExpression(item, form);
+			if (expr) {
+				series.formulaXValues.push(expr);
 			}
 		});
 
@@ -630,16 +645,17 @@ export class StreamChartProperties extends Component {
 	handleSeriesValuesFormulaBlur = (event, series) => {
 		const cmd = this.prepareCommand('series');
 		const item = this.state.plotView.getItem();
+		const formula = event.target.textContent;
 
 		item.chart.formula = new JSG.Expression('');
 
-		const formulas = event.target.textContent.split(JSG.getParserLocaleSettings().separators.parameter);
+		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter);
 
 		series.formulaYValues = [];
-		formulas.forEach((formula, index) => {
-			const expr = this.getExpression(item, index ? `=${formula}` : formula);
-			if (expr && expr.expression) {
-				series.formulaYValues.push(expr.expression);
+		formulas.forEach((form) => {
+			const expr = this.getExpression(item, form);
+			if (expr) {
+				series.formulaYValues.push(expr);
 			}
 		});
 
@@ -649,16 +665,17 @@ export class StreamChartProperties extends Component {
 	handleSeriesExtraValuesFormulaBlur = (event, series) => {
 		const cmd = this.prepareCommand('series');
 		const item = this.state.plotView.getItem();
+		const formula = event.target.textContent;
 
 		item.chart.formula = new JSG.Expression('');
 
-		const formulas = event.target.textContent.split(JSG.getParserLocaleSettings().separators.parameter);
+		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter);
 
 		series.formulaCValues = [];
-		formulas.forEach((formula, index) => {
-			const expr = this.getExpression(item, index ? `=${formula}` : formula);
-			if (expr && expr.expression) {
-				series.formulaCValues.push(expr.expression);
+		formulas.forEach((form) => {
+			const expr = this.getExpression(item, form);
+			if (expr) {
+				series.formulaCValues.push(expr);
 			}
 		});
 
@@ -1564,14 +1581,15 @@ export class StreamChartProperties extends Component {
 
 		if (expr instanceof Array) {
 			let formula = '';
-			expr.forEach((expression, index) => {
-				formula +=  expression ? expression.toLocaleString(JSG.getParserLocaleSettings(), {
-					item: sheet, useName: true, noEqual: index > 0
+			for (let i = 0; i < expr.length; i += 1) {
+				const expression = expr[i];
+				formula += expression ? expression.toLocaleString(JSG.getParserLocaleSettings(), {
+					item: sheet, useName: true
 				}) : '';
-				if (index < expr.length - 1) {
+				if (i < expr.length - 1) {
 					formula += JSG.getParserLocaleSettings().separators.parameter;
 				}
-			});
+			}
 			return formula;
 		}
 
