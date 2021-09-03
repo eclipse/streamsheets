@@ -20,7 +20,60 @@ const expectFixedNumber = (precision) => (receivedNr) => ({
 	}
 });
 
-describe('floor', () => {
+describe('ceiling', () => {
+	it('should round up to nearest multiple of given significance', () => {
+		const sheet = new StreamSheet().sheet;
+		const expectNumber = expectFixedNumber(2);
+		expectNumber(createTerm('ceiling(2.5,1)', sheet).value).toBe(3);
+		expectNumber(createTerm('ceiling(1.5,0.1)', sheet).value).toBe(1.5);
+		expectNumber(createTerm('ceiling(0.234,0.01)', sheet).value).toBe(0.24);
+		expectNumber(createTerm('ceiling(4.32, 0.05)', sheet).value).toBe(4.35);
+		expectNumber(createTerm('ceiling(22.25, 0.1)', sheet).value).toBe(22.3);
+		expectNumber(createTerm('ceiling(22.25, 0.5)', sheet).value).toBe(22.5);
+		// returns significance if its greater than number
+		expectNumber(createTerm('ceiling(3.7,4)', sheet).value).toBe(4);
+		expectNumber(createTerm('ceiling(3.7,3.8)', sheet).value).toBe(3.8);
+	});
+	it('should work with negative significance too', () => {
+		const sheet = new StreamSheet().sheet;
+		const expectNumber = expectFixedNumber(2);
+		expectNumber(createTerm('ceiling(-2.5,2)', sheet).value).toBe(-2);
+		expectNumber(createTerm('ceiling(-22.25,1)', sheet).value).toBe(-22);
+		expectNumber(createTerm('ceiling(-2.5,-2)', sheet).value).toBe(-4);
+		expectNumber(createTerm('ceiling(-22.25,-0.1)', sheet).value).toBe(-22.3);
+		expectNumber(createTerm('ceiling(-22.25,-1)', sheet).value).toBe(-23);
+		expectNumber(createTerm('ceiling(-22.25,-5)', sheet).value).toBe(-25);
+	});
+	it('should work with boolean values', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('ceiling(true,2)', sheet).value).toBe(2);
+		expect(createTerm('ceiling(false,2)', sheet).value).toBe(0);
+		expect(createTerm('ceiling(false,true)', sheet).value).toBe(0);
+		expect(createTerm('ceiling(2.5,true)', sheet).value).toBe(3);
+	});
+	it(`should return ${ERROR.NUM} if significance is negative and number positive`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('ceiling(2.5,-2)', sheet).value.code).toBe(ERROR.NUM);
+		expect(createTerm('ceiling(2.5,-0.1)', sheet).value.code).toBe(ERROR.NUM);
+	});
+	it(`should return ${ERROR.VALUE} if either number or significance cannot be convert to number`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('ceiling("hello",2)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('ceiling(2.5,"world")', sheet).value.code).toBe(ERROR.VALUE);
+	});
+	it(`should return ${ERROR.DIV0} if significance evaluates to zero`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('ceiling(2.5,)', sheet).value.code).toBe(ERROR.DIV0);
+		expect(createTerm('ceiling(2.5,0)', sheet).value.code).toBe(ERROR.DIV0);
+		expect(createTerm('ceiling(2.5,false)', sheet).value.code).toBe(ERROR.DIV0);
+	});
+	it(`should return ${ERROR.ARGS} if called with too many or too few arguments`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('ceiling()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('ceiling(2.5,2,4)', sheet).value.code).toBe(ERROR.ARGS);
+	});
+});
+describe.skip('floor', () => {
 	it('should round down to nearest multiple of given significance', () => {
 		const sheet = new StreamSheet().sheet;
 		const expectNumber = expectFixedNumber(2);
