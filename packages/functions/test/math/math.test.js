@@ -73,7 +73,7 @@ describe('ceiling', () => {
 		expect(createTerm('ceiling(2.5,2,4)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
-describe.skip('floor', () => {
+describe('floor', () => {
 	it('should round down to nearest multiple of given significance', () => {
 		const sheet = new StreamSheet().sheet;
 		const expectNumber = expectFixedNumber(2);
@@ -124,7 +124,7 @@ describe.skip('floor', () => {
 		expect(createTerm('floor(2.5,2,4)', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });
-describe.skip('log', () => {
+describe('log', () => {
 	it('should return logarithm of given number to specified base', () => {
 		const sheet = new StreamSheet().sheet;
 		expect(createTerm('log(8,2)', sheet).value).toBe(3);
@@ -146,7 +146,7 @@ describe.skip('log', () => {
 		expect(createTerm('log(10,0)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });
-describe.skip('randbetween', () => {
+describe('randbetween', () => {
 	it(`should return ${ERROR.ARGS} if called with too few or too many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
 		expect(createTerm('randbetween(10)', sheet).value.code).toBe(ERROR.ARGS);
@@ -236,7 +236,7 @@ describe.skip('randbetween', () => {
 		expect(cell.value).toBeLessThan(cellValue);
 	});
 });
-describe.skip('round',() => {
+describe('round',() => {
 	it('should return rounded value, with specified precision', () => {
 		const sheet = new StreamSheet().sheet;
 		expect(createTerm('round(10.234,0)', sheet).value).toBe(10);
