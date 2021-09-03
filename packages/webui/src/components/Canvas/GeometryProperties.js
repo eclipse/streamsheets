@@ -301,7 +301,7 @@ export class GeometryProperties extends Component {
 	}
 
 	validateCoordinate = (value, label) => {
-		if (!JSG.Numbers.isNumber(Number(value))) {
+		if (!this.isFormula(value) && !JSG.Numbers.isNumber(Number(value))) {
 			if (!this.getError(label)) {
 				this.state.errors.push({
 					value,
@@ -322,26 +322,30 @@ export class GeometryProperties extends Component {
 		return true;
 	};
 
+	isFormula(value) {
+		return (value.length && value.charAt(0) === '=');
+	}
+
 	validateName = (name, label) => {
 		const item = this.props.view.getItem();
 		let used = false;
 
-		JSG.GraphUtils.traverseItem(graphManager.getGraph(), litem => {
-			if (item !== litem && name === litem.getName().getValue()) {
-				used = true;
-			}
-		}, false);
+		if (!this.isFormula(name) && name !== '') {
+			JSG.GraphUtils.traverseItem(graphManager.getGraph(), litem => {
+				if (item !== litem && name === litem.getName().getValue()) {
+					used = true;
+				}
+			}, false);
 
-		if (used || name === '') {
-			if (!this.getError(label)) {
-				this.state.errors.push({
-					value: name,
-					label,
-					message: intl.formatMessage({ id: 'Alert.SheetDoubleName' }, {})
-				});
-				this.setState({ errors: this.state.errors });
+			if (used || name === '') {
+				if (!this.getError(label)) {
+					this.state.errors.push({
+						value: name, label, message: intl.formatMessage({ id: 'Alert.SheetDoubleName' }, {})
+					});
+					this.setState({ errors: this.state.errors });
+				}
+				return false;
 			}
-			return false;
 		}
 
 		const error = this.getError(label);
@@ -507,22 +511,22 @@ export class GeometryProperties extends Component {
 		if (x === undefined) {
 			if (y === undefined) {
 				ret = 0;
-			} else if (y === 'HEIGHT * 0.5') {
+			} else if (y.indexOf('HEIGHT*0.5') !== -1) {
 				ret = 3;
 			} else {
 				ret = 6;
 			}
-		} else if (x === 'WIDTH * 0.5') {
+		} else if (x.indexOf('WIDTH*0.5') !== -1) {
 			if (y === undefined) {
 				ret = 1;
-			} else if (y === 'HEIGHT * 0.5') {
+			} else if (y.indexOf('HEIGHT*0.5') !== -1) {
 				ret = 4;
 			} else {
 				ret = 7;
 			}
 		} else if (y === undefined) {
 			ret = 2;
-		} else if (y === 'HEIGHT * 0.5') {
+		} else if (y.indexOf('HEIGHT*0.5') !== -1) {
 			ret = 5;
 		} else {
 			ret = 8;

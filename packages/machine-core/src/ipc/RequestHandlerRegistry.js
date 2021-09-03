@@ -722,12 +722,10 @@ class RegisterFunctionModules extends ARequestHandler {
 	get isModifying() {
 		return false;
 	}
-	handle({ modules = [] }) {
-		// logger.info('registerFunctionModules', modules);
+	async handle({ modules = [] }) {
 		// first module is always our core-functions module:
-		FunctionRegistry.registerCoreFunctionsModule(modules.shift());
-		modules.forEach((mod) => FunctionRegistry.registerFunctionModule(mod));
-		return Promise.resolve();
+		await FunctionRegistry.registerCoreFunctionsModule(modules.shift());
+		return Promise.all(modules.map((mod) => FunctionRegistry.registerFunctionModule(mod)));
 	}
 }
 

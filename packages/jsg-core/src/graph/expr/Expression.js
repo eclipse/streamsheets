@@ -548,7 +548,7 @@ class Expression {
 		// let str = this._formula != null ? this._formula : null;
 		let str =
 			this._term != null
-				? `=${this._term.toLocaleString(locale, ...params)}`
+				? `${params[0].noEqual === true ? '' : '='}${this._term.toLocaleString(locale, ...params)}`
 				: null;
 		if (str == null) {
 			const value = this.getValue();
@@ -713,7 +713,7 @@ class Expression {
 	 * @param {Writer} writer Writer object to save to.
 	 */
 	save(name, writer, decimals) {
-		writer.writeStartElement(name);
+		const node = writer.writeStartElement(name);
 
 		if (this._formula !== undefined) {
 			if (this._term !== undefined) {
@@ -737,6 +737,8 @@ class Expression {
 		}
 
 		writer.writeEndElement();
+
+		return node;
 	}
 
 	/**

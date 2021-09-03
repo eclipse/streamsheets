@@ -126,7 +126,7 @@ export default class LayoutNodeActivator extends InteractionActivator {
 			rect.x += column.layoutSize - 150;
 			if (rect.containsPoint(point)) {
 				if (layoutNode._virtualRowData) {
-					const node = layoutNode.getItemAt(column.nodeIndex + i + 1);
+					const node = layoutNode.getItemAt(column.nodeIndex + 1);
 					if (node && node._merged) {
 						return -1;
 					}
@@ -373,7 +373,14 @@ export default class LayoutNodeActivator extends InteractionActivator {
 				} else if (this.getColumn(event, viewer, point, layoutNode) !== -1) {
 					cursor = Cursor.Style.SHEETCOLUMNSIZE;
 				} else if (this.getRow(event, viewer, point, layoutNode) !== -1) {
-					cursor = Cursor.Style.SHEETROWSIZE;
+					const index = this.getRow(event, viewer, point, layoutNode);
+					if (index !== -1) {
+						const data = layoutNode._virtualRowData ? layoutNode._virtualRowData[index] : layoutNode.rowData[index];
+						if (data) {
+							cursor = data.sizeMode === 'auto' ? Cursor.Style.SHEETROWSIZEDISABLED :
+								Cursor.Style.SHEETROWSIZE;
+						}
+					}
 				}/* else if (this.getColumnHeader(event, viewer, point, layoutNode) !== -1) {
 					cursor = Cursor.Style.SHEETCOLUMN;
 				} else if (this.getRowHeader(event, viewer, point, layoutNode) !== -1) {

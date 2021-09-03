@@ -38,13 +38,18 @@ const MIN_MS = 60 * SEC_MS;
 const HOUR_MS = 60 * MIN_MS;
 const timeregex = new RegExp(/(\d\d?):(\d\d?):?(\d?\d?)\s*(am|pm)?/, 'i');
 // seems sign is not supported by Date.parse()
-const isoregex = /^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})\.(\d{1,3})Z$/;
+// const isoregex = /^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):?(\d{0,2}):?(\d{0,2})\.?(\d{0,3})Z$/;
+const isoregex = /^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2})(:\d{0,2})?(:\d{0,2})?(\.\d{0,3})?Z$/;
 
-const padZeros = (nr) => (str) => str.padStart(nr, '0');
-const padZeros2 = padZeros(2);
-const padZeros3 = padZeros(3);
-const isoFormat = (match, YYYY, MM, DD, hh, mm, ss, sss /* , offset, string */) =>
-	`${YYYY}-${padZeros2(MM)}-${padZeros2(DD)}T${padZeros2(hh)}:${padZeros2(mm)}:${padZeros2(ss)}.${padZeros3(sss)}Z`;
+const padZero = (nr) => (str) => str.padStart(nr, '0');
+const insZero = (nr) => (str = '') => str.substring(1).padStart(nr, '0');
+const padZero2 = padZero(2);
+const insZero2 = insZero(2);
+const insZero3 = insZero(3);
+const isoFormat = (match, YYYY, MM, DD, hh, mm, ss, ms /* , offset, string */) => {
+	if ((ms != null && ss == null) || (ss != null && mm == null)) return undefined;
+	return `${YYYY}-${padZero2(MM)}-${padZero2(DD)}T${padZero2(hh)}:${insZero2(mm)}:${insZero2(ss)}.${insZero3(ms)}Z`;
+};
 const validateISOFormat = (str) => (isoregex.test(str) ? str.replace(isoregex, isoFormat) : ERROR.VALUE);
 
 const timeToSerial = (hrs = 0, mins = 0, secs = 0) => {
