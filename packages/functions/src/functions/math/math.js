@@ -90,6 +90,21 @@ const even = (sheet, ...terms) =>
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.run((nr) => roundToEvenOrOdd(nr, true));
 
+const floor = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withArgCount(2)
+		.mapNextArg((nr) => toNumberOrError(nr.value))
+		.mapNextArg((significance) => toNumberOrError(significance.value))
+		.validate((nr, significance) => {
+			if (significance < 0 && nr >= 0) return ERROR.NUM;
+			return significance === 0 ? ERROR.DIV0 : undefined;
+		})
+		.run((nr, significance) => {
+			// roundToEvenOrOdd(nr, true);
+			const res = Math.floor(nr / significance) * significance;
+			return res;
+		});
+
 const frac = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
@@ -232,6 +247,7 @@ module.exports = {
 	ARCSIN: arcsin,
 	DEGREES: degrees,
 	EVEN: even,
+	FLOOR: floor,
 	FRAC: frac,
 	INT: int,
 	LOG: log,
