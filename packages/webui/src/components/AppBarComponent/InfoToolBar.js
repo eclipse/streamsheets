@@ -45,7 +45,7 @@ export function InfoToolBar(props) {
 				width: props.width
 			}}
 		>
-			<div>
+			<div id="menu">
 				{hideDrawer ? (
 					<IconButton style={{ color: 'white' }} onClick={goBackPage}>
 						<ArrowBackIcon />

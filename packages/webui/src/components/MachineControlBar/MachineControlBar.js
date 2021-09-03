@@ -195,7 +195,9 @@ class MachineControlBar extends React.Component {
 					minHeight: '10px'
 				}}
 			>
-				<Toolbar>
+				<Toolbar
+					id="stream-app-controlbar"
+				>
 					<div
 						style={{
 							display: 'flex'

@@ -1982,6 +1982,7 @@ export class CanvasToolBar extends Component {
 		const selBorderStyle = this.getFormatBorderStyle();
 		const selBorderWidth = this.getFormatBorderWidth();
 		return (<AppBar
+				id="stream-app-toolbar"
 				elevation={0}
 				color='default'
 				style={{

@@ -291,6 +291,7 @@ export class CanvasComponent extends Component {
 
 		return (
 			<div
+				id="stream-app-edit-area"
 				style={{
 					height: '100%',
 					width: '100%',

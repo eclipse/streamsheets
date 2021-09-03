@@ -528,11 +528,13 @@ class DashBoardComponent extends Component {
 							onChange={this.handleTabChange}
 						>
 							<Tab
+								id="dashboard-stream-apps" 
 								style={{ fontSize: '11pt' }}
 								label={<FormattedMessage value={0} id="Dashboard" defaultMessage="Apps and Services" />}
 							/>
 							{this.props.rights.includes('stream') ? (
 								<Tab
+									id="dashboard-streams" 
 									style={{ fontSize: '11pt' }}
 									label={
 										<FormattedMessage value={1} id="Dashboard.manage" defaultMessage="Streams" />
@@ -546,7 +548,12 @@ class DashBoardComponent extends Component {
 									enterDelay={300}
 									title={<FormattedMessage id="Import.Button.Import" defaultMessage="Import" />}
 								>
-									<IconButton color="primary" aria-label="Menu" onClick={this.handleImport}>
+									<IconButton
+										id="dashboard-button-import" 
+										color="primary"
+										aria-label="Menu"
+										onClick={this.handleImport}
+									>
 										<SvgIcon>
 											<path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
 										</SvgIcon>
@@ -557,7 +564,12 @@ class DashBoardComponent extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Dashboard.export" defaultMessage="Export" />}
 							>
-								<IconButton color="primary" aria-label="Menu" onClick={this.handleExport}>
+								<IconButton
+									id="dashboard-button-export"
+									color="primary"
+									aria-label="Menu"
+									onClick={this.handleExport}
+								>
 									<SvgIcon>
 										<path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
 									</SvgIcon>
