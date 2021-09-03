@@ -151,9 +151,12 @@ class DashBoardComponent extends Component {
 		this.setState({
 			dialogMachineTitleImageOpen: false
 		});
-		if (result.imgSrc) {
-			this.props.setTitleImage(this.state.currentMachine, result.imgSrc);
-			this.props.openDashboard(this.state.currentMachine.id);
+		if (result.image) {
+			this.props.setTitleImage(this.state.currentMachine, result.image);
+			const { openDashboard } = this.props;
+			setTimeout(() => {
+				openDashboard(this.state.currentMachine.id);
+			}, 500)
 		}
 	};
 
