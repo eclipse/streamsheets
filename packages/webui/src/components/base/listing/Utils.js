@@ -103,7 +103,25 @@ const formatDateString = (s = '') => {
 	return '';
 };
 
+const getImageByResource = (resource) => {
+	if (!resource) {
+		return 'images/preview.png';
+	}
+
+	switch (resource.className) {
+		case 'ConnectorConfiguration':
+			return `${resource.titleImage || 'images/connector.png'}`;
+		case 'ConsumerConfiguration':
+			return `${resource.titleImage || 'images/consumer.png'}`;
+		case 'ProducerConfiguration':
+			return `${resource.titleImage || 'images/producer.png'}`;
+		default:
+			return `${resource.titleImage || 'images/preview.png'}`;
+	}
+}
+
 export {
+	getImageByResource,
 	jsonPath,
 	shorten,
 	chainFilters,
