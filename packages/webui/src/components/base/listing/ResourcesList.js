@@ -16,17 +16,25 @@ import {Table, Paper, IconButton} from '@material-ui/core';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import styles from './styles';
+// import styles from './styles';
 import ResourceMenu from './ResourceMenu';
 import TableSortHeader from '../../HelperComponent/TableSortHeader';
 import {injectIntl} from 'react-intl';
 import {formatDateString} from './Utils';
 import { IconPause, IconPlay, IconStop } from '../../icons';
 import Constants from '../../../constants/Constants';
-import SortSelector from "../sortSelector/SortSelector";
+import SortSelector from '../sortSelector/SortSelector';
+import { getImageByResource } from './Utils';
 
 const MAX_LENGTH = 20;
 const PREF_KEY_SORTQUERYLIST = 'streamsheets-prefs-list-sortby';
+
+const styles = ( /* theme */ ) => ({
+	table: {
+		backgroundColor: 'white',
+		minWidth: '700px'
+	}
+});
 
 class ResourcesList extends React.Component {
 	static propTypes = {
@@ -178,13 +186,15 @@ class ResourcesList extends React.Component {
 
 	render() {
 		const {
+			classes,
 			menuOptions,
 			onMenuSelect,
 			canEdit,
 		} = this.props;
 		return (
 				<Table
-					style={{ minWidth: '700px'}}
+					className={classes.table}
+					size="medium"
 				>
 					<TableSortHeader
 						height={48}
@@ -211,7 +221,20 @@ class ResourcesList extends React.Component {
 								tabIndex={-1}
 								key={`${resource.className}-${resource.id}`}
 							>
-								<TableCell onClick={() => this.handleSelection(resource)} padding="none"></TableCell>
+								<TableCell onClick={() => this.handleSelection(resource)} padding="none">
+									<div
+										onClick={() => this.handleSelection(resource)}
+										style={{
+											margin: '9px',
+										}}
+									>
+										<img
+											width = '75px'
+											height = '38px'
+											src={getImageByResource(resource)}
+										/>
+									</div>
+								</TableCell>
 								<TableCell style={{fontWeight: 'bold'}} onClick={() => this.handleSelection(resource)} padding="none" component="th" scope="row">
 									{resource.name}
 								</TableCell>
