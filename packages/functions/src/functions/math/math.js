@@ -45,6 +45,20 @@ const random = (min, max) => {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+const validateFloorCeiling = (nr, significance) =>
+	// eslint-disable-next-line no-nested-ternary
+	significance < 0 && nr >= 0 ? ERROR.NUM : significance === 0 ? ERROR.DIV0 : undefined;
+const runFloorCeiling = (roundFn) => (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withArgCount(2)
+		.mapNextArg((nr) => toNumberOrError(nr.value))
+		.mapNextArg((significance) => toNumberOrError(significance.value))
+		.validate(validateFloorCeiling)
+		.run((nr, significance) => roundFn(nr / significance) * significance);
+const runFloor = runFloorCeiling(Math.floor);
+const runCeiling = runFloorCeiling(Math.ceil);
+
+	
 // const roundDecimaals = (nr, decimals) => parseFloat(nr.toFixed(decimals));
 // const getDecimalsCount = (nr) => {
 // 	const nrstr = nr.toString();
@@ -230,8 +244,10 @@ module.exports = {
 	ABS: abs,
 	ARCCOS: arccos,
 	ARCSIN: arcsin,
+	CEILING: runCeiling,
 	DEGREES: degrees,
 	EVEN: even,
+	FLOOR: runFloor,
 	FRAC: frac,
 	INT: int,
 	LOG: log,
