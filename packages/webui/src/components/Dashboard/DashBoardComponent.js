@@ -42,6 +42,15 @@ import SortSelector from '../base/sortSelector/SortSelector';
 const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 const PREF_KEY_SORTSTREAMS = 'streamsheets-prefs-streams-sort';
 
+const toDataURL = (image) => {
+	const canvas = document.createElement('canvas');
+	const ctx = canvas.getContext('2d');
+	canvas.width = image.width;
+	canvas.height = image.height;
+	ctx.drawImage(image, 0, 0);
+	return canvas.toDataURL('image/png');
+}
+
 const styles = (theme) => ({
 	tableRoot: {
 		'& > *': {
@@ -60,6 +69,8 @@ const styles = (theme) => ({
 class DashBoardComponent extends Component {
 	constructor(props) {
 		super(props);
+
+		this.defaultTitleImage = React.createRef();
 
 		const sort = localStorage.getItem(PREF_KEY_SORTSTREAMS) || 'lastModified_desc';
 		const sortObj = SortSelector.parseSortQuery(sort);
@@ -201,6 +212,15 @@ class DashBoardComponent extends Component {
 					currentMachine: machine
 				});
 				this.props.openDashboard(machine);
+				break;
+			}
+			case Constants.RESOURCE_MENU_IDS.RESET_TITLE_IMAGE: {
+				const machine = this.props.machines.find((m) => m.id === resourceId);
+				this.props.setTitleImage(machine, toDataURL(this.defaultTitleImage.current));
+				const { openDashboard } = this.props;
+				setTimeout(() => {
+					openDashboard(machine.id);
+				}, 500)
 				break;
 			}
 			case Constants.RESOURCE_MENU_IDS.START: {
@@ -511,6 +531,10 @@ class DashBoardComponent extends Component {
 				label: <FormattedMessage id="Dashboard.setTitleImage" defaultMessage="Set image" />,
 				value: Constants.RESOURCE_MENU_IDS.SET_TITLE_IMAGE
 			});
+			menuOptions.push({
+				label: <FormattedMessage id="Dashboard.resetTitleImage" defaultMessage="Reset image" />,
+				value: Constants.RESOURCE_MENU_IDS.RESET_TITLE_IMAGE
+			});
 		}
 		return (
 			<div style={{ height: '100%' }}>
@@ -706,6 +730,12 @@ class DashBoardComponent extends Component {
 						</Table>
 					</div>
 				) : null}
+				<img
+					alt='Default stream app tile background'
+					src='/images/preview.png'
+					// style={{ display: 'none' }}
+					ref={this.defaultTitleImage}
+				/>
 			</div>
 		);
 	}
