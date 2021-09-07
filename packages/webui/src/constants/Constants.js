@@ -19,5 +19,6 @@ export default {
 		EXPORT: 6,
 		CLONE: 7,
 		SET_TITLE_IMAGE: 8,
+		RESET_TITLE_IMAGE: 9,
 	}
 };
