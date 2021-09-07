@@ -274,6 +274,7 @@
   "Dashboard.open": "Open",
   "Dashboard.export": "Export",
   "Dashboard.setTitleImage": "Define displayed image",
+  "Dashboard.resetTitleImage": "Reset displayed image",
   "Dashboard.start": "Start",
   "Dashboard.stop": "Stop",
   "Dashboard.pause": "Pause",
