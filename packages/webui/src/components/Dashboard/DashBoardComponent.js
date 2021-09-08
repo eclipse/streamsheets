@@ -25,7 +25,7 @@ import ImportDropzone from '../ImportExport/ImportDropzone';
 import { formatDateString } from '../base/listing/Utils';
 import { ImageUploadDialog } from '@cedalo/webui-extensions';
 import { Path } from '../../helper/Path';
-import { Table, TableBody, Tabs, Tab, Fab } from '@material-ui/core';
+import { Paper, Table, TableBody, Tabs, Tab, Fab } from '@material-ui/core';
 import TableSortHeader from '../HelperComponent/TableSortHeader';
 import StreamHelper from '../../helper/StreamHelper';
 import StreamDeleteDialog from '../Admin/streams/StreamDeleteDialog';
@@ -52,6 +52,24 @@ const toDataURL = (image) => {
 }
 
 const styles = (theme) => ({
+	tablePaperContainer: {
+		maxHeight: '100%',
+		padding: '24px',
+		overflow: 'auto',
+		boxSizing: 'border-box'
+	},
+	tableContainer: {
+		padding: '32px',
+		maxHeight: '100%',
+		margin: 'auto',
+		position: 'relative'
+	},
+	table: {
+		border: 'none',
+	},
+	toolbar: {
+		backgroundColor: 'white',
+	},
 	tableRoot: {
 		'& > *': {
 			borderBottom: 'unset'
@@ -317,7 +335,7 @@ class DashBoardComponent extends Component {
 				minWidth: '170px',
 				fields
 			},
-			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '20%' },
+			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL' },
 			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic'},
 			{
 				id: 'lastModified',
@@ -503,6 +521,7 @@ class DashBoardComponent extends Component {
 	}
 
 	render() {
+		const { classes } = this.props;
 		const canControl = this.props.rights.includes('machine.edit');
 		const canDelete = this.props.rights.includes('machine.edit');
 		const canView = this.props.rights.includes('machine.view');
@@ -538,7 +557,9 @@ class DashBoardComponent extends Component {
 		}
 		return (
 			<div style={{ height: '100%' }}>
-				<div style={{ backgroundColor: this.props.theme.wall.backgroundColor }}>
+				<div 
+					className={classes.toolbar}
+				>
 					<div
 						style={{
 							display: 'flex',
@@ -552,7 +573,7 @@ class DashBoardComponent extends Component {
 							onChange={this.handleTabChange}
 						>
 							<Tab
-								id="dashboard-stream-apps" 
+								id="dashboard-stream-apps"
 								style={{ fontSize: '11pt' }}
 								label={<FormattedMessage value={0} id="Dashboard" defaultMessage="Apps and Services" />}
 							/>
@@ -706,28 +727,36 @@ class DashBoardComponent extends Component {
 								<Add />
 							</Fab>
 						</Tooltip>
-						<Table size="small" aria-label="collapsible table" style={{ minWidth: '1200px' }}>
-							<TableSortHeader
-								height={48}
-								cells={this.getCells()}
-								orderBy={this.state.streamSortBy}
-								order={this.state.streamSortOrder}
-								onRequestSort={this.handleStreamsSort}
-								onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
-							/>
-							<TableBody>
-								{this.getRows().map((row) => (
-									<StreamTableRow
-										key={row.name}
-										row={row}
-										onStreamNew={(type, resource) => this.onStreamNew(type, resource)}
-										onStreamOpen={(resource, type) => this.onStreamOpen(resource, type)}
-										onStreamDelete={(resource, type) => this.onStreamDelete(resource, type)}
-										onStreamReload={(resource) => this.onStreamReload(resource)}
+						<div
+							className={classes.tablePaperContainer}
+						>
+							<Paper 
+								className={classes.tableContainer}
+							>
+								<Table className={classes.table} size="medium" aria-label="collapsible table" >
+									<TableSortHeader
+										height={48}
+										cells={this.getCells()}
+										orderBy={this.state.streamSortBy}
+										order={this.state.streamSortOrder}
+										onRequestSort={this.handleStreamsSort}
+										onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
 									/>
-								))}
-							</TableBody>
-						</Table>
+									<TableBody>
+										{this.getRows().map((row) => (
+											<StreamTableRow
+												key={row.name}
+												row={row}
+												onStreamNew={(type, resource) => this.onStreamNew(type, resource)}
+												onStreamOpen={(resource, type) => this.onStreamOpen(resource, type)}
+												onStreamDelete={(resource, type) => this.onStreamDelete(resource, type)}
+												onStreamReload={(resource) => this.onStreamReload(resource)}
+											/>
+										))}
+									</TableBody>
+								</Table>
+							</Paper>
+						</div>
 					</div>
 				) : null}
 				<img
