@@ -19,7 +19,7 @@ import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
 import ResourceCardHeader from './ResourceCardHeader';
 import SortSelector from '../sortSelector/SortSelector';
-import { FormattedMessage, injectIntl } from 'react-intl';
+import { injectIntl } from 'react-intl';
 import { withStyles} from "@material-ui/core/styles";
 import grey from '@material-ui/core/colors/grey';
 import { getImageByResource } from './Utils';
@@ -290,6 +290,7 @@ class ResourcesGrid extends React.Component {
 					overflowY: 'auto'
 				}}
 			>
+				
 				<div
 					style={{
 						marginLeft: `${Math.max(0, Math.floor((width - columns * 330) / 2))}px`,
@@ -309,14 +310,7 @@ class ResourcesGrid extends React.Component {
 								marginTop: '5px',
 								marginLeft: '5px',
 							}}
-						>
-							<Typography variant="body2" color="textPrimary">
-								<FormattedMessage
-									id="Dashboard.allApps"
-									defaultMessage="All Apps and Services"
-								/>
-							</Typography>
-						</div>
+						/>
 						<div
 						style={{
 							display: 'flex',
