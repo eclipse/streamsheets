@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { MetricsManager } = require('@cedalo/metrics');
 // const os = require('os');
 const Channel = require('./Channel');
 const Machine = require('../machine/Machine');
@@ -35,6 +36,13 @@ const machine = createMachine();
 const monitor = new MachineTaskMonitor(machine, channel);
 const requestHandler = new MachineTaskRequestHandler(monitor, channel);
 MachineTaskMessagingClient.register(machine);
+
+if (process.env.STREAMSHEETS_METRICS_ENABLED) {
+	setInterval(async () => {
+		const metrics = await MetricsManager.getMetrics();
+		MachineTaskMessagingClient.publishMetrics(metrics);
+	}, process.env.STREAMSHEETS_METRICS_INTERVAL || 1000);
+}
 
 const shutdown = async (deleted) => {
 	try {

@@ -13,6 +13,7 @@ const MessagingClient = require('../messaging/Client');
 const { Topics } = require('@cedalo/protocols');
 const { EventMessage } = require('@cedalo/messages');
 const { createAndConnect } = require('@cedalo/messaging-client');
+const { MetricsManager } = require('@cedalo/metrics');
 
 
 class MachineTaskMessagingClient extends MessagingClient {
@@ -29,11 +30,19 @@ class MachineTaskMessagingClient extends MessagingClient {
 	}
 
 	register(machine) {
+		this.machine.id = machine.id;
 		this.machine.topic = `${Topics.SERVICES_MACHINES_EVENTS}/${machine.id}`;
 	}
 
 	publish(message, opts) {
 		this.client.publish(this.topic, message, opts);
+	}
+
+	publishMetrics(metrics) {
+		metrics.machine = {
+			id: this.machine.id
+		}
+		this.client.publish(`${this.topic}/metrics`, metrics);
 	}
 
 	publishEvent(message, opts) {

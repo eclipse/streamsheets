@@ -1,0 +1,23 @@
+{
+  "name": "@cedalo/metrics",
+  "version": "2.3.0",
+  "description": "Metrics",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --forceExit",
+    "lint": "./node_modules/.bin/eslint ."
+  },
+  "dependencies": {
+    "systeminformation": "5.7.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedalo/streamsheets.git"
+  },
+  "author": "Cedalo contributors",
+  "bugs": {
+    "url": "https://github.com/cedalo/streamsheets/issues"
+  },
+  "homepage": "https://github.com/cedalo/streamsheets/tree/master/packages/number-format",
+  "license": "EPL-2.0"
+}
