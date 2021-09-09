@@ -35,9 +35,11 @@ class CellRangeComponent extends React.Component {
 		onValueChange: PropTypes.func,
 		onBlur: PropTypes.func,
 		onFocus: PropTypes.func,
+		validate: PropTypes.func,
 		sheetView: PropTypes.object.isRequired,
 		onlyReference: PropTypes.bool,
 		inputEditorType: PropTypes.string,
+		label: PropTypes.string,
 		inputEditorOptions: PropTypes.array,
 		// fontSize: PropTypes.string
 	};
@@ -47,6 +49,8 @@ class CellRangeComponent extends React.Component {
 		onValueChange: () => {},
 		onBlur: () => {},
 		onFocus: () => {},
+		validate: () => true,
+		label: undefined,
 		onlyReference: true,
 		inputEditorType: 'none',
 		inputEditorOptions: [],
@@ -164,6 +168,11 @@ class CellRangeComponent extends React.Component {
 			event.target.innerHTML = cancel ? this.state.oldValue : event.target.textContent;
 		} else if (event.type === 'keydown' && event.key === 'Enter') {
 			event.target.innerHTML = event.target.textContent;
+		}
+
+		if (this.props.validate) {
+			this.props.validate(event.target.innerHTML, this.props.label);
+			// event.target.innerHTML = this.state.oldValue;
 		}
 
 		if (event.type === 'keydown') {
@@ -376,6 +385,10 @@ class CellRangeComponent extends React.Component {
 		return colors;
 	}
 
+	getRange() {
+		return this.props.range ? this.props.range : '';
+	}
+
 	render() {
 		const { theme } = this.props;
 		return (
@@ -406,7 +419,7 @@ class CellRangeComponent extends React.Component {
 					onDoubleClick={this.handleDoubleClick}
 					onSelect={this.handleSelect}
 				>
-					{this.props.range ? this.props.range : ''}
+					{this.getRange()}
 				</div>
 				{this.props.inputEditorType !== 'none' ? [
 					<IconButton
@@ -418,7 +431,6 @@ class CellRangeComponent extends React.Component {
 							display: 'inline',
 						}}
 						onMouseUp={(event) => this.onInputEditor(event)}
-						// disabled={this.state.inputEditorOpen}
 					>
 						<ArrowDropDownIcon fontSize="inherit" />
 					</IconButton>

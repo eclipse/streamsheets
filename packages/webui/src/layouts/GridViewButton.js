@@ -27,7 +27,9 @@ export default function GridViewButton(props) {
 		localStorage.setItem(PREF_KEY_LAYOUT, lay);
 	};
 	return (
-		<div>
+		<div
+			id="dashboard-button-view"
+		>
 			{layout === 'list' ? (
 				<Tooltip
 					enterDelay={300}

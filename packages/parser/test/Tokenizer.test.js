@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -21,6 +21,7 @@ const validateResult = (expr, result, context = DEF_CONTEXT) => {
 	expect(ast).toBeDefined();
 	expect(Parser.resultFrom(ast, context)).toBe(result);
 };
+
 
 describe('Tokenizer', () => {
 	describe('createAST', () => {
@@ -47,7 +48,6 @@ describe('Tokenizer', () => {
 			testexpr = '-1+1';
 			ast = Tokenizer.createAST(testexpr, DEF_CONTEXT);
 			expect(Parser.resultFrom(ast)).toBe(0);
-
 
 			validateResult('1 * 2', 2);
 			validateResult('42--23', 65);
@@ -249,7 +249,7 @@ describe('Tokenizer', () => {
 			validateResult('SUM(1,2,3,4,5)', 15, context);
 			validateResult('SUM(1,2,3,4) + MAX(5,3,4)', 15, context);
 			validateResult('SUM (1,2,MAX  (0,3,2,1),4,MAX (5,3,4))', 15, context);
-			validateResult('PI() + 1', (Math.PI + 1), context);
+			validateResult('PI() + 1', Math.PI + 1, context);
 		});
 		it('should ignore character case', () => {
 			validateResult('maX(2, sum(1,2,3,4), 23, 9, 8)', 23, context);
@@ -269,7 +269,7 @@ describe('Tokenizer', () => {
 			expect(ast.params[1].value).toBeUndefined();
 			expect(ast.params[2].type).toBe('undef');
 			expect(ast.params[2].value).toBeUndefined();
-			
+
 			ast = Tokenizer.createAST('test("","","")', _context);
 			expect(ast.params).toBeDefined();
 			expect(ast.params.length).toBe(3);
@@ -280,7 +280,7 @@ describe('Tokenizer', () => {
 			expect(ast.params[2].type).toBe('string');
 			expect(ast.params[2].value).toBe('');
 		});
-		
+
 		// DL-3412
 		it('should ignore IFs inside function names', () => {
 			const _context = new ParserContext();
@@ -353,7 +353,6 @@ describe('Tokenizer', () => {
 			expect(ast.right.value).toBe('5.6');
 
 			validateResult('2,4 + 5,6', 8, context);
-			validateResult('2,4 + 5.6', 7.4, context);
 			validateResult('2+2*?(4>1;2;0)', 6, context);
 			validateResult('SUM(1;2;3;4;5)', 15, context);
 			validateResult('SUM(1,5; 2,5; 3,5; 4,5; 5,5)', 17.5, context);
@@ -385,7 +384,9 @@ describe('Tokenizer', () => {
 		});
 		it('should throw an error on wrong decimal separator', () => {
 			const ctxt = new ParserContext();
-			expect(() => { Tokenizer.createAST('2,3+2.4', ctxt); }).toThrow();
+			expect(() => { Tokenizer.createAST('1 + 0,001', ctxt); }).toThrow();
+			expect(() => { Tokenizer.createAST('2,3 + 2.4', ctxt); }).toThrow();
+			expect(() => { Tokenizer.createAST('2,4 + 5.6', ctxt); }).toThrow();
 		});
 		// DL-2549
 		it('should throw an error if decimal separator is used multiple times', () => {

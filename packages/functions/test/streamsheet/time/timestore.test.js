@@ -149,13 +149,13 @@ describe('timestore', () => {
 	it(`should return error ${ERROR.ARGS} if required parameter is missing`, () => {
 		const sheet = newSheet();
 		createCellAt('A3', { formula: 'timestore()' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.ARGS);
 		createCellAt('A3', { formula: 'timestore(,)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.ARGS);
 		createCellAt('A3', { formula: 'timestore(,,)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.ARGS);
 		createCellAt('A3', { formula: 'timestore(,,,)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return error ${ERROR.VALUE} if limit is below 1`, async () => {
 		const machine = newMachine({ cycletime: 1000 });
@@ -163,25 +163,31 @@ describe('timestore', () => {
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
 		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,0)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,-1)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,-123456)' }, sheet);
-		expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 	});
-	it(`should return ${ERROR.LIMIT} if limit is reached`, async () => {
+	// DL-4691
+	it(`should NOT return ${ERROR.LIMIT} if limit is reached`, async () => {
 		const machine = newMachine({ cycletime: 1000 });
 		const sheet = machine.getStreamSheetByName('T1').sheet;
 		createCellAt('A1', 'v1', sheet);
 		createCellAt('B1', { formula: 'B1+1' }, sheet);
 		createCellAt('A3', { formula: 'timestore(JSON(A1:B1),,,2)' }, sheet);
 		expect(sheet.cellAt('A3').value).toBe(true);
+		expect(sheet.cellAt('A3').info.error).toBeUndefined();
 		await machine.step();
 		expect(sheet.cellAt('A3').value).toBe(true);
+		expect(sheet.cellAt('A3').info.error).toBeUndefined();
 		await machine.step();
 		expect(sheet.cellAt('A3').value).toBe(true);
+		expect(sheet.cellAt('A3').info.error).toBeUndefined();
 		await machine.step();
-		expect(sheet.cellAt('A3').value).toBe(ERROR.LIMIT);
+		expect(sheet.cellAt('A3').value).toBe(true);
+		// instead of returned limit error, cell info should be set		
+		expect(sheet.cellAt('A3').info.error.code).toBe(ERROR.LIMIT);
 	});
 	describe('timestamp usage', () => {
 		it(`should return ${ERROR.VALUE} error if timestamp is not an excel serial number`, async () => {
@@ -194,13 +200,13 @@ describe('timestore', () => {
 					A3: { formula: 'timestore(JSON(A1:B2),,B2)' },
 				}
 			});
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('B2', true, sheet);
 			await machine.step();
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('B2', false, sheet);
 			await machine.step();
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 		});
 		it('should treat null, undefined and empty string as valid, i.e. no timestamp', async () => {
 			const machine = newMachine({ cycletime: 1000 });

@@ -11,11 +11,11 @@
 import React from 'react';
 import jp from 'jsonpath';
 import {
-	Field,
+	Field
 } from '@cedalo/sdk-streams';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-// import Select from '@material-ui/core/Select';
+import Tooltip from '@material-ui/core/Tooltip';
 import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -62,17 +62,22 @@ export default class StreamFieldComponents {
 		}
 
 		const components = {
-			main: [],
-			advanced: []
+			main: [], advanced: []
 		};
 		if (fields && Array.isArray(fields)) {
 			fields.forEach((field) => {
-				if (field.isShow(configuration.fields)) {
+				const fieldValues = {
+					...configuration.fields,
+					connector: configuration.connector ? configuration.connector.fields : undefined
+				};
+				if (field.isShow(fieldValues)) {
 					const value = configuration.fields[field.id];
 					field.value = value;
-					const component = this.getComponent(field, value, !!field.disabled || disabled, errors ? errors[field.id] : undefined);
+					field.baseValue = field.getBaseValue(configuration);
+					const component = this.getComponent(field, value, !!field.disabled || disabled,
+						errors ? errors[field.id] : undefined);
 					if (component) {
-						if(field.advanced === true) {
+						if (field.advanced === true) {
 							components.advanced.push(component);
 						} else {
 							components.main.push(component);
@@ -82,35 +87,24 @@ export default class StreamFieldComponents {
 			});
 		}
 
-		const mime = this.getSelect(
-			new Field({
-				id: 'mimeType',
-				label: {
-					en: 'Data Format',
-					de: 'Datei Format',
-				},
-				options: [
-					{
-						label: 'Auto',
-						value: 'auto',
-					},
-					{
-						label: 'JSON',
-						value: 'application/json',
-					},
-					{
-						label: 'XML',
-						value: 'application/xml',
-					},
-					{
-						label: 'STRING',
-						value: 'text/plain',
-					},
-				],
-				defaultValue: 'auto',
-			}),
-			configuration.mimeType || 'auto', false
-		);
+		const mime = this.getSelect(new Field({
+			id: 'mimeType', label: {
+				en: 'Data Format', de: 'Datei Format'
+			}, options: [{
+				label: 'Auto', value: 'auto'
+			}, {
+				label: 'JSON', value: 'application/json'
+			}, {
+				label: 'XML', value: 'application/xml'
+			}, {
+				label: 'STRING', value: 'text/plain'
+			}],
+			help: {
+				en: 'Data Format of payload',
+				de: 'Payload Datenformat',
+			},
+			defaultValue: 'auto'
+		}), configuration.mimeType || 'auto', false);
 		components.advanced.push(mime);
 
 		return components;
@@ -146,13 +140,17 @@ export default class StreamFieldComponents {
 			return this.getMultiTextField(field, field.value, disabled);
 		}
 		case Field.TYPES.MULTITEXTFIELDPAIRS: {
-			return <AdminField field={field} locale={this.locale} onChange={this.onChange} value={value} disabled={disabled} />
+			return <AdminField field={field} locale={this.locale} onChange={this.onChange} value={value}
+							   disabled={disabled} />;
 		}
 		case Field.TYPES.RANDOM_STRING: {
-			return <AdminField field={field} locale={this.locale} onChange={this.onChange} value={value} disabled={disabled} />
+			return <AdminField field={field} locale={this.locale} onChange={this.onChange} value={value}
+							   disabled={disabled} />;
 		}
 		case Field.TYPES.PASSWORD: {
-			return <AdminField field={field} locale={this.locale} onChange={this.onChange} value={value} disabled={disabled} />
+			return <AdminField
+					field={field}
+					locale={this.locale} onChange={this.onChange} value={value} disabled={disabled} />
 		}
 		default: {
 			return this.getTextField(field, field.value, disabled, error);
@@ -182,7 +180,7 @@ export default class StreamFieldComponents {
 		}
 
 		this.props.handleChange(this.configuration);
-	}
+	};
 
 	async handleFileRead(event) {
 		const { model } = { ...this.props };
@@ -200,8 +198,7 @@ export default class StreamFieldComponents {
 					newValue = newValue.slice(0, -2);
 				}
 				const valueObj = {
-					path: file.name,
-					value: newValue,
+					path: file.name, value: newValue
 				};
 				try {
 					jp.value(model, name, valueObj);
@@ -213,11 +210,9 @@ export default class StreamFieldComponents {
 				const res = await validate(model, name, newValue);
 				if (res.length === 0) {
 					const saveObject = {
-						id: model._id || model.id,
-						type: model.className,
-						$set: {
-							[name]: valueObj,
-						},
+						id: model._id || model.id, type: model.className, $set: {
+							[name]: valueObj
+						}
 					};
 					save(saveObject, this.props);
 				}
@@ -242,84 +237,83 @@ export default class StreamFieldComponents {
 
 	getNamedList(field, value, disabled) {
 		value = (!value || !Array.isArray(value)) ? [] : value;
-		return (
-			<FormControl
-				disabled={disabled}
-				fullWidth
-				style={{
-					marginTop: '30px',
-				}}
-			>
-				<fieldset>
-					<legend>{field.getLabel(this.locale)}</legend>
-					<NamedListInput
-						items={value}
-						onChange={this.onChange}
-						name={field.id}
-					/>
-				</fieldset>
-			</FormControl>
-		);
+		return (<FormControl
+			disabled={disabled}
+			fullWidth
+			style={{
+				marginTop: '30px'
+			}}
+		>
+			<fieldset>
+				<legend>{field.getLabel(this.locale)}</legend>
+				<NamedListInput
+					items={value}
+					onChange={this.onChange}
+					name={field.id}
+				/>
+			</fieldset>
+		</FormControl>);
 	}
 
-	getMultiTextField(field, value, disabled = false){
+	getMultiTextField(field, value, disabled = false) {
 		return <MultipleTextField
 			label={field.getLabel(this.locale)}
 			disabled={disabled}
 			key={field.id}
 			name={field.id}
+			baseValue={field.baseValue}
 			onChange={this.handler}
 			values={value}
-		/>
+		/>;
 	}
 
 	getCheckBox(field, value, disabled = false) {
-		return (<FormControlLabel
-			style={{
-				marginTop: '5px',
-				display: 'flex',
-			}}
-			key={field.id}
-			disabled={disabled}
-			control={
-				<Checkbox
+		return (<Tooltip
+			title={field.getHelp(this.locale)} placement='top-start'
+		>
+			<FormControlLabel
+				style={{
+					marginTop: '5px', display: 'flex'
+				}}
+				key={field.id}
+				disabled={disabled}
+				control={<Checkbox
 					checked={!!value}
 					onChange={this.handler}
 					value={`${value}`}
 					id={field.id}
 					name={field.id}
 					disabled={disabled}
-				/>
-			}
-			label={field.getLabel(this.locale)}
-		/>);
+				/>}
+				label={field.getLabel(this.locale)}
+			/>
+		</Tooltip>);
 	}
 
 	getFileTextInput(field, valueObj, disabled) {
 		const pathId = `path${field.id}`;
 		const { path } = valueObj;
-		return (
-			<FormControl
-				disabled={disabled}
-				fullWidth
-				key={field.id}
+		return (<FormControl
+			disabled={disabled}
+			fullWidth
+			key={field.id}
+			style={{
+				marginTop: '30px'
+			}}
+		>
+			<label htmlFor={field.id} style={styles.label}><strong>{field.getLabel(this.locale)}: </strong>
+				<span id={pathId} style={{ fontWeight: 'normal', fontSize: '90%' }}>{path}</span>
+			</label>
+			<Input
+				type='file'
+				id={field.id}
+				name={field.id}
 				style={{
-					marginTop: '30px',
+					float: 'right'
 				}}
-			>
-				<label htmlFor={field.id} style={styles.label}><strong>{field.getLabel(this.locale)}: </strong>
-					<span id={pathId} style={{ fontWeight: 'normal', fontSize: '90%' }}>{path}</span>
-				</label>
-				<Input
-					type="file"
-					id={field.id}
-					name={field.id}
-					style={{
-						float: 'right',
-					}}
-					onChange={this.handleFileRead}
-				/>
-			</FormControl>);
+				onChange={this.handleFileRead}
+			/>
+		</FormControl>);
 	}
 
 	getFileSecret(field, valueObj, disabled = false) {
@@ -328,98 +322,102 @@ export default class StreamFieldComponents {
 		// if (valueObj) {
 		// 	(((((({ path } = valueObj))))));
 		// }
-		return (
-			<FormControl
-				fullWidth
-				key={field.id}
-				style={{
-					display: 'flex',
-					flexDirection: 'column'
-				}}
-			>
-				<InputLabel style={{position: 'relative', marginBottom: '10px'}} htmlFor={field.id}>{field.getLabel(this.locale)}</InputLabel>
+		return (<FormControl
+			fullWidth
+			key={field.id}
+			style={{
+				display: 'flex', flexDirection: 'column'
+			}}
+		>
+			<InputLabel style={{ position: 'relative', marginBottom: '10px' }} htmlFor={field.id}>{field.getLabel(
+				this.locale)}</InputLabel>
 
-				{/*<label htmlFor={field.id} style={styles.label}><strong>{field.getLabel(this.locale)}: </strong>*/}
-				{/*	<span id={pathId} style={{ fontWeight: 'normal', fontSize: '90%' }}>{path}</span>*/}
-				{/*</label>*/}
-				<Input
-					disabled={disabled}
-					type="file"
-					id={field.id}
-					name={field.id}
-					style={{
-						float: 'right',
-					}}
-					onChange={this.handleFileRead}
-				/>
-			</FormControl>);
+			{/*<label htmlFor={field.id} style={styles.label}><strong>{field.getLabel(this.locale)}: </strong>*/}
+			{/*	<span id={pathId} style={{ fontWeight: 'normal', fontSize: '90%' }}>{path}</span>*/}
+			{/*</label>*/}
+			<Input
+				disabled={disabled}
+				type='file'
+				id={field.id}
+				name={field.id}
+				style={{
+					float: 'right'
+				}}
+				onChange={this.handleFileRead}
+			/>
+		</FormControl>);
 	}
 
 	getTextField(field, value, disabled = false, error) {
 		value = value || '';
-		const help = field.getHelp(this.locale);
-		return (
-			<div
-				key={field.id}
+		return (<div
+			key={field.id}
+		>
+			<Tooltip
+				title={field.getHelp(this.locale)} placement='top-start'
 			>
 				<TextField
-					label={`${field.getLabel(this.locale)} ${help ? `(${help})` : ''}`}
-					variant="outlined"
-					size="small"
+					label={field.getLabel(this.locale)}
+					variant='outlined'
+					size='small'
 					id={field.id}
 					name={field.id}
 					fullWidth
 					error={error}
-					margin="normal"
+					margin='normal'
 					disabled={disabled}
 					helperText={error}
 					defaultValue={`${value}`}
 					onBlur={this.handler}
 					style={styles.textField}
 				/>
-			</div>
-		);
+			</Tooltip>
+		</div>);
 	}
 
 	getNumberField(field, value, disabled = false) {
 		value = value || '';
-		return (
-			<div
-				key={field.id}
+		return (<div
+			key={field.id}
+		>
+			<Tooltip
+				title={field.getHelp(this.locale)} placement='top-start'
 			>
 				<TextField
-					type="number"
-					variant="outlined"
-					size="small"
+					type='number'
+					variant='outlined'
+					size='small'
 					inputProps={{ min: '0' }}
 					label={field.getLabel(this.locale)}
 					id={field.id}
 					name={field.id}
 					fullWidth
-					margin="normal"
+					margin='normal'
 					disabled={disabled}
 					defaultValue={`${value}`}
 					onChange={this.handler}
 					style={styles.textField}
 				/>
-			</div>
-		);
+			</Tooltip>
+		</div>);
 	}
 
 	getTextArea(field, value, disabled = false) {
 		value = value || '';
-		return (
-			<div
-				key={field.id}
+		return (<div
+			key={field.id}
+		>
+			<Tooltip
+				title={field.getHelp(this.locale)} placement='top-start'
 			>
 				<TextField
 					label={field.getLabel(this.locale)}
-					variant="outlined"
-					size="small"
+					variant='outlined'
+					size='small'
 					multiline
-					rowsMax="4"
+					rowsMax='4'
 					fullWidth
-					margin="normal"
+					margin='normal'
 					id={field.id}
 					name={field.id}
 					defaultValue={`${value}`}
@@ -427,7 +425,8 @@ export default class StreamFieldComponents {
 					disabled={disabled}
 					onChange={this.handler}
 				/>
-			</div>);
+			</Tooltip>
+		</div>);
 	}
 
 	getSelect(field, value, disabled = false, multiple) {
@@ -442,18 +441,20 @@ export default class StreamFieldComponents {
 			return null;
 		};
 		field.options = field.options || [];
-		return (
-			<div
-				key={field.id}
+		return (<div
+			key={field.id}
+		>
+			<Tooltip
+				title={field.getHelp(this.locale)} placement='top-start'
 			>
 				<TextField
 					select
 					label={field.getLabel(this.locale)}
 					fullWidth
-					margin="normal"
+					margin='normal'
 					disabled={disabled}
-					variant="outlined"
-					size="small"
+					variant='outlined'
+					size='small'
 					multiple={multiple}
 					autoWidth
 					name={field.id}
@@ -461,40 +462,35 @@ export default class StreamFieldComponents {
 					onChange={this.onChange}
 					input={<Input id={field.id} />}
 				>
-					{field.options.map(option =>
-						(
-							<MenuItem
-								key={option.value}
-								value={option.value}
-							>
-								{getOptionLabel(option.label, this.locale)}
-							</MenuItem>
-						))}
+					{field.options.map(option => (<MenuItem
+						key={option.value}
+						value={option.value}
+					>
+						{getOptionLabel(option.label, this.locale)}
+					</MenuItem>))}
 				</TextField>
-			</div>
-		);
+			</Tooltip>
+		</div>);
 	}
 
 	getButton(field, value, disabled = false) {
 		value = value || '';
-		return (
-			<FormControl
-				key={field.id}
-				style={{
-					paddingTop: '20px',
-				}}
+		return (<FormControl
+			key={field.id}
+			style={{
+				paddingTop: '20px'
+			}}
+		>
+			<Button
+				name={field.id}
+				disabled={disabled}
+				value={value}
+				htmlFor={field.id}
+				variant='outlined'
+				onClick={event => this.onStreamCommand(event, field)}
 			>
-				<Button
-					name={field.id}
-					disabled={disabled}
-					value={value}
-					htmlFor={field.id}
-					variant="outlined"
-					onClick={event => this.onStreamCommand(event, field)}
-				>
-					{field.getLabel(this.locale)}
-				</Button>
-			</FormControl>
-		);
+				{field.getLabel(this.locale)}
+			</Button>
+		</FormControl>);
 	}
 }

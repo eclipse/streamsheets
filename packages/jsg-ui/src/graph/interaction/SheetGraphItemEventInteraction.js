@@ -99,7 +99,16 @@ export default class SheetGraphItemEventInteraction extends Interaction {
 									if (operandTarget instanceof SheetReference && operandTarget._range) {
 										const rangeTarget = operandTarget._range.copy();
 										rangeTarget.shiftFromSheet();
-										view.handleDataView(range._worksheet, {x: range._x1, y: range._y1}, rangeTarget, viewer);
+										view.handleDataView(range._worksheet, {x: range._x1, y: range._y1}, rangeTarget,
+											{ limit: false }, viewer);
+									} else {
+										const target = operandTarget.value;
+										const targetItem = item.getGraph().getItemByName(target);
+										if (targetItem) {
+											const align = term.params.length > 2 ? term.params[2].value : 'right';
+											view.handleDataView(range._worksheet, { x: range._x1, y: range._y1 },
+												targetItem, { limit: false, align} , viewer);
+										}
 									}
 								}
 							}

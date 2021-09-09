@@ -58,7 +58,7 @@ const setRowValues = (stackrow = [], sourcerange, sourceindex, operations, match
 		const rowvalue = stackrow[stackcol];
 		if (cell) {
 			oldValues.push(cell.value);
-			cell._value = rowvalue;
+			cell.setInternalValue(rowvalue);
 		} else {
 			oldValues.push(undefined);
 		}

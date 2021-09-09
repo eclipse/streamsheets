@@ -12,7 +12,6 @@ const update = require('./update');
 const isEmpty = require('./isEmpty');
 const isType = require('./isType');
 
-
 module.exports = {
 	...isEmpty,
 	...update,

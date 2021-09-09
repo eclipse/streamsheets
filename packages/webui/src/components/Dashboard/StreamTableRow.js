@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 // import { FormattedMessage, injectIntl } from 'react-intl';
 import { IconEdit, IconDelete, IconReload } from '../icons';
-import { Paper, Typography, IconButton, Table, TableBody, TableRow, TableCell, Collapse } from '@material-ui/core';
+import { Typography, IconButton, Table, TableBody, TableRow, TableCell, Collapse } from '@material-ui/core';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import AddCircle from '@material-ui/icons/AddCircleOutline';
@@ -24,9 +24,22 @@ import { FormattedMessage } from 'react-intl';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const styles = () => ({
+	emptyTableRow: {
+		// TODO: should be handled by Material UI table settings, but somehow isn't
+		height: '30px',
+	},
+	tableCell: {
+		border: 'none',
+	},
 	typoRoot: {
-		fontSize: '9pt', fontWeight: 'bold', margin: '0px', minWidth: '75px', paddingBottom: '7px', paddingTop: '7px'
-	}, sectionRoot: {
+		fontSize: '9pt', 
+		fontWeight: 'bold', 
+		margin: '0px', 
+		minWidth: '75px', 
+		paddingBottom: '7px', 
+		paddingTop: '7px',
+	},
+	sectionRoot: {
 		display: 'flex',
 		margin: '10px 0px 0px 40px',
 		borderBottom: `1px solid #e0e0e0`,
@@ -52,13 +65,14 @@ const StreamTableRow = (props) => {
 	return (<React.Fragment>
 		<TableRow
 			style={{
+				border: 'none',
 				textDecoration: row.disabled ? 'line-through' : 'inherit', height: '40px'
 			}}
 			hover
 			classes={{ root: classes.tableRoot }}
 			key={row.id}
 		>
-			<TableCell style={{ width: '20px' }} padding='none' align='left'>
+			<TableCell className={classes.tableCell} style={{ width: '20px' }} padding='none' align='left'>
 				<IconButton
 					style={{ margin: '0px 5px', padding: '4px' }}
 					aria-label='expand row'
@@ -69,6 +83,7 @@ const StreamTableRow = (props) => {
 				</IconButton>
 			</TableCell>
 			<TableCell
+			 	className={classes.tableCell}
 				onClick={() => setOpen(!openConnector)}
 				style={{ cursor: 'pointer', fontWeight: 'bold' }}
 				padding='none'
@@ -78,24 +93,33 @@ const StreamTableRow = (props) => {
 			>
 				{row.name}
 			</TableCell>
-			<TableCell style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
-					   align='left'>
+			<TableCell 
+			 	className={classes.tableCell}
+				style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
+				align='left'>
 				{row.provider.name}
 			</TableCell>
-			<TableCell style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
-					   align='left'>
+			<TableCell 
+			 	className={classes.tableCell}
+				style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
+				align='left'>
 				{row.url}
 			</TableCell>
 			<TableCell
+			 	className={classes.tableCell}
 				style={{ cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px' }}
 				onClick={() => setOpen(!openConnector)} padding='none' align='left'>
 				{row.topic}
 			</TableCell>
-			<TableCell style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
-					   align='left'>
+			<TableCell 
+			 	className={classes.tableCell}
+				style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
+				align='left'>
 				{row.lastModified}
 			</TableCell>
-			<TableCell padding='none' align='left'>
+			<TableCell 
+			 	className={classes.tableCell}
+				padding='none' align='left'>
 				<Tooltip
 					enterDelay={300}
 					title={<FormattedMessage id='Dashboard.EditConnector' defaultMessage='Edit Connector' />}
@@ -130,7 +154,7 @@ const StreamTableRow = (props) => {
 				</Tooltip>
 			</TableCell>
 		</TableRow>
-		<TableRow key={`sub${row.id}`} style={{ height: '0px' }}>
+		<TableRow key={`sub${row.id}`} style={{ height: '0px', border: 'none' }}>
 			<TableCell
 				style={{
 					paddingBottom: openConnector ? '6px' : '0px',
@@ -141,7 +165,7 @@ const StreamTableRow = (props) => {
 				colSpan={7}
 			>
 				<Collapse in={openConnector} timeout='auto' unmountOnExit>
-					<Paper square elevation={1} style={{ maxHeight: 'none', maxWidth: 'none' }}>
+					<div square elevation={1} style={{ maxHeight: 'none', maxWidth: 'none' }}>
 						{row.provider.canConsume ? (<React.Fragment>
 							<div className={classes.sectionRoot}>
 								<Typography
@@ -156,7 +180,7 @@ const StreamTableRow = (props) => {
 								<Tooltip
 									enterDelay={300}
 									title={<FormattedMessage id='Dashboard.NewConsumer'
-															 defaultMessage='New Consumer' />}
+										defaultMessage='New Consumer' />}
 								>
 									<IconButton
 										style={{ padding: '2px' }}
@@ -167,8 +191,27 @@ const StreamTableRow = (props) => {
 									</IconButton>
 								</Tooltip>
 							</div>
-							<Table size='small' aria-label='purchases'>
+							<Table className={classes.table} size='medium' aria-label='consumers'>
 								<TableBody>
+									{
+										row.consumers.length === 0 && 
+										<TableRow
+											className={classes.emptyTableRow}
+										>
+											<TableCell
+												style={{ width: '40px', borderBottom: 'none' }}
+												padding='none'
+												align='left'
+											/>
+											<TableCell
+												style={{ columnSpan: 6 }}
+												padding='none'
+												align='left'
+											>
+												No consumers yet
+											</TableCell>
+										</TableRow>
+									}
 									{row.consumers.map((historyRow) => (<TableRow
 										style={{
 											textDecoration: row.disabled || historyRow.disabled ? 'line-through' :
@@ -198,7 +241,7 @@ const StreamTableRow = (props) => {
 											{historyRow.name}
 										</TableCell>
 										<TableCell style={{ width: '10%', minWidth: '170px' }} padding='none'
-												   align='left'>
+											align='left'>
 											{historyRow.provider.name}
 										</TableCell>
 										<TableCell style={{ width: '20%' }} padding='none' align='left'>
@@ -210,15 +253,15 @@ const StreamTableRow = (props) => {
 											{historyRow.topic}
 										</TableCell>
 										<TableCell style={{ width: '120px', minWidth: '120px' }} padding='none'
-												   align='left'>
+											align='left'>
 											{historyRow.lastModified}
 										</TableCell>
 										<TableCell style={{ width: '95px', minWidth: '95px' }} padding='none'
-												   align='left'>
+											align='left'>
 											<Tooltip
 												enterDelay={300}
 												title={<FormattedMessage id='Dashboard.EditConsumer'
-																		 defaultMessage='Edit Consumer' />}
+													defaultMessage='Edit Consumer' />}
 											>
 												<IconButton
 													style={{ padding: '4px' }}
@@ -231,7 +274,7 @@ const StreamTableRow = (props) => {
 											<Tooltip
 												enterDelay={300}
 												title={<FormattedMessage id='Dashboard.DeleteConsumer'
-																		 defaultMessage='Delete Consumer' />}
+													defaultMessage='Delete Consumer' />}
 											>
 												<IconButton
 													style={{ padding: '4px' }}
@@ -244,7 +287,7 @@ const StreamTableRow = (props) => {
 											<Tooltip
 												enterDelay={300}
 												title={<FormattedMessage id='Dashboard.ReloadConsumer'
-																		 defaultMessage='Reload Consumer' />}
+													defaultMessage='Reload Consumer' />}
 											>
 												<IconButton
 													style={{ padding: '4px' }}
@@ -273,7 +316,7 @@ const StreamTableRow = (props) => {
 								<Tooltip
 									enterDelay={300}
 									title={<FormattedMessage id='Dashboard.NewProducer'
-															 defaultMessage='Edit Producer' />}
+										defaultMessage='Edit Producer' />}
 								>
 									<IconButton
 										style={{ padding: '2px' }}
@@ -284,8 +327,27 @@ const StreamTableRow = (props) => {
 									</IconButton>
 								</Tooltip>
 							</div>
-							<Table size='small' aria-label='purchases'>
+							<Table className={classes.table} size='medium' aria-label='producers'>
 								<TableBody>
+									{
+										row.producers.length === 0 && 
+										<TableRow
+											className={classes.emptyTableRow}
+										>
+											<TableCell
+												style={{ width: '40px', borderBottom: 'none' }}
+												padding='none'
+												align='left'
+											/>
+											<TableCell
+												style={{ columnSpan: 6 }}
+												padding='none'
+												align='left'
+											>
+												No producers yet
+											</TableCell>
+										</TableRow>
+									}
 									{row.producers.map((historyRow) => (<TableRow
 										style={{
 											textDecoration: row.disabled || historyRow.disabled ? 'line-through' :
@@ -315,7 +377,7 @@ const StreamTableRow = (props) => {
 											{historyRow.name}
 										</TableCell>
 										<TableCell style={{ width: '10%', minWidth: '170px' }} padding='none'
-												   align='left'>
+											align='left'>
 											{historyRow.provider.name}
 										</TableCell>
 										<TableCell style={{ width: '20%' }} padding='none' align='left'>
@@ -327,15 +389,15 @@ const StreamTableRow = (props) => {
 											{historyRow.topic}
 										</TableCell>
 										<TableCell style={{ width: '120px', minWidth: '120px' }} padding='none'
-												   align='left'>
+											align='left'>
 											{historyRow.lastModified}
 										</TableCell>
 										<TableCell style={{ width: '95px', minWidth: '95px' }} padding='none'
-												   align='left'>
+											align='left'>
 											<Tooltip
 												enterDelay={300}
 												title={<FormattedMessage id='Dashboard.EditProducer'
-																		 defaultMessage='Edit Producer' />}
+													defaultMessage='Edit Producer' />}
 											>
 												<IconButton
 													style={{ padding: '4px' }}
@@ -349,7 +411,7 @@ const StreamTableRow = (props) => {
 											<Tooltip
 												enterDelay={300}
 												title={<FormattedMessage id='Dashboard.DeleteProducer'
-																		 defaultMessage='Delete Producer' />}
+													defaultMessage='Delete Producer' />}
 											>
 												<IconButton
 													style={{ padding: '4px' }}
@@ -362,7 +424,7 @@ const StreamTableRow = (props) => {
 											<Tooltip
 												enterDelay={300}
 												title={<FormattedMessage id='Dashboard.ReloadProducer'
-																		 defaultMessage='Reload Producer' />}
+													defaultMessage='Reload Producer' />}
 											>
 												<IconButton
 													style={{ padding: '4px' }}
@@ -377,7 +439,7 @@ const StreamTableRow = (props) => {
 								</TableBody>
 							</Table>
 						</React.Fragment>) : null}
-					</Paper>
+					</div>
 				</Collapse>
 			</TableCell>
 		</TableRow>

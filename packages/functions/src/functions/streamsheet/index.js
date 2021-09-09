@@ -21,6 +21,7 @@ const table = require('./table');
 const values = require('./values');
 const ARRAY = require('./array');
 const CALC = require('./calc');
+const CLEARCELLS = require('./clearcells');
 const CONTINUE = require('./continueAt');
 const DELETE = require('./delete');
 const DELETECELLS = require('./deletecells');
@@ -61,6 +62,7 @@ module.exports = {
 		...values,
 		ARRAY,
 		CALC,
+		CLEARCELLS,
 		CONTINUE,
 		DELETE,
 		DELETECELLS,

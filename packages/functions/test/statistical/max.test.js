@@ -81,7 +81,7 @@ describe('maxifs', () => {
 			A7: 1, B7: 'a',
 		});
 		expect(createTerm('maxifs(A2:A5, B3:B6, "a")', sheet).value).toBe(10);
-		expect(createTerm('maxifs(A2:A5, B3:C6, "a")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('maxifs(A2:A5, B3:C6, "a")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should treat empty cells as 0', () => {
 		const sheet = new StreamSheet().sheet.loadCells({
@@ -103,8 +103,8 @@ describe('maxifs', () => {
 			A5: 1,	B5: 2, C5: 3, D5: 4,
 			A6: 1,	B6: 2, C6: 3, D6: 4
 		});
-		expect(createTerm('maxifs(A2:A4, C2:C5, ">0")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('maxifs(A2:B3, C2:D6, ">0")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('maxifs(A2:B3, C2:C2, ">0")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('maxifs(A2:A4, C2:C5, ">0")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('maxifs(A2:B3, C2:D6, ">0")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('maxifs(A2:B3, C2:C2, ">0")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 });

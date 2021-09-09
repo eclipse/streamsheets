@@ -10,7 +10,7 @@
  ********************************************************************************/
 /* global window document localStorage */
 
-import {CellRange, default as JSG, Point, Selection, SheetReference, Strings} from '@cedalo/jsg-core';
+import {CellRange, default as JSG, Point, Selection, GraphReference, SheetReference, Strings} from '@cedalo/jsg-core';
 
 const { Locale } = require('@cedalo/parser');
 
@@ -19,7 +19,7 @@ let functionInfo;
 let showFuncInfo = localStorage.getItem('funcinfo') !== 'false';
 let showParamInfo = localStorage.getItem('paraminfo') !== 'false';
 
-const VERSION = process.env.REACT_APP_VERSION || '2.3.0';
+const VERSION = process.env.REACT_APP_VERSION || '2.4.0';
 const semverRegExp = /(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.*(?<patch>0|[1-9]\d*)*/i;
 const versionObject = VERSION.match(semverRegExp);
 const versionLink = `${versionObject.groups.major}.${versionObject.groups.minor}`
@@ -228,7 +228,7 @@ export default class CellEditor {
 
 		for (let child = this.div.firstChild; child !== null; child = child.nextSibling) {
 			if (child.nodeName.toUpperCase() === 'SPAN' && child.id.startsWith('pos§')) {
-				const id = Number(child.id.slice(3));
+				const id = Number(child.id.slice(4));
 				if (info && info.brackets && id - 1 === info.brackets.open) {
 					child.style.fontWeight = 'bold';
 				} else if (info && info.brackets && id - 1 === info.brackets.close) {
@@ -246,10 +246,15 @@ export default class CellEditor {
 		if (info.identifier) {
 			const fnName = info.identifier;
 			if (fnName.length) {
-				const functions = funcInfos.filter((entry) => entry[0].startsWith(fnName));
-				if (functions.length) {
-					this.replaceInfo = { start: info.start, length: fnName.length };
-					return functions;
+				// check for dot notation
+				if (text[info.start] === '.') {
+					return undefined;
+				} else {
+					const functions = funcInfos.filter((entry) => entry[0].startsWith(fnName));
+					if (functions.length) {
+						this.replaceInfo = { start: info.start, length: fnName.length };
+						return functions;
+					}
 				}
 			}
 		}
@@ -452,7 +457,9 @@ export default class CellEditor {
 					},
 					false
 				);
-
+				if (this.funcDiv) {
+					this.removeFunctionHelp();
+				}
 			}
 			return;
 		}
@@ -533,6 +540,7 @@ export default class CellEditor {
 
 		// reset
 		const ranges = this.activateEditRanges();
+		const items = [];
 
 		if (text.length && text.charAt(0) === '=' /* || alwaysReplace */) {
 			term = this.parseTextToTerm(text);
@@ -545,12 +553,24 @@ export default class CellEditor {
 
 		term.traverse((lterm) => {
 			const { operand } = lterm;
-			if (operand && operand instanceof SheetReference) {
-				const refRange = operand._range;
-				if (refRange /* && refRange.getSheet() === this.formulaSheet */) {
-					const copy = refRange.copy();
-					copy.shiftFromSheet();
-					ranges.add(copy, JSG.theme.rangeColors[ranges.getSize() % JSG.theme.rangeColors.length]);
+			if (operand) {
+
+				if (operand instanceof SheetReference) {
+					const refRange = operand._range;
+					if (refRange /* && refRange.getSheet() === this.formulaSheet */) {
+						const copy = refRange.copy();
+						copy.shiftFromSheet();
+						ranges.add(copy, JSG.theme.rangeColors[ranges.getSize() % JSG.theme.rangeColors.length]);
+					}
+				} else	if (operand instanceof GraphReference) {
+					const item = this.viewer.getGraph().getItemByName(operand._property);
+					if (item) {
+						items.push({
+							fname: operand._property,
+							rname: item.getName().getValue(),
+							item
+						});
+					}
 				}
 			}
 			// }
@@ -589,6 +609,10 @@ export default class CellEditor {
 		// formulaUpper = Strings.encodeXML(formulaUpper);
 		let formula = text;
 
+		items.forEach(item => {
+			formula = formula.replace(item.fname, item.rname);
+		});
+
 		// now for each range in ranges rangetostring -> find in textContent -> replace by span -> set
 		ranges.getRanges().forEach((range) => {
 			const copy = range.copy();
@@ -610,6 +634,7 @@ export default class CellEditor {
 
 			index += 1;
 		});
+
 
 		result += formula;
 
@@ -828,10 +853,15 @@ export default class CellEditor {
 			}
 		}
 
+		let index = 0;
 		refs = this.div.getElementsByTagName('span');
+
 		for (let i = 0; i < refs.length; i += 1) {
-			if (refs[i].id === 'range' && refs[i] === range.startContainer.parentNode) {
-				return i;
+			if (refs[i].id === 'range') {
+				if (refs[i] === range.startContainer.parentNode) {
+					return index;
+				}
+				index += 1;
 			}
 		}
 		return undefined;
@@ -982,6 +1012,7 @@ export default class CellEditor {
 			case '-':
 			case '*':
 			case '/':
+			case '.':
 			case ',':
 			case ';':
 			case '(':

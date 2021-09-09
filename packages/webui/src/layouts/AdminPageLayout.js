@@ -35,6 +35,7 @@ import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import { AdminNavigation } from './AdminNavigation';
 import HelpButton from './HelpButton';
+import ThemeButton from './ThemeButton';
 // import Wall from '../components/HelperComponent/Wall';
 
 
@@ -145,6 +146,7 @@ export const AdminPageLayoutComponent = (props) => {
 							>
 								<NotificationsComponent />
 								<HelpButton />
+								<ThemeButton />
 								<SettingsMenu isAdminPage />
 							</Toolbar>
 						</div>

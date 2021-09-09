@@ -122,9 +122,9 @@ describe('timequery', () => {
 		it(`should return ${ERROR.ARGS} if too few arguments are given`, () => {
 			const sheet = newSheet();
 			createCellAt('A3', { formula: 'timequery()' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.ARGS);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.ARGS);
 			createCellAt('A3', { formula: 'timequery(,)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} if query does not contain a select clause`, () => {
 			const machine = newMachine();
@@ -139,27 +139,27 @@ describe('timequery', () => {
 				}
 			});
 			createCellAt('A5', { formula: 'timequery(A1,JSON(F2:G2))' }, sheet);
-			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A5').value.code).toBe(ERROR.VALUE);
 			createCellAt('A5', { formula: 'timequery(A1,JSON(C2))' }, sheet);
-			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A5').value.code).toBe(ERROR.VALUE);
 			createCellAt('A5', { formula: 'timequery(A1,JSON(A2:B2))' }, sheet);
-			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A5').value.code).toBe(ERROR.VALUE);
 			createCellAt('A5', { formula: 'timequery(A1,JSON(A3:B3))' }, sheet);
-			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A5').value.code).toBe(ERROR.VALUE);
 			createCellAt('A5', { formula: 'timequery(A1,JSON(A4:B4))' }, sheet);
-			expect(sheet.cellAt('A5').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A5').value.code).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} if query is not a json`, () => {
 			const sheet = newSheet();
 			createCellAt('A1', { formula: 'timestore(JSON(B1:C1))' }, sheet);
 			createCellAt('A3', { formula: 'timequery(A1,)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1, true)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,"v1:1")' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,42)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} if query contains unknown aggregate method`, async () => {
 			const machine = newMachine();
@@ -173,11 +173,11 @@ describe('timequery', () => {
 			});
 			createCellAt('A4', { formula: 'timequery(A1,JSON(A2:B3))' }, sheet);
 			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A4').value.code).toBe(ERROR.VALUE);
 			createCellAt('B3', 'none, avg, count, counta, fn, max, min, product, stdevs, sum', sheet); // fn is unknown...
 			createCellAt('A4', { formula: 'timequery(A1,JSON(A2:B3))' }, sheet);
 			await machine.step();
-			expect(sheet.cellAt('A4').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A4').value.code).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} for invalid interval parameter`, () => {
 			const sheet = newSheet();
@@ -188,17 +188,17 @@ describe('timequery', () => {
 				}
 			});
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),true)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),"")' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),"42")' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),0)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),-12)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),JSON(A2:B2))' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} for invalid range parameter`, () => {
 			const sheet = newSheet();
@@ -209,11 +209,11 @@ describe('timequery', () => {
 				}
 			});
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),1,true)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,"r1:s2")' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),JSON(A2:B2),,42)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,)' }, sheet);
 			expect(sheet.cellAt('A3').value).toBe(true);
 		});
@@ -226,16 +226,16 @@ describe('timequery', () => {
 				}
 			});
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,true)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,"")' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,"42")' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			// MIN_LIMIT is 1
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),1,,0)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 			createCellAt('A3', { formula: 'timequery(A1,JSON(A2:B2),,,-1)' }, sheet);
-			expect(sheet.cellAt('A3').value).toBe(ERROR.VALUE);
+			expect(sheet.cellAt('A3').value.code).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.VALUE} if first parameter does not reference timestore`, () => {
 			const sheet = newSheet();
@@ -243,7 +243,7 @@ describe('timequery', () => {
 			createCellAt('A4', { formula: 'timequery(A1, "v1")' }, sheet);
 			const cell = sheet.cellAt('A4');
 			// const term = cell.term;
-			expect(cell.value).toBe(ERROR.VALUE);
+			expect(cell.value.code).toBe(ERROR.VALUE);
 		});
 	});
 	describe('query',() => {
@@ -643,7 +643,8 @@ describe('timequery', () => {
 			await runMachinePause(machine, 150);
 			expect(querycell.info.values.v1.length).toBeLessThan(3);
 		});
-		it(`should return ${ERROR.LIMIT} if limit was reached`, async () => {
+		// DL-4691
+		it(`should NOT return ${ERROR.LIMIT} if limit was reached`, async () => {
 			const machine = newMachine({ cycletime: 10 });
 			const sheet = machine.getStreamSheetByName('T1').sheet;
 			sheet.load({
@@ -658,7 +659,9 @@ describe('timequery', () => {
 			const querycell = sheet.cellAt('A5');
 			expect(querycell.value).toBe(true);
 			await runMachine(machine, 50);
-			expect(querycell.value).toBe(ERROR.LIMIT);
+			expect(querycell.value).toBe(true);
+			// instead of returned limit error, cell info should be set		
+			expect(querycell.info.error.code).toBe(ERROR.LIMIT);
 		});
 		it(`should return ${ERROR.NA} until first value is available`, async () => {
 			const machine = newMachine({ cycletime: 10 });
@@ -675,7 +678,7 @@ describe('timequery', () => {
 			const querycell = sheet.cellAt('A5');
 			expect(querycell.value).toBe(true);
 			await runMachine(machine, 15);
-			expect(querycell.value).toBe(ERROR.NA);
+			expect(querycell.value.code).toBe(ERROR.NA);
 			await runMachine(machine, 50);
 			expect(querycell.value).toBe(true);
 		});
@@ -1642,7 +1645,7 @@ describe('timequery', () => {
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			expect(querycell.value).toBe(ERROR.NA);
+			expect(querycell.value.code).toBe(ERROR.NA);
 			query(querycell, timecell);
 			expect(querycell.info.values.v1[0]).toBe(4);
 			expect(querycell.info.values.v2[0]).toBe(40);
@@ -1665,7 +1668,7 @@ describe('timequery', () => {
 			expect(querycell.value).toBe(true);
 			await machine.step();
 			await machine.step();
-			expect(querycell.value).toBe(ERROR.NA);
+			expect(querycell.value.code).toBe(ERROR.NA);
 			query(querycell, timecell);
 			expect(querycell.info.values.v1[0]).toBe(3);
 			expect(querycell.info.values.v2[0]).toBe(30);
@@ -1673,7 +1676,7 @@ describe('timequery', () => {
 			createCellAt('B5', undefined, sheet);
 			await machine.step();
 			await machine.step();
-			expect(querycell.value).toBe(ERROR.NA);
+			expect(querycell.value.code).toBe(ERROR.NA);
 			query(querycell, timecell);
 			expect(querycell.info.values.v1[0]).toBe(5);
 			expect(querycell.info.values.v2[0]).toBe(50);
@@ -1681,7 +1684,7 @@ describe('timequery', () => {
 			createCellAt('A5', undefined, sheet);
 			await machine.step();
 			await machine.step();
-			expect(querycell.value).toBe(ERROR.NA);
+			expect(querycell.value.code).toBe(ERROR.NA);
 			query(querycell, timecell);
 			expect(querycell.info.values.v1[0]).toBe(7);
 			expect(querycell.info.values.v2[0]).toBe(70);

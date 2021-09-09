@@ -379,7 +379,7 @@ describe('weekday', () => {
 });
 
 describe('ms2serial', () => {
-	const { ms2serial, year, month, day, hours, minutes, seconds, milliseconds } = serialnumber;
+	const { ms2serial, year, month, day, hours, minutes, seconds, milliseconds, serial2ms } = serialnumber;
 	it('should convert milliseconds to serial date number', () => {
 		// Z signals time-string is based on UTC, so no local timezone offset is added by Date!!
 		const date = Date.parse('2019-02-26T16:29:39.160Z');
@@ -392,9 +392,26 @@ describe('ms2serial', () => {
 		expect(seconds(serial)).toBe(39);
 		expect(milliseconds(serial)).toBe(160);
 	});
+	it('should convert milliseconds to local serial date number', () => {
+		// Z signals time-string is based on UTC, so no local timezone offset is added by Date!!
+		const date = Date.parse('2019-02-26T16:29:39.160Z');
+		const serial = ms2serial(date, true);
+		expect(year(serial)).toBe(2019);
+		expect(month(serial)).toBe(2);
+		expect(day(serial)).toBe(26);
+		expect(hours(serial)).toBe(17);  // wintertime in germany
+		expect(minutes(serial)).toBe(29);
+		expect(seconds(serial)).toBe(39);
+		expect(milliseconds(serial)).toBe(160);
+	});
+	it('should return same milliseconds if converter by ms2serial and then serial2ms', () => {
+		const millis = Date.parse('2019-02-26T16:29:39.160Z');
+		expect(serial2ms(ms2serial(millis)).toFixed(10)).toBe(millis.toFixed(10));
+		expect(serial2ms(ms2serial(millis, true), true).toFixed(10)).toBe(millis.toFixed(10));
+	});
 });
 describe('serial2ms', () => {
-	const { serial2ms } = serialnumber;
+	const { ms2serial, serial2ms } = serialnumber;
 	it('should convert serial date number to milliseconds', () => {
 		const serial = 43522.68725879629; // '2019-02-26T16:29:39.160Z'
 		const millis = serial2ms(serial);
@@ -407,6 +424,24 @@ describe('serial2ms', () => {
 		expect(date.getUTCMinutes()).toBe(29);
 		expect(date.getUTCSeconds()).toBe(39);
 		expect(date.getUTCMilliseconds()).toBe(160);
+	});
+	it('should convert serial date number to milliseconds in UTC', () => {
+		const serial = 43522.68725879629; // '2019-02-26T14:29:39.160'
+		const millis = serial2ms(serial, true);
+		const date = new Date(millis);
+		// created date is based on local timezone, so we have to use UTC methods...
+		expect(date.getUTCFullYear()).toBe(2019);
+		expect(date.getUTCMonth() + 1).toBe(2);
+		expect(date.getUTCDate()).toBe(26);
+		expect(date.getUTCHours()).toBe(15); // wintertime in germany
+		expect(date.getUTCMinutes()).toBe(29);
+		expect(date.getUTCSeconds()).toBe(39);
+		expect(date.getUTCMilliseconds()).toBe(160);
+	});
+	it('should return same serial number if converted by serial2ms and then ms2serial', () => {
+		const serial = 43522.68725879629; // '2019-02-26T16:29:39.160Z'
+		expect(ms2serial(serial2ms(serial)).toFixed(10)).toBe(serial.toFixed(10));
+		expect(ms2serial(serial2ms(serial, true), true).toFixed(10)).toBe(serial.toFixed(10));
 	});
 });
 describe('date2serial', () => {

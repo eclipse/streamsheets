@@ -24,6 +24,9 @@ import TreeFeedbackView from '../feedback/TreeFeedbackView';
 import Interaction from './Interaction';
 import ContentNodeView from '../view/ContentNodeView';
 import Cursor from '../../ui/Cursor';
+import Highlighter from './Highlighter';
+import LayerId from '../view/LayerId';
+import ChartDragFeedbackView from '../feedback/ChartDragFeedbackView';
 
 /**
  * Interaction that handles TreeView item selection and edit.
@@ -44,6 +47,7 @@ export default class TreeInteraction extends Interaction {
 
 	deactivate(viewer) {
 		viewer.clearInteractionFeedback();
+		viewer.clearLayer(LayerId.TARGETCONTAINER);
 		this._feedback = undefined;
 	}
 
@@ -279,35 +283,52 @@ export default class TreeInteraction extends Interaction {
 		return controller.getModel().isVisible();
 	}
 
+	isShape(controller) {
+		let item = controller.getModel();
+
+		while (item && !(item instanceof JSG.CellsNode)) {
+			item = item.getParent();
+		}
+		return item;
+	}
+
 	_updateFeedback(event, viewer) {
 		const view = this._controller.getView();
-		const item = this._controller.getModel();
 		const selectedItem = view.getSelectedItem();
 
 		if (selectedItem === undefined) {
 			return;
 		}
 
+		if (this._feedback && this._feedback instanceof ChartDragFeedbackView) {
+			if (this._feedback.isHit(event.location.copy())) {
+				return;
+			}
+		}
+
 		const defInteraction = this.getInteractionHandler().getDefaultInteraction();
 		const controller = defInteraction.getControllerAt(event.location, undefined, this._condition);
-
 		if (controller === undefined) {
 			return;
 		}
 
 		// remove last feedback
 		viewer.clearInteractionFeedback();
+		viewer.clearLayer(LayerId.TARGETCONTAINER);
 		this._feedback = undefined;
+		this._targetController = undefined;
 
 		const targetView = controller.getView();
 		if (!targetView.getDragTarget) {
-			this._createFeedback(selectedItem, event, viewer);
+			if (this.isShape(controller)) {
+				Highlighter.getDefault().highlightController(controller, viewer);
+				this._targetController = controller;
+			}
 			return;
 		}
 
 		const target = targetView.getDragTarget();
 		if (target && target.getFeedback) {
-			const selection = item.getSelection(String(item.getSelectionId()));
 			const tmppoint = this.startLocation.copy();
 			const relativePoint = view.translateToTreeView(tmppoint, viewer);
 			const key = view.isKeyEditing(selectedItem.drawlevel, relativePoint.x);
@@ -420,33 +441,49 @@ export default class TreeInteraction extends Interaction {
 
 	onMouseUp(event, viewer) {
 		const view = this._controller.getView();
+		const item = this._controller.getModel();
 
 		viewer.clearInteractionFeedback();
+		viewer.clearLayer(LayerId.TARGETCONTAINER);
 
-		if (this._feedback /* && !(this._feedback instanceof TreeFeedbackView) */) {
+		if (this._feedback) {
+			let targetView;
 			const defInteraction = this.getInteractionHandler().getDefaultInteraction();
-			const controller = defInteraction.getControllerAt(event.location, undefined, this._condition);
-
-			if (controller === undefined) {
-				return;
+			if (this._feedback && this._feedback instanceof ChartDragFeedbackView) {
+				targetView = this._feedback.chartView;
+			} else {
+				const controller = defInteraction.getControllerAt(event.location, undefined, this._condition);
+				if (controller === undefined) {
+					return;
+				}
+				targetView = controller.getView();
 			}
 
-			const targetView = controller.getView();
 			if (!targetView.getDragTarget) {
 				return;
 			}
 
 			const target = targetView.getDragTarget();
 			if (target && target.onDrop) {
-				const item = this._controller.getModel();
 				const selection = item.getSelection(String(item.getSelectionId()));
 				if (selection !== undefined) {
 					target.onDrop(this._feedback, selection.getValue(), view, event, viewer);
 				}
 			}
+			this._feedback = undefined;
+		} else if (this._targetController) {
+			if (this.isShape(this._targetController)) {
+				let controller = this._targetController;
+				while (controller && !(controller.getModel() instanceof JSG.WorksheetNode)) {
+					controller = controller.getParent();
+				}
+				const selection = item.getSelection(String(item.getSelectionId()));
+				if (selection !== undefined) {
+					controller.getView().onDropShape(this._targetController, selection.getValue(), view, event, viewer);
+				}
+			}
+			this._targetController = undefined;
 		}
-
-		this._feedback = undefined;
 
 		if (this.isInside(viewer, event.location)) {
 			event.isConsumed = true;

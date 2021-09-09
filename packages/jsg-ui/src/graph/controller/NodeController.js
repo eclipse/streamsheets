@@ -14,6 +14,7 @@ import {
 	TextNode,
 	ButtonNode,
 	LayoutNode,
+	LayoutCell,
 	CaptionNode,
 	CellsNode,
 	ColumnHeaderNode,
@@ -45,6 +46,7 @@ import ScrollbarView from '../view/ScrollbarView';
 import CaptionView from '../view/CaptionView';
 import ButtonView from '../view/ButtonView';
 import LayoutView from '../view/LayoutView';
+import LayoutCellView from '../view/LayoutCellView';
 import TreeItemsView from '../view/TreeItemsView';
 import SheetButtonView from '../view/SheetButtonView';
 import SheetCheckboxView from '../view/SheetCheckboxView';
@@ -186,6 +188,9 @@ class NodeController extends GraphItemController {
 		}
 		if (model instanceof LayoutNode) {
 			return new LayoutView(model);
+		}
+		if (model instanceof LayoutCell) {
+			return new LayoutCellView(model);
 		}
 		if (model instanceof TreeItemsNode) {
 			return new TreeItemsView(model);
@@ -365,7 +370,7 @@ class NodeController extends GraphItemController {
 
 		while (nodeparent !== undefined) {
 			// nodeparent is not enough!! => need edges from above parents too!!
-			subItems = nodeparent.getItems();
+			subItems = nodeparent.subItems;
 			subItems.forEach((item) => {
 				if (item instanceof Edge) {
 					if (this.isItemInsideNode(item.getSourceNode())) {

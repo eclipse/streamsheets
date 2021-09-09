@@ -16,7 +16,7 @@ export default class ItemMenuHandler {
 	constructor() {
 		this.editor = undefined;
 		this.provider = undefined;
-		this.menuHandle = undefined;
+		this.menuHandles = [];
 	}
 
 	// pass undefined to unregister editor
@@ -79,12 +79,18 @@ export default class ItemMenuHandler {
 	}
 
 	hideMenu() {
-		if (this.menuHandle && this.menuHandle.menu) {
-			const canvas = this.getCanvas();
-			canvas.parentNode.removeChild(this.menuHandle.menu);
-			this.provider.removedMenu(this.menuHandle.menu);
+		const hide = handle => {
+			if (handle && handle.menu) {
+				const canvas = this.getCanvas();
+				canvas.parentNode.removeChild(handle.menu);
+				this.provider.removedMenu(handle.menu);
+			}
 		}
-		this.menuHandle = undefined;
+
+		this.menuHandles.forEach(handle => {
+			hide(handle);
+		});
+		this.menuHandles = [];
 	}
 
 	showMenu(item) {
@@ -94,60 +100,119 @@ export default class ItemMenuHandler {
 	}
 
 	createMenu(item) {
-		this.menuHandle = this.createMenuHandle(item);
-		if (this.menuHandle) {
-			const menu = this.menuHandle.menu;
-			this.getCanvas().parentNode.appendChild(menu);
+		let ret = false;
+
+		const add = (position) => {
+			const handle = this.createMenuHandle(item, position);
+			if (handle) {
+				this.getCanvas().parentNode.appendChild(handle.menu);
+				this.menuHandles.push(handle);
+				ret = true;
+			}
 		}
-		return this.menuHandle;
+
+		add('tr');
+		add('tri');
+		add('bl');
+		add('bli');
+
+		return ret;
 	}
 
-	createMenuHandle(item) {
-		const menuEl = this.provider && this.provider.createMenu(item, this.editor);
-		return menuEl && { menu: menuEl, item };
+	createMenuHandle(item, position) {
+		const menuEl = this.provider && this.provider.createMenu(item, this.editor, position);
+		return menuEl && { menu: menuEl, item, position };
 	}
 
 	placeMenu() {
 		const cs = this.getCS();
-		const el = this.menuHandle.menu;
-		const item = this.menuHandle.item;
 		const pos = JSG.ptCache.get();
 		const viewer = this.editor.getGraphViewer();
 		const canvas = viewer.getCanvas();
-		const itembox = item.getBoundingBox(JSG.boxCache.get());
 		const itemrect = JSG.rectCache.get();
-		GraphUtils.translateBoundingBoxUp(itembox, item.getParent(), item.getGraph());
-		// pos.set(itembox.getRight(), itembox.getTop());
-		// itembox.rotatePoint(pos);
-		itembox.getBoundingRectangle(itemrect);
-		pos.set(itemrect.getRight(), itemrect.y);
-		viewer._translateToParent(pos);
-		pos.x = cs.logToDeviceX(pos.x, false) + canvas.offsetLeft;
-		pos.y = cs.logToDeviceY(pos.y, false) + canvas.offsetTop;
-		el.style.top = `${pos.y}px`;
-		el.style.left = `${pos.x + 5}px`;
+
+		const place = menuHandle => {
+			if (menuHandle) {
+				const el = menuHandle.menu;
+				const item = menuHandle.item;
+				const itembox = item.getBoundingBox(JSG.boxCache.get());
+
+				GraphUtils.translateBoundingBoxUp(itembox, item.getParent(), item.getGraph());
+				itembox.getBoundingRectangle(itemrect);
+
+				switch (menuHandle.position) {
+				case 'tri':
+				case 'tr':
+					pos.set(itemrect.getRight(), itemrect.y);
+					break;
+				case 'bl':
+				case 'bli':
+					pos.set(itemrect.x, itemrect.getBottom());
+					break;
+				}
+
+				viewer._translateToParent(pos);
+				pos.x = cs.logToDeviceX(pos.x, false) + canvas.offsetLeft;
+				pos.y = cs.logToDeviceY(pos.y, false) + canvas.offsetTop;
+
+				switch (menuHandle.position) {
+				case 'tri':
+					el.style.top = `${pos.y - el.offsetHeight / 2}px`;
+					el.style.left = `${pos.x - el.offsetWidth / 2}px`;
+					break;
+				case 'tr':
+					el.style.top = `${pos.y + 5}px`;
+					el.style.left = `${pos.x + 5}px`;
+					break;
+				case 'bl':
+					el.style.top = `${pos.y + 5}px`;
+					el.style.left = `${pos.x + 5}px`;
+					break;
+				case 'bli':
+					el.style.top = `${pos.y - el.offsetHeight - 5}px`;
+					el.style.left = `${pos.x + 5}px`;
+					break;
+				}
+
+				JSG.boxCache.release(itembox);
+			}
+		}
+
+		this.menuHandles.forEach(handle => {
+			place(handle);
+		});
+
 		JSG.ptCache.release(pos);
-		JSG.boxCache.release(itembox);
 		JSG.rectCache.release(itemrect);
-		// TODO resize/scale(!!) menu...
-		// this.resizeMenu();
 	}
 
 	resizeMenu() {
 		const cs = this.getCS();
-		const el = this.menuHandle.menu;
-		const item = this.menuHandle.item;
-		// var settings =  item.getGraph().getSettings();
-		// if(settings.isPageMode()) {
-		//
-		// }
-		el.style.width = `${cs.logToDeviceX(cs.deviceToLogX(el.offsetWidth))}px`;
-		el.style.height = `${cs.logToDeviceY(cs.deviceToLogY(el.offsetHeight))}px`;
-		// console.log(`element size: ${el.style.width}, ${el.style.height}`);
+
+		const resize = menuHandle => {
+			if (menuHandle) {
+				const el = menuHandle.menu;
+
+				el.style.width = `${cs.logToDeviceX(cs.deviceToLogX(el.offsetWidth))}px`;
+				el.style.height = `${cs.logToDeviceY(cs.deviceToLogY(el.offsetHeight))}px`;
+			}
+		}
+
+		this.menuHandles.forEach(handle => {
+			resize(handle);
+		});
 	}
 
 	isVisible(item) {
-		return this.menuHandle && this.menuHandle.item === item;
+		let visible = false;
+
+		this.menuHandles.forEach(handle => {
+			if (handle.item === item) {
+				visible = true;
+			}
+		});
+
+		return visible;
 	}
 
 	// provider should fulfill ItemMenuProvider class...
@@ -162,7 +227,9 @@ export default class ItemMenuHandler {
 
 	// called on menu update, i.e. menu is already shown...
 	updateMenu() {
-		this.provider.updateMenu(this.menuHandle.menu, this.menuHandle.item, this.editor);
+		this.menuHandles.forEach(handle => {
+			this.provider.updateMenu(handle.menu, handle.item, this.editor, undefined, handle.position);
+		});
 	}
 
 	getCanvas() {

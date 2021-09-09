@@ -55,7 +55,7 @@ describe('execute', () => {
 	it('should return error code of passed message term', () => {
 		const { s1 } = setup();
 		createCellAt('A1', { formula: 'EXECUTE("S2",2,SUBTREE(OUTBOXDATA("Message")))'}, s1.sheet);
-		expect(s1.sheet.cellAt('A1').value).toBe(ERROR.NO_MSG);
+		expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.NO_MSG);
 	});
 	it('should trigger execution of a streamsheet from another one', async () => {
 		const { machine, s1, s2 } = setup();
@@ -95,12 +95,12 @@ describe('execute', () => {
 		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		await machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(sheet1.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		await machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(sheet1.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(3);
 		await machine.step();
@@ -110,7 +110,7 @@ describe('execute', () => {
 		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(4);
 		await machine.step();
 		expect(sheet1.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(sheet1.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(sheet1.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(sheet1.cellAt(SheetIndex.create('A3')).value).toBe(2);
 		expect(sheet2.cellAt(SheetIndex.create('B1')).value).toBe(5);
 	});
@@ -247,7 +247,7 @@ describe('execute', () => {
 		await machine.step();
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(4);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe(false);
@@ -261,7 +261,7 @@ describe('execute', () => {
 		// ...and again from beginning...
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(2);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(6);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe(false);
@@ -286,14 +286,14 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(1);
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(2);
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
@@ -301,21 +301,21 @@ describe('execute', () => {
 		// now s2 resumes and is called directly again (2. repetition) => s1 still waits!!
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(3);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('hello');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(3);
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(4);
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
@@ -323,21 +323,21 @@ describe('execute', () => {
 		// now s2 resumes and is called directly again (3. repetition) => s1 still waits!!
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(3);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('hello');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(5);
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
 		expect(s2.sheet.cellAt(SheetIndex.create('B3')).value).toBe(6);
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(2);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(2);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
@@ -353,7 +353,7 @@ describe('execute', () => {
 		// ...and once again from beginning...
 		await machine.step();
 		expect(s1.sheet.cellAt(SheetIndex.create('A1')).value).toBe(3);
-		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt(SheetIndex.create('A2')).value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt(SheetIndex.create('A3')).value).toBe(2);
 		expect(s2.sheet.cellAt(SheetIndex.create('B1')).value).toBe(1);
 		expect(s2.sheet.cellAt(SheetIndex.create('B2')).value).toBe('run');
@@ -379,7 +379,7 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt('B2').value).toBe('run');
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		await machine.step();
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B2').value).toBe('run');
 		await machine.step();
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
@@ -391,7 +391,7 @@ describe('execute', () => {
 		// execute again...
 		await machine.step();
 		expect(s1.sheet.cellAt('A1').value).toBe(3);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(2);
 		expect(s2.sheet.cellAt('B1').value).toBe(4);
 		expect(s2.sheet.cellAt('B2').value).toBe('run');
@@ -401,7 +401,7 @@ describe('execute', () => {
 		await machine.step();
 		await machine.step();
 		expect(s1.sheet.cellAt('A1').value).toBe(3);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(2);
 		expect(s2.sheet.cellAt('B1').value).toBe(7);
 		expect(s2.sheet.cellAt('B2').value).toBe('run');
@@ -454,7 +454,7 @@ describe('execute', () => {
 		expect(s2.sheet.cellAt('B2').value).toBe(false);
 		await machine.step();
 		await machine.step();	// <-- resumes and directly repeats execute() again
-		expect(s1.sheet.cellAt('A1').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A2').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
@@ -594,7 +594,7 @@ describe('execute', () => {
 			Step3: { Duration: 100, States: { Ampel1: 'Green' } }
 		}));
 		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A2').value).toBe(1);
 		expect(s2.stats.executesteps).toBe(1);
 		expect(s2.getCurrentLoopPath()).toBe('[Data][Step1]');
@@ -659,7 +659,8 @@ describe('execute', () => {
 		s1.sheet.load({ cells: { A1: { formula: 'execute("S2",1,"data")' } } });
 		s2.trigger = TriggerFactory.create({ type: TriggerFactory.TYPE.CONTINUOUSLY });
 		await machine.step();
-		expect(s1.sheet.cellAt('A1').value).toBe(`${ERROR.INVALID_PARAM}_1`);
+		expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.INVALID_PARAM);
+		expect(s1.sheet.cellAt('A1').value.paramIndex).toBe(1);
 	});
 	// DL-3731:
 	test('check passed message', async () => {
@@ -730,7 +731,7 @@ describe('execute', () => {
 		await wait(500);
 		await machine.stop();
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(2);
 		expect(s2.sheet.cellAt('B1').value).toBeLessThanOrEqual(6);
@@ -807,27 +808,27 @@ describe('concatenated execute() usage', () => {
 		expect(s3.sheet.cellAt('C1').value).toBe(1);
 		await machine.step();
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
-		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+		expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		expect(s2.stats.executesteps).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(2);
 		expect(s3.stats.executesteps).toBe(1);
 		await machine.step();
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
-		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+		expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		expect(s2.stats.executesteps).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(3);
 		expect(s3.stats.executesteps).toBe(2);
 		await machine.step();	// S3 called 3x => S2 resumes
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(false);
@@ -837,10 +838,10 @@ describe('concatenated execute() usage', () => {
 		expect(s3.stats.executesteps).toBe(3);
 		await machine.step();	// S2 next repetition
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(3);
-		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+		expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B3').value).toBe(2);
 		expect(s2.stats.executesteps).toBe(2);
 		expect(s3.sheet.cellAt('C1').value).toBe(5);
@@ -858,10 +859,10 @@ describe('concatenated execute() usage', () => {
 		expect(s3.stats.executesteps).toBe(3);
 		await machine.step();	// S1 is endless so it starts again
 		expect(s1.sheet.cellAt('A1').value).toBe(3);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(2);
 		expect(s2.sheet.cellAt('B1').value).toBe(4);
-		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+		expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B3').value).toBe(3);
 		expect(s2.stats.executesteps).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(8);
@@ -907,27 +908,27 @@ describe('concatenated execute() usage', () => {
 		await machine.step();
 		expect(s2.getLoopIndex()).toBe(0);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
-		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+		expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(2);
 		expect(s3.sheet.cellAt('C2').value).toBe(1);
 		await machine.step();
 		expect(s2.getLoopIndex()).toBe(0);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
-		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+		expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B3').value).toBe(1);
 		expect(s3.sheet.cellAt('C1').value).toBe(3);
 		expect(s3.sheet.cellAt('C2').value).toBe(2);
 		await machine.step();	// <-- return S3 -> S2 resumes step
 		expect(s2.getLoopIndex()).toBe(1);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(2);
 		expect(s2.sheet.cellAt('B2').value).toBe(true);
@@ -937,10 +938,10 @@ describe('concatenated execute() usage', () => {
 		await machine.step();	// S2 -> executes S3 again, because of loop element
 		expect(s2.getLoopIndex()).toBe(1);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(3);
-		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+		expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B3').value).toBe(2);
 		expect(s3.sheet.cellAt('C1').value).toBe(2);
 		expect(s3.sheet.cellAt('C2').value).toBe(1);
@@ -958,10 +959,10 @@ describe('concatenated execute() usage', () => {
 		await machine.step()	// and from the beginning...
 		expect(s2.getLoopIndex()).toBe(1);
 		expect(s1.sheet.cellAt('A1').value).toBe(3);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(2);
 		expect(s2.sheet.cellAt('B1').value).toBe(4);
-		expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+		expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 		expect(s2.sheet.cellAt('B3').value).toBe(3);
 		expect(s3.sheet.cellAt('C1').value).toBe(2);
 		expect(s3.sheet.cellAt('C2').value).toBe(1);

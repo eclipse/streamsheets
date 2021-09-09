@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -30,7 +30,7 @@ const createSheetRange = (start, end, sheet) => {
 const ensureNumberGreater = (nr, error) => (value) => value == null ? value : (value > nr ? value : error);
 const ensureNumberGreaterZero = ensureNumberGreater(0, ERROR.VALUE);
 const term2number = (term, defval) => term ? convert.toNumber(term.value, defval) : defval;
-const indexFromOperand = op => 
+const indexFromOperand = op =>
 	// eslint-disable-next-line no-nested-ternary
 	op.isTypeOf('CellReference') ? op.index : (op.isTypeOf('CellRangeReference') ? op.value.start : undefined);
 
@@ -59,7 +59,7 @@ const column = (sheet, ...terms) =>
 			idx = idx || sheetutils.cellFromFunc(column);
 			return idx ? idx.col + 1 : ERROR.VALUE;
 		});
-	
+
 //
 // == INDEX ==
 //
@@ -100,7 +100,7 @@ const convertRC = (str) => {
 	const colidx = str.toUpperCase().indexOf('C');
 	const row = parseInt(str.substring(1, colidx), 10);
 	const col = parseInt(str.substring(colidx + 1), 10) - 1;
-	return `${SheetIndex.columnAsStr(col)}${row}`;	
+	return `${SheetIndex.columnAsStr(col)}${row}`;
 };
 const refStrFromRC = (rcstr) => rcstr.split(':').map(convertRC).join(':');
 const indirect = (sheet, ...terms) =>
@@ -109,7 +109,7 @@ const indirect = (sheet, ...terms) =>
 		.withMaxArgs(2)
 		.mapNextArg(ref => ref)
 		.mapNextArg((isA1Style) => isA1Style ? convert.toBoolean(isA1Style.value, true) : true)
-		.run((ref, isA1Style) =>  {
+		.run((ref, isA1Style) => {
 			const scope = ref.operand._streamsheetId ? ref.operand.sheet : sheet;
 			const val = isA1Style ? ref.value : refStrFromRC(ref.value);
 			ref = typeof val === 'string' ? referenceFromString(val, scope) : undefined;
@@ -225,15 +225,15 @@ const offset = (sheet, ...terms) =>
 					startidx.col + (width == null ? range.width : width) - 1)
 				: null;
 			// check new indices (against sheet of function!!):
+			const rangeSheet = range.sheet || sheet;
 			const error = FunctionErrors.ifTrue(!startidx
 				|| !endidx
-				|| !sheet.isValidIndex(startidx)
-				|| !sheet.isValidIndex(endidx), ERROR.REF);
-			return error || [startidx, endidx];
+				|| !rangeSheet.isValidIndex(startidx)
+				|| !rangeSheet.isValidIndex(endidx), ERROR.REF);
+			return error || [createSheetRange(startidx, endidx, rangeSheet)];
 		})
-		.run((startidx, endidx) => {
+		.run((offRange) => {
 			// we return a CellRangeReference...
-			let offRange = createSheetRange(startidx, endidx, sheet);
 			const { start, height, width } = offRange;
 			// DL-1425: if range references only one cell we return its value...
 			if (width === 1 && height === 1) {

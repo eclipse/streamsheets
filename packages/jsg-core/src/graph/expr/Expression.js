@@ -548,7 +548,7 @@ class Expression {
 		// let str = this._formula != null ? this._formula : null;
 		let str =
 			this._term != null
-				? `=${this._term.toLocaleString(locale, ...params)}`
+				? `${params[0].noEqual === true ? '' : '='}${this._term.toLocaleString(locale, ...params)}`
 				: null;
 		if (str == null) {
 			const value = this.getValue();
@@ -671,20 +671,32 @@ class Expression {
 		if (json.ref) {
 			this._cellref = json.ref;
 		}
+		if (json.info) {
+			this._info = json.info;
+		}
 	}
 
 	toJSON(serverCalc) {
 		const ret =  {};
 
 		if (this._formula !== undefined) {
-			ret.f = Strings.encode(this._formula);
+			// always use term to update potentially changed sheet name
+			if (this._term === undefined) {
+				ret.f = Strings.encode(this._formula);
+			} else {
+				ret.f = Strings.encode(this._term.toString({useName: true, forceName: true}));
+			}
 		}
 		if (this._value !== undefined) {
-			ret.v = Strings.encode(this.getValue().toString())
+			if (this.getValue() !== undefined) {
+				ret.v = Strings.encode(this.getValue().toString())
+			} else {
+				ret.v = 0;
+			}
 		}
 		const type = typeof this.getValue();
 
-		if (type[0] !== 'n') {
+		if (type !== undefined && type[0] !== 'n') {
 			ret.t = type[0];
 		}
 		if (serverCalc && this._formula) {
@@ -701,10 +713,14 @@ class Expression {
 	 * @param {Writer} writer Writer object to save to.
 	 */
 	save(name, writer, decimals) {
-		writer.writeStartElement(name);
+		const node = writer.writeStartElement(name);
 
 		if (this._formula !== undefined) {
-			this._writeFormulaAttribute(writer);
+			if (this._term !== undefined) {
+				this._writeTermAttribute(writer);
+			} else {
+				this._writeFormulaAttribute(writer);
+			}
 		} else if (this._term !== undefined) {
 			this._writeTermAttribute(writer);
 		}
@@ -721,6 +737,8 @@ class Expression {
 		}
 
 		writer.writeEndElement();
+
+		return node;
 	}
 
 	/**
@@ -746,7 +764,7 @@ class Expression {
 	 * @private
 	 */
 	_writeTermAttribute(writer) {
-		writer.writeAttributeString('f', Strings.encode(this._term.toString()));
+		writer.writeAttributeString('f', Strings.encode(this._term.toString({useName: true, forceName: true})));
 	}
 
 	/**
@@ -812,6 +830,7 @@ class Expression {
 		const locked = reader.getAttribute(node, 'locked');
 		const termValue = reader.getAttribute(node, 'sv');
 
+		this._info = reader.getAttribute(node, 'info');
 		this.setTermValue(termValue);
 
 		this._isLocked = false;

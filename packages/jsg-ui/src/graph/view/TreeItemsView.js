@@ -732,13 +732,8 @@ export default class TreeItemsView extends NodeView {
 			return undefined;
 		}
 
-		const point = new Point(0, 0);
-
-		point.setTo(location);
-		// point = this.translateToTreeView(point, viewer);
-
 		const feedback = new TreeFeedbackView(title);
-		feedback.setLocationTo(point);
+		feedback.setLocationTo(location.copy());
 
 		return feedback;
 	}

@@ -158,6 +158,7 @@ describe('OnMessageTrigger', () => {
 		});
 		it('should always calculate with same loop-element in endless mode', async () => {
 			const { machine, s1 } = setup();
+			const monitorS1 = monitorStreamSheet(s1);
 			const message = new Message([1,2,3]);
 			s1.trigger.update({ repeat: 'endless' });
 			createCellAt('A1', { formula: 'A1+1' }, s1.sheet);
@@ -166,11 +167,13 @@ describe('OnMessageTrigger', () => {
 			await machine.start();
 			expect(s1.sheet.cellAt('A1').value).toBe(1);
 			putMessages(s1, message);
+			await monitorS1.hasFinishedStep(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.getLoopIndex()).toBe(0);
 			expect(s1.inbox.peek().id).toBe(message.id);
 			putMessages(s1, new Message(), new Message());
-			await wait(20);
+			// await wait(20);
+			await monitorS1.hasFinishedStep(3);
 			expect(s1.sheet.cellAt('A1').value).toBeGreaterThan(2);
 			expect(s1.getLoopIndex()).toBe(0);
 			expect(s1.inbox.peek().id).toBe(message.id);

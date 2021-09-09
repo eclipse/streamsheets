@@ -89,7 +89,7 @@ export default class CellSelectionFeedbackView extends View {
 
 	draw(graphics) {
 		const pane = this._sheetview.getContentPane();
-		if (pane === undefined) {
+		if (pane === undefined || !this._graphView) {
 			return;
 		}
 
@@ -105,8 +105,7 @@ export default class CellSelectionFeedbackView extends View {
 		const scrollView = this._sheetview.getScrollView();
 		const viewBounds = scrollView.getBounds();
 		const location = viewBounds.getLocation();
-		const id = graph.getTopStreamSheetContainerId();
-
+		const id = this._graphView.getActiveViewId();
 		if (id === undefined || id !== this._sheetview.getId()) {
 			return;
 		}

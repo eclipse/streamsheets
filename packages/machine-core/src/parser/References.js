@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,7 +10,7 @@
  ********************************************************************************/
 const SheetIndex = require('../machine/SheetIndex');
 const SheetRange = require('../machine/SheetRange');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { ParserError, Reference } = require('@cedalo/parser');
 
 const ERROR = FunctionErrors.code;
@@ -30,7 +30,7 @@ class AbstractReference extends Reference {
 			const machine = sheet.machine || sheet;
 			if (machine && machine.getStreamSheet) {
 				const streamsheet = machine.getStreamSheet(this._streamsheetId);
-				sheet = streamsheet ? streamsheet.sheet : ERROR.REF;
+				sheet = streamsheet ? streamsheet.sheet : ErrorInfo.create(ERROR.REF);
 			}
 		}
 		return sheet;
@@ -81,7 +81,7 @@ class NamedCellReference extends AbstractReference {
 			cell.value = value;
 			return value;
 		}
-		return ERROR.REF;
+		return ErrorInfo.create(ERROR.REF);
 	}
 
 	get target() {
@@ -137,7 +137,7 @@ class CellReference extends AbstractReference {
 		const sheet = this.sheet;
 		const error =
 			FunctionErrors.isError(sheet) ||
-			(sheet && !isValidIndex(index, sheet) ? ERROR.REF : undefined);
+			(sheet && !isValidIndex(index, sheet) ? ErrorInfo.create(ERROR.REF) : undefined);
 		return error || sheet.cellAt(index);
 	}
 
@@ -207,7 +207,7 @@ class CellRangeReference extends AbstractReference {
 		const error =
 			FunctionErrors.isError(sheet) ||
 			(sheet && (!isValidIndex(range.start, sheet) || !isValidIndex(range.end, sheet))
-				? ERROR.REF
+				? ErrorInfo.create(ERROR.REF)
 				: null);
 		return error || range;
 	}
@@ -282,7 +282,7 @@ class MessageBoxReference extends AbstractReference {
 	get value() {
 		const sheet = this.sheet;
 		const messagebox = sheet && this._getMessageBox(this.sheet);
-		return messagebox ? this._getMessagePart(messagebox.peek()) : ERROR.REF;
+		return messagebox ? this._getMessagePart(messagebox.peek()) : ErrorInfo.create(ERROR.REF);
 	}
 
 	copy() {
@@ -304,11 +304,63 @@ class MessageBoxReference extends AbstractReference {
 	}
 }
 
+class ShapeReference extends AbstractReference {
+	static fromString(str, scope, streamSheetId) {
+		let sheet = scope;
+		if (streamSheetId) {
+			const machine = scope.machine;
+			if (machine && machine.getStreamSheet) {
+				sheet = machine.getStreamSheet(streamSheetId);
+				if (!sheet) {
+					return undefined;
+				}
+				sheet = sheet.sheet;
+			}
+		}
+		const shape = sheet && sheet.shapes.getShapeByName(str);
+		return shape ? new ShapeReference(scope, str) : undefined;
+	}
+
+	constructor(scope, refstr /*, shape */) {
+		super();
+		this.scope = scope;
+		this._refstr = refstr;
+		this._streamsheetId = undefined;
+	}
+
+	get isShapeReference() {
+		return true;
+	}
+
+	get value() {
+		const shape = this.sheet.shapes.getShapeByName(this._refstr);
+		return shape || ERROR.REF;
+	}
+
+	copy() {
+		const ref = ShapeReference.fromString(this._refstr, this.scope);
+		ref._streamsheetId = this._streamsheetId;
+		return ref;
+	}
+
+	isTypeOf(type) {
+		return type === 'ShapeReference' || super.isTypeOf(type);
+	}
+
+	isEqualTo(operand) {
+		return operand.isShapeReference && operand._refstr === this._refstr;
+	}
+
+	toString() {
+		return this.description(this._refstr);
+	}
+}
+
 const referenceFromString = (str, scope) => {
 	// sheet reference
 	let streamsheetId;
 	const parts = str.split('!');
-	const externalRef = parts.length === 2;
+	const externalRef = parts.length === 2 && !!parts[0] && !!parts[1];
 	if (externalRef) {
 		// we have a sheet reference...
 		const machine = scope.machine || scope;
@@ -320,6 +372,7 @@ const referenceFromString = (str, scope) => {
 	const reference =
 		NamedCellReference.fromString(str, scope) ||
 		MessageBoxReference.fromString(str, scope) ||
+		ShapeReference.fromString(str, scope, streamsheetId) ||
 		CellReference.fromString(str, scope, externalRef) ||
 		CellRangeReference.fromString(str, scope, externalRef);
 	if (reference) reference._streamsheetId = streamsheetId;
@@ -335,6 +388,7 @@ module.exports = {
 	CellRangeReference,
 	NamedCellReference,
 	MessageBoxReference,
+	ShapeReference,
 	referenceFromNode,
 	referenceFromString
 };

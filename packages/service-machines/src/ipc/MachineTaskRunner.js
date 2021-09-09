@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const fork = require('child_process').fork;
+const zlib = require('zlib');
 const {
 	Channel,
 	ChannelRequestHandler,
@@ -20,6 +21,7 @@ const MachineTaskStreams = require('./MachineTaskStreams');
 const MachineTaskObserver = require('./MachineTaskObserver');
 const FunctionModulesResolver = require('../utils/FunctionModulesResolver');
 const logger = require('../utils/logger').create({ name: 'MachineTaskRunner' });
+
 
 // REVIEW: check if port is unused...
 let PORT = 9228;
@@ -52,7 +54,7 @@ class MachineTaskRunner {
 		this.name = undefined;
 		this.isOPCUA = false;
 		this.state = State.STOPPED;
-		this.channel = Channel.create(task);
+		this.channel = Channel.create(task, { logger });
 		this.options = Object.assign({}, options);
 		this.streams = new MachineTaskStreams(this.channel);
 		this.taskObserver = new MachineTaskObserver(this);
@@ -86,7 +88,12 @@ class MachineTaskRunner {
 	}
 
 	async getDefinition() {
-		return this.requestHandler.request({ request: 'definition' });
+		// return this.requestHandler.request({ request: 'definition' });
+		const zipped = await this.requestHandler.request({ request: 'definition' });
+		const zippedBuffer = Buffer.from(zipped.data);
+		return new Promise((resolve, reject) => {
+			zlib.unzip(zippedBuffer, (err, buf) => err ? reject(err) : resolve(JSON.parse(buf.toString('utf8'))));
+		});
 	}
 
 	async start() {

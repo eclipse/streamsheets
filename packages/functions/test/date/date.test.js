@@ -23,8 +23,8 @@ describe('date & time functions', () => {
 		// DL-1325
 		it('should return an error for invalid parameters', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('date("2018s,5,18)")', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('date(2017s,3,19)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('date("2018s,5,18)")', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('date(2017s,3,19)', sheet).value.code).toBe(ERROR.NAME);
 		});
 	});
 	describe('datevalue', () => {
@@ -36,7 +36,7 @@ describe('date & time functions', () => {
 			expect(createTerm('datevalue("2011/02/23")', sheet).value).toBe(40597);
 			// expect(createTerm('datevalue("5-JUL")', sheet).value).toBe(40597);
 			expect(createTerm('datevalue("11/3/2011")', sheet).value).toBe(40850);
-			expect(createTerm('datevalue(A2+"/"+A3+"/"+A4)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('datevalue(A2+"/"+A3+"/"+A4)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('datevalue(concat(A2,"/",A3,"/",A4))', sheet).value).toBe(40850);
 		});
 	});
@@ -78,11 +78,26 @@ describe('date & time functions', () => {
 			const jsontime = createTerm(`excel2jsontime(${now})`, sheet).value;
 			expect(createTerm(`jsontime2excel("${jsontime}")`, sheet).value).toBe(now);
 		});
+		// DL-5135
+		it('should allow single month, day and hours, minutes, seconds and milliseconds', () => {
+			const sheet = new StreamSheet().sheet;
+			expect(createTerm('jsontime2excel("2012-4-23T18:25:43.511Z")', sheet).value).toBe(41022.76786471065);
+			expect(createTerm('jsontime2excel("2012-04-3T1:5:4.1Z")', sheet).value).toBe(41002.04518519676);			
+			expect(createTerm('jsontime2excel("2012-04-3T1:5:4Z")', sheet).value).toBe(41002.04518518518);
+			expect(createTerm('jsontime2excel("2012-04-3T1:5Z")', sheet).value).toBe(41002.04513888889);
+			expect(createTerm('jsontime2excel("2012-04-3T1Z")', sheet).value).toBe(41002.041666666664);
+			expect(createTerm('jsontime2excel("2021-12-31T03:00:00Z")', sheet).value).toBe(44561.125);
+		});
 		it(`should return ${ERROR.VALUE} if given date string is not in UTC based ISO-8601 format `, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('jsontime2excel("2012-04-23T18:25:43.511")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('jsontime2excel("2012-04-23T18:25:43Z")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('jsontime2excel("2012-4-2T18:25:43.511Z")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('jsontime2excel("2012-04-23T18:25:43.511")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('jsontime2excel("2012-04-23T")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('jsontime2excel("2012-04-23TZ")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('jsontime2excel("2012-04-23T18.51Z")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('jsontime2excel("2012-04-23T18:25.51Z")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('jsontime2excel("2012-04-23T18:25.51Z")', sheet).value.code).toBe(ERROR.VALUE);
+			// negative not supported by js Date class
+			expect(createTerm('jsontime2excel("-0333-04-11T8:5:3.1Z")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 

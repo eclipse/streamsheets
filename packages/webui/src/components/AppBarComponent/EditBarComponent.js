@@ -88,6 +88,7 @@ export class EditBarComponent extends Component {
 		const info = document.getElementById('editbarreference');
 		const selection = graphManager.getGraphViewer().getSelection();
 		let formulaText = '';
+		let infoText = '';
 		const jsgState = {};
 		const appState = {};
 
@@ -122,6 +123,7 @@ export class EditBarComponent extends Component {
 						// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION));
 					}
 				}
+				infoText = item.getName().getValue();
 			}
 
 			const view = getProcessContainerView(selection[0]);
@@ -134,7 +136,7 @@ export class EditBarComponent extends Component {
 		}
 
 		formula.innerHTML = Strings.encodeXML(formulaText);
-		info.innerHTML = '';
+		info.innerHTML = infoText;
 
 		if (this.props.cellSelected === true) {
 			jsgState.cellSelected = false;
@@ -214,18 +216,31 @@ export class EditBarComponent extends Component {
 		// remove selections in other process sheets
 		const processContainer = graphManager.getGraph().getStreamSheetsContainer();
 
-		processContainer.enumerateStreamSheetContainers((container) => {
-			const sheet = container.getStreamSheet();
-			if (active === undefined || sheet.getId() !== active.getId()) {
-				if (sheet.getOwnSelection().hasSelection()) {
-					const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
-					// cmd._noDraw = true;
-					graphManager.getGraph().markDirty();
-					graphManager.getGraphViewer().activeView = undefined;
-					graphManager.synchronizedExecute(cmd);
+		JSG.GraphUtils.traverseItem(processContainer, sheet => {
+			if (sheet instanceof StreamSheet) {
+				if (active === undefined || sheet.getId() !== active.getId()) {
+					if (sheet.getOwnSelection().hasSelection()) {
+						const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
+						// cmd._noDraw = true;
+						graphManager.getGraph().markDirty();
+						graphManager.getGraphViewer().getGraphView().activeView = undefined;
+						graphManager.synchronizedExecute(cmd);
+					}
 				}
 			}
-		});
+		}, false);
+		// processContainer.enumerateStreamSheetContainers((container) => {
+		// 	const sheet = container.getStreamSheet();
+		// 	if (active === undefined || sheet.getId() !== active.getId()) {
+		// 		if (sheet.getOwnSelection().hasSelection()) {
+		// 			const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
+		// 			// cmd._noDraw = true;
+		// 			graphManager.getGraph().markDirty();
+		// 			graphManager.getGraphViewer().getGraphView().activeView = undefined;
+		// 			graphManager.synchronizedExecute(cmd);
+		// 		}
+		// 	}
+		// });
 	}
 
 	handleReferenceKeyDown = () => {};

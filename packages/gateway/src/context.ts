@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -72,6 +72,15 @@ const applyPlugins = async (context: GenericGlobalContext<RawAPI, BaseAuth>, plu
 	}, Promise.resolve(context));
 };
 
+const prepareFilters = (globalContext: GlobalContext): GlobalContext => {
+	const filters = Object.values(globalContext.filters).reduce((acc, filters) => [...acc, ...filters], []);
+	const filterMap = filters.reduce(
+		(acc, [key, func]) => ({ ...acc, [key]: acc[key] ? [...acc[key], func] : [func] }),
+		{} as { [key: string]: Array<(...args: any) => any> }
+	);
+	return { ...globalContext, filterMap };
+};
+
 export const init = async (config: any, plugins: string[]) => {
 	const mongoClient: MongoClient = await MongoDBConnection.create();
 	const graphRepository = new MongoDBGraphRepository(config.mongodb);
@@ -106,7 +115,7 @@ export const init = async (config: any, plugins: string[]) => {
 		});
 	}
 
-	const context = await applyPlugins(
+	const context = prepareFilters(await applyPlugins(
 		{
 			mongoClient,
 			interceptors: {},
@@ -118,6 +127,8 @@ export const init = async (config: any, plugins: string[]) => {
 			rawAuth: baseAuth,
 			authStrategies: {},
 			middleware: {},
+			filters: {},
+			filterMap: {},
 			rawApi: RawAPI,
 			machineServiceProxy,
 			getActor,
@@ -143,7 +154,7 @@ export const init = async (config: any, plugins: string[]) => {
 			}
 		} as GlobalContext,
 		plugins
-	);
+	));
 
 	return context;
 };

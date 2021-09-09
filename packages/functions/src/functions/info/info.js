@@ -1,14 +1,14 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const {	runFunction, values: { isEven } } = require('../../utils');
+const { runFunction, values: { isEven } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { isType } = require('@cedalo/machine-core');
@@ -34,7 +34,7 @@ const iserr = (sheet, ...terms) =>
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
-			return value !== ERROR.NA && !!FunctionErrors.isError(value);
+			return !!FunctionErrors.isError(value) && !FunctionErrors.isErrorCode(value, ERROR.NA);
 		});
 
 const iserror = (sheet, ...terms) =>
@@ -50,7 +50,7 @@ const isna = (sheet, ...terms) =>
 		.withArgCount(1)
 		.run(() => {
 			const value = terms.length ? terms[0].value : null;
-			return value === ERROR.NA;
+			return FunctionErrors.isErrorCode(value, ERROR.NA);
 		});
 
 const iseven = (sheet, ...terms) =>
@@ -72,7 +72,7 @@ const isodd = (sheet, ...terms) =>
 		.run((value) => !isEven(Math.floor(value)));
 
 
-const na = (sheet, ...terms) =>	runFunction(sheet, terms).withArgCount(0).run(() => ERROR.NA);
+const na = (sheet, ...terms) => runFunction(sheet, terms).withArgCount(0).run(() => ERROR.NA);
 
 module.exports = {
 	IFERROR: iferror,

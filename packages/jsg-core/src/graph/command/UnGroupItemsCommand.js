@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -57,7 +57,7 @@ class UnGroupItemsCommand extends AbstractGroupUngroupCommand {
 		this._group = item;
 		this._groupbox = this._group.getBoundingBox();
 		// preserve grouped items for undo...
-		this._items = Arrays.addAll([], item.getItems());
+		this._items = Arrays.addAll([], item.subItems);
 	}
 
 	initWithObject(data) {

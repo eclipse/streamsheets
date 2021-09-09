@@ -90,6 +90,12 @@ function addNotification(notification, state) {
 }
 
 
+const createReference = (error) => {
+	const { app, streamsheet = '--', cell = '--' } = error;
+	return app ? `App: ${app}, Cell: ${streamsheet}!${cell}` : undefined;
+};
+
+
 export default function notificationsReducer(state = defaultNotificationsState, action) {
 	let notification = null;
 	switch (action.type) {
@@ -193,6 +199,7 @@ export default function notificationsReducer(state = defaultNotificationsState, 
 			notification = {
 				title: e.streamName,
 				message: '',
+				reference: action.event.data.error ? createReference(action.event.data.error) : undefined,
 				icon: !e.error ? <IconConsumer /> : <ErrorIcon />,
 				timestamp: action.event.data.timestamp,
 			};

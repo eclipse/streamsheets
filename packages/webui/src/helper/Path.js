@@ -35,6 +35,7 @@ export const Path = {
 	workspaces: () => preserveScope(`/administration/workspaces`),
 	workspace: (id) => preserveScope(`/administration/workspaces/${id}`),
 	database: () => preserveScope(`/administration/database`),
+	license: () => preserveScope(`/administration/license`),
 	stream: (id) => preserveScope(`/administration/stream/${id}`),
 	connectors: () => preserveScope(`/administration/connectors`),
 	consumers: () => preserveScope(`/administration/consumers`),

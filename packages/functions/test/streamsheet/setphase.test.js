@@ -95,8 +95,8 @@ describe('setphase', () => {
 		const sheet = new StreamSheet().sheet;
 		// simulate sheet processing...
 		sheet.forceExecution(true);
-		expect(createTerm('setphase()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('setphase(A1)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('setphase(A1, "phase2")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('setphase()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('setphase(A1)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('setphase(A1, "phase2")', sheet).value.code).toBe(ERROR.ARGS);
 	});
 });

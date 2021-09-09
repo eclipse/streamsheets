@@ -19,6 +19,7 @@ const TYPES = {
 const valueOrDefault = (val, defval) => (val == null && defval != null ? defval : val);
 // note: !isNaN(null) && isFinite(null) evaluates to true!!!
 const isNr = (val) => val != null && !isNaN(val) && isFinite(val);
+const isNrPos = (val) => isNr(val) && val >= 0;
 
 const toBool = {
 	boolean: (val) => val,
@@ -31,15 +32,15 @@ const toBool = {
 	object: () => undefined
 	// object: (val) => val != null
 };
-const toNr = {
+const toNr = (check) => ({
 	boolean: (val) => (val ? 1 : 0),
-	number: (val) => (isNr(val) ? val : undefined),
+	number: (val) => (check(val) ? val : undefined),
 	string: (val) => {
 		const nr = Number(val);
-		return isNr(nr) ? nr : undefined;
+		return check(nr) ? nr : undefined;
 	},
 	object: () => undefined
-};
+});
 const toStr = {
 	boolean: (val) => `${val}`,
 	number: (val) => `${val}`,
@@ -90,7 +91,8 @@ class Convert {
 		this.types = types();
 		this.doSet = true;
 		this.toBoolean = convert(this.types, toBool);
-		this.toNumber = convert(this.types, toNr);
+		this.toNumber = convert(this.types, toNr(isNr));
+		this.toNumberPositive = convert(this.types, toNr(isNrPos));
 		this.toString = convert(this.types, toStr);
 	}
 
@@ -119,6 +121,7 @@ module.exports = {
 	// predefine some often used conversions:
 	toBoolean: new Convert().toBoolean,
 	toNumber: new Convert().toNumber,
+	toNumberPositive: convert(types(), toNr(isNrPos)),
 	toNumberStrict: new Convert().number.toNumber,
 	toString: new Convert().toString,
 	// for other conversion scenarios

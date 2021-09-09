@@ -60,7 +60,7 @@ const redisConnection = (machineId) => {
 };
 
 const clearShapes = (cellsnode) => {
-	const shapes = [...cellsnode.getItems()];
+	const shapes = [...cellsnode.subItems];
 	shapes.forEach((shape) => cellsnode.removeItem(shape));
 };
 

@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 const logger = require('./logger').create({ name: 'FunctionRegistry' });
+const DotReferenceOperator = require('./parser/DotReferenceOperator');
 
 const moduleName = (path) => {
 	const parts = path.split('/');
@@ -29,12 +30,17 @@ const DEF_CATEGORY = ['other', { en: 'Other', de: 'Sonstige' }];
 const Functions = {
 	core: {},
 	additional: {},
-	additionalHelp: {}
+	additionalHelp: {},
+	dotFunctionNames: []
 };
 const Actions = {
 	core: {},
 	additional: {}
 };
+
+const toName = (name) => ({ name });
+const isDotFunction = (name) => name.indexOf(DotReferenceOperator.SYMBOL) > 0;
+const getFunctionNames = () => Object.keys(Functions.core).concat(Object.keys(Functions.additional));
 
 const addFunction = (category, [key, value]) => {
 	category.functions[key] = value;
@@ -55,21 +61,31 @@ const addHelp = (help = {}, categories = {}) => {
 	return categories;
 };
 
-const registerCore = ({ actions = {}, functions = {}, FunctionFactory } = {}) => {
+const addCoreFunctions = ({ actions = {}, functions = {}, FunctionFactory } = {}) => {
 	Actions.core = Object.assign(Actions.core, actions);
 	Functions.core = Object.assign(Functions.core, functions);
 	functionFactory = FunctionFactory;
+	Functions.dotFunctionNames = getFunctionNames().filter(isDotFunction);
 };
-const registerAdditional = ({ actions = {}, functions = {}, help = {} } = {}) => {
+const addAdditionalFunctions = ({ actions = {}, functions = {}, help = {} } = {}) => {
 	Actions.additional = Object.assign(Actions.additional, actions);
 	Functions.additional = Object.assign(Functions.additional, functions);
 	if (Array.isArray(help)) help.forEach((fnHelp) => addHelp(fnHelp, Functions.additionalHelp));
 	else addHelp(help, Functions.additionalHelp);
+	Functions.dotFunctionNames = getFunctionNames().filter(isDotFunction);
 };
 const logError = (err, mod) => logger.error(`Failed to load module: '${moduleName(mod)}'! Reason: ${err.message}`);
 
-
-const toName = (name) => ({ name });
+const register = (fn) => async (mod) => {
+	try {
+		const fnModule = await requireModule(mod);
+		fn(fnModule);
+	} catch (err) {
+		logError(err, mod);
+	}
+};
+const registerCore = register(addCoreFunctions);
+const registerAdditional = register(addAdditionalFunctions);
 
 class FunctionRegistry {
 	static of() {
@@ -87,7 +103,12 @@ class FunctionRegistry {
 
 	getFunctionDefinitions() {
 		// currently we only need the names...
-		return Object.keys(Functions.core).map(toName).concat(Object.keys(Functions.additional).map(toName));
+		return getFunctionNames().map(toName);
+		// return Object.keys(Functions.core).map(toName).concat(Object.keys(Functions.additional).map(toName));
+	}
+
+	getDotFunctions() {
+		return Functions.dotFunctionNames;
 	}
 
 	getFunctionsHelp() {
@@ -98,12 +119,12 @@ class FunctionRegistry {
 		return !!this.getFunction(id);
 	}
 
-	registerCoreFunctionsModule(mod) {
-		requireModule(mod).then(registerCore).catch((err) => logError(err, mod));
+	async registerCoreFunctionsModule(mod) {
+		return registerCore(mod);
 	}
 
-	registerFunctionModule(mod) {
-		requireModule(mod).then(registerAdditional).catch((err) => logError(err, mod));
+	async registerFunctionModule(mod) {
+		return registerAdditional(mod);
 	}
 
 	registerFunctionDefinitions(definitions = []) {
@@ -116,7 +137,7 @@ class FunctionRegistry {
 				}
 				return fns;
 			}, {});
-			registerAdditional({ functions });
+			addAdditionalFunctions({ functions });
 		}
 	}
 }

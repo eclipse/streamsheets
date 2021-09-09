@@ -48,6 +48,7 @@ const helperFunctions = {
 	ARRAY: (sheet, ...terms) => {
 		return terms.map((term) => term.value);
 	},
+	'JSON.FROM.TEXT': (sheet, jsonstr) => JSON.parse(jsonstr.value),
 	LOOPINDICES: loopIndices,
 	MESSAGEIDS: messageids,
 	MOD: (sheet, ...terms) => {
@@ -56,4 +57,4 @@ const helperFunctions = {
 		return val % dividend;
 	}
 };
-Object.assign(SheetParser.context.functions, functions, helperFunctions);
+SheetParser.context.updateFunctions(Object.assign({}, functions, helperFunctions));

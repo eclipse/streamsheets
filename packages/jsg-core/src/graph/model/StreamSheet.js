@@ -21,6 +21,7 @@ const JSONReader = require('../../commons/JSONReader');
 const JSONWriter = require('../../commons/JSONWriter');
 const Expression = require('../expr/Expression');
 const WorksheetNode = require('./WorksheetNode');
+const StreamSheetContainer = require('./StreamSheetContainer');
 const CellsNode = require('./CellsNode');
 const CellRange = require('./CellRange');
 const NotificationCenter = require('../notifications/NotificationCenter');
@@ -65,8 +66,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		attr.setPortMode(ItemAttributes.PortMode.NONE);
 		attr.setContainer(false);
 
-		// this.getCells().getItemAttributes().setContainer(false);
-
 		this.getWorksheetAttributes().setCalcOnDemand(true);
 		if (typeof sessionStorage !== 'undefined') {
 			const sessionId = sessionStorage.getItem('sessionId');
@@ -90,7 +89,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 	}
 
 	assignIdsToChildren(item, lid) {
-		this._contentPane.getItems().forEach((subItem) => {
+		this._contentPane.subItems.forEach((subItem) => {
 			subItem._id = lid;
 			lid += 1;
 			// graph items in sheet keep their id (port etc.)
@@ -111,8 +110,11 @@ module.exports = class StreamSheet extends WorksheetNode {
 		writer.writeStartDocument();
 		this.saveCondensed(writer, true);
 		writer.writeEndDocument();
+		writer.root.shapes = this.getCells().subItemsToJSON();
 
-		return writer.flush();
+		const json = writer.flush();
+
+		return json;
 	}
 
 	saveCondensed(writer, undo = false) {
@@ -133,10 +135,6 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this._columns.saveCondensed(writer, 'columns');
 
 		if (!undo) {
-			// writer.writeStartElement('drawings');
-			// this._cells._saveSubItems(writer);
-			// writer.writeEndElement();
-
 			// save default cell
 			writer.writeStartElement('defaultcell');
 			this._defaultCell.save(writer);
@@ -160,6 +158,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getDataProvider().clear();
 
 		this.read(reader, root);
+		this.setShapes(reader.getRoot().shapes);
 	}
 
 
@@ -225,8 +224,13 @@ module.exports = class StreamSheet extends WorksheetNode {
 		attr.setCalcOnDemand(true);
 	}
 
-	_assignName(/* id */) {
+	_assignName(id) {
 		if (this.getGraph()._reading) {
+			return;
+		}
+		const attr = this.getAttributeAtPath('range');
+		if (attr) {
+			this.setName(`S${id}`);
 			return;
 		}
 
@@ -242,10 +246,8 @@ module.exports = class StreamSheet extends WorksheetNode {
 			newName = `S${newId}`;
 			item = graph.getItemByName(newName);
 		}
-		// if(newName !== oldName) {
 		this.setName(newName);
 		setSheetCaption(newName, this.getStreamSheetContainer());
-		// }
 	}
 
 	setName(newName) {
@@ -318,28 +320,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 
 	getStreamSheetContainer() {
 		const parent = this.getParent();
-		if (parent instanceof Graph) {
+		if (!(parent instanceof JSG.StreamSheetContainer)) {
 			return undefined;
 		}
 		return parent;
-	}
-
-	getDigits(parent) {
-		switch (
-			parent
-				.getItemAttributes()
-				.getScaleType()
-				.getValue()
-		) {
-			case 'scale':
-				return 0;
-			case 'bottom':
-				return 0;
-			default:
-				break;
-		}
-
-		return 0;
 	}
 
 	setShapes(json) {
@@ -356,6 +340,7 @@ module.exports = class StreamSheet extends WorksheetNode {
 		this.getCells()._shapesChanged = undefined;
 		const itemMap = {};
 		const parentMap = {};
+		let parent;
 
 		GraphUtils.traverseItem(this.getCells(), item => {
 			itemMap[item.getId()] = item;
@@ -366,6 +351,12 @@ module.exports = class StreamSheet extends WorksheetNode {
 		// read and create items
 		json.shapes.forEach(shape => {
 			let node = itemMap[shape.id];
+			if (shape.sheetShape) {
+				parent = parentMap[shape.parent];
+				if (parent) {
+					shape.parent = parent.getCells().getId();
+				}
+			}
 			if (!node) {
 				node = JSG.graphItemFactory.createItemFromString(shape.itemType, true);
 				if (!node) {
@@ -377,19 +368,29 @@ module.exports = class StreamSheet extends WorksheetNode {
 					s.fromJSON(shape.shape);
 				}
 
-				const parent = parentMap[shape.parent];
+				parent = parentMap[shape.parent];
+				if (!parent) {
+					parent = this.getCells().getItemById(shape.parent);
+				}
 				if (parent) {
+					node.fromJSON(shape);
 					parent.addItem(node);
+				}
+			} else if (shape.parent !== node.getParent().getId()) {
+				parent = this.getCells().getItemById(shape.parent);
+				if (parent) {
+					node.changeParent(parent);
 				}
 			}
 			const jsonShape = JSON.stringify(shape);
 			if (!node._lastJSON || node._lastJSON !== jsonShape) {
 				const eventEnabled = node.disableEvents();
 				node.fromJSON(shape);
+				node.evaluate();
 				node.enableEvents(eventEnabled);
-				if (shape.format && shape.format.pattern && shape.format.pattern.sv) {
+				let pattern = node.getFormat().getPattern().getValue();
+				if (pattern) {
 					node.getFormat().setPatternFromShape();
-					let pattern = shape.format.pattern.sv;
 					try {
 						const qr = pattern.indexOf('qrcode:');
 						if (qr !== -1) {
@@ -413,8 +414,10 @@ module.exports = class StreamSheet extends WorksheetNode {
 							this._addImageCmds.push(new AddImageCommand(id, pattern));
 							JSG.imagePool.set(pattern, id);
 							node.getFormat().setPatternFromShape(id);
+						// } else if (pattern.indexOf('raw:') !== -1) {
+						// 	node.getFormat().setPatternFromShape(pattern);
 						} else {
-							const parts = pattern.split('?');
+							const parts = pattern.split('?', 2);
 							if (parts.length > 1) {
 								JSG.imagePool.update(parts[0], parts[1]);
 								node.getFormat().setPatternFromShape(parts[0]);
@@ -425,18 +428,25 @@ module.exports = class StreamSheet extends WorksheetNode {
 					} catch (e) {
 					}
 				}
-                node.evaluate();
                 node.setRefreshNeeded(true);
 			}
 
 			node._lastJSON = jsonShape;
 			parentMap[shape.id] = node;
 			itemMap[shape.id] = undefined;
+			if (node instanceof StreamSheet) {
+				// do not removed unsaved sub items
+				const contentPane = node._subItems[0];
+				itemMap[contentPane.getId()] = undefined;
+				for (let i = 0; i < 4; i += 1) {
+					itemMap[contentPane._subItems[i].getId()] = undefined;
+				}
+			}
 		});
 
 		// remove deleted items
 		Object.values(itemMap).forEach(value => {
-			if (value !== undefined ) {
+			if (value !== undefined && value.getParent() ) {
 				value.getParent().removeItem(value);
 			}
 		});

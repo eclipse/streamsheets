@@ -129,6 +129,7 @@ JSG.drawingDisabled = false;
  * @type String
  * @static
  */
+JSG.COMMAND_EXECUTED_NOTIFICATION = 'jsg.command.executed.notification';
 JSG.DRAW_DISABLED_NOTIFICATION = 'jsg.draw.disabled.notification';
 JSG.LOCALE_CHANGED_NOTIFICATION = 'jsg.locale.changed.notification';
 JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION = 'graph_show_context_menu_notification';
@@ -155,7 +156,7 @@ JSG.setDrawingDisabled = (status) => {
 JSG.copyItems = (selection) => {
 	const file = new JSG.JSONWriter();
 	const items = selection.length === undefined ? [selection] : selection;
-	const graphItems = items[0].getModel().getParent().getItems();
+	const graphItems = items[0].getModel().getParent().subItems;
 
 	// sort items first, so drawing order of copied items does not change
 	items.sort((a, b) => {
@@ -326,6 +327,7 @@ JSG.init = (jsghome, locale) => {
 		Cursor.Style.SHEETROW = `url(${jsghome}/res/sheetrow.cur), move`;
 		Cursor.Style.SHEETCOLUMN = `url(${jsghome}/res/sheetcolumn.cur), move`;
 		Cursor.Style.SHEETROWSIZE = `url(${jsghome}/res/rowsize.cur), move`;
+		Cursor.Style.SHEETROWSIZEDISABLED = `url(${jsghome}/res/rowsizedisabled.cur), move`;
 		Cursor.Style.SHEETCOLUMNSIZE = `url(${jsghome}/res/columnsize.cur), move`;
 		Cursor.Style.DENY = `url(${jsghome}/res/deny.cur), auto`;
 		Cursor.Style.SPLITV = `url(${jsghome}/res/splitv.cur), move`;
@@ -338,6 +340,7 @@ JSG.init = (jsghome, locale) => {
 		Cursor.Style.SHEETROW = `url("${jsghome}/res/sheetrow.png") 15 15, move`;
 		Cursor.Style.SHEETCOLUMN = `url("${jsghome}/res/sheetcolumn.png") 15 15, move`;
 		Cursor.Style.SHEETROWSIZE = `url("${jsghome}/res/rowsize.png") 15 15, move`;
+		Cursor.Style.SHEETROWSIZEDISABLED = `url(${jsghome}/res/rowsizedisabled.png) 15 15, move`;
 		Cursor.Style.SHEETCOLUMNSIZE = `url("${jsghome}/res/columnsize.png") 15 15, move`;
 		Cursor.Style.DENY = `url("${jsghome}/res/deny.png") 15 15, auto`;
 		Cursor.Style.SPLITV = `url("${jsghome}/res/splitv.png") 15 15, move`;
@@ -350,6 +353,9 @@ JSG.init = (jsghome, locale) => {
 	// load our css...
 	JSG.loadCSS(`${jsghome}/res/css/jsg.css`);
 };
+
+// TODO: review
+JSG.appLocalizer = undefined;
 
 JSG.setParserLocale = (locale) => {
 	JSG.parserLocale = locale;

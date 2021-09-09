@@ -113,7 +113,7 @@ export default class EditCellInteraction extends EditTextInteraction {
 		if (controller) {
 			const view = controller.getView();
 			const hitCode = view.getHitCode(event.location, viewer);
-			view.setCursor(hitCode, this);
+			view.setCursor(hitCode, this, event, viewer);
 		} else {
 			this.setCursor(Cursor.Style.AUTO);
 		}
@@ -198,7 +198,7 @@ export default class EditCellInteraction extends EditTextInteraction {
 				if (cont) {
 					const view = cont.getView().getWorksheetView();
 					const cell = view.getCellInside(event, viewer);
-					if (cell.x === -1 || cell.y === -1) {
+					if (cell && (cell.x === -1 || cell.y === -1)) {
 						controller = cont;
 					} else {
 						cont = undefined;

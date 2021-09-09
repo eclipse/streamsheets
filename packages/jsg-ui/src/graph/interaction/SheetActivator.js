@@ -11,13 +11,21 @@
 /* eslint-disable no-mixed-operators */
 /* global document */
 
-import { default as JSG, Shape, CellsNode, HeaderNode, SheetHeaderNode, StreamSheet } from '@cedalo/jsg-core';
+import {
+	default as JSG,
+	Shape,
+	CellsNode,
+	HeaderNode,
+	SheetHeaderNode,
+	StreamSheet, StreamSheetContainer
+} from '@cedalo/jsg-core';
 
 import WorksheetView from '../view/WorksheetView';
 import InteractionActivator from './InteractionActivator';
 import SheetInteraction from './SheetInteraction';
 import ContentNodeView from '../view/ContentNodeView';
 import MouseEvent from '../../ui/events/MouseEvent';
+import ScrollBar from '../../ui/scrollview/ScrollBar';
 
 const KEY = 'sheet.activator';
 
@@ -130,6 +138,9 @@ export default class SheetActivator extends InteractionActivator {
 						interaction._controller = this._controller;
 						// interaction._hitCode = this._hitCode;
 					}
+					if (this._controller.getModel().getParent() instanceof StreamSheetContainer) {
+						this._controller.getView().getParent().moveSheetToTop(viewer);
+					}
 					break;
 			}
 			event.isConsumed = true;
@@ -196,9 +207,23 @@ export default class SheetActivator extends InteractionActivator {
 				if (!(controller.getView() instanceof WorksheetView)) {
 					controller = controller.getParent().getParent();
 				}
-				const view = controller.getView().getWorksheetView();
+
+				const view = controller.getView();
+				const item = view.getItem();
+				const rect = item.getTranslatedBoundingBox(item.getGraph()).getBoundingRectangle();
+				const point = viewer.translateFromParent(event.location.copy());
+				if (rect.containsPoint(point)) {
+					rect.expandBy(-200, -200);
+					if (!rect.containsPoint(point)) {
+						this._controller = undefined;
+						this._hitCode = undefined;
+						return;
+					}
+				}
+
+				// const view = controller.getView().getWorksheetView();
 				this._hitCode = view.getHitCode(event.location, viewer);
-				view.setCursor(this._hitCode, dispatcher);
+				view.setCursor(this._hitCode, dispatcher, event, viewer);
 				this._controller = controller;
 				event.isConsumed = true;
 				event.hasActivated = true;

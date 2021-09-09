@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -991,6 +991,18 @@ class GraphView extends GraphItemView {
 
 	getFocus() {
 		return this._focus;
+	}
+
+	set activeView(view) {
+		this._activeView = view;
+	}
+
+	get activeView() {
+		return this._activeView;
+	}
+
+	getActiveViewId() {
+		return this.activeView ? this.activeView.getItem().getId() : undefined;
 	}
 }
 

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -220,7 +220,7 @@ class AbstractGroupUngroupCommand extends Command {
 			const groupAngle = group.getAngle().getValue();
 			const tmppoint = new Point(0, 0);
 			// var selectionMode = group.getItemAttributes().getSelectionMode().getValue();
-			lgroup.getItems().forEach((item) => {
+			lgroup.subItems.forEach((item) => {
 				const evEnabled = item.disableEvents();
 				// translate origin:
 				item.getOrigin(tmppoint);

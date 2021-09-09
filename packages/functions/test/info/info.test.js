@@ -8,11 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
+const { StreamSheet, SheetParser } = require('@cedalo/machine-core');
 const { createTerm } = require('../utilities');
-const { StreamSheet } = require('@cedalo/machine-core');
-const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
+
+SheetParser.context.functions.ERRINFO = (sheet, ...terms) =>{
+	return ErrorInfo.create(terms[0].value);
+};
 
 describe('info functions', () => {
 	describe('iferror', () => {
@@ -35,9 +39,9 @@ describe('info functions', () => {
 		// DL-1369
 		it('shoud return error code for invalid or to much parameters', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('iferror(D10, E10, "STOP")', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('iferror(_D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iferror(^D10, "STOP")', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('iferror(D10, E10, "STOP")', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('iferror(_D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iferror(^D10, "STOP")', sheet).value.code).toBe(ERROR.NAME);
 		});
 	});
 	describe('iseven', () => {
@@ -54,57 +58,63 @@ describe('info functions', () => {
 		});
 		it(`should return ${ERROR.VALUE} if given value is not a number`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: null } });
-			expect(createTerm('iseven(A1)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('iseven(1/0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('iseven(A1)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('iseven(1/0)', sheet).value.code).toBe(ERROR.VALUE);
 			// support this? currently one 12 is used and therefore it will return true...
-			// expect(createTerm('iseven("12hello")', sheet).value).toBe(ERROR.VALUE);
+			// expect(createTerm('iseven("12hello")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		// DL-1375
 		it('shoud return error code for invalid or to much parameters', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('iseven()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('iseven(D10, E10)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('iseven(_D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iseven(°D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iseven(|D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iseven("22)")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('iseven()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('iseven(D10, E10)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('iseven(_D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iseven(°D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iseven(|D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iseven("22)")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 	describe('iserr', () => {
 		it(`should return true on any error value except ${ERROR.NA}`, () => {
-			const sheet = new StreamSheet().sheet.load({ cells: { A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35 } });
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35, A4: {formula: 'na()' }
+			});
 			expect(createTerm('iserr(A1)', sheet).value).toBe(true);
 			expect(createTerm(`iserr("${ERROR.DIV0}")`, sheet).value).toBe(true);
 			expect(createTerm('iserr(A2)', sheet).value).toBe(false);
 			expect(createTerm('iserr(A3)', sheet).value).toBe(false);
+			expect(createTerm('iserr(A4)', sheet).value).toBe(false);
 		});
 		// DL-1374
 		it('shoud return error code for invalid or to much parameters', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('iserr(D10, E10)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('iserr(_D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iserr(^D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iserr(°D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iserr(|D10)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('iserr(D10, E10)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('iserr(_D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iserr(^D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iserr(°D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iserr(|D10)', sheet).value.code).toBe(ERROR.NAME);
 		});
 	});
 	describe('iserror', () => {
 		it('should return true if value represents an error', () => {
-			const sheet = new StreamSheet().sheet.load({ cells: { A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35 } });
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: `${ERROR.REF}`, A2: `${ERROR.NA}`, A3: 35, A4: {formula: 'na()' }
+			});
 			expect(createTerm('iserror(A1)', sheet).value).toBe(true);
 			expect(createTerm(`iserror("${ERROR.DIV0}")`, sheet).value).toBe(true);
 			expect(createTerm('iserror(A2)', sheet).value).toBe(true);
 			expect(createTerm('iserror(A3)', sheet).value).toBe(false);
+			expect(createTerm('iserror(A4)', sheet).value).toBe(true);
 		});
 		// DL-1374
 		it('shoud return error code for invalid or to much parameters', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('iserror()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('iserror(D10, E10)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('iserror(_D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iserror(^D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iserror(°D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('iserror(|D10)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('iserror()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('iserror(D10, E10)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('iserror(_D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iserror(^D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iserror(°D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('iserror(|D10)', sheet).value.code).toBe(ERROR.NAME);
 		});
 	});
 	describe('isna', () => {
@@ -115,13 +125,31 @@ describe('info functions', () => {
 			expect(createTerm('isna(A2)', sheet).value).toBe(true);
 			expect(createTerm('isna(A3)', sheet).value).toBe(false);
 		});
+		it(`should return true if value equals error info with error code ${ERROR.NA}`, () => {
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: { formula: 'na()' }, A2: { formula: 'sum(1, 3, na())' }, A3: { formula: '1 + na()' }
+			});
+			expect(createTerm('isna(A1)', sheet).value).toBe(true);
+			expect(createTerm('isna(A2)', sheet).value).toBe(true);
+			expect(createTerm('isna(A3)', sheet).value).toBe(true);
+		});
+		it('should return false if value equals error info with different error code', () => {
+			const sheet = new StreamSheet().sheet.loadCells({
+				A1: { formula: `errinfo(${ERROR.REF})` },
+				A2: { formula: `errinfo(${ERROR.DIV0})` },
+				A3: { formula: `errinfo(${ERROR.NA})` }
+			});
+			expect(createTerm('isna(A1)', sheet).value).toBe(false);
+			expect(createTerm('isna(A2)', sheet).value).toBe(false);
+			expect(createTerm('isna(A3)', sheet).value).toBe(true);
+		});
 		// DL-1375
 		it('shoud return error code for invalid or to much parameters', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('isna(D10, E10)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('isna(_D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('isna(°D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('isna(|D10)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('isna(D10, E10)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('isna(_D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('isna(°D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('isna(|D10)', sheet).value.code).toBe(ERROR.NAME);
 		});
 	});
 	// DL-4099
@@ -158,34 +186,34 @@ describe('info functions', () => {
 		});
 		it(`should return ${ERROR.VALUE} if given value is not a number`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: null } });
-			expect(createTerm('isodd()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('isodd(A1)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('isodd(1/0)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('isodd()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('isodd(A1)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('isodd(1/0)', sheet).value.code).toBe(ERROR.VALUE);
 			// support this? currently one 11 is used and therefore it will return true...
-			// expect(createTerm('iseven("11hello")', sheet).value).toBe(ERROR.VALUE);
+			// expect(createTerm('iseven("11hello")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		// DL-1375
 		it('shoud return error code for invalid or to much parameters', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('isodd(D10, E10)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('isodd(_D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('isodd(°D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('isodd(|D10)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('isodd("22)")', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('isodd(D10, E10)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('isodd(_D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('isodd(°D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('isodd(|D10)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('isodd("22)")', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 	describe('na', () => {
 		it(`should return error ${ERROR.NA}`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('na()', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('na()', sheet).value.code).toBe(ERROR.NA);
 		});
 		it(`should return error ${ERROR.ARGS} if any parameters are given`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('na(12)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('na(,)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('na("hi")', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('na(true)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('na(false)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('na(12)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('na(,)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('na("hi")', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('na(true)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('na(false)', sheet).value.code).toBe(ERROR.ARGS);
 		});
 	});
 });

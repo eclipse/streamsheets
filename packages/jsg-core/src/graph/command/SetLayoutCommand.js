@@ -1,14 +1,13 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const JSG = require('../../JSG');
 const AbstractItemCommand = require('./AbstractItemCommand');
 
 /**
@@ -25,11 +24,12 @@ const AbstractItemCommand = require('./AbstractItemCommand');
  * @since 2.0.22.8
  */
 class SetLayoutCommand extends AbstractItemCommand {
-	constructor(item, layouttype) {
+	constructor(item, layouttype, settings) {
 		super(item);
 
 		const oldlayout = item.getLayout();
 		this.newlayout = layouttype;
+		this.newSettings = settings;
 		this.oldlayout = oldlayout && oldlayout.getType();
 		this.oldlayoutsettings = oldlayout && oldlayout.getSettings(item);
 	}
@@ -45,6 +45,11 @@ class SetLayoutCommand extends AbstractItemCommand {
 
 	redo() {
 		this._graphItem.setLayout(this.newlayout);
+		if (this.newlayout && this.newSettings) {
+			this._graphItem
+				.getLayout()
+				.registerSettings(this._graphItem, this.newSettings);
+		}
 	}
 }
 

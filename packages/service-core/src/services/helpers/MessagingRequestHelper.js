@@ -41,6 +41,7 @@ class MessagingRequestHelper {
 	rejectRequest(message) {
 		const promise = this.requests.get(message.requestId);
 		if (promise) {
+			this.requests.delete(message.requestId);
 			promise.reject(message.error);
 		}
 	}
@@ -52,6 +53,7 @@ class MessagingRequestHelper {
 	resolveRequest(message) {
 		const promise = this.requests.get(message.requestId);
 		if (promise) {
+			this.requests.delete(message.requestId);
 			promise.resolve(message.response);
 		}
 	}

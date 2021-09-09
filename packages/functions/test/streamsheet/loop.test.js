@@ -45,7 +45,7 @@ describe('loopcount', () => {
 		});
 		const loopcount = createTerm('loopcount()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopcount));
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(3);
@@ -67,7 +67,7 @@ describe('loopcount', () => {
 		});
 		const loopcount = createTerm('loopcount()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopcount));
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		// steps process first message, second one has loop with no elements...
 		await machine.step();
 		await machine.step();
@@ -92,14 +92,14 @@ describe('loopcount', () => {
 		});
 		const loopcount = createTerm('loopcount()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopcount));
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 	});
 	it(`should return ${ERROR.NA} if no loop is active`, async () => {
 		const t1 = setup({
@@ -116,14 +116,14 @@ describe('loopcount', () => {
 		});
 		const loopcount = createTerm('loopcount()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopcount));
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 	});
 });
 describe('loopindex', () => {
@@ -142,7 +142,7 @@ describe('loopindex', () => {
 		});
 		const loopindex = createTerm('loopindex()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopindex));
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		await machine.step();
 		expect(sheet.cellAt('A1').value).toBe(1);
@@ -166,14 +166,14 @@ describe('loopindex', () => {
 		});
 		const loopindex = createTerm('loopindex()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopindex));
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 	});
 	it(`should return ${ERROR.NA} if no loop is active`, async () => {
 		const t1 = setup({
@@ -190,13 +190,13 @@ describe('loopindex', () => {
 		});
 		const loopindex = createTerm('loopindex()', sheet);
 		sheet.setCellAt('A1', new Cell(null, loopindex));
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		// frst step will attach and set index to first element...
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 		await machine.step();
-		expect(sheet.cellAt('A1').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A1').value.code).toBe(ERROR.NA);
 	});
 });

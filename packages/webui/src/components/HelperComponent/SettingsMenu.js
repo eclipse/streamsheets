@@ -30,17 +30,17 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
+import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Table from '@material-ui/core/Table';
 import Tooltip from '@material-ui/core/Tooltip';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import Typography from '@material-ui/core/es/Typography/Typography';
 import {Assignment, ExitToApp, Info, Security, Settings} from '@material-ui/icons';
+import PremiumVersionIcon from '@material-ui/icons/VerifiedUser';
 
 import * as Actions from '../../actions/actions';
 import {graphManager} from '../../GraphManager';
@@ -48,8 +48,24 @@ import {withStyles} from '@material-ui/core/styles';
 import {Path} from '../../helper/Path';
 import ListItemText from "@material-ui/core/ListItemText";
 
-const VERSION = process.env.REACT_APP_VERSION || '2.3';
+const VERSION = process.env.REACT_APP_VERSION || '2.4';
 // const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
+
+const isPremiumLicense = (license) => license && license.edition === 'pro';
+
+const getPremium = () => {
+	return (
+		<span>
+			<PremiumVersionIcon fontSize="small" style={{ color: '#ffc107', verticalAlign: 'middle' }} /> Premium
+		</span>
+	);
+};
+
+const getLicenseValidUntil = (daysLeft) => {
+	const date = new Date();
+	date.setDate(date.getDate() + daysLeft);
+	return date.toLocaleDateString();
+}
 
 /**
  * A modal dialog can only be closed by selecting one of the actions.
@@ -211,7 +227,7 @@ export class SettingsMenu extends React.Component {
 							onClick={event =>
 								this.props.setAppState({ anchorEl: event.currentTarget, openMoreSettingMenu: true })}
 						>
-							<Avatar alt="Remy Sharp" src="images/avatar.png" />
+							<Avatar alt="User" src="images/avatar.png" />
 						</IconButton>
 					</div>
 				</Tooltip>
@@ -233,7 +249,7 @@ export class SettingsMenu extends React.Component {
 							<CardHeader
 								title={<div style={{color: Colors.grey[50]}}>{displayName}</div>}
 								subheader={<address style={{color: Colors.grey[50]}}>{user ? user.mail : ""}</address>}
-								avatar={<Avatar alt="Remy Sharp" src="images/avatar.png"/>}
+								avatar={<Avatar alt="User" src="images/avatar.png" onClick={this.showPreferencesDialog} />}
 								disabled
 								style={{
 									backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
@@ -424,28 +440,54 @@ export class SettingsMenu extends React.Component {
 				>
 					<DialogTitle>
 						<FormattedMessage
-							id="SettingsMenu.help.header"
-							defaultMessage="Info"
+							id="Product.name"
+							defaultMessage="Streamsheets"
 						/>
+						{" "}
+						<FormattedMessage
+							id="Version"
+							defaultMessage="Version"
+						/>
+						{" "}
+						{VERSION}
 					</DialogTitle>
 					<DialogContent
 						style={{
 							width: '470px'
 						}}
 					>
-						<Typography variant="h5" style={{marginBottom: '15px', marginTop: '10px'}}>
-							<FormattedMessage
-								id="Product.name"
-								defaultMessage="Streamsheets"
-							/>
-							{" "}
-							<FormattedMessage
-								id="Version"
-								defaultMessage="Version"
-							/>
-							{" "}
-							{VERSION}
-						</Typography>
+
+						{this.props.meta.licenseInfo && (
+							<Table size="small">
+								<TableBody>
+									<TableRow>
+										<TableCell>
+											<b>
+												<FormattedMessage
+													id="License.edition"
+													defaultMessage="Edition"
+												/>
+											</b>
+										</TableCell>
+										<TableCell>{isPremiumLicense(this.props.meta.licenseInfo) ? getPremium() : this.props.meta.licenseInfo.edition}</TableCell>
+									</TableRow>
+									{isPremiumLicense(this.props.meta.licenseInfo) && (
+										<TableRow>
+											<TableCell>
+												<b>
+													<FormattedMessage
+														id="License.validUntil"
+														defaultMessage="License valid until"
+													/>
+												</b>
+											</TableCell>
+											<TableCell>{getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)}</TableCell>
+										</TableRow>
+									)}
+								</TableBody>
+							</Table>
+					)}
+						<br />
 						<Table size="small">
 							<TableHead>
 								<TableRow>

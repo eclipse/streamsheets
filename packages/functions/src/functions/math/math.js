@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -18,7 +18,10 @@ const ERROR = FunctionErrors.code;
 // eslint-disable-next-line no-nested-ternary
 const _sign = (nr) => (nr > 0 ? 1 : nr < 0 ? -1 : 0);
 
-const _trunc = (nr, digits) => Math.trunc(nr * 10 ** digits) / 10 ** digits;
+const _trunc = (nr, digits) => {
+	const res = Math.trunc(nr * 10 ** digits) / 10 ** digits;
+	return isNaN(res) ? ERROR.NUM : res;
+};
 
 const toNumberOrError = (value) => {
 	let nr = value != null ? convert.toNumber(value) : 0;
@@ -42,6 +45,20 @@ const random = (min, max) => {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+const validateFloorCeiling = (nr, significance) =>
+	// eslint-disable-next-line no-nested-ternary
+	significance < 0 && nr >= 0 ? ERROR.NUM : significance === 0 ? ERROR.DIV0 : undefined;
+const runFloorCeiling = (roundFn) => (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withArgCount(2)
+		.mapNextArg((nr) => toNumberOrError(nr.value))
+		.mapNextArg((significance) => toNumberOrError(significance.value))
+		.validate(validateFloorCeiling)
+		.run((nr, significance) => roundFn(nr / significance) * significance);
+const runFloor = runFloorCeiling(Math.floor);
+const runCeiling = runFloorCeiling(Math.ceil);
+
+	
 // const roundDecimaals = (nr, decimals) => parseFloat(nr.toFixed(decimals));
 // const getDecimalsCount = (nr) => {
 // 	const nrstr = nr.toString();
@@ -109,8 +126,8 @@ const log = (sheet, ...terms) =>
 		.withMinArgs(1)
 		.withMaxArgs(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
-		.mapNextArg((base) => base ? toNumberOrError(base.value) : 10)
-		.run((nr, base) => nr !== 0 && base !== 0 ? Math.log(nr) / Math.log(base) : ERROR.VALUE);
+		.mapNextArg((base) => (base ? toNumberOrError(base.value) : 10))
+		.run((nr, base) => (nr !== 0 && base !== 0 ? Math.log(nr) / Math.log(base) : ERROR.VALUE));
 
 const mod = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -118,12 +135,12 @@ const mod = (sheet, ...terms) =>
 		.mapNextArg((nr) => toNumberOrError(nr.value))
 		.mapNextArg((divisor) => toNumberOrError(divisor.value))
 		.run((nr, divisor) => divisor !== 0 ? nr - (divisor * Math.floor(nr / divisor)) : ERROR.DIV0);
-		// if we want to round result to a certain decimal to get e.g 0.2 instead of 0.199999996
-		// .run((nr, divisor) => {
-		// 	if (divisor === 0) return ERROR.DIV0;
-		// 	const decimals = Math.max(getDecimalsCount(nr), getDecimalsCount(divisor));
-		// 	return roundDecimaals(nr - divisor * Math.floor(nr / divisor), decimals);
-		// });
+// if we want to round result to a certain decimal to get e.g 0.2 instead of 0.199999996
+// .run((nr, divisor) => {
+// 	if (divisor === 0) return ERROR.DIV0;
+// 	const decimals = Math.max(getDecimalsCount(nr), getDecimalsCount(divisor));
+// 	return roundDecimaals(nr - divisor * Math.floor(nr / divisor), decimals);
+// });
 
 
 const odd = (sheet, ...terms) =>
@@ -194,9 +211,10 @@ const randbetween = (sheet, ...terms) =>
 
 const round = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withArgCount(2)
+		.withMinArgs(1)
+		.withMaxArgs(2)
 		.mapNextArg((nr) => toNumberOrError(nr.value))
-		.mapNextArg((digits) => toNumberOrError(digits.value))
+		.mapNextArg((digits) => digits ? toNumberOrError(digits.value) : 0)
 		.run((nr, digits) => roundNumber(nr, digits));
 
 const sign = (sheet, ...terms) =>
@@ -226,8 +244,10 @@ module.exports = {
 	ABS: abs,
 	ARCCOS: arccos,
 	ARCSIN: arcsin,
+	CEILING: runCeiling,
 	DEGREES: degrees,
 	EVEN: even,
+	FLOOR: runFloor,
 	FRAC: frac,
 	INT: int,
 	LOG: log,

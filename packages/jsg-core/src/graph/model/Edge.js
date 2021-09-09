@@ -469,7 +469,7 @@ class Edge extends LineConnection {
 		let expr;
 		const startCoor = this.getStartCoordinate();
 		const endCoor = this.getEndCoordinate();
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -536,7 +536,7 @@ class Edge extends LineConnection {
 		let lineColor;
 		const startCoor = this.getStartCoordinate();
 		const endCoor = this.getEndCoordinate();
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {

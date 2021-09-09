@@ -9,14 +9,14 @@
  *
  ********************************************************************************/
 const logger = require('../logger').create({ name: 'MachineTaskMonitor' });
+const Redis = require('ioredis');
+const { EventMessage } = require('@cedalo/messages');
+const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
+const State = require('../State');
 const MachineTaskOutboxMonitor = require('./MachineTaskOutboxMonitor');
 const MachineTaskStreamSheetMonitor = require('./MachineTaskStreamSheetMonitor');
 const MachineTaskMessagingClient = require('./MachineTaskMessagingClient');
 const { collectMachineStats } = require('./utils');
-const State = require('../State');
-const MachineEvents = require('@cedalo/protocols').MachineServerMessagingProtocol.EVENTS;
-const { EventMessage } = require('@cedalo/messages');
-const Redis = require('ioredis');
 
 const REDIS_PORT = parseInt(process.env.REDIS_PORT, 10) || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'internal-redis';
@@ -190,6 +190,11 @@ class MachineTaskMonitor {
 					this.streamsheetMonitors.delete(data.id);
 				}
 				break;
+			case 'extensions': {
+				const [extensionId, extensionSettings] = data;
+				event = updateEvent(MachineEvents.MACHINE_EXTENSION_SETTINGS_EVENT, machine, { extensionId, settings: extensionSettings });
+				break;
+			}
 			default:
 				logger.info(`Ignore update event "${type}" for machine ${this.machine.name}{${this.machine.id}}!!`);
 		}

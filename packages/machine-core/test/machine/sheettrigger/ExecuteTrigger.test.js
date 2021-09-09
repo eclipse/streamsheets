@@ -102,7 +102,7 @@ describe('behaviour on machine run', () => {
 			await wait(30);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// s2 run as fast as possible so it must be much greater
 			expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(3);
@@ -120,7 +120,7 @@ describe('behaviour on machine run', () => {
 			await wait(30);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			// s2 run as fast as possible so it must be much greater
 			expect(s2.sheet.cellAt('B1').value).toBeGreaterThan(3);
@@ -139,14 +139,14 @@ describe('behaviour on machine run', () => {
 			await wait(20);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
 			await machine.start();
 			await wait(120);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expectValue(s2.sheet.cellAt('B1').value).toBeInRange(4, 6);
 		});
@@ -391,7 +391,7 @@ describe('behaviour on machine run', () => {
 			await wait(100);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			// repeat is done in machine cycle, so only 1 trigger
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
@@ -410,7 +410,7 @@ describe('behaviour on machine run', () => {
 			await wait(50);
 			await machine.pause();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			// repeat is done in machine cycle, so only 1 trigger
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
@@ -1042,7 +1042,7 @@ describe('behaviour on machine run', () => {
 			await wait(100);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A4').value).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
 			expect(s2.sheet.cellAt('B2').value).toBe('0');
@@ -1494,12 +1494,14 @@ describe('behaviour on manual steps', () => {
 			createCellAt('A1', { formula: 'execute("S2")' }, s1.sheet);
 			createCellAt('B1', { formula: 'B1+1' }, s2.sheet);
 			await machine.step();
-			expect(s1.sheet.cellAt('A1').value).toBe(`${ERROR.INVALID_PARAM}_1`);
+			expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.INVALID_PARAM);
+			expect(s1.sheet.cellAt('A1').value.paramIndex).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(1);
 			await machine.step();
 			await machine.step();
 			await machine.step();
-			expect(s1.sheet.cellAt('A1').value).toBe(`${ERROR.INVALID_PARAM}_1`);
+			expect(s1.sheet.cellAt('A1').value.code).toBe(ERROR.INVALID_PARAM);
+			expect(s1.sheet.cellAt('A1').value.paramIndex).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(1);
 		});
 		test('execute sheet', async () => {
@@ -1531,7 +1533,7 @@ describe('behaviour on manual steps', () => {
 			createCellAt('B3', { formula: 'if(mod(B2,3)=0,return(),false)' }, s2.sheet);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(2);
 			expect(s2.sheet.cellAt('B3').value).toBe(false);
@@ -1543,7 +1545,7 @@ describe('behaviour on manual steps', () => {
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			expect(s2.sheet.cellAt('B2').value).toBe(4);
 			expect(s2.sheet.cellAt('B3').value).toBe(false);
@@ -1574,26 +1576,26 @@ describe('behaviour on manual steps', () => {
 			createCellAt('B3', { formula: 'B3+1' }, s2.sheet);
 			await machine.step();
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
-			expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+			expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 			expect(s2.sheet.cellAt('B3').value).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(false);
 			await machine.step();
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
-			expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+			expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 			expect(s2.sheet.cellAt('B3').value).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
 			await machine.step();
 			expect(s2.sheet.cellAt('B1').value).toBe(3);
-			expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+			expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 			expect(s2.sheet.cellAt('B3').value).toBe(2);
 			expect(s1.sheet.cellAt('A1').value).toBe(4);
 			expect(s1.sheet.cellAt('A2').value).toBe(false);
 			await machine.step();
 			await machine.step();
 			expect(s2.sheet.cellAt('B1').value).toBe(3);
-			expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+			expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 			expect(s2.sheet.cellAt('B3').value).toBe(3);
 			expect(s1.sheet.cellAt('A1').value).toBe(6);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -1601,7 +1603,7 @@ describe('behaviour on manual steps', () => {
 			await machine.step();
 			await machine.step();
 			expect(s2.sheet.cellAt('B1').value).toBe(4);
-			expect(s2.sheet.cellAt('B2').value).toBe(ERROR.WAITING);
+			expect(s2.sheet.cellAt('B2').value.code).toBe(ERROR.WAITING);
 			expect(s2.sheet.cellAt('B3').value).toBe(4);
 			expect(s1.sheet.cellAt('A1').value).toBe(9);
 			expect(s1.sheet.cellAt('A2').value).toBe(true);
@@ -1615,14 +1617,14 @@ describe('behaviour on manual steps', () => {
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(2);
 			await machine.step();
 			await machine.step();
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(5);
 		});
@@ -1717,7 +1719,7 @@ describe('behaviour on manual steps', () => {
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(2);
 			await machine.step();
@@ -1751,7 +1753,7 @@ describe('behaviour on manual steps', () => {
 			createCellAt('B2', { formula: 'B2+1' }, s2.sheet);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(2);
 			await machine.step();
@@ -1759,7 +1761,7 @@ describe('behaviour on manual steps', () => {
 			await machine.step();
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(5);
 			expect(s2.stats.executesteps).toBe(1);
@@ -1775,21 +1777,21 @@ describe('behaviour on manual steps', () => {
 			createCellAt('B4', { formula: 'B4+1' }, s2.sheet);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(2);
 			expect(s2.sheet.cellAt('B3').value).toBe(false);
 			expect(s2.sheet.cellAt('B4').value).toBe(2);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(3);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
 			expect(s2.sheet.cellAt('B4').value).toBe(2);
 			await machine.step(); // next repetition
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(4);
 			expect(s2.sheet.cellAt('B3').value).toBe(false);
@@ -1797,7 +1799,7 @@ describe('behaviour on manual steps', () => {
 			await machine.step();
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B2').value).toBe(6);
 			expect(s2.sheet.cellAt('B3').value).toBe(true);
@@ -1902,7 +1904,7 @@ describe('behaviour on manual steps', () => {
 			expect(s2.inbox.size).toBe(4);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(1);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
 			// last message is consumed but still in inbox due to client...
@@ -1921,7 +1923,7 @@ describe('behaviour on manual steps', () => {
 			await machine.step();
 			expect(s2.inbox.size).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A3').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(7);
 		});
@@ -1954,7 +1956,7 @@ describe('behaviour on manual steps', () => {
 			expect(s2.inbox.peek().id).toBeDefined();
 			expect(s2.stats.executesteps).toBe(1);
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
-			expect(s1.sheet.cellAt('A3').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A3').value.code).toBe(ERROR.WAITING);
 			expect(s1.sheet.cellAt('A4').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(5);
 			expect(s2.sheet.cellAt('B2').value).toBe('0,0,0,0');
@@ -2315,7 +2317,7 @@ describe('behaviour on manual steps', () => {
 			createCellAt('B2', { formula: 'if(mod(B1,3)=0,return(),false)' }, s2.sheet);
 			await machine.step();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
 			await machine.step();
 			expect(s1.inbox.size).toBe(3);
@@ -2358,7 +2360,7 @@ describe('behaviour on manual steps', () => {
 			await machine.step();
 			expect(s1.getLoopIndex()).toBe(0);
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
-			expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+			expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 			expect(s2.sheet.cellAt('B1').value).toBe(2);
 			await machine.step();
 			expect(s1.inbox.size).toBe(3);
@@ -3055,7 +3057,7 @@ describe('executesteps counter', () => {
 		expect(s2.stats.repeatsteps).toBe(4);
 		expect(s2.stats.executesteps).toBe(1);
 		expect(s1.sheet.cellAt('A1').value).toBe(2);
-		expect(s1.sheet.cellAt('A2').value).toBe(ERROR.WAITING);
+		expect(s1.sheet.cellAt('A2').value.code).toBe(ERROR.WAITING);
 		expect(s1.sheet.cellAt('A3').value).toBe(1);
 		expect(s2.sheet.cellAt('B1').value).toBe(5);
 		expect(s2.sheet.cellAt('C2').value).toBe(5);

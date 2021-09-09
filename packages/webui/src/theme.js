@@ -86,6 +86,11 @@ const createDefault = () => {
 				MuiIconButton: {
 					root: {},
 				},
+				MuiListItemIcon: {
+					root: {
+						minWidth: '40px',
+					},
+				},
 				MuiDialogTitle: {
 					root: {
 						// background: Colors.blue[800],
@@ -189,6 +194,11 @@ const createDark = () => {
 				MuiIconButton: {
 					root: {},
 				},
+				MuiListItemIcon: {
+					root: {
+						minWidth: '40px',
+					},
+				},
 				MuiDialogTitle: {
 					root: {
 						// background: '#212121',
@@ -229,6 +239,8 @@ const createByName = () => {
 			theme: name,
 			graph: '#333333',
 			tool: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
+			listback: '#333333',
+			listborder: '#777777',
 			caption: theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
 			captiontext: '#FFFFFF',
 			frame: '#FFFFFF',
@@ -241,6 +253,7 @@ const createByName = () => {
 			border: '#FFFFFF',
 			text: '#FFFFFF',
 			textlight: '#DDDDDD',
+			textdisabled: '#AAAAAA',
 			fill: '#000000',
 			filllight: '#222222',
 			selectionback: '#606060',

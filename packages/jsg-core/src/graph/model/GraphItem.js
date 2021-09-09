@@ -330,6 +330,14 @@ class GraphItem extends Model {
 		return path;
 	}
 
+	get allowSubMarkers() {
+		return true;
+	}
+
+	isFeedbackDetailed() {
+		return this.getReshapeCoordinates().length !== 0;
+	}
+
 	isDrawEnabled() {
 		return this._drawEnabled;
 	}
@@ -1636,6 +1644,17 @@ class GraphItem extends Model {
 		return label;
 	}
 
+	getExtraLabel() {
+		const labelAttr = this.getItemAttributes().getLabel();
+		if (labelAttr) {
+			const label = labelAttr.getValue();
+			if (label) {
+				return label;
+			}
+		}
+		return undefined
+	}
+
 	getNewLabelPosition() {
 		const positions = [];
 		let i;
@@ -2169,6 +2188,10 @@ class GraphItem extends Model {
 		return this._subItems;
 	}
 
+	get subItems() {
+		return this._subItems
+	}
+
 	/**
 	 * Returns access to a sub item at the given index.
 	 *
@@ -2276,10 +2299,10 @@ class GraphItem extends Model {
 			(JSG.idUpdater && JSG.idUpdater.isActive) || force || oldId === undefined ? this._createId() : undefined;
 		if (newId !== undefined) {
 			this.setId(newId);
-			const attr = this.getItemAttributes().getAttribute('sheetsource');
-			if (!attr || attr.getValue() !== 'cell') {
-				this._assignName(newId);
-			}
+			// const attr = this.getItemAttributes().getAttribute('sheetsource');
+			// if (!attr || attr.getValue() !== 'cell') {
+			this._assignName(newId);
+			// }
 			// save old/new id match to restore references to id in expressions, attributes and ports
 
 			// TODO: JSG.idUpdater is set by JSGGlobals
@@ -2913,7 +2936,7 @@ class GraphItem extends Model {
 			const tf = subitem.getTextFormat();
 			const tfparent = tf.getParent();
 			// parent is standard template? => use text format or parent...
-			if (!tf._pl && tfparent && tfparent.getName() === TextFormatAttributes.Template_ID) {
+			if (!tf._pl && tfparent && tfparent.getName() === TextFormatAttributes.TemplateID) {
 				tf.setParent(parent.getTextFormat());
 			}
 		}
@@ -3366,7 +3389,7 @@ class GraphItem extends Model {
 	}
 
 	assignIdsToChildren(item, lid) {
-		item.getItems().forEach((subItem) => {
+		item.subItems.forEach((subItem) => {
 			subItem._id = lid;
 			lid += 1;
 			lid = subItem.assignIdsToChildren(subItem, lid);
@@ -3409,6 +3432,14 @@ class GraphItem extends Model {
 		]
 	}
 
+	getDefaultPropertyCategory() {
+		return 'general';
+	}
+
+	isValidPropertyCategory(category) {
+		return category === 'general' || category === 'format' || category === 'textformat' || category === 'attributes' || category === 'events';
+	}
+
 	fromJSON(json) {
 		this._id = json.id;
 		this.getPin().getX().fromJSON(json.x);
@@ -3422,6 +3453,9 @@ class GraphItem extends Model {
 		}
 		if (json.type !== undefined) {
 			this.getType().fromJSON(json.type);
+		}
+		if (json.name !== undefined) {
+			this.getName().fromJSON(json.name);
 		}
 
 		if (json.reshape) {
@@ -3438,6 +3472,10 @@ class GraphItem extends Model {
 		this._shape.fromJSON(json.shape);
 		if (json.format) {
 			this.getFormat().fromJSON(json.format);
+			const pattern = this.getFormat().getPattern().getValue();
+			if (pattern && json.patternImage) {
+				JSG.imagePool.set(json.patternImage, pattern);
+			}
 		}
 		if (json.textformat) {
 			this.getTextFormat().fromJSON(json.textformat);
@@ -3467,7 +3505,7 @@ class GraphItem extends Model {
 	toJSON() {
 		const ret = {
 			id: this._id,
-			parent: this._parent.getId(),
+			// parent: this._parent.getItemType() === 'cellsnode' ? this._parent.getSheet().getId() : this._parent.getId(),
 			itemType: this.getItemType(),
 			x: this.getPin().getX().toJSON(true),
 			y: this.getPin().getY().toJSON(true),
@@ -3476,12 +3514,20 @@ class GraphItem extends Model {
 			width: this.getWidth().toJSON(true),
 			height: this.getHeight().toJSON(true),
 		};
+
+		if (this._parent.getItemType() === 'cellsnode' && this._parent.getSheet().sourceSheet) {
+			ret.parent = this._parent.getSheet().getId();
+			ret.sheetShape = true;
+		} else {
+			ret.parent =  this._parent.getId();
+		}
+
 		if (this._angle.getValue() !== 0 || this._angle.hasFormula()) {
 			ret.angle = this.getAngle().toJSON(true);
 		}
 
 		if (this._name.getValue() !== '') {
-			ret.name = this.getName().getValue();
+			ret.name = this.getName().toJSON(true);
 		}
 
 		if (this._type.getValue() !== '') {
@@ -3498,6 +3544,13 @@ class GraphItem extends Model {
 		ret.shape = this._shape.toJSON();
 
 		ret.format = this.getFormat().toJSON(true);
+		const pattern = this.getFormat().getPattern().getValue();
+		if (pattern && pattern.indexOf('dataimage') !== -1) {
+			const image = JSG.imagePool.get(pattern);
+			if (image !== undefined) {
+				ret.patternImage = image.src;
+			}
+		}
 		ret.textformat = this.getTextFormat().toJSON(true);
 		ret.attributes = this.getItemAttributes().toJSON(true);
 		ret.events = this.getEvents().toJSON();
@@ -3516,7 +3569,12 @@ class GraphItem extends Model {
 		this._shapesChanged = json.changed;
 
 		GraphUtils.traverseItem(this, item => {
-			json.shapes.push(item.toJSON());
+			// do not save sheet sub items for now
+			if (item.getItemType() !== 'cellsnode' && item.getItemType() !== 'rowheadernode' &&
+				item.getItemType() !== 'columnheadernode' && item.getItemType() !== 'sheetheadernode' &&
+				item.getItemType() !== 'contentpane') {
+				json.shapes.push(item.toJSON());
+			}
 		}, false);
 
 		return json;
@@ -3530,7 +3588,7 @@ class GraphItem extends Model {
 		const pin = this.getPin();
 		const size = this.getSize();
 		let expr;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -3728,7 +3786,7 @@ class GraphItem extends Model {
 		let expr;
 		let points;
 		let closed;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {

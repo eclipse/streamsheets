@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -65,6 +65,13 @@ module.exports = class ReferenceFactory {
 			if (Strings.startsWith(str, 'Item.')) {
 				cutIndex = str.indexOf('!');
 				id = str.substring(5, cutIndex);
+				// not yet resolved...
+				unresolvedRef = new GraphReference();
+				_item = ReferenceFactory._resolve(id, litem, lgraph);
+				str = str.substring(cutIndex + 1);
+			} else if (Strings.startsWith(str, 'Item')) {
+				cutIndex = str.indexOf('!');
+				id = str.substring(4, cutIndex);
 				// not yet resolved...
 				unresolvedRef = new GraphReference();
 				_item = ReferenceFactory._resolve(id, litem, lgraph);

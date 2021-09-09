@@ -8,14 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, NotificationCenter, Notification, Shape, CellsNode } from '@cedalo/jsg-core';
+import { default as JSG, NotificationCenter, Notification, StreamSheet, Shape, LayoutNode, LayoutCell, CellsNode } from '@cedalo/jsg-core';
 
 import StreamSheetContainerView from '../view/StreamSheetContainerView';
 import SheetGraphItemEventInteraction from './SheetGraphItemEventInteraction';
 import InteractionActivator from './InteractionActivator';
 import Feedback from '../feedback/Feedback';
 import Cursor from '../../ui/Cursor';
-import SelectionProvider from '../view/SelectionProvider';
 
 const KEY = 'sheetgraphitemevent.activator';
 
@@ -35,9 +34,17 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 	 * <code>undefined</code>.
 	 */
 	_getControllerAt(location, viewer, dispatcher) {
+		let streamSheet = false;
+
 		return viewer.filterFoundControllers(Shape.FindFlags.AREA, (cont) => {
-			const item = cont.getModel();
+			const item = cont.getModel()
 			if (!item.isVisible()) {
+				return false;
+			}
+			if (item instanceof StreamSheet) {
+				streamSheet = true;
+			}
+			if (streamSheet) {
 				return false;
 			}
 			return (item.getAttributeValueAtPath('value') !== undefined ||
@@ -207,12 +214,20 @@ export default class SheetGraphItemEventActivator extends InteractionActivator {
 				event.doRepaint = true;
 			}
 			event.hasActivated = true;
-			NotificationCenter.getInstance().send(
-				new Notification(JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION, {
-					event,
-					controller
-				})
-			);
+			if (controller.getModel() instanceof LayoutCell) {
+				if (viewer.getSelectionProvider().hasSingleSelection()) {
+					NotificationCenter.getInstance().send(new Notification(JSG.LAYOUT_SHOW_CONTEXT_MENU_NOTIFICATION, {
+						event, controller
+					}));
+				}
+			} else {
+				NotificationCenter.getInstance().send(
+					new Notification(JSG.GRAPH_SHOW_CONTEXT_MENU_NOTIFICATION, {
+						event,
+						controller
+					})
+				);
+			}
 		}
 	}
 

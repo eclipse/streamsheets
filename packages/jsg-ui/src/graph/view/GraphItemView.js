@@ -9,14 +9,7 @@
  *
  ********************************************************************************/
 import {
-	default as JSG,
-	Shape,
-	Point,
-	ItemAttributes,
-	FormatAttributes,
-	TextFormatAttributes,
-	Rectangle,
-	MathUtils
+	default as JSG, Shape, Point, ItemAttributes, FormatAttributes, TextFormatAttributes, Rectangle, MathUtils
 } from '@cedalo/jsg-core';
 import View from '../../ui/View';
 import ShapeRenderer from './shapes/ShapeRenderer';
@@ -73,28 +66,26 @@ class CollapseButton extends View {
 			.getSize()
 			.getHeight()
 			.getValue();
-		switch (
-			this._item
-				.getItemAttributes()
-				.getCollapsedButton()
-				.getValue()
-		) {
-			case ItemAttributes.ButtonPosition.TOPLEFT:
-				this._bounds.x = 0;
-				this._bounds.y = 0;
-				break;
-			case ItemAttributes.ButtonPosition.TOPRIGHT:
-				this._bounds.x = x - this._bounds.width;
-				this._bounds.y = 0;
-				break;
-			case ItemAttributes.ButtonPosition.TOPCENTER:
-				this._bounds.x = (x - this._bounds.width) / 2.0;
-				this._bounds.y = 0;
-				break;
-			case ItemAttributes.ButtonPosition.BOTTOMCENTER:
-				this._bounds.x = (x - this._bounds.width) / 2.0;
-				this._bounds.y = y - this._bounds.height;
-				break;
+		switch (this._item
+			.getItemAttributes()
+			.getCollapsedButton()
+			.getValue()) {
+		case ItemAttributes.ButtonPosition.TOPLEFT:
+			this._bounds.x = 0;
+			this._bounds.y = 0;
+			break;
+		case ItemAttributes.ButtonPosition.TOPRIGHT:
+			this._bounds.x = x - this._bounds.width;
+			this._bounds.y = 0;
+			break;
+		case ItemAttributes.ButtonPosition.TOPCENTER:
+			this._bounds.x = (x - this._bounds.width) / 2.0;
+			this._bounds.y = 0;
+			break;
+		case ItemAttributes.ButtonPosition.BOTTOMCENTER:
+			this._bounds.x = (x - this._bounds.width) / 2.0;
+			this._bounds.y = y - this._bounds.height;
+			break;
 		}
 	}
 }
@@ -371,24 +362,6 @@ class GraphItemView extends View {
 
 			graphics.addBoundingRectInfo('node-rect', tmprect);
 
-			if (
-				this.getItemAttributes()
-					.getScaleShow()
-					.getValue()
-			) {
-				const scaleRect = tmprect.copy();
-				scaleRect.y -= 500;
-				scaleRect.height = 500;
-
-				this.drawHorEndless(graphics, scaleRect);
-
-				scaleRect.setTo(tmprect);
-				scaleRect.x -= 500;
-				scaleRect.width = 500;
-
-				this.drawVerEndless(graphics, scaleRect);
-			}
-
 			this._shapeRenderer.init(this._item._shape, graphics);
 
 			this.drawFill(graphics, format, tmprect);
@@ -475,19 +448,16 @@ class GraphItemView extends View {
 		// draw content:
 		if (this._item.isCollapsed()) {
 			const title = this._item.getTitle ? this._item.getTitle() : undefined;
-			this._subviews.forEach((subview) => {
-				if (
-					subview.getItem() === title ||
-					subview
-						.getItemAttributes()
-						.getCollapseBehaviour()
-						.getValue()
-				) {
+			this.subViews.forEach((subview) => {
+				if (subview.getItem() === title || subview
+					.getItemAttributes()
+					.getCollapseBehaviour()
+					.getValue()) {
 					subview.draw(graphics);
 				}
 			});
 		} else {
-			this._subviews.forEach((subview) => {
+			this.subViews.forEach((subview) => {
 				if (subview.isVisible() === true) {
 					subview.draw(graphics);
 				}
@@ -510,17 +480,37 @@ class GraphItemView extends View {
 	 * @param {Rectangle} rect A rectangle which specifies the GraphItem bounds
 	 */
 	drawBorder(graphics, format, rect) {
-		// if (format.hasBorder()) {
 		if (format.applyLineToGraphics(graphics)) {
-			if (
-				format.getLineArrowStart().getValue() !== FormatAttributes.ArrowStyle.NONE ||
-				format.getLineArrowEnd().getValue() !== FormatAttributes.ArrowStyle.NONE
-			) {
+			if (format.getLineArrowStart().getValue() !== FormatAttributes.ArrowStyle.NONE || format.getLineArrowEnd()
+				.getValue() !== FormatAttributes.ArrowStyle.NONE) {
 				format.applyFillToGraphics(graphics, rect);
 				// use line transparency here
 				graphics.setTransparency(format.getLineTransparency().getValue());
 			}
-			this._shapeRenderer.drawShapeBorder(this._item._shape, this._item.isClosed(), graphics);
+
+			const label = this.getItem().getExtraLabel();
+			if (label) {
+				graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
+				graphics.setTextBaseline('top');
+				graphics.setFontSize(7);
+				graphics.setFillColor(format.getLineColor().getValue());
+				graphics.setFontName(this.getItem().getTextFormat().getFontName().getValue());
+				graphics.setFont();
+				graphics.fillText(label, rect.x + 275, rect.y);
+
+				const width = graphics.getCoordinateSystem().deviceToLogX(graphics.measureText(label).width, true);
+
+				const pts = [];
+				pts.push(new Point(rect.x + width + 350, rect.y + 150));
+				pts.push(new Point(rect.x + rect.width, rect.y + 150));
+				pts.push(new Point(rect.x + rect.width, rect.y + rect.height));
+				pts.push(new Point(rect.x, rect.getBottom()));
+				pts.push(new Point(rect.x, rect.y + 150));
+				pts.push(new Point(rect.x + 200, rect.y + 150));
+				graphics.drawPolyline(pts, false);
+			} else {
+				this._shapeRenderer.drawShapeBorder(this._item._shape, this._item.isClosed(), graphics);
+			}
 			format.removeLineFromGraphics(graphics);
 		}
 	}
@@ -587,7 +577,7 @@ class GraphItemView extends View {
 		// draw marker:
 		graphics.beginPath();
 		graphics.setFillColor('#777777');
-		for (; steps.minor < width || steps.major < width; ) {
+		for (; steps.minor < width || steps.major < width;) {
 			if (zoom > 0.4 && steps.minor > 0 && steps.minor < width) {
 				graphics.moveTo(steps.minor, markerY0);
 				graphics.lineTo(steps.minor, markerY1);
@@ -620,7 +610,7 @@ class GraphItemView extends View {
 		// draw marker...
 		graphics.beginPath();
 		graphics.setFillColor('#777777');
-		for (; steps.minor < height || steps.major < height; ) {
+		for (; steps.minor < height || steps.major < height;) {
 			if (zoom > 0.4 && steps.minor > 0 && steps.minor < height) {
 				graphics.moveTo(markerX0, steps.minor);
 				graphics.lineTo(markerX1, steps.minor);
@@ -760,9 +750,12 @@ class GraphItemView extends View {
 	 *     created.
 	 * @return {Rectangle} The preferred Rectangle this view needs to draw itself.
 	 */
-	getPreferredBounds(recthint, reuserect) {}
+	getPreferredBounds(recthint, reuserect) {
+		// return reuserect || new Rectangle(0, 0, 0, 0);
+	}
 
-	adaptHighlight(highlight) {}
+	adaptHighlight(highlight) {
+	}
 
 	checkMaximumImageDimensions(image) {
 		return true;
@@ -805,35 +798,35 @@ class GraphItemView extends View {
 		const style = format.getFillStyle().getValue();
 
 		switch (style) {
-			case FormatAttributes.FillStyle.SOLID: {
-				const color = format.getFillColor().getValue();
-				if (color.toUpperCase() !== JSG.theme.fill) {
-					return `"${color}"`;
-				}
-				return '';
+		case FormatAttributes.FillStyle.SOLID: {
+			const color = format.getFillColor().getValue();
+			if (color.toUpperCase() !== JSG.theme.fill) {
+				return `"${color}"`;
 			}
-			case FormatAttributes.FillStyle.NONE:
-				return `"None"`;
-			case FormatAttributes.FillStyle.PATTERN:
-				return `FILLPATTERN("${format.getPattern().getValue()}")`;
-			case FormatAttributes.FillStyle.GRADIENT: {
-				const color = format.getFillColor().getValue();
-				const grColor = format.getGradientColor().getValue();
-				const sep = JSG.getParserLocaleSettings().separators.parameter;
-				switch (format.getGradientType().getValue()) {
-					case 0:
-						return `FILLLINEARGRADIENT("${color}"${sep}"${grColor}"${sep}${format
-							.getGradientAngle()
-							.getValue()})`;
-					case 1:
-						return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format
-							.getGradientOffsetX().getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
-					default:
-				}
-				return '';
-			}
+			return '';
+		}
+		case FormatAttributes.FillStyle.NONE:
+			return `"None"`;
+		case FormatAttributes.FillStyle.PATTERN:
+			return `FILLPATTERN("${format.getPattern().getValue()}")`;
+		case FormatAttributes.FillStyle.GRADIENT: {
+			const color = format.getFillColor().getValue();
+			const grColor = format.getGradientColor().getValue();
+			const sep = JSG.getParserLocaleSettings().separators.parameter;
+			switch (format.getGradientType().getValue()) {
+			case 0:
+				return `FILLLINEARGRADIENT("${color}"${sep}"${grColor}"${sep}${format
+					.getGradientAngle()
+					.getValue()})`;
+			case 1:
+				return `FILLRADIALGRADIENT("${color}"${sep}"${grColor}"${sep}${format
+					.getGradientOffsetX().getValue()}${sep}${format.getGradientOffsetY().getValue()})`;
 			default:
-				break;
+			}
+			return '';
+		}
+		default:
+			break;
 		}
 
 		return '';
@@ -893,7 +886,8 @@ class GraphItemView extends View {
 		const sep = JSG.getParserLocaleSettings().separators.parameter;
 
 		// DRAW.*(X, Y, Width, Height, LineColor, FillColor...)
-		formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY().toParamString(sheet, 0)}${sep}`;
+		formula += `${item.getPin().getX().toParamString(sheet, 0)}${sep}${item.getPin().getY()
+			.toParamString(sheet, 0)}${sep}`;
 		formula += `${item.getWidth().toParamString(sheet, 0)}${sep}${item.getHeight().toParamString(sheet, 0)}`;
 
 		const options = [];
@@ -917,54 +911,54 @@ class GraphItemView extends View {
 		}
 
 		switch (type) {
-			case 'label':
-				options[3] = item.getText().toParamString(sheet);
-				item.getTextFormat().setRichText(false);
-				break;
-			case 'checkbox':
-			case 'button':
-				options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
-				param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
-				if (param !== '') {
-					options[4] = param;
-				}
-				break;
-			case 'slider':
-			case 'knob':
-				options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
-				param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
-				if (param !== '') {
-					options[4] = param;
-				}
-				options[5] = item.getAttributeAtPath('min').getExpression().toParamString(sheet);
-				options[6] = item.getAttributeAtPath('max').getExpression().toParamString(sheet);
-				options[7] = item.getAttributeAtPath('step').getExpression().toParamString(sheet);
-				param = item.getAttributeAtPath('marker').getExpression().toParamString(sheet);
-				if (param !== '') {
-					options[8] = param;
-				}
-				param = item.getAttributeAtPath('formatrange').getExpression().toParamString(sheet);
-				if (param !== '') {
-					options[9] = param;
-				}
-				if (type === 'knob') {
-					options[10] = item.getAttributeAtPath('start').getExpression().toParamString(sheet, 2);
-					options[11] = item.getAttributeAtPath('end').getExpression().toParamString(sheet, 2);
-				}
-				break;
-			case 'bezier':
-			case 'polygon':
-				param = item.getShape().getSource().toParamString(sheet);
-				if (param !== '') {
-					options[3] = param;
-				}
-				param = item.getItemAttributes().getClosed().toParamString(sheet);
-				if (param !== 'TRUE') {
-					options[4] = param;
-				}
-				break;
-			default:
-				break;
+		case 'label':
+			options[3] = item.getText().toParamString(sheet);
+			item.getTextFormat().setRichText(false);
+			break;
+		case 'checkbox':
+		case 'button':
+			options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+			param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+			if (param !== '') {
+				options[4] = param;
+			}
+			break;
+		case 'slider':
+		case 'knob':
+			options[3] = item.getAttributeAtPath('title').getExpression().toParamString(sheet);
+			param = item.getAttributeAtPath('value').getExpression().toParamString(sheet);
+			if (param !== '') {
+				options[4] = param;
+			}
+			options[5] = item.getAttributeAtPath('min').getExpression().toParamString(sheet);
+			options[6] = item.getAttributeAtPath('max').getExpression().toParamString(sheet);
+			options[7] = item.getAttributeAtPath('step').getExpression().toParamString(sheet);
+			param = item.getAttributeAtPath('marker').getExpression().toParamString(sheet);
+			if (param !== '') {
+				options[8] = param;
+			}
+			param = item.getAttributeAtPath('formatrange').getExpression().toParamString(sheet);
+			if (param !== '') {
+				options[9] = param;
+			}
+			if (type === 'knob') {
+				options[10] = item.getAttributeAtPath('start').getExpression().toParamString(sheet, 2);
+				options[11] = item.getAttributeAtPath('end').getExpression().toParamString(sheet, 2);
+			}
+			break;
+		case 'bezier':
+		case 'polygon':
+			param = item.getShape().getSource().toParamString(sheet);
+			if (param !== '') {
+				options[3] = param;
+			}
+			param = item.getItemAttributes().getClosed().toParamString(sheet);
+			if (param !== 'TRUE') {
+				options[4] = param;
+			}
+			break;
+		default:
+			break;
 		}
 		for (let i = 0; i < options.length; i += 1) {
 			const option = options[i];
@@ -987,15 +981,9 @@ class GraphItemView extends View {
 		return undefined;
 	}
 
-	setSelectedPropertyCategory(data) {}
-
-	getDefaultPropertyCategory() {
-		return 'general';
+	setSelectedPropertyCategory(data) {
 	}
 
-	isValidPropertyCategory(category) {
-		return category === 'general' || category === 'format' || category === 'textformat' || category === 'attributes' || category === 'events';
-	}
 }
 
 export default GraphItemView;

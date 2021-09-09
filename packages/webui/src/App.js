@@ -26,6 +26,7 @@ import { DashboardPage, ExportPage } from './pages';
 import { RoutesExtensions, UserTablePage, CreateUserPage, UpdateUserPage } from '@cedalo/webui-extensions';
 import { Path } from './helper/Path';
 import { DatabasePage } from './pages/DatabasePage';
+import { LicensePage } from './pages/LicensePage';
 
 const GATEWAY_CONFIG = ConfigManager.config.gatewayClientConfig;
 
@@ -79,6 +80,7 @@ class App extends React.Component {
 										component={UpdateUserPage}
 									/>
 									<PrivateRoute path="/administration/database" component={DatabasePage} />
+									<PrivateRoute path="/administration/license" component={LicensePage} />
 								</React.Fragment>
 							)}
 

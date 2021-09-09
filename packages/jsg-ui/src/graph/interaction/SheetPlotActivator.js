@@ -84,9 +84,11 @@ export default class SheetPlotActivator extends InteractionActivator {
 					case 'series':
 						switch (event.event.key) {
 							case 'Delete': {
-								const cmd = item.prepareCommand('series');
-								JSG.Arrays.remove(item.series, selection.data);
-								finish(cmd, 'series', true);
+								if (item.series.length > 1) {
+									const cmd = item.prepareCommand('series');
+									JSG.Arrays.remove(item.series, selection.data);
+									finish(cmd, 'series', true);
+								}
 								break;
 							}
 						}

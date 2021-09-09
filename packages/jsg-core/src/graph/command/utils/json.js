@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -83,7 +83,7 @@ const writeGroupUndoInfo = (group) => ({
 	pin: writeJSON('pin', group.getPin()),
 	size: writeJSON('size', group.getSize(true)),
 	angle: writeJSON('angle', group.getAngle()),
-	subitems: group.getItems().map(item => writeGroupUndoInfo(item))
+	subitems: group.subItems.map(item => writeGroupUndoInfo(item))
 });
 
 

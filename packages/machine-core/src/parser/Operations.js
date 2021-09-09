@@ -8,65 +8,80 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { BinaryOperator, BoolOperator, UnaryOperator } = require('@cedalo/parser');
+const DotReferenceOperator = require('./DotReferenceOperator');
+const { calc, createErrorInfo, getTermValue } = require('./utils');
 
 const ERROR = FunctionErrors.code;
-
-const termValue = (term, defval) => {
-	const val = term != null ? term.value : null;
-	return val != null ? val : defval;
-};
-
-const calc = (left, right, op) => {
-	left = left != null ? Number(left) : 0;
-	right = right != null ? Number(right) : 0;
-	return isNaN(left) || isNaN(right) ? ERROR.VALUE : op(left, right);
-};
-
-const isError = (left, right) =>
-// eslint-disable-next-line no-nested-ternary
-	FunctionErrors.isError(left) ? left : (FunctionErrors.isError(right) ? right : undefined);
+const DIV0 = () => ErrorInfo.create(ERROR.DIV0);
 
 
+class SheetBinaryOperator extends BinaryOperator {
+	calc(term1, term2) {
+		const val1 = term1 && term1.value;
+		const val2 = term2 && term2.value;
+		if (FunctionErrors.isError(val1)) return createErrorInfo(val1, term1);
+		if (FunctionErrors.isError(val2)) return createErrorInfo(val2, term2);
+		return this.operation(val1, val2);
+	}
+}
+class SheetUnaryOperator extends UnaryOperator {
+	calc(term) {
+		const value = term && term.value;
+		if (FunctionErrors.isError(value)) return createErrorInfo(value, term);
+		return this.operation(value);
+	}
+}
+class SheetBoolOperator extends BoolOperator {
+	calc(term1, term2) {
+		const val1 = this.isResolved(term1) ? term1.value : false;
+		const val2 = this.isResolved(term2) ? term2.value : false;
+		if (FunctionErrors.isError(val1)) return createErrorInfo(val1, term1);
+		if (FunctionErrors.isError(val2)) return createErrorInfo(val2, term2);
+		return this.operation(val1, val2);
+	}
+}
 // replace some basic operations to behave more excel like, including excel-like error values...
 module.exports.Operations = [
-	new BinaryOperator('+', (left, right) => isError(left, right) || calc(left, right, (l, r) => l + r)),
-	new BinaryOperator('-', (left, right) => isError(left, right) || calc(left, right, (l, r) => l - r)),
-	new BinaryOperator('*', (left, right) => isError(left, right) || calc(left, right, (l, r) => l * r)),
+	new SheetBinaryOperator('+', (left, right) => calc(left, right, (l, r) => l + r)),
+	new SheetBinaryOperator('-', (left, right) => calc(left, right, (l, r) => l - r)),
+	new SheetBinaryOperator('*', (left, right) => calc(left, right, (l, r) => l * r)),
 	// eslint-disable-next-line
-	new BinaryOperator('/', (left, right) => isError(left, right) || calc(left, right, (l, r) => (!r ? ERROR.DIV0 : !l ? 0 : l / r))),
-	new UnaryOperator('-', (right) => isError(right) || calc(-1, right, (l, r) => l * r)),
+	new SheetBinaryOperator('/', (left, right) => calc(left, right, (l, r) => (!r ? DIV0() : !l ? 0 : l / r))),
+	new SheetUnaryOperator('-', (right) => calc(-1, right, (l, r) => l * r)),
 
 	// eslint-disable-next-line
-	new BoolOperator('!=', (left, right) => isError(left, right) || left != right),
+	new SheetBoolOperator('!=', (left, right) => left != right),
 	// eslint-disable-next-line
-	new BoolOperator('<>', (left, right) => isError(left, right) || left != right),
+	new SheetBoolOperator('<>', (left, right) => left != right),
 	// eslint-disable-next-line
-	new BoolOperator('=', (left, right) => isError(left, right) || left == right),
+	new SheetBoolOperator('=', (left, right) => left == right),
 	// eslint-disable-next-line
-	new BoolOperator('==', (left, right) => isError(left, right) || left == right),
-	new BoolOperator('>', (left, right) => isError(left, right) || left > right),
-	new BoolOperator('>=', (left, right) => isError(left, right) || left >= right),
-	new BoolOperator('<', (left, right) => isError(left, right) || left < right),
-	new BoolOperator('<=', (left, right) => isError(left, right) || left <= right),
-	new BoolOperator('|', (left, right) => isError(left, right) || (left || right))
+	new SheetBoolOperator('==', (left, right) => left == right),
+	new SheetBoolOperator('>', (left, right) => left > right),
+	new SheetBoolOperator('>=', (left, right) => left >= right),
+	new SheetBoolOperator('<', (left, right) => left < right),
+	new SheetBoolOperator('<=', (left, right) => left <= right),
+	new SheetBoolOperator('|', (left, right) => (left || right))
 ];
 
-module.exports.ConcatOperator = class ConcatOperator extends BinaryOperator {
+module.exports.ConcatOperator = class ConcatOperator extends SheetBinaryOperator {
 
 	constructor() {
 		super('&');
 	}
 
 	calc(left, right) {
-		return isError(left, right) ||  `${termValue(left, '')}${termValue(right, '')}`;
+		return `${getTermValue(left, '')}${getTermValue(right, '')}`;
 	}
 };
 
 // used by timequery's where clause
-module.exports.AndOperator = class AndOperator extends BoolOperator {
+module.exports.AndOperator = class AndOperator extends SheetBoolOperator {
 	constructor() {
-		super('&&', (left, right) => isError(left, right) || (left && right));
+		super('&&', (left, right) => left && right);
 	}
 };
+
+module.exports.DotOperator = DotReferenceOperator;

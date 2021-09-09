@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -25,6 +25,7 @@ const STEP = 'step';
 const SHEETID = 'sheetid';
 const INBOXID = 'inboxid';
 const INBOXVISIBLE = 'inboxvisible';
+const SHEETTYPE = 'sheettype';
 
 // UNIQUE NAME:
 const NAME = 'StreamSheetContainer';
@@ -74,6 +75,7 @@ const StreamSheetContainerAttributes = class StreamSheetContainerAttributes exte
 		addAttribute(new StringAttribute(ATTR.SHEETID), '');
 		addAttribute(new StringAttribute(ATTR.STEP), '1');
 		addAttribute(new StringAttribute(ATTR.STATUS), '');
+		addAttribute(new StringAttribute(ATTR.SHEETTYPE), 'sheet');
 		addAttribute(new BooleanAttribute(ATTR.HIDEMESSAGES), false);
 		addAttribute(new BooleanAttribute(ATTR.INBOXVISIBLE), true);
 
@@ -163,6 +165,14 @@ const StreamSheetContainerAttributes = class StreamSheetContainerAttributes exte
 		this.setAttribute(StreamSheetContainerAttributes.STEP, source);
 	}
 
+	getSheetType() {
+		return this.getAttribute(StreamSheetContainerAttributes.SHEETTYPE);
+	}
+
+	setSheetType(source) {
+		this.setAttribute(StreamSheetContainerAttributes.SHEETTYPE, source);
+	}
+
 	doSaveParentRef() {
 		return (
 			this._parent &&
@@ -213,6 +223,10 @@ const StreamSheetContainerAttributes = class StreamSheetContainerAttributes exte
 
 	static get STATUS() {
 		return STATUS;
+	}
+
+	static get SHEETTYPE() {
+		return SHEETTYPE;
 	}
 
 	static get TemplateID() {

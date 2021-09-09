@@ -81,14 +81,14 @@ describe('json.value', () => {
 	});
 	it(`should return ${ERROR.ARGS} if called with no arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('json.value()', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('json.value()', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if first argument is not a JSON object`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('json.value(,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('json.value(42)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('json.value("json")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('json.value(true)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('json.value(,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('json.value(42)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('json.value("json")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('json.value(true)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it(`should return ${ERROR.NA} if specified path is invalid`, () => {
 		const sheet = new StreamSheet().sheet.load({ cells: {
@@ -96,6 +96,6 @@ describe('json.value', () => {
 			A2: { formula: 'json(A1)'},
 			A3: { formula: 'json.value(A2, "Name123")'}
 		} });
-		expect(sheet.cellAt('A3').value).toBe(ERROR.NA);
+		expect(sheet.cellAt('A3').value.code).toBe(ERROR.NA);
 	});
 });

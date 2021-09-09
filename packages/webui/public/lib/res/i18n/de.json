@@ -16,7 +16,9 @@
   "Sheet Settings": "<p style='font-weight: bold;'>Einstellungen Tabelle</p>Festlegen von Tabellennamen und -größe und Anzeigeoptionen<br /> für das Gitternetz oder die Spalten-/Zeilenköpfe.",
   "Summary": "Zusammenfassung",
   "More Info": "Weitere Infos",
+  "Result": "Ergebnis",
   "Reset Zoom": "Zoom zurücksetzen",
+  "MaxDataViewRows": "Höchstens 100 Zeilen darstellbar...",
   "Increase": "Zunahme",
   "Decrease": "Abnahme",
   "Total": "Summe"

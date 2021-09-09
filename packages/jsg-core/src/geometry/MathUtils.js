@@ -92,29 +92,33 @@ class MathUtils {
 		return Math.ceil(number - 0.5);
 	}
 
-	static roundTo(value, exp) {
-		// If the exp is undefined or zero...
-		if (typeof exp === 'undefined' || +exp === 0) {
+	static roundTo(value, decimals) {
+		if (Number.isInteger(value)) {
+			return value;
+		}
+		if (!decimals || Number.isInteger(value)) {
 			return Math.round(value);
 		}
-		value = +value;
-		exp = -exp;
+		// value = +value;
+		// exp = -exp;
 		// If the value is not a number or the exp is not an integer...
-		if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
-			return NaN;
-		}
+		// if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+		// 	return NaN;
+		// }
 		// If the value is negative...
 		if (value < 0) {
-			return -MathUtils.roundTo(-value, -exp);
+			return -MathUtils.roundTo(-value, decimals);
 		}
-		// Shift
-		value = value.toString().split('e');
-		// eslint-disable-next-line prefer-template
-		value = Math.round(+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
-		// Shift back
-		value = value.toString().split('e');
-		// eslint-disable-next-line prefer-template
-		return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+
+		return Number(`${Math.round(`${value  }e${decimals}`)}e-${decimals}`);
+		// // Shift
+		// value = value.toString().split('e');
+		// // eslint-disable-next-line prefer-template
+		// value = Math.round(+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+		// // Shift back
+		// value = value.toString().split('e');
+		// // eslint-disable-next-line prefer-template
+		// return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
 		// const factor = 10 ** decimals;
 		// return Math.round(number * factor) / factor;
 	}

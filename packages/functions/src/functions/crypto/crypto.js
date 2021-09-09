@@ -18,34 +18,43 @@ const ERROR = FunctionErrors.code;
 const DEF_HASHES = ['sha256', 'sha512', 'sha384', 'md5'];
 const HASH_ALGOS = crypto.getHashes().map((algo) => algo.toLowerCase());
 const DEFAULT_HASH = DEF_HASHES.find((hash) => HASH_ALGOS.includes(hash)) || HASH_ALGOS[0];
+const DEFAULT_ENCODING = 'hex';
+const ENCODINGS = ['hex','base64'];
 
 const getAlgorithm = (str) => {
 	str = str.toLowerCase();
 	return HASH_ALGOS.includes(str) ? str : ERROR.VALUE;
 };
 
+const getEnconding = (str) => {
+	str = str.toLowerCase();
+	return ENCODINGS.includes(str) ? str : ERROR.VALUE;
+}
+
 const hash = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
-		.withMaxArgs(2)
+		.withMaxArgs(3)
 		.mapNextArg((text) => convert.toString(text.value, ERROR.VALUE))
 		.mapNextArg((algorithm) => getAlgorithm(algorithm ? convert.toString(algorithm.value, '') : DEFAULT_HASH))
-		.run((text, algorithm) => {
+		.mapNextArg((encoding) => getEnconding(encoding ? convert.toString(encoding.value, '') : DEFAULT_ENCODING))
+		.run((text, algorithm, encoding) => {
 			const cryptoHash = crypto.createHash(algorithm);
-			return cryptoHash.update(text).digest('hex');
+			return cryptoHash.update(text).digest(encoding);
 		});
 
 const hmac = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(2)
-		.withMaxArgs(3)
+		.withMaxArgs(4)
 		.mapNextArg((text) => convert.toString(text.value, ERROR.VALUE))
 		.mapNextArg((secret) => convert.toString(secret.value, ERROR.VALUE))
 		.mapNextArg((algorithm) => getAlgorithm(algorithm ? convert.toString(algorithm.value, '') : DEFAULT_HASH))
-		.run((text, secret, algorithm) => {
+		.mapNextArg((encoding) => getEnconding(encoding ? convert.toString(encoding.value, '') : DEFAULT_ENCODING))
+		.run((text, secret, algorithm, encoding) => {
 			if (!secret) return ERROR.VALUE;
 			const cryptoHmac = crypto.createHmac(algorithm, secret);
-			return cryptoHmac.update(text).digest('hex');
+			return cryptoHmac.update(text).digest(encoding);
 		});
 
 module.exports = {

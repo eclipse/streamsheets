@@ -14,6 +14,8 @@ import React, { Component } from 'react';
 import { Button, Typography, Slide } from '@material-ui/core';
 import { connect } from 'react-redux';
 import AddIcon from '@material-ui/icons/Add';
+import SheetIcon from '@material-ui/icons/GridOn';
+import DashboardIcon from '@material-ui/icons/Dashboard';
 import CloseIcon from '@material-ui/icons/Close';
 import SettingsIcon from '@material-ui/icons/Settings';
 import * as Colors from '@material-ui/core/colors';
@@ -22,12 +24,16 @@ import SvgIcon from '@material-ui/core/SvgIcon/SvgIcon';
 import { FormattedMessage } from 'react-intl';
 import Tooltip from '@material-ui/core/Tooltip';
 import Fab from '@material-ui/core/Fab';
+import SpeedDial from '@material-ui/lab/SpeedDial';
+import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
 import ContextMenu from './ContextMenu';
 import TreeContextMenu from './TreeContextMenu';
 import GraphContextMenu from './GraphContextMenu';
+import LayoutContextMenu from './LayoutContextMenu';
 import EditPointsContextMenu from './EditPointsContextMenu';
 import SheetDeleteDialog from './SheetDeleteDialog';
 import MachineHelper from '../../helper/MachineHelper';
@@ -35,7 +41,7 @@ import FunctionWizard from './FunctionWizard';
 import { intl } from '../../helper/IntlGlobalProvider';
 import GraphItemProperties from "./GraphItemProperties";
 import ViewModeProperties from "./ViewModeProperties";
-// import NotAuthorizedComponent from '../Errors/NotAuthorizedComponent';
+import LayoutSectionProperties from './LayoutSectionProperties';
 
 export class CanvasComponent extends Component {
 	static getDerivedStateFromProps(props, state) {
@@ -70,6 +76,7 @@ export class CanvasComponent extends Component {
 			graph: null,
 			loaded: false,
 			loading: 1,
+			speedOpen: false,
 			dummy: ''
 		};
 	}
@@ -77,6 +84,7 @@ export class CanvasComponent extends Component {
 	componentDidMount() {
 		const graphEditor = this.initGraphEditor();
 		JSG.NotificationCenter.getInstance().register(this, JSG.NotificationCenter.ZOOM_NOTIFICATION, 'onZoom');
+		JSG.NotificationCenter.getInstance().register(this, JSG.NotificationCenter.ADD_SHEET_NOTIFICATION, 'onAddDashboardSheet');
 		JSG.NotificationCenter.getInstance().register(
 			this,
 			JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX,
@@ -95,6 +103,7 @@ export class CanvasComponent extends Component {
 	componentWillUnmount() {
 		const { canvas } = this;
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ZOOM_NOTIFICATION);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ADD_SHEET_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 		canvas._jsgEditor.destroy();
@@ -159,6 +168,7 @@ export class CanvasComponent extends Component {
 
 	onCloseViewMode = () => {
 		this.props.setAppState({ showViewMode: false });
+		this.props.setJsgState({ cellSelected: false });
 	}
 
 	onViewModeProperties = () => {
@@ -167,6 +177,14 @@ export class CanvasComponent extends Component {
 	/**
 	 * Resize canvas and inform GraphEditor
 	 */
+
+	handleSpeedOpen = () => {
+		this.setState({speedOpen: true});
+	}
+
+	handleSpeedClose = () => {
+		this.setState({speedOpen: false});
+	}
 
 	onShowSheet = (sheet) => {
 		sheet.getGraph().setViewMode(sheet, 0);
@@ -186,7 +204,14 @@ export class CanvasComponent extends Component {
 		this.setState({ graph: sheet.getGraph() });
 	};
 
-	onAdd = () => {
+	onAddDashboardSheet() {
+		const graph = graphManager.getGraph();
+		const cnt = graph.getStreamSheetContainerCount() % 8;
+
+		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, 'cellsheet');
+	}
+
+	onAdd = (type) => {
 		const graph = graphManager.getGraph();
 		let cnt = graph.getStreamSheetContainerCount();
 
@@ -210,7 +235,7 @@ export class CanvasComponent extends Component {
 
 		graph.setViewMode(undefined, 0);
 
-		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt });
+		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, type);
 	};
 
 	initGraphEditor() {
@@ -279,6 +304,7 @@ export class CanvasComponent extends Component {
 
 		return (
 			<div
+				id="stream-app-edit-area"
 				style={{
 					height: '100%',
 					width: '100%',
@@ -291,6 +317,7 @@ export class CanvasComponent extends Component {
 						<ContextMenu />
 						<TreeContextMenu />
 						<GraphContextMenu />
+						<LayoutContextMenu />
 						<EditPointsContextMenu />
 					</React.Fragment>
 				)}
@@ -311,6 +338,7 @@ export class CanvasComponent extends Component {
 					//	aria-disabled={this.isAccessDisabled()}
 				/>
 				{viewMode.active === true || !canEdit ? null : <GraphItemProperties dummy={this.state.dummy} />}
+				{viewMode.active === true || !canEdit ? null : <LayoutSectionProperties dummy={this.state.dummy} />}
 				{viewMode.active === true && canEdit ?  <ViewModeProperties viewMode={viewMode}/> : null}
 				{viewMode.active === true || !canEdit ? null : (
 					<Slide direction="left" in={this.props.functionWizardVisible} mountOnEnter unmountOnExit>
@@ -319,31 +347,69 @@ export class CanvasComponent extends Component {
 				)}
 
 				{viewMode.active === true || !canEdit ? null : (
-					<Tooltip
-						enterDelay={300}
-						title={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}
-					>
-						<Fab
-							id="addSheet"
-							aria-label="add"
-							color="primary"
-							size="medium"
-							style={{
-								visibility: this.props.showTools ? 'visible' : 'hidden',
-								position: 'absolute',
-								zIndex: 1200,
-								right: '30px',
-								bottom: '26px',
-							}}
-							onClick={this.onAdd}
-						>
-							<AddIcon
+					<div>
+						{graph.getDashboardContainer() ? (
+								<Tooltip
+									enterDelay={300}
+									title={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}
+								>
+							<Fab
+								id="addSheet"
+								aria-label="add"
+								color="primary"
+								size="medium"
 								style={{
-									color: '#FFFFFF',
+									visibility: this.props.showTools ? 'visible' : 'hidden',
+									position: 'absolute',
+									zIndex: 1200,
+									right: '30px',
+									bottom: '26px',
 								}}
-							/>
-						</Fab>
-					</Tooltip>
+								onClick={() => this.onAdd('sheet')}
+							>
+								<AddIcon
+									style={{
+										color: '#FFFFFF',
+									}}
+								/>
+							</Fab>
+								</Tooltip>
+							) : (
+							<SpeedDial
+								style={{
+									visibility: this.props.showTools ? 'visible' : 'hidden',
+									position: 'absolute',
+									zIndex: 1200,
+									right: '30px',
+									bottom: '26px',
+								}}
+								ariaLabel="Add"
+								// className={classes.speedDial}
+								FabProps={{
+									size: "medium"
+								}}
+								icon={<SpeedDialIcon />}
+								onClose={this.handleSpeedClose}
+								onOpen={this.handleSpeedOpen}
+								open={this.state.speedOpen}
+								direction="up"
+							>
+								<SpeedDialAction
+									key="sheet"
+									icon={<SheetIcon/>}
+									tooltipTitle={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}
+									onClick={() => this.onAdd('sheet')}
+								/>
+								<SpeedDialAction
+									key="dash"
+									icon={<DashboardIcon/>}
+									tooltipTitle={<FormattedMessage id="Tooltip.AddDashboard" defaultMessage="Add Dashboard" />}
+									onClick={() => this.onAdd('dashboard')}
+								/>
+							</SpeedDial>
+							)
+						}
+						</div>
 				)}
 				{viewMode.active === true && canEdit ? [
 					<Tooltip
@@ -393,52 +459,71 @@ export class CanvasComponent extends Component {
 						</Fab>
 					</Tooltip>
 				] : null}
+				<div
+					style={{
+						visibility: this.props.showTools ? 'visible' : 'hidden',
+						position: 'absolute',
+						zIndex: 1200,
+						left: `30px`,
+						bottom: '26px',
+					}}
+				>
 				{sheets.map((sheet, index) => (
 					<div
 						key={index.toString()}
 						style={{
 							visibility: this.props.showTools ? 'visible' : 'hidden',
-							position: 'absolute',
+							display: 'inline-flex',
 							zIndex: 1200,
-							left: `${30 + index * 50}px`,
-							bottom: '26px',
 						}}
 					>
-						<Button
-							aria-label="show"
-							mini
-							style={{
-								backgroundColor: Colors.blue[800],
-								minWidth: '40px',
-								padding: '0px',
-							}}
-							onClick={() => this.onShowSheet(sheet)}
-						>
-							<SvgIcon>
-								<path
-									fill="#FFFFFF"
-									// eslint-disable-next-line max-len
-									d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10,13H7V11H10V13M14,13H11V11H14V13M10,16H7V14H10V16M14,16H11V14H14V16M10,19H7V17H10V19M14,19H11V17H14V19Z"
-								/>
-							</SvgIcon>
-						</Button>
 						<div
 							style={{
-								width: '40px',
-								textAlign: 'center',
-								fontSize: '10px',
-								marginTop: '5px',
+								display: 'block',
+								justifyContent: 'center',
+								marginRight: '15px',
 							}}
 						>
-							<Typography>
-								{sheet
-									.getStreamSheet()
-									.getName()
-									.getValue()}
-							</Typography>
+							<Button
+								aria-label="show"
+								mini
+								style={{
+									backgroundColor: Colors.blue[800],
+									minWidth: '40px',
+									padding: '5px',
+									margin: 'auto',
+									display: 'block',
+								}}
+								onClick={() => this.onShowSheet(sheet)}
+							>
+								<SvgIcon>
+									<path
+										fill="#FFFFFF"
+										// eslint-disable-next-line max-len
+										d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10,13H7V11H10V13M14,13H11V11H14V13M10,16H7V14H10V16M14,16H11V14H14V16M10,19H7V17H10V19M14,19H11V17H14V19Z"
+									/>
+								</SvgIcon>
+							</Button>
+							<div
+								style={{
+									// width: '40px',
+									textAlign: 'center',
+									fontSize: '10px',
+									marginTop: '5px',
+									display: 'block',
+								}}
+							>
+								<Typography>
+									{sheet
+										.getStreamSheet()
+										.getName()
+										.getValue()}
+								</Typography>
+							</div>
 						</div>
 					</div>
 				))}
+				</div>
 			</div>
 		);
 	}

@@ -16,17 +16,37 @@ import {Table, Paper, IconButton} from '@material-ui/core';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import styles from './styles';
+// import styles from './styles';
 import ResourceMenu from './ResourceMenu';
 import TableSortHeader from '../../HelperComponent/TableSortHeader';
 import {injectIntl} from 'react-intl';
 import {formatDateString} from './Utils';
 import { IconPause, IconPlay, IconStop } from '../../icons';
 import Constants from '../../../constants/Constants';
-import SortSelector from "../sortSelector/SortSelector";
+import SortSelector from '../sortSelector/SortSelector';
+import { getImageByResource } from './Utils';
 
 const MAX_LENGTH = 20;
 const PREF_KEY_SORTQUERYLIST = 'streamsheets-prefs-list-sortby';
+
+const styles = ( /* theme */ ) => ({
+	tablePaperContainer: {
+		maxHeight: '100%',
+		padding: '24px',
+		overflow: 'auto',
+		boxSizing: 'border-box'
+	},
+	tableContainer: {
+		padding: '32px',
+		maxHeight: '100%',
+		maxWidth: '960px',
+		margin: 'auto',
+		position: 'relative'
+	},
+	table: {
+		backgroundColor: 'white',
+	}
+});
 
 class ResourcesList extends React.Component {
 	static propTypes = {
@@ -178,91 +198,108 @@ class ResourcesList extends React.Component {
 
 	render() {
 		const {
+			classes,
 			menuOptions,
 			onMenuSelect,
 			canEdit,
 		} = this.props;
 		return (
-			<Paper
-				style={{
-					height: '100%',
-					overflowY: 'overlay',
-				}}
-				square
+			<div
+				className={classes.tablePaperContainer}
 			>
-				<Table
-					style={{ minWidth: '700px'}}
+				<Paper 
+					className={classes.tableContainer}
 				>
-					<TableSortHeader
-						height={48}
-						cells={[
-							{ id: 'name', numeric: false, padding: true, label: 'Name', width: '25%' },
-							{ id: 'sheets', numeric: false, sort: false, label: 'Dashboard.sheets', width: '7%' },
-							{ id: 'consumers', numeric: false, label: 'Dashboard.consumers', width: '40%' },
-							{ id: 'lastModified', numeric: false, label: 'LastModified', width: '17%' },
-							{ id: 'action', numeric: false, sort: true, label: 'Streams.Actions', width: '15%', minWidth: '150px' }
-						]}
-						orderBy={this.state.streamSortBy}
-						order={this.state.streamSortOrder}
-						onRequestSort={this.handleTableSort}
-					/>
-					<TableBody>
-						{this.getMachines().map((resource) => (
-							<TableRow
-								style={ {
-									height: '40px',
-									cursor: 'pointer',
-								}}
-								hover
-								tabIndex={-1}
-								key={`${resource.className}-${resource.id}`}
-							>
-								<TableCell onClick={() => this.handleSelection(resource)} padding="default" component="th" scope="row">
-									{resource.name}
-								</TableCell>
-								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.streamsheets.length}</TableCell>
-								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{this.getConsumers(resource)}</TableCell>
-								<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.lastModifiedFormatted}</TableCell>
-								<TableCell padding="none">
-								{!canEdit ? null : [
-										<IconButton
-											style={{ padding: '4px' }}
-											size="small"
-											disabled={resource.state === 'running'}
-											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.START, resource.id)}
+					<Table
+						className={classes.table}
+						size="medium"
+					>
+						<TableSortHeader
+							height={48}
+							cells={[
+								{ id: 'gap', numeric: false, padding: false, label: '', width: '1%', minWidth: '16px' },
+								{ id: 'name', numeric: false, padding: false, label: 'Name', width: '25%' },
+								{ id: 'sheets', numeric: false, sort: false, label: 'Dashboard.sheets', width: '7%' },
+								{ id: 'consumers', numeric: false, label: 'Dashboard.consumers', width: '40%' },
+								{ id: 'lastModified', numeric: false, label: 'LastModified', width: '17%' },
+								{ id: 'action', numeric: false, sort: true, label: 'Streams.Actions', width: '15%', minWidth: '150px' }
+							]}
+							orderBy={this.state.streamSortBy}
+							order={this.state.streamSortOrder}
+							onRequestSort={this.handleTableSort}
+						/>
+						<TableBody>
+							{this.getMachines().map((resource) => (
+								<TableRow
+									style={ {
+										height: '40px',
+										cursor: 'pointer',
+									}}
+									hover
+									tabIndex={-1}
+									key={`${resource.className}-${resource.id}`}
+								>
+									<TableCell onClick={() => this.handleSelection(resource)} padding="none">
+										<div
+											onClick={() => this.handleSelection(resource)}
+											style={{
+												margin: '9px',
+											}}
 										>
-											<IconPlay />
-										</IconButton>,
-										<IconButton
-											style={{ padding: '4px' }}
-											size="small"
-											disabled={resource.state === 'stopped'}
-											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.STOP, resource.id)}
-										>
-											<IconStop />
-										</IconButton>,
-										<IconButton
-											style={{ padding: '4px' }}
-											disabled={resource.state !== 'running'}
-											size="small"
-											onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.PAUSE, resource.id)}
-										>
-											<IconPause />
-										</IconButton>
-										]}
-									{!menuOptions ? null : (
-										<ResourceMenu
-											menuOptions={menuOptions}
-											resourceId={resource.id}
-											onMenuSelect={onMenuSelect}
-										/>
-								)}
+											<img
+												width = '75px'
+												height = '38px'
+												src={getImageByResource(resource)}
+											/>
+										</div>
 									</TableCell>
-							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</Paper>
+									<TableCell style={{fontWeight: 'bold'}} onClick={() => this.handleSelection(resource)} padding="none" component="th" scope="row">
+										{resource.name}
+									</TableCell>
+									<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.streamsheets.length}</TableCell>
+									<TableCell onClick={() => this.handleSelection(resource)} padding="none">{this.getConsumers(resource)}</TableCell>
+									<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.lastModifiedFormatted}</TableCell>
+									<TableCell padding="none">
+									{!canEdit ? null : [
+											<IconButton
+												style={{ padding: '4px' }}
+												size="small"
+												disabled={resource.state === 'running'}
+												onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.START, resource.id)}
+											>
+												<IconPlay />
+											</IconButton>,
+											<IconButton
+												style={{ padding: '4px' }}
+												size="small"
+												disabled={resource.state === 'stopped'}
+												onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.STOP, resource.id)}
+											>
+												<IconStop />
+											</IconButton>,
+											<IconButton
+												style={{ padding: '4px' }}
+												disabled={resource.state !== 'running'}
+												size="small"
+												onClick={() => this.props.onMenuSelect(Constants.RESOURCE_MENU_IDS.PAUSE, resource.id)}
+											>
+												<IconPause />
+											</IconButton>
+											]}
+										{!menuOptions ? null : (
+											<ResourceMenu
+												menuOptions={menuOptions}
+												resourceId={resource.id}
+												onMenuSelect={onMenuSelect}
+											/>
+									)}
+										</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				</Paper>
+			</div>
 		);
 	}
 }

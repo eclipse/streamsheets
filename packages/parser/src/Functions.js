@@ -357,6 +357,7 @@ module.exports.Functions = {
 	'DRAW.ELLIPSE': () => OK.TRUE,
 	'DRAW.KNOB': () => OK.TRUE,
 	'DRAW.LABEL': () => OK.TRUE,
+	'DRAW.LAYOUT': () => OK.TRUE,
 	'DRAW.LINE': () => OK.TRUE,
 	'DRAW.POLYGON': () => OK.TRUE,
 	'DRAW.RECTANGLE': () => OK.TRUE,

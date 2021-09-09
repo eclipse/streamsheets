@@ -89,7 +89,16 @@ export class TextFormatProperties extends Component {
 	}
 
 	getExpression(item, event) {
-		return this.getSheet(item).textToExpression(String(event.target.textContent), item);
+		try {
+			return this.getSheet(item).textToExpression(String(event.target.textContent));
+		} catch (e) {
+			this.getSheetView().notifyMessage({
+				message: e.message,
+				// focusElement: this.div,
+				focusIndex: e.index !== undefined ? e.index + 1 : 1
+			});
+			return false;
+		}
 	}
 
 	getAttributeHandler(label, item, name, itemAttribute, options) {
@@ -101,6 +110,7 @@ export class TextFormatProperties extends Component {
 				variant="outlined"
 				size="small"
 				margin="normal"
+				fullWidth
 				label={intl.formatMessage({ id: label })}
 				onBlur={(event) => this.handleAttribute(event, item, name, itemAttribute)}
 				InputLabelProps={{shrink: true}}
@@ -121,6 +131,9 @@ export class TextFormatProperties extends Component {
 
 	handleAttribute(event, item, name, itemAttribute) {
 		const expr = this.getExpression(item, event);
+		if (!expr) {
+			return;
+		}
 		const path = JSG.AttributeUtils.createPath(itemAttribute ? JSG.ItemAttributes.NAME : JSG.TextFormatAttributes.NAME, name);
 		const cmd = new JSG.SetAttributeAtPathCommand(item, path, expr.expression);
 
@@ -133,9 +146,12 @@ export class TextFormatProperties extends Component {
 			return <div />;
 		}
 		const item = this.props.view.getItem();
-		// const fillStyle = this.state.fillStyle;
 		return (
-			<FormGroup>
+			<FormGroup
+				style={{
+					width: '100%'
+				}}
+			>
 				{this.getAttributeHandler("GraphItemProperties.FontName", item, JSG.TextFormatAttributes.FONTNAME, false, [
 					{ value: 'Arial'},
 					{ value: 'Courier New'},

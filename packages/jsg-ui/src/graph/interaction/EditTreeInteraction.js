@@ -144,7 +144,6 @@ export default class EditTreeInteraction extends EditTextInteraction {
 		this._item = controller.getModel();
 		this._selectedItem = controller.getView().getSelectedItem();
 		this._isKeyEditing = isKeyEditing;
-		this._cancel = false;
 
 		viewer.getSelectionView().setVisible(false);
 

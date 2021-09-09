@@ -52,6 +52,14 @@ module.exports = {
 				description: 'Berechnet das Streamsheet neu ohne einen kompletten Streamhseet-Schritt auszulösen'
 			}
 		},
+		CLEARCELLS: {
+			en: { 
+				argumentList: 'Range,Type', 
+				description: 'Removes the value or formula of cells in given range' },
+			de: { 
+				argumentList: 'Bereich,Typ', 
+				description: 'Löscht den Wert oder die Formel aller Zellen im angegebenen Bereich' }
+		},
 		'COLOR.CONVERT': {
 			en: {
 				argumentList: 'Color,SourceFormat,TargetFormat',
@@ -384,11 +392,13 @@ module.exports = {
 		'TABLE.ORDERCOLUMN': {
 			en: {
 				argumentList: 'ColumnRange,ReferenceRange',
-				description: 'Orders the columns in column range according to the corresponding columns in reference range'
+				description:
+					'Orders the columns in column range according to the corresponding columns in reference range'
 			},
 			de: {
 				argumentList: 'Spaltenbereich,Referenzbereich',
-				description: 'Ordnet die Spalten im Spaltenbereich gemäß den korrespondierenden Spalten im Referenzbereich'
+				description:
+					'Ordnet die Spalten im Spaltenbereich gemäß den korrespondierenden Spalten im Referenzbereich'
 			}
 		},
 		'TABLE.UPDATE': {

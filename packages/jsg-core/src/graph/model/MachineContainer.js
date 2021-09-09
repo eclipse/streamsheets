@@ -95,7 +95,7 @@ module.exports = class MachineContainer extends Node {
 	}
 
 	_assignItems() {
-		this.getItems().forEach((item) => {
+		this.subItems.forEach((item) => {
 			if (item instanceof StreamSheetsContainer) {
 				this._processContainer = item;
 			} else if (item instanceof SplitterNode) {

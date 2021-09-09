@@ -119,8 +119,8 @@ describe('array', () => {
 	});
 
 	it('should return error code if no cell is specified', () => {
-		expect(ARRAY()).toBe(ERROR.ARGS);
-		expect(ARRAY(new StreamSheet().sheet)).toBe(ERROR.ARGS);
+		expect(ARRAY().code).toBe(ERROR.ARGS);
+		expect(ARRAY(new StreamSheet().sheet).code).toBe(ERROR.ARGS);
 	});
 
 	// define how to handle cells without any value... => currently we create an empty string!
@@ -130,6 +130,6 @@ describe('array', () => {
 	});
 	it(`should return ${ERROR.INVALID_PARAM} if specified cell range is empty`, () => {
 		const sheet = new StreamSheet().sheet.load({ cells: SHEETS.SIMPLE });
-		expect(ARRAY(sheet, Term.fromString('D1:E1'))).toBe(ERROR.INVALID_PARAM);
+		expect(ARRAY(sheet, Term.fromString('D1:E1')).code).toBe(ERROR.INVALID_PARAM);
 	});
 });

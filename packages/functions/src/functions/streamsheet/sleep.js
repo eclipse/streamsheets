@@ -10,7 +10,7 @@
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
 const { FunctionErrors } = require('@cedalo/error-codes');
-const {	runFunction } = require('../../utils');
+const { runFunction } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
 

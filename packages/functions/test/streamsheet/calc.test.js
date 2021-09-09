@@ -18,7 +18,7 @@ describe('calc', () => {
 	it('should return an error if used in sheet directly', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: { formula: 'A1+1' }, B2: { formula: 'calc()' } } });
 		expect(sheet.cellAt('A1').value).toBe(1);
-		expect(sheet.cellAt('B2').value).toBe(ERROR.INVALID);
+		expect(sheet.cellAt('B2').value.code).toBe(ERROR.INVALID);
 	});
 	it('should recalculate sheet without doing a step', () => {
 		const sheet = new StreamSheet().sheet.load({ cells: { A1: { formula: 'A1+1' } } });

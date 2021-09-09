@@ -37,9 +37,20 @@ const SEC_MS = 1000;
 const MIN_MS = 60 * SEC_MS;
 const HOUR_MS = 60 * MIN_MS;
 const timeregex = new RegExp(/(\d\d?):(\d\d?):?(\d?\d?)\s*(am|pm)?/, 'i');
-const isoregex = /^[+-]?(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z$/;
+// seems sign is not supported by Date.parse()
+// const isoregex = /^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):?(\d{0,2}):?(\d{0,2})\.?(\d{0,3})Z$/;
+const isoregex = /^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2})(:\d{0,2})?(:\d{0,2})?(\.\d{0,3})?Z$/;
 
-const validateISOFormat = str => str && isoregex.test(str) ? str : ERROR.VALUE;
+const padZero = (nr) => (str) => str.padStart(nr, '0');
+const insZero = (nr) => (str = '') => str.substring(1).padStart(nr, '0');
+const padZero2 = padZero(2);
+const insZero2 = insZero(2);
+const insZero3 = insZero(3);
+const isoFormat = (match, YYYY, MM, DD, hh, mm, ss, ms /* , offset, string */) => {
+	if ((ms != null && ss == null) || (ss != null && mm == null)) return undefined;
+	return `${YYYY}-${padZero2(MM)}-${padZero2(DD)}T${padZero2(hh)}:${insZero2(mm)}:${insZero2(ss)}.${insZero3(ms)}Z`;
+};
+const validateISOFormat = (str) => (isoregex.test(str) ? str.replace(isoregex, isoFormat) : ERROR.VALUE);
 
 const timeToSerial = (hrs = 0, mins = 0, secs = 0) => {
 	const ms = (hrs * HOUR_MS) + (mins * MIN_MS) + (secs * SEC_MS);
@@ -77,7 +88,10 @@ const date = (sheet, ...terms) =>
 const datevalue = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withArgCount(1)
-		.mapNextArg(datestr => convert.toString(datestr.value, ERROR.VALUE))
+		.mapNextArg((datestr) => {
+			const value = datestr.value;
+			return FunctionErrors.isError(value) ? value : convert.toString(value, ERROR.VALUE);
+		})
 		.run((datestr) => {
 			const localizer = locale.use({ locale: getLocale(sheet) });
 			return Math.round(ms2serial(localizer.parse(datestr)));

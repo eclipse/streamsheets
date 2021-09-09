@@ -38,6 +38,16 @@ module.exports = {
 				description: 'Gibt den Arkus Tangens basierend auf den übergebenen X und Y Koordinaten zurück'
 			}
 		},
+		CEILING: {
+			en: {
+				argumentList: 'Number,Significance',
+				description: 'Returns number rounded up to the nearest multiple of given significance'
+			},
+			de: {
+				argumentList: 'Zahl,Signifikanz',
+				description: 'Gibt die Zahl zurück, aufgerundet zum nächsten Vielfachen der anagebenen Signifikanz'
+			}
+		},
 		COS: {
 			en: { argumentList: 'Angle', description: 'Returns the cosine value of the value' },
 			de: { argumentList: 'Winkel', description: 'Gibt den Cosinus des Winkels zurück' }
@@ -49,6 +59,16 @@ module.exports = {
 		EVEN: {
 			en: { argumentList: 'Number', description: 'Returns the number rounded up to the nearest event integer' },
 			de: { argumentList: 'Zahl', description: 'Rundet eine Zahl auf die nächste gerade Ganzzahl auf' }
+		},
+		FLOOR: {
+			en: {
+				argumentList: 'Number,Significance',
+				description: 'Returns number rounded down to the nearest multiple of given significance'
+			},
+			de: {
+				argumentList: 'Zahl,Signifikanz',
+				description: 'Gibt die Zahl zurück, abgerundet auf das nächste Vielfache der anagebenen Signifikanz'
+			}
 		},
 		FRAC: {
 			en: { argumentList: 'Number', description: 'Returns the fractional part of a number value' },
@@ -95,7 +115,8 @@ module.exports = {
 			},
 			de: {
 				argumentList: 'Min,Max,MinDelta,MaxDelta,Initialwert',
-				description: 'Erzeugt einen Zufallswert innerhalb eines angegebenen Bereichs, der optional zu- oder abnimmt'
+				description:
+					'Erzeugt einen Zufallswert innerhalb eines angegebenen Bereichs, der optional zu- oder abnimmt'
 			}
 		},
 		ROUND: {

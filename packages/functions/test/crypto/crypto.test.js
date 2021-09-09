@@ -21,19 +21,24 @@ const expectValue = (value) => ({
 describe('hash', () => {
 	it(`should return ${ERROR.ARGS} if called with too few or too many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('crypto.hash()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('crypto.hash("hello","sha256",)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('crypto.hash("hello","sha256","too many")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('crypto.hash()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('crypto.hash("hello","sha256","hex",)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('crypto.hash("hello","sha256","hex","too many")', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if passed term has no value`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('crypto.hash(,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('crypto.hash(A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hash(,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hash(A1)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it(`should return ${ERROR.VALUE} if passed algorithm is unknown`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('crypto.hash("hello", "")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('crypto.hash("hello", "algo")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hash("hello", "")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hash("hello", "algo")', sheet).value.code).toBe(ERROR.VALUE);
+	});
+	it(`should return ${ERROR.VALUE} if passed encoding is unknown`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('crypto.hash("hello",,"")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hash("hello",,"encoding")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should hash a given string', () => {
 		const sheet = new StreamSheet().sheet;
@@ -51,6 +56,15 @@ describe('hash', () => {
 		expect(createTerm('crypto.hash("üöäÜÖÄß","sha256")', sheet).value).toBeDefined();
 		expect(createTerm('crypto.hash("!°§$%&/()=?`","rsa-md5")', sheet).value).toBeDefined();
 	});
+	it('should accept different encodings', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('crypto.hash("hello world","sha512","hex")', sheet).value).toBeDefined();
+		expect(createTerm('crypto.hash("hello world","sha512","base64")', sheet).value).toBeDefined();
+	});
+	it('should default to hex encoding', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('crypto.hash("hello world","sha512")', sheet).value).toEqual(createTerm('crypto.hash("hello world","sha512","hex")', sheet).value);
+	});
 	test('hash of same string is always equal', () => {
 		const sheet = new StreamSheet().sheet;
 		expect(createTerm('crypto.hash("")', sheet).value).toBe(createTerm('crypto.hash("")', sheet).value);
@@ -62,24 +76,24 @@ describe('hash', () => {
 describe('hmac', () => {
 	it(`should return ${ERROR.ARGS} if called with too few or too many arguments`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('crypto.hmac()', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('crypto.hmac("hello")', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('crypto.hmac("hello","secret","sha256",)', sheet).value).toBe(ERROR.ARGS);
-		expect(createTerm('crypto.hmac("hello","secret","sha256","too many")', sheet).value).toBe(ERROR.ARGS);
+		expect(createTerm('crypto.hmac()', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('crypto.hmac("hello")', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('crypto.hmac("hello","secret","sha256","hex",)', sheet).value.code).toBe(ERROR.ARGS);
+		expect(createTerm('crypto.hmac("hello","secret","sha256","hex","too many")', sheet).value.code).toBe(ERROR.ARGS);
 	});
 	it(`should return ${ERROR.VALUE} if passed text or secret has no value`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('crypto.hmac(,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('crypto.hmac(,,)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('crypto.hmac(A1,"secret")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('crypto.hmac("hello","")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('crypto.hmac("hello",A1)', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('crypto.hmac("hello","secret",A1)', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hmac(,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hmac(,,)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hmac(A1,"secret")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hmac("hello","")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hmac("hello",A1)', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hmac("hello","secret",A1)', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it(`should return ${ERROR.VALUE} if passed algorithm is unknown`, () => {
 		const sheet = new StreamSheet().sheet;
-		expect(createTerm('crypto.hmac("hello","secret","")', sheet).value).toBe(ERROR.VALUE);
-		expect(createTerm('crypto.hmac("hello","secret","algo")', sheet).value).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hmac("hello","secret","")', sheet).value.code).toBe(ERROR.VALUE);
+		expect(createTerm('crypto.hmac("hello","secret","algo")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	it('should create an hmac for given string and secret', () => {
 		const sheet = new StreamSheet().sheet;
@@ -96,6 +110,20 @@ describe('hmac', () => {
 		expect(createTerm('crypto.hmac("1234567890","###-:;","md5")', sheet).value).toBeDefined();
 		expect(createTerm('crypto.hmac("üöäÜÖÄß","<<##>>","sha256")', sheet).value).toBeDefined();
 		expect(createTerm('crypto.hmac("!°§$%&/()=?`","lock it","rsa-md5")', sheet).value).toBeDefined();
+	});
+	it('should default to hex encoding', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('crypto.hmac("hello world","****","sha512")', sheet).value).toEqual(createTerm('crypto.hmac("hello world","****","sha512","hex")', sheet).value)
+	});
+	it('should accept different encodings', () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('crypto.hmac("hello world","****","sha512","hex")', sheet).value).toBeDefined();
+		expect(createTerm('crypto.hmac("hello world","****","sha512","base64")', sheet).value).toBeDefined();
+		expect(createTerm('crypto.hmac("hello world","****","sha512","base64url")', sheet).value).toBeDefined();
+	});
+	it(`should return ${ERROR.VALUE} if passed encoding is unknown`, () => {
+		const sheet = new StreamSheet().sheet;
+		expect(createTerm('crypto.hmac("hello world","****","sha512","encoding")', sheet).value.code).toBe(ERROR.VALUE);
 	});
 	test('hmac of same string and secret is always equal', () => {
 		const sheet = new StreamSheet().sheet;

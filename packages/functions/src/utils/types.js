@@ -31,6 +31,10 @@ const TYPE = {
 	MQTT_TOPIC: 'mqtt_topic'
 };
 
+const unwrapPossibleError = (value) => {
+	return (value != null && value.isErrorInfo) ? value.code : value;
+}
+
 const toArray = (sheet, term, byRow, forceFlatOr2d) => {
 	if (term && term.value) {
 		if (isFuncTerm(term, 'array')) {
@@ -205,7 +209,8 @@ function asType(value, config) {
 
 const fromTerm = (f) => (term, ...args) => {
 	if (term && term.value !== undefined && term.value !== null) {
-		const result = f(term.value, ...args);
+		const value = unwrapPossibleError(term.value);
+		const result = f(value, ...args);
 		if (result === undefined) {
 			return ERROR.INVALID_PARAM;
 		}
@@ -223,8 +228,8 @@ const termAsString = fromTerm(convert.toString);
 const termAsEnum = fromTerm(asEnum);
 
 const termAsJSON = (term, config, sheet) => {
-	if (term && term.value) {
-		let value = term.value;
+	let value = term && unwrapPossibleError(term.value);
+	if (value != null && !FunctionErrors.isError(value)) {
 		if (isFuncTerm(term, 'dictionary') || isFuncTerm(term, 'json') || isFuncTerm(term, 'array')) {
 			value = term.value;
 		} else if (Array.isArray(config.fields)) {

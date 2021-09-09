@@ -25,7 +25,7 @@ import ImportDropzone from '../ImportExport/ImportDropzone';
 import { formatDateString } from '../base/listing/Utils';
 import { ImageUploadDialog } from '@cedalo/webui-extensions';
 import { Path } from '../../helper/Path';
-import { Table, TableBody, Tabs, Tab, Fab } from '@material-ui/core';
+import { Paper, Table, TableBody, Tabs, Tab, Fab } from '@material-ui/core';
 import TableSortHeader from '../HelperComponent/TableSortHeader';
 import StreamHelper from '../../helper/StreamHelper';
 import StreamDeleteDialog from '../Admin/streams/StreamDeleteDialog';
@@ -42,7 +42,34 @@ import SortSelector from '../base/sortSelector/SortSelector';
 const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 const PREF_KEY_SORTSTREAMS = 'streamsheets-prefs-streams-sort';
 
+const toDataURL = (image) => {
+	const canvas = document.createElement('canvas');
+	const ctx = canvas.getContext('2d');
+	canvas.width = image.width;
+	canvas.height = image.height;
+	ctx.drawImage(image, 0, 0);
+	return canvas.toDataURL('image/png');
+}
+
 const styles = (theme) => ({
+	tablePaperContainer: {
+		maxHeight: '100%',
+		padding: '24px',
+		overflow: 'auto',
+		boxSizing: 'border-box'
+	},
+	tableContainer: {
+		padding: '32px',
+		maxHeight: '100%',
+		margin: 'auto',
+		position: 'relative'
+	},
+	table: {
+		border: 'none',
+	},
+	toolbar: {
+		backgroundColor: 'white',
+	},
 	tableRoot: {
 		'& > *': {
 			borderBottom: 'unset'
@@ -60,6 +87,8 @@ const styles = (theme) => ({
 class DashBoardComponent extends Component {
 	constructor(props) {
 		super(props);
+
+		this.defaultTitleImage = React.createRef();
 
 		const sort = localStorage.getItem(PREF_KEY_SORTSTREAMS) || 'lastModified_desc';
 		const sortObj = SortSelector.parseSortQuery(sort);
@@ -151,9 +180,12 @@ class DashBoardComponent extends Component {
 		this.setState({
 			dialogMachineTitleImageOpen: false
 		});
-		if (result.imgSrc) {
-			this.props.setTitleImage(this.state.currentMachine, result.imgSrc);
-			this.props.openDashboard(this.state.currentMachine.id);
+		if (result.image) {
+			this.props.setTitleImage(this.state.currentMachine, result.image);
+			const { openDashboard } = this.props;
+			setTimeout(() => {
+				openDashboard(this.state.currentMachine.id);
+			}, 500)
 		}
 	};
 
@@ -198,6 +230,15 @@ class DashBoardComponent extends Component {
 					currentMachine: machine
 				});
 				this.props.openDashboard(machine);
+				break;
+			}
+			case Constants.RESOURCE_MENU_IDS.RESET_TITLE_IMAGE: {
+				const machine = this.props.machines.find((m) => m.id === resourceId);
+				this.props.setTitleImage(machine, toDataURL(this.defaultTitleImage.current));
+				const { openDashboard } = this.props;
+				setTimeout(() => {
+					openDashboard(machine.id);
+				}, 500)
 				break;
 			}
 			case Constants.RESOURCE_MENU_IDS.START: {
@@ -294,7 +335,7 @@ class DashBoardComponent extends Component {
 				minWidth: '170px',
 				fields
 			},
-			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL', width: '20%' },
+			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL' },
 			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic'},
 			{
 				id: 'lastModified',
@@ -480,6 +521,7 @@ class DashBoardComponent extends Component {
 	}
 
 	render() {
+		const { classes } = this.props;
 		const canControl = this.props.rights.includes('machine.edit');
 		const canDelete = this.props.rights.includes('machine.edit');
 		const canView = this.props.rights.includes('machine.view');
@@ -508,10 +550,16 @@ class DashBoardComponent extends Component {
 				label: <FormattedMessage id="Dashboard.setTitleImage" defaultMessage="Set image" />,
 				value: Constants.RESOURCE_MENU_IDS.SET_TITLE_IMAGE
 			});
+			menuOptions.push({
+				label: <FormattedMessage id="Dashboard.resetTitleImage" defaultMessage="Reset image" />,
+				value: Constants.RESOURCE_MENU_IDS.RESET_TITLE_IMAGE
+			});
 		}
 		return (
 			<div style={{ height: '100%' }}>
-				<div style={{ backgroundColor: this.props.theme.wall.backgroundColor }}>
+				<div 
+					className={classes.toolbar}
+				>
 					<div
 						style={{
 							display: 'flex',
@@ -525,11 +573,13 @@ class DashBoardComponent extends Component {
 							onChange={this.handleTabChange}
 						>
 							<Tab
+								id="dashboard-stream-apps"
 								style={{ fontSize: '11pt' }}
 								label={<FormattedMessage value={0} id="Dashboard" defaultMessage="Apps and Services" />}
 							/>
 							{this.props.rights.includes('stream') ? (
 								<Tab
+									id="dashboard-streams" 
 									style={{ fontSize: '11pt' }}
 									label={
 										<FormattedMessage value={1} id="Dashboard.manage" defaultMessage="Streams" />
@@ -543,7 +593,12 @@ class DashBoardComponent extends Component {
 									enterDelay={300}
 									title={<FormattedMessage id="Import.Button.Import" defaultMessage="Import" />}
 								>
-									<IconButton color="primary" aria-label="Menu" onClick={this.handleImport}>
+									<IconButton
+										id="dashboard-button-import" 
+										color="primary"
+										aria-label="Menu"
+										onClick={this.handleImport}
+									>
 										<SvgIcon>
 											<path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
 										</SvgIcon>
@@ -554,7 +609,12 @@ class DashBoardComponent extends Component {
 								enterDelay={300}
 								title={<FormattedMessage id="Dashboard.export" defaultMessage="Export" />}
 							>
-								<IconButton color="primary" aria-label="Menu" onClick={this.handleExport}>
+								<IconButton
+									id="dashboard-button-export"
+									color="primary"
+									aria-label="Menu"
+									onClick={this.handleExport}
+								>
 									<SvgIcon>
 										<path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
 									</SvgIcon>
@@ -567,7 +627,13 @@ class DashBoardComponent extends Component {
 					</div>
 				</div>
 				{this.state.activeTab === 0 ? (
-					<div style={{ height: 'calc(100% - 49px)' }}>
+					<div
+						style={{
+							backgroundColor: this.props.theme.wall.backgroundColor,
+							height: 'calc(100% - 49px)',
+							overflowX: 'auto',
+							overflowY: 'auto'
+						}}>
 						<ImportDropzone>
 							<CombinedResourceListing
 								images
@@ -661,30 +727,44 @@ class DashBoardComponent extends Component {
 								<Add />
 							</Fab>
 						</Tooltip>
-						<Table size="small" aria-label="collapsible table" style={{ minWidth: '1200px' }}>
-							<TableSortHeader
-								height={48}
-								cells={this.getCells()}
-								orderBy={this.state.streamSortBy}
-								order={this.state.streamSortOrder}
-								onRequestSort={this.handleStreamsSort}
-								onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
-							/>
-							<TableBody>
-								{this.getRows().map((row) => (
-									<StreamTableRow
-										key={row.name}
-										row={row}
-										onStreamNew={(type, resource) => this.onStreamNew(type, resource)}
-										onStreamOpen={(resource, type) => this.onStreamOpen(resource, type)}
-										onStreamDelete={(resource, type) => this.onStreamDelete(resource, type)}
-										onStreamReload={(resource) => this.onStreamReload(resource)}
+						<div
+							className={classes.tablePaperContainer}
+						>
+							<Paper 
+								className={classes.tableContainer}
+							>
+								<Table className={classes.table} size="medium" aria-label="collapsible table" >
+									<TableSortHeader
+										height={48}
+										cells={this.getCells()}
+										orderBy={this.state.streamSortBy}
+										order={this.state.streamSortOrder}
+										onRequestSort={this.handleStreamsSort}
+										onFieldToggle={(field, state) => this.onFieldToggle(field, state)}
 									/>
-								))}
-							</TableBody>
-						</Table>
+									<TableBody>
+										{this.getRows().map((row) => (
+											<StreamTableRow
+												key={row.name}
+												row={row}
+												onStreamNew={(type, resource) => this.onStreamNew(type, resource)}
+												onStreamOpen={(resource, type) => this.onStreamOpen(resource, type)}
+												onStreamDelete={(resource, type) => this.onStreamDelete(resource, type)}
+												onStreamReload={(resource) => this.onStreamReload(resource)}
+											/>
+										))}
+									</TableBody>
+								</Table>
+							</Paper>
+						</div>
 					</div>
 				) : null}
+				<img
+					alt='Default stream app tile background'
+					src='/images/preview.png'
+					// style={{ display: 'none' }}
+					ref={this.defaultTitleImage}
+				/>
 			</div>
 		);
 	}

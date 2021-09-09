@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -18,6 +18,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 		this.addConnectorDefinition({
 			id: 'protocolVersion',
 			label: 'Protocol Version',
+			help: {
+				en: 'MQTT Broker Protocol Version',
+				de: 'Protokollversion des MQTT Brokers'
+			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.SELECT_NUM,
 			options: [
 				{
@@ -36,13 +40,20 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			id: 'url',
 			label: 'URL',
 			defaultValue: 'mqtt://mosquitto',
-			help: 'mqtt://, mqtts://, tcp://,tls://, ws://, wss://'
+			help: {
+				en: 'Broker URL: mqtt://, mqtts://, tcp://,tls://, ws://, wss://',
+				de: 'Broker URL: mqtt://, mqtts://, tcp://,tls://, ws://, wss://'
+			}
 		});
 		this.addConnectorDefinition({
 			id: 'userPropertiesConnect',
 			label: {
 				en: 'User Properties (connect)',
 				de: 'User Properties (connect)'
+			},
+			help: {
+				en: 'TODO',
+				de: 'TODO'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.MULTITEXTFIELDPAIRS,
 			advanced: true,
@@ -56,6 +67,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'Static Client Id',
 				de: 'Statische Client Id'
 			},
+			help: {
+				en: 'TODO',
+				de: 'TODO'
+			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
 			defaultValue: false
 		});
@@ -81,6 +96,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'Static Client Id',
 				de: 'Statische Client Id'
 			},
+			help: {
+				en: 'TODO',
+				de: 'TODO'
+			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
 			defaultValue: false
 		});
@@ -106,6 +125,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'Clean',
 				de: 'Clean'
 			},
+			help: {
+				en: 'TODO',
+				de: 'TODO'
+			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
 			defaultValue: true,
 		});
@@ -115,6 +138,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			label: {
 				en: 'Clean',
 				de: 'Clean'
+			},
+			help: {
+				en: 'TODO',
+				de: 'TODO'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
 			defaultValue: true,
@@ -126,8 +153,12 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'User Properties (subscribe)',
 				de: 'User Properties (subscribe)'
 			},
+			help: {
+				en: 'TODO',
+				de: 'TODO'
+			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.MULTITEXTFIELDPAIRS,
-			dependsOnPath: 'protocolVersion',
+			dependsOnPath: 'connector.protocolVersion',
 			dependsOnValue: [5],
 			advanced: true,
 		});
@@ -136,13 +167,21 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			label: {
 				en: 'User Name',
 				de: 'Benutzername'
-			}
+			},
+			help: {
+				en: 'User or client name to connect to the broker',
+				de: 'Benutzer- oder Klientenname, um sich beim Broker anzumelden!'
+			},
 		});
 		this.addConnectorDefinition({
 			id: 'password',
 			label: {
 				en: 'Password',
 				de: 'Kennwort'
+			},
+			help: {
+				en: 'User or client password to connect to the broker',
+				de: 'Benutzer- oder Klientenkennwort, um sich beim Broker anzumelden!'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.PASSWORD
 		});
@@ -179,6 +218,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'Base Topic',
 				de: 'Basistopic'
 			},
+			help: {
+				en: 'Base topic to listen to. This will be prepended to a consumer or producer topic.',
+				de: 'Basistopic, das vor das Konsumenten oder Produzententopic eingefügt wird.'
+			},
 			defaultValue: ''
 		});
 		this.addConnectorDefinition({
@@ -186,6 +229,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			label: {
 				en: 'Retain Message',
 				de: 'Nachricht behalten'
+			},
+			help: {
+				en: 'TODO',
+				de: 'TODO'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
 			defaultValue: false,
@@ -218,6 +265,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 					value: 2
 				}
 			],
+			help: {
+				en: 'Quality of Service',
+				de: 'Servicequalität'
+			},
 			defaultValue: 0,
 			advanced: true
 		});
@@ -228,6 +279,11 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'MQTT Topics (extending base topic)',
 				de: 'MQTT Topics (erweitert das Basistopic)'
 			},
+			help: {
+				en: 'Topic to listen to. This topic will extend the base topic of the connector.',
+				de: 'Topic, dass abgehört werden soll. Dieses Topic ergänzt das Basistopic des Konnektors.'
+			},
+			basePath: 'baseTopic',
 			type: sdk.ProviderConfiguration.FIELDTYPES.TEXTLIST
 		});
 
@@ -237,6 +293,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'Topic',
 				de: 'Topic'
 			},
+			help: {
+				en: 'Topic to publish to.',
+				de: 'Topic zum Publizieren.'
+			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.TEXT
 		});
 
@@ -245,6 +305,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			label: {
 				en: 'User Properties (produce)',
 				de: 'User Properties (produce)'
+			},
+			help: {
+				en: 'TODO',
+				de: 'TODO'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.MULTITEXTFIELDPAIRS,
 			dependsOnPath: 'protocolVersion',

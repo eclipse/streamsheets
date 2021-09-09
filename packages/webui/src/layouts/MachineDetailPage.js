@@ -57,9 +57,13 @@ import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import theme from '../theme';
 import HelpButton from './HelpButton';
+import ThemeButton from './ThemeButton';
+import TourButton from './TourButton';
 // import { ResizeHandler } from './ResizeHandler';
 import { Path } from '../helper/Path';
 import { DialogExtensions } from '@cedalo/webui-extensions';
+import Joyride from 'react-joyride';
+import steps from '../tutorial/machine-steps';
 
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
@@ -76,7 +80,8 @@ export function MachineDetailPage(props) {
 		viewSettings,
 		showViewMode,
 		sharedMachine = false,
-		showTools
+		showTools,
+		tour
 	} = props;
 	// Should be directly on props
 	const machineId = props.match.params.machineId || props.machineId;
@@ -238,6 +243,21 @@ export function MachineDetailPage(props) {
 					width: 'inherit'
 				}}
 			>
+				<Joyride
+					run={tour === 'stream-app'}
+					continuous
+					//   getHelpers={this.getHelpers}
+					scrollToFirstStep
+					showProgress
+					showSkipButton
+					steps={steps}
+					// callback={onTourStateChange}
+					styles={{
+						options: {
+							zIndex: 10000
+						}
+					}}
+				/>
 				{/* <ResizeHandler /> */}
 				<GraphLocaleHandler />
 				<DialogExtensions />
@@ -319,6 +339,8 @@ export function MachineDetailPage(props) {
 									>
 										<NotificationsComponent />
 										<HelpButton />
+										<ThemeButton />
+										<TourButton context="stream-app" />
 										<SettingsMenu />
 									</Toolbar>
 								</div>
@@ -398,6 +420,7 @@ MachineDetailPage.defaultProps = {
 
 function mapStateToProps(state) {
 	return {
+		tour: state.appState.tour,
 		isConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
 		machine: state.monitor.machine,
 		machineName: state.monitor.machine.name,

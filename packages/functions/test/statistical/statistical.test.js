@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { createTerm } = require('../utilities');
-const { StreamSheet } = require('@cedalo/machine-core');
+const { StreamSheet, Machine } = require('@cedalo/machine-core');
 const { FunctionErrors } = require('@cedalo/error-codes');
 
 const ERROR = FunctionErrors.code;
@@ -30,11 +30,11 @@ describe('statistical functions', () => {
 		});
 		it(`should return ${ERROR.DIV0} if no values are available`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A2: 'hello', B2: null, C2: true, D2: 6, E2: 0 } });
-			expect(createTerm('average()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('average(A2)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('average(C22)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('average(A2:B2)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('average(A2:C2)', sheet).value).toBe(ERROR.DIV0);
+			expect(createTerm('average()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('average(A2)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('average(C22)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('average(A2:B2)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('average(A2:C2)', sheet).value.code).toBe(ERROR.DIV0);
 		});
 	});
 	describe('correl', () => {
@@ -59,9 +59,9 @@ describe('statistical functions', () => {
 		});
 		it('must be called with exact 2 parameters', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('correl()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('correl(A2:A6)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('correl(A2:A6, B2:B6, C2:C6)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('correl()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('correl(A2:A6)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('correl(A2:A6, B2:B6, C2:C6)', sheet).value.code).toBe(ERROR.ARGS);
 		});
 		it('should ignore all non-number cells', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: {
@@ -77,17 +77,17 @@ describe('statistical functions', () => {
 				A2: 3, A3: 2, A4: 4, A5: 5, A6: 6, 
 				B2: 9, B3: 7, B4: 12, B5: 15, B6: 17
 			} });
-			expect(createTerm('correl(A2:A3,B2:B6)', sheet).value).toBe(ERROR.NA);
-			expect(createTerm('correl(A2:A6,B2:B5)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('correl(A2:A3,B2:B6)', sheet).value.code).toBe(ERROR.NA);
+			expect(createTerm('correl(A2:A6,B2:B5)', sheet).value.code).toBe(ERROR.NA);
 		});
 		it(`should return a ${ERROR.DIV0} if one of given cell range is empty or the standard deviation is 0`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: {
 				A2: 4, A3: 4, A4: 4, A5: 4, A6: 4, 
 				B2: 9, B3: 7, B4: 12, B5: 15, B6: 17
 			} });
-			expect(createTerm('correl(A7:A12,B2:B6)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('correl(A2:A6,B7:B12)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('correl(A1:A10,A1:A10)', sheet).value).toBe(ERROR.DIV0);
+			expect(createTerm('correl(A7:A12,B2:B6)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('correl(A2:A6,B7:B12)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('correl(A1:A10,A1:A10)', sheet).value.code).toBe(ERROR.DIV0);
 		});
 	});
 	describe('count', () => {
@@ -103,6 +103,77 @@ describe('statistical functions', () => {
 			expect(createTerm('count(C2:E2)', sheet).value).toBe(0);
 			expect(createTerm('count(A2:G2)', sheet).value).toBe(3);
 			expect(createTerm('count(A2:B2, C2:E2, F2)', sheet).value).toBe(3);
+		});
+	});
+	describe('counta', () => {
+		it('should count the number of cells which are defined', () => {
+			const sheet = new StreamSheet().sheet.loadCells({ 
+				 A2: 0, B2: 1, C2: -1,
+				 A3: true, B3: false,
+				 A4: "hello", B4: "world",
+				 A5: { formula: 'json(A4:B4)' },
+				 A6: undefined, B6: null
+			});
+			// single cell or cell-range
+			expect(createTerm('counta(A2)', sheet).value).toBe(1);
+			expect(createTerm('counta(B3:B3)', sheet).value).toBe(1);
+			expect(createTerm('counta(A5)', sheet).value).toBe(1);
+			expect(createTerm('counta(A6)', sheet).value).toBe(0);
+			expect(createTerm('counta(B6:B6)', sheet).value).toBe(0);
+			expect(createTerm('counta(A2:C6)', sheet).value).toBe(8);
+		});
+		it('should support specifying multiple cells and or ranges', () => {
+			const sheet = new StreamSheet().sheet.loadCells({ 
+				A2: 0, B2: 1, C2: -1,
+				A3: true, B3: false,
+				A4: "hello", B4: "world",
+				A5: { formula: 'json(A4:B4)' },
+				A6: undefined, B6: null
+		   });
+		   expect(createTerm('counta(A2:C2, A3:B4, A5, A6:B6)', sheet).value).toBe(8);
+		   expect(createTerm('counta(A6, B6:B6)', sheet).value).toBe(0);
+		});
+		it('should count cells which empty string values too', () => {
+			const sheet = new StreamSheet().sheet.loadCells({ A2: "hello", B2: "world", C2: "" });
+			expect(createTerm('counta(A2:C2)', sheet).value).toBe(3);
+			expect(createTerm('counta(A2:A2, B2:B2, C2)', sheet).value).toBe(3);
+		});
+		it('should count cells with errors too', () => {
+			// should not stop on error!!
+			const sheet = new StreamSheet().sheet.loadCells({ 
+				A2: 0, B2: null,
+				A3: false, B3: ERROR.VALUE,
+				A4: undefined, B4: ERROR.DIV0,
+				A5: 'hello',
+		   });
+		   expect(createTerm('counta(B3:B3)', sheet).value).toBe(1);
+		   expect(createTerm('counta(A2:B5)', sheet).value).toBe(5);
+		});
+		it('should count cells in different sheet', () => {
+			const machine = new Machine();
+			const sheet1 = new StreamSheet({ name: 'S1' }).sheet;
+			const sheet2 = new StreamSheet({ name: 'S2' }).sheet.loadCells({ 
+				A2: 0, B2: 1, C2: -1,
+				A3: true, B3: false,
+				A4: "hello", B4: "world",
+				A5: { formula: 'json(A4:B4' },
+				A6: undefined, B6: null
+		   });
+		   machine.addStreamSheet(sheet1.streamsheet);
+		   machine.addStreamSheet(sheet2.streamsheet);
+		   // single cell
+		   expect(createTerm('counta(S2!A2:A2)', sheet1).value).toBe(1);
+		   expect(createTerm('counta(S2!B3)', sheet1).value).toBe(1);
+		   expect(createTerm('counta(S2!A6:A6)', sheet1).value).toBe(0);
+		   expect(createTerm('counta(S2!B6)', sheet1).value).toBe(0);
+		   expect(createTerm('counta(S2!A6:B6)', sheet1).value).toBe(0);
+		   expect(createTerm('counta(S2!A2:C2, S2!A3:B4, S2!A5:A5, S2!A6:B6)', sheet1).value).toBe(8);
+		});
+		it(`should return ${ERROR.ARGS} if no value is given`, () => {
+			const sheet1 = new StreamSheet({ name: 'S1' }).sheet;
+			expect(createTerm('counta()', sheet1).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('counta(,)', sheet1).value).toBe(0);
+			expect(createTerm('counta(,,,)', sheet1).value).toBe(0);
 		});
 	});
 	describe('forecast', () => {
@@ -121,35 +192,35 @@ describe('statistical functions', () => {
 		});
 		it('should take exactly 3 arguments', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('forecast()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('forecast(A2:A6)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('forecast(A2:A6, B2:B6)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('forecast(A2:A6, B2:B6, C2:C6, D2:D6)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('forecast()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('forecast(A2:A6)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('forecast(A2:A6, B2:B6)', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('forecast(A2:A6, B2:B6, C2:C6, D2:D6)', sheet).value.code).toBe(ERROR.ARGS);
 		});
 		it(`should return ${ERROR.VALUE} if first parameter is non numeric`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('forecast(, B2:B6, C2:C6)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('forecast("", B2:B6, C2:C6)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('forecast("hello", B2:B6, C2:C6)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('forecast(true, B2:B6, C2:C6)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('forecast(false, B2:B6, C2:C6)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('forecast(, B2:B6, C2:C6)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('forecast("", B2:B6, C2:C6)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('forecast("hello", B2:B6, C2:C6)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('forecast(true, B2:B6, C2:C6)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('forecast(false, B2:B6, C2:C6)', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		it(`should return ${ERROR.NA} if given cell ranges are empty or not equal length`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: {
 				A2: 6, A3: 7, A4: 9, A5: 15, A6: 21,
 				B2: 20, B3: 28, B4: 31, B5: 38, B6: 40
 			} });
-			expect(createTerm('forecast(30,A2:A6,B2:B4)', sheet).value).toBe(ERROR.NA);
-			expect(createTerm('forecast(30,A7:A12,B7:B12)', sheet).value).toBe(ERROR.NA);
-			expect(createTerm('forecast(30,A7:A12,B2:B6)', sheet).value).toBe(ERROR.NA);
-			expect(createTerm('forecast(30,A2:A6,B7:B12)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('forecast(30,A2:A6,B2:B4)', sheet).value.code).toBe(ERROR.NA);
+			expect(createTerm('forecast(30,A7:A12,B7:B12)', sheet).value.code).toBe(ERROR.NA);
+			expect(createTerm('forecast(30,A7:A12,B2:B6)', sheet).value.code).toBe(ERROR.NA);
+			expect(createTerm('forecast(30,A2:A6,B7:B12)', sheet).value.code).toBe(ERROR.NA);
 		});
 		it(`should return ${ERROR.DIV0} if variance of second cell range is 0`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: {
 				A2: 6, A3: 7, A4: 9, A5: 15, A6: 21,
 				B2: 4, B3: 4, B4: 4, B5: 4, B6: 4
 			} });
-			expect(createTerm('forecast(30,A2:A6,B2:B6)', sheet).value).toBe(ERROR.DIV0);
+			expect(createTerm('forecast(30,A2:A6,B2:B6)', sheet).value.code).toBe(ERROR.DIV0);
 		});
 	});
 	describe('max', () => {
@@ -229,13 +300,13 @@ describe('statistical functions', () => {
 					A4: 13459
 				}
 			});
-			expect(createTerm('stdev.s()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('stdev.s(B1)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('stdev.s(B1:B11)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('stdev.s(A2:A3)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('stdev.s(A4)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('stdev.s(A4:A4)', sheet).value).toBe(ERROR.DIV0);
-			expect(createTerm('stdev.s(A2:A4)', sheet).value).toBe(ERROR.DIV0);
+			expect(createTerm('stdev.s()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('stdev.s(B1)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('stdev.s(B1:B11)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('stdev.s(A2:A3)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('stdev.s(A4)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('stdev.s(A4:A4)', sheet).value.code).toBe(ERROR.DIV0);
+			expect(createTerm('stdev.s(A2:A4)', sheet).value.code).toBe(ERROR.DIV0);
 		});
 		it('should return an error if values contain an error', () => {
 			const sheet = new StreamSheet().sheet.load({
@@ -254,12 +325,12 @@ describe('statistical functions', () => {
 					A11: 1299,
 				}
 			});
-			expect(createTerm('stdev.s(A2:A5)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stdev.s(A5:A12)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stdev.s(A2:A12)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stdev.s(A2, A3, A4, A5)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stdev.s(A5, A6, A7, A8, A9, A10, A11)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('stdev.s(A2, A3, A4, A5, A6, A7, A8, A9, A10, A11)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('stdev.s(A2:A5)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stdev.s(A5:A12)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stdev.s(A2:A12)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stdev.s(A2, A3, A4, A5)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stdev.s(A5, A6, A7, A8, A9, A10, A11)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('stdev.s(A2, A3, A4, A5, A6, A7, A8, A9, A10, A11)', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 });

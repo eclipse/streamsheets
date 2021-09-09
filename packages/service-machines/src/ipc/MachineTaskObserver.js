@@ -35,11 +35,8 @@ class MachineTaskObserver {
 	}
 
 	handleClose(code, signal) {
-		// eslint-disable-next-line
 		logger.info(
-			`machine "${this.runner.name}(${
-				this.runner.id
-			}" closes with exit-code: ${code} and signal: ${signal}`
+			`machine "${this.runner.name}(${this.runner.id}" closes with exit-code: ${code} and signal: ${signal}`
 		);
 		this.stopTask();
 	}
@@ -51,19 +48,14 @@ class MachineTaskObserver {
 	}
 	handleError(err) {
 		logger.info(
-			`machine "${this.runner.name}(${this.runner.id}" has error: ${
-				err.message
-			}`
+			`machine "${this.runner.name}(${this.runner.id}" has error: ${err.message}`
 		);
 		logger.error(err);
 		this.stopTask();
 	}
 	handleExit(code, signal) {
-		// eslint-disable-next-line
 		logger.info(
-			`machine "${this.runner.name}(${
-				this.runner.id
-			}" exits with exit-code: ${code} and signal: ${signal}`
+			`machine "${this.runner.name}(${this.runner.id}" exits with exit-code: ${code} and signal: ${signal}`
 		);
 		this.stopTask();
 	}

@@ -11,6 +11,7 @@
 /* global window document */
 
 import {
+	CellRange,
 	CompoundCommand,
 	default as JSG,
 	Dictionary,
@@ -23,7 +24,7 @@ import {
 	Notification,
 	NotificationCenter,
 	Point,
-	SetTextCommand,
+	SetTextCommand, SheetCommandFactory,
 	TextFormatAttributes,
 	TextNodeAttributes
 } from '@cedalo/jsg-core';
@@ -115,6 +116,14 @@ class EditTextInteraction extends AbstractInteraction {
 				canvas.parentNode.removeChild(this.div);
 				// triggers blur-event!!
 				this.div = undefined;
+				if (this.selectBtn !== undefined) {
+					canvas.parentNode.removeChild(this.selectBtn);
+					this.selectBtn = undefined;
+				}
+				if (this.optionsDiv !== undefined) {
+					canvas.parentNode.removeChild(this.optionsDiv);
+					this.optionsDiv = undefined;
+				}
 			}
 			this._controller = undefined;
 			if (this._toolBar !== undefined) {
@@ -230,26 +239,21 @@ class EditTextInteraction extends AbstractInteraction {
 		const onSelect = () => {
 			this._formatInfo.reset();
 		};
-
 		const onMouseDown = () => {};
-
 		const onMouseUp = () => {
 			setTimeout(() => {
 				this.updateToolbar(viewer);
 			}, 100);
 		};
-
 		const onKeyUp = (ev) => {
 			this.updateToolbar(viewer);
 			return this.handleKeyUp(ev);
 		};
-
 		const onKeyDown = (ev) => this.handleKeyDown(ev);
 		const onKeyPress = (ev) => this.handleKeyPress(ev);
 		const onChange = (ev) => this.handleChange(ev);
 		const onBlur = (ev) => this.handleBlur(ev);
 		const onHandlePaste = (ev) => this.handlePaste(ev);
-
 		const onDragDisable = (ev) => {
 			ev.preventDefault();
 			return false;
@@ -267,15 +271,15 @@ class EditTextInteraction extends AbstractInteraction {
 
 		this._controller = controller;
 		this._item = controller.getModel();
-
 		this.showTextNode(viewer);
 
 		// this._item.setItemAttribute(ItemAttributes.VISIBLE, false);
 		this._item._editing = true;
+		this._controlType = this._item.getItemAttributes().getType().getValue();
+		this._selectSize = (this._controlType === 3 || this._controlType === 2) ? 25 : 0;
+
 		event.doRepaint = true;
 		this._item.getGraph().markDirty();
-
-		this._cancel = false;
 
 		viewer.getSelectionView().setVisible(false);
 
@@ -286,18 +290,13 @@ class EditTextInteraction extends AbstractInteraction {
 
 		const div = document.createElement('div');
 
-		// set up DIV to reflect TextNode format
-		// global css settings
-
-		if (!this.isViewMode(controller)) {
+		if (!this.isViewMode(controller) && this._controlType !== 2) {
 			div.contentEditable = 'true';
 		}
 
-		//    div.style.resize = "none";
 		div.id = 'jsgTextEdit';
 		div.tabIndex = '5';
 		div.zIndex = 100;
-		// on top of everything
 		div.style.position = 'absolute';
 		div.style.minHeight = '11px';
 		div.style.minWidth = '30px';
@@ -313,6 +312,9 @@ class EditTextInteraction extends AbstractInteraction {
 
 		div.style.whiteSpace = 'normal';
 
+		if (this._item.getFormat().getLineStyle().getValue() !== FormatAttributes.LineStyle.NONE) {
+			div.style.outline = '0px solid transparent';
+		}
 		// css settings due to TextNode Format
 		div.style.background =
 			this._item
@@ -343,14 +345,13 @@ class EditTextInteraction extends AbstractInteraction {
 			div.style.color = color;
 		}
 
-
 		div.style.textAlign = this._item.getTextAlign();
 
 		// padding around text
 		const attributes = this._item.getItemAttributes();
 		div.style.paddingLeft = `${cs.logToDeviceXNoZoom(attributes.getLeftMargin().getValue(), false)}px`;
 		div.style.paddingTop = `${cs.logToDeviceYNoZoom(attributes.getTopMargin().getValue(), false)}px`;
-		div.style.paddingRight = `${cs.logToDeviceXNoZoom(attributes.getRightMargin().getValue(), false)}px`;
+		div.style.paddingRight = `${cs.logToDeviceXNoZoom(attributes.getRightMargin().getValue(), false) + this._selectSize}px`;
 		div.style.paddingBottom = `${cs.logToDeviceYNoZoom(attributes.getBottomMargin().getValue(), false)}px`;
 		div.autofocus = true;
 
@@ -374,8 +375,27 @@ class EditTextInteraction extends AbstractInteraction {
 		// place div and scroll div into view, if necessary
 		this.updateTextArea(viewer, false, true);
 
+		if (this._controlType === 2 || this._controlType === 3) {
+			this.selectBtn = document.createElement('div');
+			this.selectBtn.id = 'jsgTextSelect';
+			this.selectBtn.tabIndex = '6';
+			this.selectBtn.zIndex = 101;
+			this.selectBtn.style.position = 'absolute';
+			this.selectBtn.style.height = `${this._selectSize}px`;
+			this.selectBtn.style.width = `${this._selectSize}px`;
+			this.selectBtn.style.display = 'inline-block';
+			this.selectBtn.style.backgroundImage = `url(lib/res/svg/arrowdown.svg)`;
+			this.selectBtn.style.backgroundPosition = 'center';
+			this.selectBtn.style.backgroundRepeat = 'no-repeat';
+			this.selectBtn.style.cursor = 'pointer';
+			this.selectBtn.addEventListener('mousedown', (ev) => this.handleOptionsMouseDown(canvas), false);
+
+			canvas.parentNode.appendChild(this.selectBtn);
+			this.handleOptionsMouseDown(canvas);
+		}
+
 		// select complete text
-		if (window.getSelection) {
+		if (window.getSelection && this._controlType !== 2) {
 			const selection = window.getSelection();
 			const range = document.createRange();
 			let elem = div;
@@ -414,6 +434,73 @@ class EditTextInteraction extends AbstractInteraction {
 		}
 
 		this._startText = this._getNewText();
+	}
+
+	generateOptionsHTML() {
+		let html = '';
+		const item = this._item;
+
+		const formatRange = item.getItemAttributes().getOptionsRange().getValue();
+		if (formatRange) {
+			const view = this.isWorksheetView();
+			const sheet = view.getItem();
+			if (sheet && typeof formatRange === 'string') {
+				const frange = CellRange.parse(formatRange, sheet);
+				if (frange) {
+					const textFormat = item.getTextFormat();
+					frange.shiftFromSheet();
+					for (let i = frange.getY1(); i <= frange.getY2(); i += 1) {
+						const cell = frange._worksheet.getDataProvider().getRC(frange.getX1(), i);
+						if (cell && cell.getValue() !== undefined) {
+							html += `<div id="option${i}" style="padding: 3px;background-color: ${JSG.theme.fill}">`;
+							html += `<p>${cell.getValue()}</p>`;
+							// html += `<p style="font-size: ${textFormat.getFontSize().getValue()}pt; font-family: ${textFormat.getFontName().getValue()};">${cell.getValue()}</p>`;
+							html += '</div>';
+						}
+					}
+				}
+			}
+		}
+
+		return html;
+	}
+
+
+	handleOptionsMouseDown(canvas) {
+		const html = this.generateOptionsHTML();
+		const textFormat = this._item.getTextFormat();
+
+		if (this.optionsDiv === undefined) {
+			const y = this.div.offsetTop + this.div.clientHeight + 5;
+			this.optionsDiv = document.createElement('div');
+			this.optionsDiv.style.position = 'absolute';
+			this.optionsDiv.style.fontFamily = `${textFormat.getFontName().getValue()}`;
+			this.optionsDiv.style.fontSize = `${textFormat.getFontSize().getValue()}pt`;
+			this.optionsDiv.style.width = `${this.div.offsetWidth - 25}px`;
+			this.optionsDiv.style.zIndex = '1000';
+			this.optionsDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y}px`;
+			this.optionsDiv.style.overflowY = 'auto';
+			this.optionsDiv.style.color = JSG.theme.text;
+			this.optionsDiv.style.cursor = 'default';
+			this.optionsDiv.style.wordBreak = 'break-word';
+			this.optionsDiv.style.backgroundColor = JSG.theme.listback;
+			this.optionsDiv.style.borderRadius = `4px`;
+			this.optionsDiv.style.border = `none`;
+			this.optionsDiv.style.boxShadow = '0px 5px 5px -3px rgb(0 0 0 / 20%), 0px 8px 10px 1px rgb(0 0 0 / 14%), 0px 3px 14px 2px rgb(0 0 0 / 12%)';
+			this.optionsDiv.style.left = `${this.div.offsetLeft}px`;
+			this.optionsDiv.style.top = `${y}px`;
+			canvas.parentNode.appendChild(this.optionsDiv);
+		}
+		this.optionsDiv.innerHTML = html;
+		const children = [...this.optionsDiv.childNodes];
+		children.forEach((child) => {
+			child.addEventListener('mouseup', (ev) => this.handleOptionListMouseDown(ev), false);
+		});
+	};
+
+	handleOptionListMouseDown(event) {
+		this.div.innerHTML = event.currentTarget.textContent;
+		this.finishInteraction(undefined, this.getViewer());
 	}
 
 	/**
@@ -529,21 +616,28 @@ class EditTextInteraction extends AbstractInteraction {
 	 * @return {Boolean} Event return
 	 */
 	handleKeyDown(ev) {
-		switch (ev.keyCode) {
-			case 9:
-				// tab
+		switch (ev.key) {
+			case 'Tab':
 				ev.preventDefault();
 				break;
-			case 32:
-				// Space
+			case 'Space':
 				if (ev.altKey) {
 					ev.preventDefault();
 					ev.stopPropagation();
 					return false;
 				}
 				break;
-			case 27: {
-				// ESC
+			case 'Enter':
+				if (this._item.getItemAttributes().getReturnAction().getValue() === 1) {
+					const viewer = this.getViewer();
+					const canvas = viewer.getGraphicSystem().getCanvas();
+					const keyEvent = KeyEvent.fromEvent(canvas, ev, KeyEvent.KeyEventType.DOWN);
+					this.finishInteraction(keyEvent, viewer);
+					ev.preventDefault();
+					ev.stopPropagation();
+				}
+				break;
+			case 'Escape': {
 				const viewer = this.getViewer();
 				const canvas = viewer.getGraphicSystem().getCanvas();
 				const keyEvent = KeyEvent.fromEvent(canvas, ev, KeyEvent.KeyEventType.DOWN);
@@ -582,7 +676,7 @@ class EditTextInteraction extends AbstractInteraction {
 		const viewer = this.getViewer();
 
 		setTimeout(() => {
-			if (this._toolBar === undefined) {
+			if (this._toolBar === undefined && this.optionsDiv === undefined) {
 				if (this.div !== undefined) {
 					this.finishInteraction(undefined, viewer);
 				}
@@ -590,6 +684,7 @@ class EditTextInteraction extends AbstractInteraction {
 			}
 			if (
 				ev.relatedTarget &&
+				this._toolBar &&
 				ev.relatedTarget !== this._toolBar._div &&
 				ev.relatedTarget.tagName.toLowerCase() !== 'select'
 			) {
@@ -616,6 +711,14 @@ class EditTextInteraction extends AbstractInteraction {
 	 * @return {String} Text content of TextNode.
 	 */
 	getEditText(item) {
+		const view = this.isWorksheetView();
+		const expr = item.getText();
+		if (view && expr.hasFormula() && item.getItemAttributes().getType().getValue() === 0) {
+			return !expr.hasTerm() ?
+				`=${expr.getFormula()}`
+				: expr.toLocaleString(JSG.getParserLocaleSettings(), { item: view.getItem(), useName: true });
+		}
+
 		return item.repair(item.getText().getValue());
 	}
 
@@ -748,6 +851,11 @@ class EditTextInteraction extends AbstractInteraction {
 		const cs = viewer.getCoordinateSystem();
 		const canvas = viewer.getCanvas();
 		const center = this._item.getPinPoint();
+		const label = this._item.getExtraLabel();
+		if (label) {
+			center.y += 100;
+		}
+
 		const size = item.getSizeAsPoint();
 		const maxHeight = item
 			.getItemAttributes()
@@ -1003,11 +1111,24 @@ class EditTextInteraction extends AbstractInteraction {
 		this.div.style.left = `${(this._orgX - offsetLeftChangeX - offsetLeftChangeY + canvas.offsetLeft).toFixed()}px`;
 		this.div.style.top = `${(this._orgY - offsetTopChangeY - offsetTopChangeX + canvas.offsetTop).toFixed()}px`;
 
+		const zoom = cs.getZoom();
 		this.div.style.transform = `rotate(${MathUtils.toDegrees(
 			this._angle,
 			true
-		)}deg) scale(${cs.getZoom()},${cs.getZoom()})`;
+		)}deg) scale(${zoom},${zoom})`;
 		this.div.style.transformOrigin = 'left top';
+
+		if (this.selectBtn) {
+			// TODO pos must be calculated to right top border of text div, if rotation
+			this.selectBtn.style.left = `${(this.div.offsetLeft + this.div.offsetWidth * zoom - this._selectSize * zoom)}px`;
+			this.selectBtn.style.top = this.div.style.top;
+			this.selectBtn.style.height = `${this.div.offsetHeight}px`;
+			this.selectBtn.style.transform = `rotate(${MathUtils.toDegrees(
+				this._angle,
+				true
+			)}deg) scale(${zoom},${zoom})`;
+			this.selectBtn.style.transformOrigin = 'left top';
+		}
 
 		if (this._toolBar !== undefined) {
 			this._toolBar.place(this.div.getBoundingClientRect());
@@ -1114,12 +1235,47 @@ class EditTextInteraction extends AbstractInteraction {
 			p[i].parentNode.removeChild(p[i]);
 		}
 
+		if (this.div.childNodes.length === 1 && this.div.childNodes[0].tagName === 'P') {
+			return this.div.innerText;
+		}
+
 		return this.div.innerHTML;
 	}
 
 	createSetTextCommand(item) {
-		const newText = this._getNewText();
-		return new SetTextCommand(item, this._undoText, newText);
+		let newText = this._getNewText();
+		let cmd;
+		const view = this.isWorksheetView();
+		const sheet = view.getItem();
+
+		const expr = item.getText();
+		if (expr._cellref) {
+			const range = CellRange.parse(expr._cellref, sheet);
+			if (range) {
+				range.shiftFromSheet();
+				const cell = range.getSheet().getDataProvider().createRC(range.getX1(), range.getY1());
+				if (cell) {
+					range.shiftToSheet();
+					const cellData = [{
+						reference: range.toString(),
+						value: newText
+					}];
+					expr.setTermValue(newText);
+					cell.setValue(newText);
+					cell.setTargetValue(newText);
+					cmd = SheetCommandFactory.create('command.SetCellsCommand', range.getSheet(), cellData, false);
+				}
+			}
+		} else {
+			try {
+				newText = sheet.textToExpression(newText).expression;
+				cmd = new SetTextCommand(item, this._undoText, newText);
+				// eslint-disable-next-line no-empty
+			} catch (e) {
+			}
+		}
+
+		return cmd;
 	}
 
 	willFinish(event, viewer) {
@@ -1136,7 +1292,7 @@ class EditTextInteraction extends AbstractInteraction {
 		if (doApply) {
 			// this is necessary as text change does not trigger an GRPAHITEM_CHANGED event and stream eventhandler does get informed
 			// about the text change, but the visible change. But then the text content must be set to update the formula
-			this._item.setText(this._getNewText());
+			// this._item.setText(this._getNewText());
 			const notification = new Notification(GraphItemController.ITEM_CHANGED_NOTIFICATION, this);
 			const notEvent = new Event(Event.CUSTOM, 0);
 			notEvent.source = this._item;
@@ -1164,13 +1320,6 @@ class EditTextInteraction extends AbstractInteraction {
 				interactionHandler.execute(cmd);
 			}
 		}
-
-		// const notification = new Notification(GraphItemController.ITEM_CHANGED_NOTIFICATION, this);
-		// const notEvent = new Event(Event.CUSTOM, 0);
-		// notEvent.source = this._item;
-		// notification.event = notEvent;
-		// notification.viewer = viewer;
-		// NotificationCenter.getInstance().send(notification);
 
 		return doApply;
 	}

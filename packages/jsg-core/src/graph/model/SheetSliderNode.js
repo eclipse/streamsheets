@@ -29,10 +29,10 @@ module.exports = class SheetSliderNode extends Node {
 
 		this.getItemAttributes().setContainer(false);
 		this.addAttribute(new StringAttribute('title', 'Slider'));
-		this.addAttribute(new Attribute('value', new Expression(50)));
-		this.addAttribute(new Attribute('min', new Expression(0)));
-		this.addAttribute(new Attribute('max', new Expression(100)));
-		this.addAttribute(new Attribute('step', new Expression(5)));
+		this.addAttribute(new Attribute('value', new NumberExpression(50)));
+		this.addAttribute(new Attribute('min', new NumberExpression(0)));
+		this.addAttribute(new Attribute('max', new NumberExpression(100)));
+		this.addAttribute(new Attribute('step', new NumberExpression(5)));
 		this.addAttribute(new StringAttribute('marker', ''));
 		this.addAttribute(new Attribute('formatrange', new Expression(0)));
 	}
@@ -104,7 +104,7 @@ module.exports = class SheetSliderNode extends Node {
 		}
 
 		let expr;
-		const params = {useName: true, item: sheet};
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {
@@ -183,7 +183,7 @@ module.exports = class SheetSliderNode extends Node {
 		}
 
 		let expr;
-		const params = { useName: true, item: sheet };
+		const params = {useName: true, item: sheet, forceName: true};
 
 		term.iterateParams((param, index) => {
 			switch (index) {

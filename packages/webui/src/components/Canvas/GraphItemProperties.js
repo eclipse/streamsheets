@@ -19,12 +19,8 @@ import {
 	MenuItem,
 	Paper,
 	Slide,
-	// FormControl,
 	TextField
-	// Typography
 } from '@material-ui/core';
-// import PropTypes from 'prop-types';
-// import { FormattedMessage } from 'react-intl';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import JSG from '@cedalo/jsg-ui';
@@ -41,6 +37,7 @@ import {TextFormatProperties} from "./TextFormatProperties";
 import {GeometryProperties} from "./GeometryProperties";
 import {AttributeProperties} from "./AttributeProperties";
 import {EventProperties} from "./EventProperties";
+import {LayoutProperties} from "./LayoutProperties";
 
 const styles = {
 	icon: {
@@ -125,12 +122,13 @@ export class GraphItemProperties extends Component {
 	}
 
 	getSelectedCategory() {
-		const selection = this.state.view.getSelectedPropertyCategory();
+		const view = this.state.view;
+		const selection = view.getSelectedPropertyCategory();
 		if (selection !== undefined) {
 			return selection;
 		}
-		if (this.state.category === '' || !this.state.view.isValidPropertyCategory(this.state.category)) {
-			return this.state.view.getDefaultPropertyCategory();
+		if (this.state.category === '' || !view.getItem().isValidPropertyCategory(this.state.category)) {
+			return view.getItem().getDefaultPropertyCategory();
 		}
 
 		return this.state.category;
@@ -143,7 +141,7 @@ export class GraphItemProperties extends Component {
 
 		view.setSelectedPropertyCategory(data, 0);
 
-		if (view.isValidPropertyCategory(data[0])) {
+		if (item.isValidPropertyCategory(data[0])) {
 			this.setState({
 				category: data[0]
 			})
@@ -231,8 +229,10 @@ export class GraphItemProperties extends Component {
 				return <TextFormatProperties view={this.state.view}/>;
 			case 'attributes':
 				return <AttributeProperties view={this.state.view}/>;
+			case 'layout':
+				return <LayoutProperties view={this.state.view} dummy={this.state.dummy}/>;
 			case 'events':
-				return <EventProperties view={this.state.view}/>;
+				return <EventProperties view={this.state.view} dummy={this.state.dummy}/>;
 			default:
 				if (this.state.view.isNewChart) {
 					return <StreamChartProperties view={this.state.view}/>;

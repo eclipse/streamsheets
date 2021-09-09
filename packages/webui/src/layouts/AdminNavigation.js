@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import { AdminNavigationExtensions } from '@cedalo/webui-extensions';
 import { Path } from '../helper/Path';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import { Storage, People, GroupWork } from '@material-ui/icons';
+import { Receipt as LicenseIcon, Storage, People, GroupWork } from '@material-ui/icons';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from 'react-router-dom';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -80,6 +80,21 @@ export const AdminNavigation = connect(({ user, router }) => ({
 				</Link>
 			) : null}
 
+			<Link
+					style={{ color: 'inherit', textDecoration: 'none' }}
+					to={Path.license()}
+					href={Path.license()}
+					replace
+				>
+					<MenuItem dense selected={isSelected('license')} style={{ height: '50px' }}>
+						<ListItemIcon>
+							<LicenseIcon />
+						</ListItemIcon>
+						<ListItemText
+							primary={<FormattedMessage id="Dashboard.license" defaultMessage="License" />}
+						/>
+					</MenuItem>
+				</Link>
 			<AdminNavigationExtensions open={isPluginsOpen} isSelected={isSelected} setPluginsOpen={setPluginsOpen} />
 		</List>
 	);

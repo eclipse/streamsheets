@@ -19,11 +19,26 @@ import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
 import ResourceCardHeader from './ResourceCardHeader';
 import SortSelector from '../sortSelector/SortSelector';
-import { FormattedMessage, injectIntl } from 'react-intl';
-import {withStyles} from "@material-ui/core/styles";
-// import { shorten } from './Utils';
+import { injectIntl } from 'react-intl';
+import { withStyles} from "@material-ui/core/styles";
+import grey from '@material-ui/core/colors/grey';
+import { getImageByResource } from './Utils';
 
 const PREF_KEY_SORTQUERY = 'streamsheets-prefs-listing-sortby';
+
+const styles = ( /* theme */ ) => ({
+	card: {
+		borderRadius: '5px',
+		border: 'thin solid #e5e5e5',
+		margin: '3px',
+		transition: 'all 0.2s ease-out',
+		'&:hover': {
+			backgroundColor: grey[100],
+			border: `thin solid ${grey[400]}`,
+		    transform: 'scale(1.02)'
+		}
+	}
+});
 
 class ResourcesGrid extends React.Component {
 	static propTypes = {
@@ -105,25 +120,8 @@ class ResourcesGrid extends React.Component {
 		);
 	}
 
-	getImageByResource(resource) {
-		if (!resource) {
-			return `url('images/preview.png')`;
-		}
-
-		switch (resource.className) {
-			case 'ConnectorConfiguration':
-				return `url(${resource.titleImage || 'images/connector.png'})`;
-			case 'ConsumerConfiguration':
-				return `url(${resource.titleImage || 'images/consumer.png'})`;
-			case 'ProducerConfiguration':
-				return `url(${resource.titleImage || 'images/producer.png'})`;
-			default:
-				return `url(${resource.titleImage || 'images/preview.png'})`;
-		}
-	}
-
 	getTiles(resources, columns) {
-		const { menuOptions, icon, titleAttribute, onMenuSelect } = this.props;
+		const { classes, menuOptions, icon, titleAttribute, onMenuSelect } = this.props;
 		let cnt = 0;
 		const result = [];
 
@@ -134,6 +132,7 @@ class ResourcesGrid extends React.Component {
 			cnt += 1;
 			result.push(
 				<GridListTile
+					className={classes.tile}
 					key={`${resource.id}`}
 					cols={1}
 					spacing={5}
@@ -145,9 +144,7 @@ class ResourcesGrid extends React.Component {
 					<Card
 						elevation={2}
 						square
-						style={{
-							margin: '3px'
-						}}
+						className={classes.card}
 					>
 						<CardContent
 							style={{
@@ -162,13 +159,13 @@ class ResourcesGrid extends React.Component {
 									style={{
 										width: '300px',
 										height: '155px',
-										backgroundImage: this.getImageByResource(resource),
+										backgroundImage: `url(${getImageByResource(resource)})`,
 										backgroundSize: '300px 155px'
 									}}
 								/>
 								<div
 									style={{
-										borderTop: '2px solid lightgrey',
+										borderTop: '1px solid lightgrey',
 										display: 'flex',
 										alignItems: 'baseline',
 										justifyContent: 'space-between',
@@ -180,7 +177,7 @@ class ResourcesGrid extends React.Component {
 										component="div"
 										style={{
 											textOverflow: 'ellipsis',
-											fontSize: '8pt',
+											fontSize: '9pt',
 											fontWeight: 'bold',
 											whiteSpace: 'nowrap',
 											color: this.props.theme.palette.primary.main,
@@ -197,7 +194,7 @@ class ResourcesGrid extends React.Component {
 											textOverflow: 'ellipsis',
 											overflow: 'hidden',
 											maxWidth: '130px',
-											fontSize: '7pt'
+											fontSize: '8pt'
 										}}
 									>
 										{jsonpath.query(resource, 'lastModified_formatted')}
@@ -219,7 +216,7 @@ class ResourcesGrid extends React.Component {
 											textOverflow: 'ellipsis',
 											overflow: 'hidden',
 											maxWidth: '130px',
-											fontSize: '7pt'
+											fontSize: '8pt'
 										}}
 									>
 										{jsonpath.query(resource, 'description').length
@@ -293,6 +290,7 @@ class ResourcesGrid extends React.Component {
 					overflowY: 'auto'
 				}}
 			>
+				
 				<div
 					style={{
 						marginLeft: `${Math.max(0, Math.floor((width - columns * 330) / 2))}px`,
@@ -312,14 +310,7 @@ class ResourcesGrid extends React.Component {
 								marginTop: '5px',
 								marginLeft: '5px',
 							}}
-						>
-							<Typography variant="body2" color="textPrimary">
-								<FormattedMessage
-									id="Dashboard.allApps"
-									defaultMessage="All Apps and Services"
-								/>
-							</Typography>
-						</div>
+						/>
 						<div
 						style={{
 							display: 'flex',
@@ -354,4 +345,4 @@ class ResourcesGrid extends React.Component {
 	}
 }
 
-export default injectIntl(withStyles({}, { withTheme: true })( ResourcesGrid));
+export default injectIntl(withStyles(styles, { withTheme: true })( ResourcesGrid));

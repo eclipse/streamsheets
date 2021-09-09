@@ -33,7 +33,7 @@ const LIMIT_QUEUE = new AsyncRequest.Queue(2);
 const testRequest = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
-		.run(() => 
+		.run(() =>
 			AsyncRequest
 				.create(sheet, testRequest.context)
 				.request(() => new Promise((_resolve, _reject) => {
@@ -91,11 +91,13 @@ const noRequest = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.onSheetCalculation()
 		.run(() => AsyncRequest.create(sheet, noRequest.context).reqId());
-SheetParser.context.functions['TEST.REQUEST'] = testRequest;
-SheetParser.context.functions['TEST.REQUEST.FAILING'] = testRequestFailing;
-SheetParser.context.functions['TEST.REQUEST.RESPONSE.FAILING'] = testRequestResponseFailing;
-SheetParser.context.functions['TEST.NOREQUEST'] = noRequest;
-SheetParser.context.functions['TEST.SEQUENTIALREQUEST'] = sequentialRequest;
+SheetParser.context.updateFunctions({
+	'TEST.REQUEST': testRequest,
+	'TEST.REQUEST.FAILING': testRequestFailing,
+	'TEST.REQUEST.RESPONSE.FAILING': testRequestResponseFailing,
+	'TEST.NOREQUEST': noRequest,
+	'TEST.SEQUENTIALREQUEST': sequentialRequest
+});
 
 beforeEach(() => {
 	error = undefined;
@@ -112,7 +114,7 @@ describe('AsyncRequest utilities', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ A1: { formula: 'test.request()' }	});
+		sheet.loadCells({ A1: { formula: 'test.request()' } });
 		const context = sheet.cellAt('A1').term.context;
 		await machine.step();
 		await resolve(RequestState.RESOLVED);
@@ -127,7 +129,7 @@ describe('AsyncRequest utilities', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ 
+		sheet.loadCells({
 			A1: { formula: 'test.request()' },
 			A2: { formula: 'test.request()' }
 		});
@@ -150,7 +152,7 @@ describe('AsyncRequest utilities', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ A1: { formula: 'test.request.failing()' }});
+		sheet.loadCells({ A1: { formula: 'test.request.failing()' } });
 		await machine.step();
 		// await machine.step();
 		const reqId1 = sheet.cellAt('A1').value;
@@ -167,7 +169,7 @@ describe('AsyncRequest utilities', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ A1: { formula: 'test.request.response.failing()' }});
+		sheet.loadCells({ A1: { formula: 'test.request.response.failing()' } });
 		await machine.step();
 		await machine.step();
 		const reqId1 = sheet.cellAt('A1').value;
@@ -184,7 +186,7 @@ describe('AsyncRequest utilities', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ A1: { formula: 'test.request()' }	});
+		sheet.loadCells({ A1: { formula: 'test.request()' } });
 		await machine.step();
 		await machine.step();
 		await machine.step();
@@ -207,7 +209,7 @@ describe('AsyncRequest utilities', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ A1: { formula: 'test.request()' }	});
+		sheet.loadCells({ A1: { formula: 'test.request()' } });
 		await machine.step();
 		await machine.step();
 		await machine.step();
@@ -235,7 +237,7 @@ describe('AsyncRequest utilities', () => {
 		const sheet = new StreamSheet().sheet;
 		let lastReqId;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ A1: { formula: 'test.norequest()' }	});
+		sheet.loadCells({ A1: { formula: 'test.norequest()' } });
 		await machine.step();
 		expect(sheet.cellAt('A1').value).not.toEqual(lastReqId);
 		lastReqId = sheet.cellAt('A1').value;
@@ -250,7 +252,7 @@ describe('AsyncRequest utilities', () => {
 		const machine = new Machine();
 		const sheet = new StreamSheet().sheet;
 		machine.addStreamSheet(sheet.streamsheet);
-		sheet.loadCells({ 
+		sheet.loadCells({
 			A1: { formula: 'A1+1' },
 			B1: { formula: 'if(A1==2, test.sequentialrequest(), "skip")' },
 			A2: { formula: 'A2+1' },

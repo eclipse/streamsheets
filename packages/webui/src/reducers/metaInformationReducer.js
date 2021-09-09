@@ -22,8 +22,22 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const msToDays = (ms) => ms / DAY_IN_MS;
 const expiresInDays = (validUntil) => Math.ceil(msToDays(validUntil - Date.now()));
 const createLicenseInfo = (licenseInfo = {}) => {
-	const { edition, service, validUntil } = licenseInfo;
-	const info = { edition, service };
+	// TODO: extract every information from license object?
+	const {
+		edition = 'Open Source',
+		service,
+		validUntil,
+		issuedBy,
+		issuedTo,
+		maxInstallations
+	} = licenseInfo;
+	const info = {
+		edition,
+		service,
+		issuedBy,
+		issuedTo,
+		maxInstallations
+	};
 	if (validUntil != null) {
 		info.daysLeft = expiresInDays(validUntil);
 	}

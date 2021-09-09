@@ -234,7 +234,7 @@ export default class SheetPlotInteraction extends Interaction {
 						const field1 = vitem.getParamValue(vitem.xAxes[0].formula.getTerm(), 6);
 						const field2 = vitem.getParamValue(vitem.xAxes[0].formula.getTerm(), 9);
 						if (field1 || field2) {
-							const ref = vitem.getDataSourceInfo(vitem.series[0].formula);
+							const ref = vitem.getDataSourceInfo(vitem.series[vitem.series.length - 1]);
 							if (ref.time && ref.xKey && ref.time.values && ref.time.values[ref.xKey]) {
 								let start1;
 								let start2;
@@ -270,7 +270,7 @@ export default class SheetPlotInteraction extends Interaction {
 						}
 					}
 					const cmds = vitem.setParamValues(viewer, vitem.xAxes[0].formula, values, item);
-					if (cmds.length) {
+					if (cmds && cmds.length) {
 						cmds.forEach(cmd => zoomcmds.push(cmd));
 					}
 				});

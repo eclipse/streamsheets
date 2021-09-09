@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,18 +10,18 @@
  ********************************************************************************/
 const { runFunction, terms: onTerms, values: { isEven } } = require('../../utils');
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const { isType } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
-const runWith = (sheet, terms, logic) => 
+const runWith = (sheet, terms, logic) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.run(() => {
 			let error;
 			let res;
-			onTerms.iterateAllTermsValues(sheet, terms, (value, err) => {
+			onTerms.iterateValues(sheet, terms, (value, err) => {
 				error = error || err;
 				const bool = convert.toBoolean(value);
 				// ignore values which could not be converted
@@ -35,11 +35,7 @@ const and = (sheet, ...terms) => runWith(sheet, terms, (res, currbool) => (res =
 
 const or = (sheet, ...terms) => runWith(sheet, terms, (res, currbool) => res || currbool);
 
-// important to return a function, because for condition term value should be evaluated on true/false!
-const termValue = (term, defval) => () => {
-	const value = term != null ? term.value : undefined;
-	return value != null ? value : defval;
-};
+const termValue = (term) => term ? term.value : null;
 
 const getCondition = (term) => {
 	const value = term.value;
@@ -47,12 +43,12 @@ const getCondition = (term) => {
 };
 const condition = (sheet, ...terms) =>
 	runFunction(sheet, terms)
-		.withMinArgs(2)
+		.withMinArgs(1)
 		.withMaxArgs(3)
 		.mapNextArg((cond) => getCondition(cond))
-		.mapNextArg((onTrue) => termValue(onTrue, true)) // return a different value?
-		.mapNextArg((onFalse) => termValue(onFalse, false))
-		.run((cond, onTrue, onFalse) => cond ? onTrue() : onFalse());
+		.addNextTerm()
+		.addNextTerm()
+		.run((cond, truthyTerm, falsyTerm) => (cond ? termValue(truthyTerm) : termValue(falsyTerm)));
 
 const not = (sheet, ...terms) =>
 	runFunction(sheet, terms)
@@ -65,11 +61,11 @@ const not = (sheet, ...terms) =>
 
 
 const _switch = (sheet, ...terms) => {
-	const error = !sheet || terms.length < 3 ? ERROR.ARGS : undefined;
+	const error = !sheet || terms.length < 3 ? ErrorInfo.create(ERROR.ARGS) : undefined;
 	if (!error) {
 		let matchIndex = -1;
 		const value = terms.shift().value;
-		const defval = isEven(terms.length) ? ERROR.NA : terms[terms.length - 1].value;
+		const defval = isEven(terms.length) ? ErrorInfo.create(ERROR.NA) : terms[terms.length - 1].value;
 		terms.some((term, index) => {
 			// index must be even
 			matchIndex = (term.value === value && isEven(index)) ? index : -1;

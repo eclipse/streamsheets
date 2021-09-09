@@ -8,11 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { default as JSG, TextNode, AddItemCommand, GraphUtils, ItemAttributes } from '@cedalo/jsg-core';
+import { default as JSG, TextNode, AddItemCommand, GraphUtils, ItemAttributes, Shape } from '@cedalo/jsg-core';
 import InteractionActivator from './InteractionActivator';
 import EditTextInteraction from './EditTextInteraction';
 import GraphController from '../controller/GraphController';
 import ActionHandle from "./ActionHandle";
+import Cursor from '../../ui/Cursor';
 
 /**
  * An InteractionActivator used to activate a {{#crossLink "EditTextInteraction"}}{{/crossLink}}.
@@ -53,15 +54,41 @@ class EditTextActivator extends InteractionActivator {
 	 *     activator is registered.
 	 */
 	onMouseDown(event, viewer, dispatcher) {
-		if (this.isDisposed === false) {
-			const activeHandle = dispatcher.getActiveHandle();
-			const handleType = activeHandle !== undefined ? activeHandle.getType() : undefined;
-
-			if (handleType === ActionHandle.TYPE.EDIT) {
-				this._startEditTextInteraction(event, viewer, dispatcher, activeHandle.getController());
-			}
+		const controller = this.getEditController(event, viewer);
+		if (controller) {
+			this._startEditTextInteraction(event, viewer, dispatcher, controller);
+			event.keepFocus = true;
+			event.isConsumed = true;
+			event.hasActivated = true;
 		}
 	}
+
+	onMouseMove(event, viewer, dispatcher) {
+
+		const controller = this.getEditController(event, viewer);
+		if (controller) {
+			const type = controller.getModel().getItemAttributes().getType().getValue();
+			dispatcher.setCursor(type === 1 || type === 3 ? Cursor.Style.TEXT : Cursor.Style.EXECUTE);
+			event.isConsumed = true;
+			event.hasActivated = true;
+		}
+	}
+
+	getEditController(event, viewer) {
+		if (viewer.getGraph().getMachineContainer().getMachineState().getValue() === 1) {
+			return undefined;
+		}
+		return viewer.filterFoundControllers(Shape.FindFlags.AUTOMATIC, (cont) => {
+			const item = cont.getModel();
+			if ((item instanceof TextNode) && item.isVisible()) {
+				if (item.getItemAttributes().getType().getValue()) {
+					return true;
+				}
+			}
+			return false;
+		});
+	}
+
 
 	/**
 	 * Implemented to be notified about mouse double click events.</br>
@@ -124,7 +151,7 @@ class EditTextActivator extends InteractionActivator {
 			// F2
 			const selection = viewer.getSelection();
 			if (selection !== undefined && selection.length === 1) {
-				const controller = this._getTextNodeController(dispatcher, selection[0]);
+				const controller = this._getTextNodeController(dispatcher, selection[0], undefined, true);
 				if (controller !== undefined) {
 					this._startEditTextInteraction(event, viewer, dispatcher, controller);
 					event.doRepaint = true;
@@ -148,14 +175,14 @@ class EditTextActivator extends InteractionActivator {
 	 *     <code>undefined</code>.
 	 * @private
 	 */
-	_getTextNodeController(dispatcher, controller, evloc) {
+	_getTextNodeController(dispatcher, controller, evloc, create) {
 		if (controller !== undefined) {
 			const item = controller.getModel();
 			if (!(item instanceof TextNode)) {
 				let loc = evloc ? JSG.ptCache.get().setTo(evloc) : undefined;
 				loc = loc ? GraphUtils.translatePointDown(loc, item.getGraph(), item) : undefined;
 				let editItem = item.getEditableTextSubItem(loc);
-				if (editItem === undefined && item.isAddLabelAllowed()) {
+				if (editItem === undefined && item.isAddLabelAllowed() && create) {
 					this._addLabel(dispatcher, item);
 					editItem = item.getEditableTextSubItem();
 				}

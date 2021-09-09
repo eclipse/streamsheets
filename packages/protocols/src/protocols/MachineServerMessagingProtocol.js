@@ -27,6 +27,7 @@ const LOAD_MACHINE_MESSAGE_TYPE = 'machine_load';
 const UNLOAD_MACHINE_MESSAGE_TYPE = 'machine_unload';
 const LOAD_SHEET_CELLS = 'load_sheet_cells';
 const MACHINE_UPDATE_SETTINGS = 'machine_update_settings';
+const MACHINE_UPDATE_EXTENSION_SETTINGS = 'machine_update_extension_settings';
 const META_INFORMATION_MESSAGE_TYPE = 'meta_information';
 const OPEN_MACHINE_MESSAGE_TYPE = 'machine_open';
 const PAUSE_MACHINE_MESSAGE_TYPE = 'machine_pause';
@@ -75,6 +76,7 @@ const MACHINE_LOCALE_EVENT = 'machine_locale';
 const MACHINE_OPCUA_EVENT = 'machine_opcua';
 const MACHINE_RENAME_EVENT = 'machine_rename';
 const MACHINE_VIEW_SETTINGS_EVENT = 'machine_view_settings';
+const MACHINE_EXTENSION_SETTINGS_EVENT = 'machine_extension_settings';
 const MACHINE_FUNCTIONS_EVENT = 'machine_functions';
 const MACHINE_REMOVE_EVENT = 'machine_remove';
 const MACHINE_STATE_EVENT = 'machine_state';
@@ -114,6 +116,7 @@ module.exports = {
 		LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE,
 		LOAD_SHEET_CELLS,
 		MACHINE_UPDATE_SETTINGS,
+		MACHINE_UPDATE_EXTENSION_SETTINGS,
 		META_INFORMATION_MESSAGE_TYPE,
 		OPEN_MACHINE_MESSAGE_TYPE,
 		PAUSE_MACHINE_MESSAGE_TYPE,
@@ -148,6 +151,7 @@ module.exports = {
 		MACHINE_LAST_MODIFIED_EVENT,
 		MACHINE_LOCALE_EVENT,
 		MACHINE_OPCUA_EVENT,
+		MACHINE_EXTENSION_SETTINGS_EVENT,
 		MACHINE_RENAME_EVENT,
 		MACHINE_VIEW_SETTINGS_EVENT,
 		MACHINE_FUNCTIONS_EVENT,

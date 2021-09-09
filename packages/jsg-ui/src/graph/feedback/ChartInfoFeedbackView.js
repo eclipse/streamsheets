@@ -72,7 +72,7 @@ export default class ChartInfoFeedbackView extends View {
 			graphics.beginPath();
 			if (item.xAxes[0].align === 'bottom' || item.xAxes[0].align === 'top') {
 				x = top.x + item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.width;
-				y = top.y;
+				y = this.point.y;
 
 				if (x - top.x > plotRect.width || x - top.x < 0) {
 					return;
@@ -84,7 +84,7 @@ export default class ChartInfoFeedbackView extends View {
 					graphics.rect(this.point.x, top.y, this.endPoint.x - this.point.x, bottom.y - top.y);
 				}
 			} else {
-				x = top.x;
+				x = this.point.x;
 				y = bottom.y - item.scaleToAxis(item.xAxes[0], this.value.x, undefined, false) * plotRect.height;
 
 				if (y - top.y > plotRect.height || y - top.y < 0) {
@@ -114,7 +114,7 @@ export default class ChartInfoFeedbackView extends View {
 			const height = 400;
 			const getLabel = (value, xValue) => {
 				const { serie } = value;
-				const ref = item.getDataSourceInfo(serie.formula);
+				const ref = item.getDataSourceInfo(serie);
 
 				let label = '';
 				let axis;
@@ -179,7 +179,7 @@ export default class ChartInfoFeedbackView extends View {
 					return;
 				}
 				const serie = item.series[this.selection.dataPoints[0].index];
-				const ref = item.getDataSourceInfo(serie.formula);
+				const ref = item.getDataSourceInfo(serie);
 
 				pieInfo = item.getPieInfo(ref, serie, plotRect, this.selection.dataPoints[0].index);
 				let currentAngle = pieInfo.startAngle;
@@ -224,7 +224,7 @@ export default class ChartInfoFeedbackView extends View {
 					return;
 				}
 				const features = serie.map.mapData.features;
-				const ref = item.getDataSourceInfo(serie.formula);
+				const ref = item.getDataSourceInfo(serie);
 				mapInfo = item.getMapInfo(plotRect, serie, ref);
 				if (!mapInfo) {
 					return;
@@ -312,6 +312,8 @@ export default class ChartInfoFeedbackView extends View {
 				if (y < top.y + pieInfo.yc - plotRect.top) {
 					y -= (values.length + 1) * height + margin * 2;
 				}
+			} else if (y + margin * 2 + (cnt + 1) * height > plotRect.bottom) {
+				y = this.point.y - (space + margin * 2 + (cnt + 1) * height);
 			}
 
 			graphics.beginPath();

@@ -39,7 +39,11 @@ import DecisionDialog from '../components/SheetDialogs/DecisionDialog';
 import { intl } from '../helper/IntlGlobalProvider';
 import MachineHelper from '../helper/MachineHelper';
 import HelpButton from '../layouts/HelpButton';
+import ThemeButton from '../layouts/ThemeButton';
+import TourButton from '../layouts/TourButton';
 import theme from '../theme';
+import Joyride from 'react-joyride';
+import steps from '../tutorial/dashboard-steps';
 
 const DASHBOARD_QUERY = `
 query Machines($scope: ScopeInput!) {
@@ -72,7 +76,7 @@ const useExperimental = (setAppState) => {
 };
 
 export function DashboardPageComponent(props) {
-	const { user, isConnected } = props;
+	const { user, isConnected, tour} = props;
 	const scopeId = user ? user.scope.id : null;
 	const [filter, setFilter] = useState('');
 
@@ -117,6 +121,21 @@ export function DashboardPageComponent(props) {
 				}}
 			>
 				<div>
+					<Joyride
+						run={tour === 'dashboard'}
+						continuous
+						//   getHelpers={this.getHelpers}
+						scrollToFirstStep
+						showProgress
+						showSkipButton
+						steps={steps}
+						// callback={onTourStateChange}
+						styles={{
+							options: {
+								zIndex: 10000
+							}
+						}}
+					/>
 					<ImportDialog />
 					<StartImportDialog />
 					<NewMachineDialog />
@@ -174,6 +193,8 @@ export function DashboardPageComponent(props) {
 								>
 									<NotificationsComponent />
 									<HelpButton />
+									<ThemeButton />
+									<TourButton context="dashboard" />
 									<SettingsMenu />
 								</Toolbar>
 							</div>
@@ -197,6 +218,7 @@ export function DashboardPageComponent(props) {
 
 function mapStateToProps(state) {
 	return {
+		tour: state.appState.tour,
 		isConnected: state.monitor.isConnected,
 		isMachineEngineConnected: MachineHelper.isMachineEngineConnected(state.monitor, state.meta),
 		user: state.user.user,

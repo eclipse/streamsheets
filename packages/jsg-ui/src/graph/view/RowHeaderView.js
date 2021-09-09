@@ -194,9 +194,7 @@ export default class RowHeaderView extends HeaderView {
 
 		graphics.stroke();
 
-		const graph = this.getItem().getGraph();
-		const id = graph.getTopStreamSheetContainerId();
-
+		const id = this.getGraphView().getActiveViewId();
 		if (id !== undefined && id !== wsView.getItem().getId()) {
 			this.drawSelections(graphics);
 		}

@@ -9,7 +9,7 @@
  *
  ********************************************************************************/
 const { convert } = require('@cedalo/commons');
-const { FunctionErrors } = require('@cedalo/error-codes');
+const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const {
 	calculate,
 	criteria,
@@ -28,13 +28,14 @@ const rangeSum = (range) =>
 
 const sumOf = (sheet, terms) => {
 	let error;
-	return terms.reduce((total, term) => {
+	return terms.reduce((total, term, index) => {
 		// range or value:
 		if (!error) {
 			const range = getCellRangeFromTerm(term, sheet);
 			const nr = !range ? convert.toNumber(term.value, ERROR.VALUE) : undefined;
 			error = FunctionErrors.isError(term.value) || FunctionErrors.isError(range) || FunctionErrors.isError(nr);
 			if (!error) total += range ? rangeSum(range) : nr;
+			else error = ErrorInfo.create(error).setParamIndex(index + 1);
 		}
 		return error || total;
 	}, 0);

@@ -86,7 +86,7 @@ export default class StreamChartSeries extends ItemMenuEntry {
 			toolBox.appendChild(checkBox);
 			const label = document.createElement('label');
 			label.for = checkBox.name;
-			const ref = item.getDataSourceInfo(serie.formula);
+			const ref = item.getDataSourceInfo(serie);
 			if (ref && ref.yName !== undefined) {
 				label.innerHTML = ref.yName;
 			} else {

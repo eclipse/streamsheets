@@ -18,6 +18,7 @@ import GraphSynchronizationInteractionHandler from './helper/synchronization/Gra
 import store from './store';
 import StreamHelper from './helper/StreamHelper';
 import { intl } from './helper/IntlGlobalProvider';
+import * as Localizer from './languages/localizer';
 
 const {
 	AddTreeItemCommand,
@@ -28,6 +29,7 @@ const {
 	GraphSettings,
 	MachineGraph,
 	GraphEditor,
+	LayoutNodeActivator,
 	SheetGraphItemEventActivator,
 	SheetPlotActivator,
 	EditTextActivator,
@@ -63,7 +65,6 @@ const {
 	MathUtils,
 	ViewActivator,
 	WorksheetNode,
-	WorksheetView,
 	CellInfoView
 } = JSG;
 
@@ -87,6 +88,7 @@ export default class GraphManager {
 		JSG.imagePool.add('resources/statuswarning.png', 'statuswarning');
 		JSG.SelectionStyle.MARKER_FILL_COLOR = '#90B5EE';
 		JSG.SelectionStyle.FILL = true;
+		JSG.appLocalizer = Localizer;
 
 		const xhr = JSG._createRequest(`maps/mapinfo.json`, {
 			onload(response) {
@@ -170,6 +172,7 @@ export default class GraphManager {
 		defInteraction.addActivator(RotateActivator.KEY, new RotateActivator());
 		defInteraction.addActivator(SheetGraphItemEventActivator.KEY, new SheetGraphItemEventActivator());
 		defInteraction.addActivator(SheetActivator.KEY, new SheetActivator());
+		defInteraction.addActivator(LayoutNodeActivator.KEY, new LayoutNodeActivator());
 		defInteraction.addActivator(EditTextActivator.KEY, new EditTextActivator());
 		defInteraction.addActivator(MoveActivator.KEY, new MoveActivator());
 		defInteraction.addActivator(SheetPlotActivator.KEY, new SheetPlotActivator());
@@ -236,6 +239,7 @@ export default class GraphManager {
 	updateGraph(machineDescriptor) {
 		const command = new LoadMachineCommand(this.getGraph(), machineDescriptor);
 		command.execute();
+		command.sendNotification();
 	}
 
 	loadGraph(graphDefinition, machine) {
@@ -287,8 +291,8 @@ export default class GraphManager {
 	updateViewMode(graph, econtainer) {
 		if (econtainer) {
 			graph.setViewMode(econtainer, 2);
-		} else if (graph.getStreamSheetContainerCount() === 1) {
-			const container = this.getGraph().getStreamSheetsContainer().getFirstStreamSheetContainer();
+		} else if (graph.getVisibleStreamSheetContainerCount() === 1) {
+			const container = this.getGraph().getStreamSheetsContainer().getFirstVisibleStreamSheetContainer();
 			graph.setViewMode(container, 2);
 		} else {
 			const container = graph.getMachineContainer();
@@ -306,9 +310,8 @@ export default class GraphManager {
 	}
 
 	undo() {
-		// const command = this.commandStack.undo();
-		this.redraw();	// TODO: why redraw()??
-		this.getGraphEditor().getInteractionHandler().undo(); // command);
+		this.getGraphEditor().getInteractionHandler().undo();
+		this.redraw();
 
 		// to update toolbar
 		const sheetView = this.getActiveSheetView();
@@ -319,8 +322,8 @@ export default class GraphManager {
 
 	redo() {
 		// const command = this.commandStack.redo();
-		this.redraw(); // TODO: why redraw()??
 		this.getGraphEditor().getInteractionHandler().redo(); // command)
+		this.redraw();
 
 		// to update toolbar
 		const sheetView = this.getActiveSheetView();
@@ -344,7 +347,7 @@ export default class GraphManager {
 
 	getActiveSheetView() {
 		return (this._graphEditor && this._graphEditor.getGraphViewer()) ?
-			this._graphEditor.getGraphViewer().activeView :
+			this._graphEditor.getGraphViewer().getGraphView().activeView :
 			undefined;
 	}
 
@@ -384,12 +387,7 @@ export default class GraphManager {
 			command.add(updateCellsCommand);
 		}
 		command.execute();
-		// if (stats.steps === 0) {
-		// 	this.getInbox(streamsheetId).resetViewports();
-		// 	this.getOutbox(streamsheetId).resetViewports();
-		// 	const itemsNode = this.getOutbox().getMessageListItems();
-		// 	this.execute(new RemoveSelectionCommand(itemsNode, 'global'));
-		// }
+		command.sendNotification();
 
 		// this is because baseExecute set drawing disabled to false
 		this.setDrawingDisabled(true);
@@ -401,7 +399,7 @@ export default class GraphManager {
 		}
 		this.updateStats(streamsheetId, stats);
 		this.updateSheetProperties(streamsheetId, properties);
-		this.updateDataView();
+		this.updateInfoView();
 		this.updateEditBar();
 	}
 
@@ -428,15 +426,12 @@ export default class GraphManager {
 		info.innerHTML = item.getOwnSelection().refToString();
 	}
 
-	updateDataView() {
+	updateInfoView() {
 		const graph = this.getGraph();
-		if (graph && graph.dataView) {
-			const data = graph.dataView;
+		const info = graph && graph.infoView;
+		if (info) {
 			// data.view.showCellValues(data.viewer, data.cell, data.targetRange);
-			CellInfoView.of(WorksheetView.HitCode.DATAVIEW, data.viewer, data.view).showInfo(
-				data.cell,
-				data.targetRange
-			);
+			CellInfoView.of(info.type, info.viewer, info.view, info.options).showInfo(info.cell, info.target);
 		}
 	}
 
@@ -457,6 +452,7 @@ export default class GraphManager {
 		if (machineDescriptor) {
 			const command = new SetMachineCommand(this.getGraph(), machineDescriptor);
 			command.execute();
+			command.sendNotification();
 		}
 	}
 
@@ -464,6 +460,7 @@ export default class GraphManager {
 		const updateCellsCommand = this.updateCells(streamsheetId, cells, shapes, namedCells);
 		if (updateCellsCommand) {
 			updateCellsCommand.execute();
+			updateCellsCommand.sendNotification();
 			// to update editbar
 			const processSheet = this.getStreamSheet(streamsheetId);
 			if (processSheet.getOwnSelection().getActiveCell()) {
@@ -607,21 +604,55 @@ export default class GraphManager {
 	executeCommands(command, options) {
 		if (command && command.type === 'message_add') {
 			return this.addInboxMessage(command.container, command.message);
-		// } else if (command.commands) {
-		// 	command.commands.forEach((subcommand) => {
-		// 		this.executeCommands(subcommand, options);
-				// });
 		}
-		const cmd = SheetCommandFactory.createCommand(this.getGraph(), command, this.getGraphEditor().getGraphViewer());
+
+		const editor = this.getGraphEditor();
+
+		const cmd = SheetCommandFactory.createCommand(this.getGraph(), command, editor.getGraphViewer());
 		if (cmd) {
+			let container;
+			if ((cmd instanceof JSG.AddItemCommand) && (cmd._graphItem instanceof JSG.StreamSheetContainer)) {
+				container = cmd._graphItem;
+				const type = container.getSheetType();
+				switch (type) {
+				case 'dashboard':
+					container.addDashboardSettings();
+					break;
+				default:
+					break;
+				}
+			}
 			// commands received from graph-service are volatile:
 			cmd.isVolatile = true;
 			if (options && options.undo) {
-				this.getGraphEditor().getInteractionHandler().baseUndo(cmd);
+				editor.getInteractionHandler().baseUndo(cmd);
 			} else if (options && options.redo) {
-				this.getGraphEditor().getInteractionHandler().baseRedo(cmd);
+				editor.getInteractionHandler().baseRedo(cmd);
 			} else {
-				this.getGraphEditor().getInteractionHandler().baseExecute(cmd, this.graphWrapper);
+				editor.getInteractionHandler().baseExecute(cmd, this.graphWrapper);
+				if (container) {
+					const type = container.getSheetType();
+					switch (type) {
+					case 'dashboard': {
+						let path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,
+							JSG.WorksheetAttributes.SHOWGRID);
+						const cmp = new JSG.CompoundCommand();
+						cmp.add(new JSG.SetAttributeAtPathCommand(container.getStreamSheet(), path, false));
+						path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,
+							JSG.WorksheetAttributes.SHOWHEADER);
+						cmp.add(new JSG.SetAttributeAtPathCommand(container.getStreamSheet(), path, false));
+						editor.getInteractionHandler().execute(cmp);
+						break;
+					}
+					case 'cellsheet': {
+						this.getGraph()._sheetWrapper.addAttribute(new JSG.NumberAttribute('streamsheet', container.getId()));
+						this.getGraph()._sheetWrapper = undefined;
+						break;
+					}
+					default:
+						break;
+					}
+				}
 			}
 		}
 		return !!cmd;
@@ -865,6 +896,7 @@ export default class GraphManager {
 		const compoundCommand = new CompoundCommand();
 		commands.forEach(command => compoundCommand.add(command));
 		compoundCommand.execute();
+		compoundCommand.sendNotification();
 	}
 
 	updateStreamSheets(streamsheets) {

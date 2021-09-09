@@ -18,23 +18,23 @@ describe('logical functions', () => {
 	describe('and', () => {
 		it(`should return ${ERROR.ARGS} if no parameters are given`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('and()', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('and()', sheet).value.code).toBe(ERROR.ARGS);
 		});
 		it(`should return ${ERROR.VALUE} if reference cell(s) do not exist`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('and(A1)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('and(A1, B1, C1)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('and(A1:A1)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('and(A1:D1, C5)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('and(A1)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('and(A1, B1, C1)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('and(A1:A1)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('and(A1:D1, C5)', sheet).value.code).toBe(ERROR.VALUE);
 		});
 		// DL-1398
 		it(`should return ${ERROR.NAME} for invalid references`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('and(_A1)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('and(A1, °B1, C1)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('and(_A1:A1)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('and(^A1:D1, C5)', sheet).value).toBe(ERROR.NAME);
-			expect(createTerm('and(A1:D1, °C5)', sheet).value).toBe(ERROR.NAME);
+			expect(createTerm('and(_A1)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('and(A1, °B1, C1)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('and(_A1:A1)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('and(^A1:D1, C5)', sheet).value.code).toBe(ERROR.NAME);
+			expect(createTerm('and(A1:D1, °C5)', sheet).value.code).toBe(ERROR.NAME);
 		});
 		it('should return false if at least one cell value is falsy', () => {
 			const sheet = new StreamSheet().sheet;
@@ -72,41 +72,44 @@ describe('logical functions', () => {
 			expect(createTerm('if(A1, "hello", "world")', sheet).value).toBe('hello');
 			expect(createTerm('if(A2, "hello", "world")', sheet).value).toBe('world');
 		});
-		it('should return false as default if condition is false and no false value is provided', () => {
-			const sheet = new StreamSheet().sheet;
-			createCellAt('A2', false, sheet);
-			expect(createTerm('if(A2, "hello")', sheet).value).toBe(false);
-		});
-		it('should require condition and true value', () => {
+		// DL-5187
+		it('should return null for truthy or falsy value if not specified', () => {
 			const sheet = new StreamSheet().sheet;
 			createCellAt('A1', true, sheet);
 			createCellAt('A2', false, sheet);
-			expect(createTerm('if()', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('if(,)', sheet).value).toBe(false);
-			expect(createTerm('if(A1)', sheet).value).toBe(ERROR.ARGS);
-			expect(createTerm('if(A1,)', sheet).value).toBe(true);
-			expect(createTerm('if(A2,,)', sheet).value).toBe(false);
-			expect(createTerm('if(A2,,,)', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('if(A1)', sheet).value).toBe(null);
+			expect(createTerm('if(A2, "hello")', sheet).value).toBe(null);
+		});
+		it('should require condition', () => {
+			const sheet = new StreamSheet().sheet;
+			createCellAt('A1', true, sheet);
+			createCellAt('A2', false, sheet);
+			expect(createTerm('if()', sheet).value.code).toBe(ERROR.ARGS);
+			expect(createTerm('if(,)', sheet).value).toBe(null);
+			expect(createTerm('if(A1)', sheet).value).toBe(null);
+			expect(createTerm('if(A1,)', sheet).value).toBe(null);
+			expect(createTerm('if(A2,,)', sheet).value).toBe(null);
+			expect(createTerm('if(A2,,,)', sheet).value.code).toBe(ERROR.ARGS);
 		});
 		// DL-4099
 		it('should return error value if condition has an error value', () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('if(NA(),true, false)', sheet).value).toBe(ERROR.NA);
-			expect(createTerm('if(NA() > "str1" ,true, false)', sheet).value).toBe(ERROR.NA);
-			expect(createTerm('if(23 < NA(),true, false)', sheet).value).toBe(ERROR.NA);
-			expect(createTerm('if(NA() == NA(),true, false)', sheet).value).toBe(ERROR.NA);
-			expect(createTerm('if("#NA" == NA(),true, false)', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('if(NA(),true, false)', sheet).value.code).toBe(ERROR.NA);
+			expect(createTerm('if(NA() > "str1" ,true, false)', sheet).value.code).toBe(ERROR.NA);
+			expect(createTerm('if(23 < NA(),true, false)', sheet).value.code).toBe(ERROR.NA);
+			expect(createTerm('if(NA() == NA(),true, false)', sheet).value.code).toBe(ERROR.NA);
+			expect(createTerm('if("#NA" == NA(),true, false)', sheet).value.code).toBe(ERROR.NA);
 		});
 		// DL-4099
 		it(`should return ${ERROR.VALUE} if condition is an object itself`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('if(JSON(A1:B1),true, false)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('if(JSON(A1:B1),true, false)', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 	describe('or', () => {
 		it(`should return ${ERROR.ARGS} if no parameters are given`, () => {
 			const sheet = new StreamSheet().sheet;
-			expect(createTerm('or()', sheet).value).toBe(ERROR.ARGS);
+			expect(createTerm('or()', sheet).value.code).toBe(ERROR.ARGS);
 		});
 		it('should return false if no cell value is truthy', () => {
 			const sheet = new StreamSheet().sheet;
@@ -147,12 +150,12 @@ describe('logical functions', () => {
 			const sheet = new StreamSheet().sheet.load({
 				cells: { A1: '', B1: '0', C1: true, A2: '1', B2: 'hello', C2: '' }
 			});
-			expect(createTerm('or(A1)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('or(B1)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('or(A2)', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('or(B2)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('or(A1)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('or(B1)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('or(A2)', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('or(B2)', sheet).value.code).toBe(ERROR.VALUE);
 			expect(createTerm('or(C1:C2)', sheet).value).toBe(true);
-			expect(createTerm('or(D1:D2)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('or(D1:D2)', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 	describe('not', () => {
@@ -174,12 +177,12 @@ describe('logical functions', () => {
 		});
 		it(`should return ${ERROR.VALUE} for non boolean like values`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: 50, A2: 100 } });
-			expect(createTerm('not("")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('not("1")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('not("0")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('not("hello")', sheet).value).toBe(ERROR.VALUE);
-			expect(createTerm('not(A1:A2)', sheet).value).toBe(ERROR.VALUE);
-			// expect(createTerm('not(hello)', sheet).value).toBe(ERROR.VALUE);
+			expect(createTerm('not("")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('not("1")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('not("0")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('not("hello")', sheet).value.code).toBe(ERROR.VALUE);
+			expect(createTerm('not(A1:A2)', sheet).value.code).toBe(ERROR.VALUE);
+			// expect(createTerm('not(hello)', sheet).value.code).toBe(ERROR.VALUE);
 		});
 	});
 	describe('switch', () => {
@@ -191,7 +194,7 @@ describe('logical functions', () => {
 		});
 		it(`should return a default value or ${ERROR.NA} for no match`, () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: 'Sun' } });
-			expect(createTerm('switch(A1, 1, "Sun", 2, "Mon")', sheet).value).toBe(ERROR.NA);
+			expect(createTerm('switch(A1, 1, "Sun", 2, "Mon")', sheet).value.code).toBe(ERROR.NA);
 			expect(createTerm('switch(A1, 1, "Sun", 2, "Mon", "No match")', sheet).value).toBe('No match');
 		});
 	});

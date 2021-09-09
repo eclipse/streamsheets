@@ -8,15 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-/**
- * A JavaScript Graph Library
- * @author Tensegrity Software GmbH
- * @link   http://www.js-graph.com/
- * @license JSG - A JavaScript Graph Library
- * Version_Copyright Tensegrity Software GmbH. Use and distribution currently only with the consent of Tensegrity
- *     Software GmbH! Please read and follow the license agreement provided with this distribution. If there are any
- *     questions regarding the software license, please contact us.
- */
 
 /* eslint-disable no-console */
 const ConsoleLogger = {
@@ -361,6 +352,8 @@ JSG.theme = {
 	chart: 'basic',
 	graph: '#DDDDDD',
 	tool: '#EEEEEE',
+	listback: '#FFFFFF',
+	listborder: '#333333',
 	caption: '#1565c0',
 	captiontext: '#FFFFFF',
 	frame: '#AAAAAA',
@@ -373,6 +366,7 @@ JSG.theme = {
 	border: '#000000',
 	text: '#000000',
 	textlight: '#222222',
+	textdisabled: '#AAAAAA',
 	fill: '#FFFFFF',
 	filllight: '#F1F1F1',
 	selectionback: '#ebebeb',

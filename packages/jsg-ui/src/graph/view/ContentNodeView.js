@@ -125,6 +125,7 @@ class ContentNodeView extends NodeView {
 		this._scrollview.getViewPort().getViewPanelBounds = function(cArea) {
 			// called in scope of ViewPort:
 			const vpBounds = this._viewpanel.getPreferredBounds();
+
 			const minbounds = JSG.rectCache
 				.get()
 				.set(cArea.x - this._vpOffset.x, cArea.y - this._vpOffset.y, cArea.width, cArea.height);
@@ -238,8 +239,10 @@ class ContentNodeView extends NodeView {
 		if (viewSettings.active) {
 			this._viewpanel.getFormat().setFillColor(JSG.theme.sheet);
 		} else {
-			this._viewpanel.getFormat().setFillColor(JSG.theme.graph);
+			const attr = model.getAttributeAtPath('range');
+			this._viewpanel.getFormat().setFillColor(attr ? JSG.theme.sheet : JSG.theme.graph);
 		}
+		model._updateBoundingBox();
 		const box = JSG.boxCache.get();
 		const bounds = this.getBoundingBox(box).toRectangle(JSG.rectCache.get());
 		JSG.boxCache.release(box);
@@ -251,6 +254,16 @@ class ContentNodeView extends NodeView {
 		this._scrollview.setBoundsTo(bounds);
 		this._scrollview.layout();
 		JSG.rectCache.release(bounds);
+
+		this.layoutSubViews();
+	}
+
+	layoutSubViews() {
+		this._viewpanel._subviews[0]._subviews.forEach(view => {
+			if (view.layout)
+				view.layout();
+		});
+
 	}
 
 	/**
