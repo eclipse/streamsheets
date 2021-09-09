@@ -36,10 +36,12 @@ const monitor = new MachineTaskMonitor(machine, channel);
 const requestHandler = new MachineTaskRequestHandler(monitor, channel);
 MachineTaskMessagingClient.register(machine);
 
-setInterval(async () => {
-	const metrics = await MetricsManager.getMetrics();
-	MachineTaskMessagingClient.publishMetrics(metrics);
-}, process.env.STREAMSHEETS_METRICS_INTERVAL || 1000);
+if (process.env.STREAMSHEETS_METRICS_ENABLED) {
+	setInterval(async () => {
+		const metrics = await MetricsManager.getMetrics();
+		MachineTaskMessagingClient.publishMetrics(metrics);
+	}, process.env.STREAMSHEETS_METRICS_INTERVAL || 1000);
+}
 
 const shutdown = async (deleted) => {
 	try {
