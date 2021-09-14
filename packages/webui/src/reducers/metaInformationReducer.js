@@ -25,6 +25,7 @@ const createLicenseInfo = (licenseInfo = {}) => {
 	// TODO: extract every information from license object?
 	const {
 		edition = 'Open Source',
+		invalid,
 		service,
 		validUntil,
 		issuedBy,
@@ -32,6 +33,7 @@ const createLicenseInfo = (licenseInfo = {}) => {
 		maxInstallations
 	} = licenseInfo;
 	const info = {
+		isInvalid: !!invalid,
 		edition,
 		service,
 		issuedBy,

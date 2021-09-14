@@ -53,6 +53,12 @@ const config = {
 		messageId: 'License.Expired',
 		defMessage: 'Your Streamsheets {edition}-license has expired!'
 	},
+	notfound: {
+		Icon: styles.expired.icon,
+		contentStyle: styles.expired.style,
+		messageId: 'License.NotFound',
+		defMessage: 'No valid Streamsheets license found!'
+	},
 	warning: {
 		Icon: styles.willExpire.icon,
 		contentStyle: styles.willExpire.style,
@@ -61,10 +67,12 @@ const config = {
 	}
 };
 
-function LicenseExpireNotification({ edition = '', service = '', daysLeft }) {
+function LicenseExpireNotification({ isInvalid, edition = '', service = '', daysLeft }) {
 	const isExpired = daysLeft < 1;
 	const days = isExpired ? '' : daysLeft.toFixed();
-	const Config = isExpired ? config.expired : config.warning;
+	// eslint-disable-next-line
+	const Config = isInvalid ? config.notfound : (isExpired ? config.expired : config.warning);
+
 
 	const [open, setOpen] = useState(false);
 	const [prevDays, setPrevDays] = useState(-1);
@@ -109,12 +117,14 @@ function LicenseExpireNotification({ edition = '', service = '', daysLeft }) {
 }
 
 LicenseExpireNotification.propTypes = {
+	isInvalid: PropTypes.bool,
 	edition: PropTypes.string,
 	daysLeft: PropTypes.number,
 	service: PropTypes.string
 };
 
 LicenseExpireNotification.defaultProps = {
+	isInvalid: false,
 	edition: '',
 	service: '',
 	daysLeft: 1500

@@ -503,6 +503,7 @@
   "Schema.Format": "Format Schema",
   "Admin.Schema.Schema": "AVRO Schema",
   "License.Expired": "Your Streamsheets {edition}-license has expired!",
+  "License.NotFound": "No valid Streamsheets license found!",
   "License.WillExpire": "{days} days left until your Streamsheets {edition}-license expires!",
   "License.Info.issuedTo": "Issued to",
   "License.Info.validSinceDate": "Date issued",
