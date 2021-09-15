@@ -45,9 +45,9 @@ const run = async () => {
 
 	const globalContext = await initContext(config, plugins);
 	const service = new GatewayService(metadata, globalContext);
-	const { runAfterServiceStart = [] } = globalContext;
+	const { runAfterStart = [] } = globalContext;
 	await service.start();
-	runAfterServiceStart.forEach((fn) => fn(service));
+	runAfterStart.forEach((fn) => fn(service));
 	// initializer.setup(service);
 	logger.info('Gateway service started');
 

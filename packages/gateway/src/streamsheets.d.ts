@@ -20,6 +20,9 @@ import { FunctionObject, MappedFunctionObjectObject, PartialApply1All, FunctionO
 import { Interceptor } from './ws/ProxyConnection';
 import { UserRepository } from './user/UserRepository';
 import { Strategy } from 'passport';
+import GatewayService from './services/gateway/GatewayService';
+
+type ServiceCallback = (service: GatewayService) => void;
 
 export interface GenericGlobalContext<APIS extends { [key: string]: FunctionObject }, AUTH extends FunctionObject> {
 	mongoClient: MongoClient;
@@ -32,6 +35,7 @@ export interface GenericGlobalContext<APIS extends { [key: string]: FunctionObje
 	interceptors: {
 		[key: string]: Interceptor;
 	};
+    runAfterStart: ServiceCallback[];
 	login: (globalContext: GlobalContext, username: string, password: string) => Promise<User>;
 	graphql?: {
 		[key: string]: {

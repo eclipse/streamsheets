@@ -119,6 +119,7 @@ export const init = async (config: any, plugins: string[]) => {
 		{
 			mongoClient,
 			interceptors: {},
+			runAfterStart: [],
 			repositories: RepositoryManager,
 			encryption: encryptionContext,
 			machineRepo: RepositoryManager.machineRepository,
