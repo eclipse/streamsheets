@@ -30,7 +30,9 @@ const createLicenseInfo = (licenseInfo = {}) => {
 		validUntil,
 		issuedBy,
 		issuedTo,
-		maxInstallations
+		maxInstallations,
+		maxStreamsheets,
+		usedStreamsheets
 	} = licenseInfo;
 	const info = {
 		isInvalid: !!invalid,
@@ -38,7 +40,9 @@ const createLicenseInfo = (licenseInfo = {}) => {
 		service,
 		issuedBy,
 		issuedTo,
-		maxInstallations
+		maxInstallations,
+		maxStreamsheets,
+		usedStreamsheets
 	};
 	if (validUntil != null) {
 		info.daysLeft = expiresInDays(validUntil);
