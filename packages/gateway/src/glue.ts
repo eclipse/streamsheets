@@ -72,17 +72,19 @@ export const glue = <
 	const rawApi = globalContext.rawApi;
 	const rawAuth = globalContext.rawAuth;
 	const filterMap = globalContext.filterMap;
+	const hookMap = globalContext.hookMap;
 	const context = {
 		...globalContext,
 		actor
-	} as Omit<GenericRequestContext<APIS, AUTH>, 'api' | 'auth' | 'runFilter'> &
-		Partial<Pick<GenericRequestContext<APIS, AUTH>, 'api' | 'auth' | 'runFilter'>>;
+	} as Omit<GenericRequestContext<APIS, AUTH>, 'api' | 'auth' | 'runFilter' | 'runHook'> &
+		Partial<Pick<GenericRequestContext<APIS, AUTH>, 'api' | 'auth' | 'runFilter' | 'runHook'>>;
 	context.api = createApis(rawApi, context as GenericRequestContext<APIS, AUTH>);
 	context.auth = createAuthorization(rawAuth, context as GenericRequestContext<APIS, AUTH>);
 	context.runFilter = (key: string, toFilter: any, ...args: any[]) => {
 		const filters = filterMap[key];
 		return !filters ? toFilter : filters.reduce(async (result, func) => func(context, await result, ...args), toFilter);
 	};
+	context.runHook = (key: string, ...args: any[]) => hookMap[key]?.forEach(func => func(context, ...args));
 
 	return context as GenericRequestContext<APIS, AUTH>;
 };

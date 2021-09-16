@@ -12,7 +12,6 @@
 const { proc, moduleResolver: { resolve } } = require('@cedalo/commons');
 const { LoggerFactory } = require('@cedalo/logger');
 const GatewayService = require('./src/services/gateway/GatewayService');
-// const initializer = require('./src/initializer');
 // eslint-disable-next-line
 const metadata = require('../meta.json');
 // eslint-disable-next-line
@@ -45,10 +44,9 @@ const run = async () => {
 
 	const globalContext = await initContext(config, plugins);
 	const service = new GatewayService(metadata, globalContext);
-	const { runAfterServiceStart = [] } = globalContext;
+	globalContext.service = service;
 	await service.start();
-	runAfterServiceStart.forEach((fn) => fn(service));
-	// initializer.setup(service);
+	globalContext.runHook(globalContext, 'afterServiceStart')
 	logger.info('Gateway service started');
 
 	process.on('SIGTERM', () => {
