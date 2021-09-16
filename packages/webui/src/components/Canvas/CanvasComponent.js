@@ -43,6 +43,34 @@ import GraphItemProperties from "./GraphItemProperties";
 import ViewModeProperties from "./ViewModeProperties";
 import LayoutSectionProperties from './LayoutSectionProperties';
 
+const SpeedDialDisabledStyles = {
+	basestyle: {
+		boxShadow: 'none'
+		// disabled: true,
+		// pointerEvents: "auto",
+	},
+	get Dark() {
+		return {
+			...this.basestyle,
+			color: 'rgba(255, 255, 255, 0.3)',
+			backgroundColor: 'rgba(255, 255, 255, 0.12)'
+		};
+	},
+	get Default() {
+		return {
+			...this.basestyle,
+			color: 'rgba(0, 0, 0, 0.26)',
+			backgroundColor: 'rgba(0, 0, 0, 0.12)'
+		};
+	}
+};
+const getAddSheetActionStyle = (enabled) => {
+	if (enabled) return undefined;
+	const style = SpeedDialDisabledStyles[localStorage.getItem('theme') || 'Default'];
+	return { style, disableRipple: true };
+};
+
+
 export class CanvasComponent extends Component {
 	static getDerivedStateFromProps(props, state) {
 		const { permissions } = props.adminSecurity;
@@ -79,6 +107,10 @@ export class CanvasComponent extends Component {
 			speedOpen: false,
 			dummy: ''
 		};
+	}
+
+	canAddSheet() {
+		return false;
 	}
 
 	componentDidMount() {
@@ -396,9 +428,18 @@ export class CanvasComponent extends Component {
 							>
 								<SpeedDialAction
 									key="sheet"
-									icon={<SheetIcon/>}
-									tooltipTitle={<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />}
-									onClick={() => this.onAdd('sheet')}
+									icon={<SheetIcon />}
+									tooltipTitle={
+										<FormattedMessage
+											id="Tooltip.AddStreamSheet"
+											defaultMessage="Add StreamSheet"
+										/>
+									}
+									onClick={this.canAddSheet() ? () => this.onAdd('sheet') : undefined}
+									// disabled
+									// failed to get tooltip work if action is disabled
+									// => so fake it by setting similar styles:
+									FabProps={getAddSheetActionStyle(this.canAddSheet())}
 								/>
 								<SpeedDialAction
 									key="dash"
