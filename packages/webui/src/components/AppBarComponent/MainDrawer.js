@@ -24,6 +24,7 @@ import Drawer from '@material-ui/core/Drawer';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { FormattedMessage } from 'react-intl';
 import * as Actions from '../../actions/actions';
+import Utils from '../../helper/Utils';
 import { Restricted } from '../HelperComponent/Restricted';
 import { withStyles } from '@material-ui/core/styles';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -102,6 +103,7 @@ export class MainDrawer extends Component {
 	render() {
 		const { user } = this.props.user;
 		const { open, isAdminPage, isMachineDetailPage } = this.props;
+		const canAddMachine = Utils.areSheetsAvailable(this.props.licenseInfo);
 		if (!user || !open) return null;
 		return (
 			<Drawer width={300} open={open} onClose={() => this.setAppState({ drawerOpen: false })}>
@@ -123,7 +125,7 @@ export class MainDrawer extends Component {
 				{isAdminPage ? null : (
 					<React.Fragment>
 						<Restricted all={['machine.edit']}>
-							<MenuItem dense onClick={this.handleNew}>
+							<MenuItem dense onClick={this.handleNew} disabled={!canAddMachine}>
 								<ListItemIcon>
 									<NewIcon />
 								</ListItemIcon>
@@ -235,6 +237,7 @@ function mapStateToProps(state) {
 	return {
 		open: state.appState.drawerOpen,
 		machineId: state.monitor.machine.id,
+		licenseInfo: state.meta.licenseInfo,
 		user: state.user
 	};
 }
