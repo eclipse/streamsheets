@@ -11,7 +11,7 @@
 /* eslint-disable react/forbid-prop-types,react/no-unused-prop-types,jsx-a11y/click-events-have-key-events,react/no-find-dom-node,max-len */
 import Tooltip from '@material-ui/core/Tooltip';
 import Add from '@material-ui/icons/Add';
-import {Fab } from '@material-ui/core';
+import { Fab } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -19,7 +19,13 @@ import ResourcesGrid from './ResourcesGrid';
 import ResourcesList from './ResourcesList';
 // import SortSelector from '../sortSelector/SortSelector';
 import Wall from '../../HelperComponent/Wall';
-import {formatDateString} from "./Utils";
+import Utils from '../../../helper/Utils'
+import { formatDateString } from './Utils';
+
+const getAddTooltip = (enabled) => enabled 
+	? <FormattedMessage id="Tooltip.Add" defaultMessage="Add" />
+	: <FormattedMessage id="License.Info.Streamsheets.max.reached" defaultMessage="Maximum number of Streamsheets reached!"/>;
+
 
 class CombinedResourceListing extends Component {
 	static propTypes = {
@@ -40,7 +46,8 @@ class CombinedResourceListing extends Component {
 		checked: PropTypes.arrayOf(PropTypes.string),
 		disabled: PropTypes.bool,
 		canEdit: PropTypes.bool,
-		sortQuery: PropTypes.string
+		sortQuery: PropTypes.string,
+		licenseInfo: PropTypes.object.isRequired
 	};
 
 	static defaultProps = {
@@ -107,6 +114,7 @@ class CombinedResourceListing extends Component {
 
 	render() {
 		const { handleNew, resources } = this.props;
+		const canAddMachine = Utils.areSheetsAvailable(this.props.licenseInfo);
 		const filteredMachines = this.filterMachines(resources);
 		// const recentResources = SortSelector.sort(filteredMachines, 'lastModified_desc', '');
 		return (
@@ -127,23 +135,27 @@ class CombinedResourceListing extends Component {
 					{handleNew === undefined ? null : (
 						<Tooltip
 							enterDelay={300}
-							title={<FormattedMessage id="Tooltip.Add" defaultMessage="Add" />}
+							title={getAddTooltip(canAddMachine)}
 						>
-							<Fab
-								id="add"
-								aria-label="add"
-								size="medium"
-								color="primary"
+							<span
 								style={{
 									position: 'absolute',
 									zIndex: 1200,
 									right: '30px',
 									bottom: '26px',
 								}}
-								onClick={handleNew}
 							>
-								<Add/>
-							</Fab>
+								<Fab
+									id="add"
+									aria-label="add"
+									size="medium"
+									color="primary"
+									onClick={canAddMachine ? handleNew : undefined}
+									disabled={!canAddMachine}
+								>
+									<Add/>
+								</Fab>
+							</span>
 						</Tooltip>
 					)}
 				</div>
