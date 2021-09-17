@@ -438,7 +438,7 @@ export class CanvasComponent extends Component {
 											/>
 										) : (
 											<FormattedMessage
-												id="Tooltip.MaxStreamSheetReached"
+												id="License.Info.Streamsheets.max.reached"
 												defaultMessage="Maximum number of Streamsheets reached!"
 											/>
 										)
