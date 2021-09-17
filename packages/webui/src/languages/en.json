@@ -634,6 +634,7 @@
   "Tooltip.OutboxShow": "Show Outbox",
   "Tooltip.ArrangeSheets": "Arrange Streamsheets",
   "Tooltip.AddStreamSheet": "Add Streamsheet",
+  "Tooltip.MaxStreamSheetReached": "Maximum number of Streamsheets reached!",
   "Tooltip.AddDashboard": "Add Dashboard",
   "Tooltip.MenuOptions": "Show Options",
   "Tooltip.Notifications": "Show Notifications",
