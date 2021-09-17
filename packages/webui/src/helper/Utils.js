@@ -25,4 +25,9 @@ export default class Utils {
 		}
 		return '';
 	};
+
+	static areSheetsAvailable(licenseInfo = {}) {
+		const { maxStreamsheets = -1, usedStreamsheets = 0 } = licenseInfo;
+		return maxStreamsheets < 0 || maxStreamsheets - usedStreamsheets > 0;
+	}
 }
