@@ -18,6 +18,8 @@ import Warning from '@material-ui/icons/Warning';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { clearLicenseErrorState } from '../../actions/actions';
 import { DynamicFormattedMessage } from './DynamicFormattedMessage';
 
 const styles = {
@@ -76,16 +78,18 @@ const getConfig = (isInvalid, isExpired, errorCode) => {
 	return isInvalid ? config.notfound : (isExpired ? config.expired : config.warning);
 };
 
-function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft, errorCode = '' }) {
-	const isExpired = daysLeft < 1;
-	const days = isExpired ? '' : daysLeft.toFixed();
-	const Config = getConfig(isInvalid, isExpired, errorCode);
-
+function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft, errorCode = '', clearLicenseError }) {
 	const [open, setOpen] = useState(false);
 	const [prevDays, setPrevDays] = useState(-1);
 	const [prevError, setPrevError] = useState(null);
+	const isExpired = daysLeft < 1;
+	const days = isExpired ? '' : daysLeft.toFixed();
+	const Config = getConfig(isInvalid, isExpired, errorCode || prevError);
+	
 	const onClose = () => {
 		setOpen(false);
+		setPrevError(null);
+		clearLicenseError();
 	}
 	if (daysLeft !== prevDays) {
 		setOpen(daysLeft < 20);
@@ -94,6 +98,7 @@ function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft, 
 		setOpen(true);
 		setPrevError(errorCode);
 	}
+
 	return (
 		<Snackbar
 			anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -119,9 +124,9 @@ function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft, 
 					isExpired
 						? []
 						: [
-								<IconButton key="close" aria-label="close" color="inherit" onClick={onClose}>
-									<CloseIcon style={styles.iconStyle} />
-								</IconButton>
+							<IconButton key="close" aria-label="close" color="inherit" onClick={onClose}>
+								<CloseIcon style={styles.iconStyle} />
+							</IconButton>
 						  ]
 				}
 			/>
@@ -149,5 +154,7 @@ const mapStateToProps = (state) => {
 	const { licenseInfo = {} } = state.meta;
 	return { ...licenseInfo };
 };
+const mapDispatchToProps = (dispatch) => bindActionCreators({ clearLicenseError: clearLicenseErrorState }, dispatch);
 
-export default connect(mapStateToProps)(LicenseNotification);
+
+export default connect(mapStateToProps, mapDispatchToProps)(LicenseNotification);

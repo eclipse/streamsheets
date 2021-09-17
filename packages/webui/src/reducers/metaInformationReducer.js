@@ -50,6 +50,15 @@ const createLicenseInfo = (licenseInfo = {}, errcode) => {
 	return info;
 };
 
+const getError = ({ data = {} }) => {
+	const { machineserver = {} } = data;
+	return machineserver.error || {};
+};
+const handleLicenseError = (error, state) => {
+	const { type, code, info } = error;
+	return type === 'LicenseError' ? { ...state, licenseInfo: createLicenseInfo(info, code) } : state;
+};
+
 export default function metaInformationReducer(state = defaultMetaInformationState, action) {
 	switch (action.type) {
 		case Actions.FETCH_META_INFORMATION:
@@ -79,10 +88,22 @@ export default function metaInformationReducer(state = defaultMetaInformationSta
 				licenseInfo: createLicenseInfo(licenseInfo),
 			};
 		}
+		case Actions.RECEIVE_CREATE_STREAMSHEET: {
+			// is send even if request failed... => check for error
+			const error = getError(action);
+			return handleLicenseError(error, state);
+		}
 		case Messages.REQUEST_FAILED: {
 			const { error = {} } = action;
-			const { type, code, info } = error;
-			return type === 'LicenseError' ? { ...state, licenseInfo: createLicenseInfo(info, code) } : state;
+			return handleLicenseError(error, state);
+		}
+		case Actions.LICENSE_CLEAR_ERROR: {
+			const licenseInfo = { ...state.licenseInfo };
+			licenseInfo.errorCode = undefined;
+			return {
+				...state,
+				licenseInfo
+			};
 		}
 		default:
 			return state;
