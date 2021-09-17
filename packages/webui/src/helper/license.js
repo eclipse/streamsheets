@@ -12,8 +12,7 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import PremiumVersionIcon from '@material-ui/icons/VerifiedUser';
 
-// const isPremiumLicense = (license) => license && license.edition === 'pro';
-export const isPremiumLicense = (license) => !!license;
+export const isPremiumLicense = (license) => license && license.edition === 'pro';
 
 export const getPremium = () => {
 	return (

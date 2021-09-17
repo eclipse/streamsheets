@@ -67,7 +67,7 @@ const config = {
 	}
 };
 
-function LicenseExpireNotification({ isInvalid, edition = '', service = '', daysLeft }) {
+function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft }) {
 	const isExpired = daysLeft < 1;
 	const days = isExpired ? '' : daysLeft.toFixed();
 	// eslint-disable-next-line
@@ -116,14 +116,14 @@ function LicenseExpireNotification({ isInvalid, edition = '', service = '', days
 	);
 }
 
-LicenseExpireNotification.propTypes = {
+LicenseNotification.propTypes = {
 	isInvalid: PropTypes.bool,
 	edition: PropTypes.string,
 	daysLeft: PropTypes.number,
 	service: PropTypes.string
 };
 
-LicenseExpireNotification.defaultProps = {
+LicenseNotification.defaultProps = {
 	isInvalid: false,
 	edition: '',
 	service: '',
@@ -135,4 +135,4 @@ const mapStateToProps = (state) => {
 	return { ...licenseInfo };
 };
 
-export default connect(mapStateToProps)(LicenseExpireNotification);
+export default connect(mapStateToProps)(LicenseNotification);
