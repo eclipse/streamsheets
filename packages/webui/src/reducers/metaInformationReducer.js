@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 import * as Actions from '../constants/ActionTypes';
+import * as Messages from '../constants/WebsocketMessageTypes';
 
 const defaultMetaInformationState = {
 	services: {},
@@ -21,7 +22,7 @@ const defaultMetaInformationState = {
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const msToDays = (ms) => ms / DAY_IN_MS;
 const expiresInDays = (validUntil) => Math.ceil(msToDays(validUntil - Date.now()));
-const createLicenseInfo = (licenseInfo = {}) => {
+const createLicenseInfo = (licenseInfo = {}, errcode) => {
 	// TODO: extract every information from license object?
 	const {
 		edition = 'Open Source',
@@ -42,11 +43,10 @@ const createLicenseInfo = (licenseInfo = {}) => {
 		issuedTo,
 		maxInstallations,
 		maxStreamsheets,
-		usedStreamsheets
+		usedStreamsheets,
+		errorCode: errcode
 	};
-	if (validUntil != null) {
-		info.daysLeft = expiresInDays(validUntil);
-	}
+	if (validUntil != null) info.daysLeft = expiresInDays(validUntil);
 	return info;
 };
 
@@ -78,6 +78,11 @@ export default function metaInformationReducer(state = defaultMetaInformationSta
 				...state,
 				licenseInfo: createLicenseInfo(licenseInfo),
 			};
+		}
+		case Messages.REQUEST_FAILED: {
+			const { error = {} } = action;
+			const { type, code, info } = error;
+			return type === 'LicenseError' ? { ...state, licenseInfo: createLicenseInfo(info, code) } : state;
 		}
 		default:
 			return state;
