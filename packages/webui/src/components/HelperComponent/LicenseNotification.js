@@ -21,19 +21,13 @@ import { connect } from 'react-redux';
 import { DynamicFormattedMessage } from './DynamicFormattedMessage';
 
 const styles = {
-	expired: {
+	error: {
 		icon: Error,
-		style: {
-			backgroundColor: red[700],
-			color: 'black'
-		}
+		style: { backgroundColor: red[700], color: 'black' }
 	},
-	willExpire: {
+	warning: {
 		icon: Warning,
-		style: {
-			backgroundColor: amber[700],
-			color: 'black'
-		}
+		style: { backgroundColor: amber[700], color: 'black' }
 	},
 	iconStyle: {
 		fontSize: 20,
@@ -48,38 +42,57 @@ const styles = {
 
 const config = {
 	expired: {
-		Icon: styles.expired.icon,
-		contentStyle: styles.expired.style,
+		Icon: styles.error.icon,
+		contentStyle: styles.error.style,
 		messageId: 'License.Expired',
 		defMessage: 'Your Streamsheets {edition}-license has expired!'
 	},
 	notfound: {
-		Icon: styles.expired.icon,
-		contentStyle: styles.expired.style,
+		Icon: styles.error.icon,
+		contentStyle: styles.error.style,
 		messageId: 'License.NotFound',
 		defMessage: 'No valid Streamsheets license found!'
 	},
 	warning: {
-		Icon: styles.willExpire.icon,
-		contentStyle: styles.willExpire.style,
+		Icon: styles.warning.icon,
+		contentStyle: styles.warning.style,
 		messageId: 'License.WillExpire',
 		defMessage: '{days} days left until your Streamsheets {edition}-license expires!'
 	}
 };
+const errorConfig = {
+	MAX_NUMBER_SHEETS_REACHED: {
+		Icon: styles.error.icon,
+		contentStyle: styles.warning.style,
+		messageId: 'License.Info.Streamsheets.max.reached',
+		defMessage: 'Maximum number of Streamsheets reached!'
+	}
+};
 
-function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft }) {
+const getConfig = (isInvalid, isExpired, errorCode) => {
+	const errconfig = errorConfig[errorCode];
+	if (errconfig) return errconfig;
+	// eslint-disable-next-line
+	return isInvalid ? config.notfound : (isExpired ? config.expired : config.warning);
+};
+
+function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft, errorCode = '' }) {
 	const isExpired = daysLeft < 1;
 	const days = isExpired ? '' : daysLeft.toFixed();
-	// eslint-disable-next-line
-	const Config = isInvalid ? config.notfound : (isExpired ? config.expired : config.warning);
-
+	const Config = getConfig(isInvalid, isExpired, errorCode);
 
 	const [open, setOpen] = useState(false);
 	const [prevDays, setPrevDays] = useState(-1);
-	const onClose = () => setOpen(false);
+	const [prevError, setPrevError] = useState(null);
+	const onClose = () => {
+		setOpen(false);
+	}
 	if (daysLeft !== prevDays) {
 		setOpen(daysLeft < 20);
 		setPrevDays(daysLeft);
+	} else if (errorCode && errorCode !== prevError) {
+		setOpen(true);
+		setPrevError(errorCode);
 	}
 	return (
 		<Snackbar
@@ -120,14 +133,16 @@ LicenseNotification.propTypes = {
 	isInvalid: PropTypes.bool,
 	edition: PropTypes.string,
 	daysLeft: PropTypes.number,
-	service: PropTypes.string
+	service: PropTypes.string,
+	errorCode: PropTypes.string
 };
 
 LicenseNotification.defaultProps = {
 	isInvalid: false,
 	edition: '',
 	service: '',
-	daysLeft: 1500
+	daysLeft: 1500,
+	errorCode: ''
 };
 
 const mapStateToProps = (state) => {
