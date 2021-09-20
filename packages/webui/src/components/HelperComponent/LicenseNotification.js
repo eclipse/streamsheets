@@ -42,7 +42,7 @@ const styles = {
 	}
 };
 
-const config = {
+const Config = {
 	expired: {
 		Icon: styles.error.icon,
 		contentStyle: styles.error.style,
@@ -62,7 +62,7 @@ const config = {
 		defMessage: '{days} days left until your Streamsheets {edition}-license expires!'
 	}
 };
-const errorConfig = {
+const ErrorConfig = {
 	MAX_NUMBER_SHEETS_REACHED: {
 		Icon: styles.error.icon,
 		contentStyle: styles.warning.style,
@@ -72,31 +72,25 @@ const errorConfig = {
 };
 
 const getConfig = (isInvalid, isExpired, errorCode) => {
-	const errconfig = errorConfig[errorCode];
+	const errconfig = ErrorConfig[errorCode];
 	if (errconfig) return errconfig;
 	// eslint-disable-next-line
-	return isInvalid ? config.notfound : (isExpired ? config.expired : config.warning);
+	return isInvalid ? Config.notfound : (isExpired ? Config.expired : Config.warning);
 };
 
 function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft, errorCode = '', clearLicenseError }) {
 	const [open, setOpen] = useState(false);
-	const [prevDays, setPrevDays] = useState(-1);
-	const [prevError, setPrevError] = useState(null);
+	const [config, setConfig] = useState(Config.warning)
 	const isExpired = daysLeft < 1;
 	const days = isExpired ? '' : daysLeft.toFixed();
-	const Config = getConfig(isInvalid, isExpired, errorCode || prevError);
 	
 	const onClose = () => {
 		setOpen(false);
-		setPrevError(null);
 		clearLicenseError();
 	}
-	if (daysLeft !== prevDays) {
-		setOpen(daysLeft < 20);
-		setPrevDays(daysLeft);
-	} else if (errorCode && errorCode !== prevError) {
+	if (!open && (daysLeft < 20 || errorCode)) {
 		setOpen(true);
-		setPrevError(errorCode);
+		setConfig(getConfig(isInvalid, isExpired, errorCode));
 	}
 
 	return (
@@ -109,13 +103,13 @@ function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft, 
 		>
 			<SnackbarContent
 				aria-describedby="message-id"
-				style={Config.contentStyle}
+				style={config.contentStyle}
 				message={
 					<span style={styles.message} id="message-id">
-						<Config.Icon style={styles.iconStyle} />
+						<config.Icon style={styles.iconStyle} />
 						<DynamicFormattedMessage
-							id={Config.messageId}
-							defaultMessage={Config.defMessage}
+							id={config.messageId}
+							defaultMessage={config.defMessage}
 							values={{ days, edition, service }}
 						/>
 					</span>
