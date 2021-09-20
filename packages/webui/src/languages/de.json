@@ -352,6 +352,8 @@
 	"Import.Error.TypesDontMatch": "Typen stimmen nicht überein! Der existierende Stream {stream} hat einen anderen Typ.",
 	"Import.Error.NameRequired": "Neuer Name wird benötigt!",
 	"Import.Error.DuplicateName": "Name ist mehrmals vergeben!",
+	"Import.Error.Failed": "Import fehlgeschlagen!",
+	"Import.Error.Message.NotEnoughSheets": "Nicht genügend Streamsheets vorhanden! Es werden {required} benötigt, aber nur {remain} Stramsheets sind verfügbar!",
 	"Import.Stream.ImportAs": "Importieren als",
 	"Import.List.Streams.ShowAdvanced": "Fortgeschritten",
 	"Import.Machine.ImportAs": "Importieren als",

@@ -1047,9 +1047,9 @@ export function cloneMachine(originalMachineId) {
 // 	};
 // }
 
-export function showErrorDialog(titleId, messageId) {
+export function showErrorDialog(titleId, messageId, values) {
 	return (dispatch) => {
-		dispatch(putAppState({ errorDialog: { open: true, titleId, messageId } }));
+		dispatch(putAppState({ errorDialog: { open: true, titleId, messageId, values } }));
 	};
 }
 

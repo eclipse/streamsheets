@@ -82,6 +82,7 @@ const DO_IMPORT = `
 			import(input: $input, file: $file)	{
 				success
 				code
+				info
 			}
 		}
 	}
@@ -283,7 +284,8 @@ const reducer = (state, action) => {
 			return {
 				...state,
 				importing: false,
-				importError: action.data
+				importError: action.data,
+				importDone: action.done
 			};
 		default:
 			throw new Error(`UNKNOWN ACTION: ${action.type}`);
@@ -598,6 +600,18 @@ const MachineList = withShowable((props) => {
 	);
 });
 
+const getErrorDialogInfo = (code, info = {}) => {
+	if (code === 'NOT_ENOUGH_STREAMSHEETS') {
+		const { maxStreamsheets = 0, usedStreamsheets = 0, requiredStreamsheets: required = 0 } = info;
+		const remain = Math.max(0, maxStreamsheets - usedStreamsheets);
+		return {
+			titleId: 'Import.Error.Failed',
+			messageId: 'Import.Error.Message.NotEnoughSheets',
+			values: { required, remain }
+		};
+	}
+	return undefined;
+};
 function ImportDialogInner(props) {
 	const {
 		importData: { machines, streams },
@@ -675,12 +689,16 @@ function ImportDialogInner(props) {
 					type: 'text/plain;charset=utf8;'
 				})
 			);
-			const { success, code } = result.data.scoped.import;
+			const { success, code, info } = result.data.scoped.import;
 			if (success) {
 				dispatch({ type: 'import_success' });
 				props.updateMachines();
 			} else {
-				dispatch({ type: 'import_error', data: code });
+				const errorInfo = getErrorDialogInfo(code, info);
+				dispatch({ type: 'import_error', data: code, done: !!errorInfo});
+				if (errorInfo) {
+					props.showErrorDialog(errorInfo.titleId, errorInfo.messageId, errorInfo.values);
+				}
 			}
 		} catch (error) {
 			dispatch({ type: 'import_error', data: 'UNEXPECTED_ERROR' });
