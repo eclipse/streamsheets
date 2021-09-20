@@ -31,10 +31,10 @@
     "yargs": "6.6.0"
   },
   "dependencies": {
-    "@cedalo/commons": "2.4.0",
-    "@cedalo/parser": "2.4.0",
-    "@cedalo/number-format": "2.4.0",
-    "@cedalo/jsg-extensions": "2.4.0",
+    "@cedalo/commons": "2.5.0",
+    "@cedalo/parser": "2.5.0",
+    "@cedalo/number-format": "2.5.0",
+    "@cedalo/jsg-extensions": "2.5.0",
     "date-fns": "^2.0.0-alpha.27",
     "qrjs2": "0.1.6"
   },

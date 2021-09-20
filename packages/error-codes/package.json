@@ -10,7 +10,7 @@
   "author": "Cedalo AG",
   "dependencies": {
     "http-errors": "1.6.1",
-    "@cedalo/logger": "2.4.0"
+    "@cedalo/logger": "2.5.0"
   },
   "devDependencies": {
     "babel-core": "6.25.0",

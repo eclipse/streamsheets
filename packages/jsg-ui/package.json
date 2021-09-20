@@ -49,10 +49,10 @@
     "yargs": "6.6.0"
   },
   "dependencies": {
-    "@cedalo/jsg-core": "2.4.0",
-    "@cedalo/number-format": "2.4.0",
-    "@cedalo/parser": "2.4.0",
-    "@cedalo/jsg-extensions": "2.4.0",
+    "@cedalo/jsg-core": "2.5.0",
+    "@cedalo/number-format": "2.5.0",
+    "@cedalo/parser": "2.5.0",
+    "@cedalo/jsg-extensions": "2.5.0",
     "hammerjs": "^2.0.8"
   },
   "license": "EPL-2.0"

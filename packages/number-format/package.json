@@ -36,7 +36,7 @@
     }
   },
   "dependencies": {
-    "@cedalo/commons": "2.4.0",
+    "@cedalo/commons": "2.5.0",
     "intl": "1.2.5"
   },
   "license": "EPL-2.0"
