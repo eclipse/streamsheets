@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/service-graphs",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "A service for managing graphs.",
   "main": "index.js",
   "scripts": {

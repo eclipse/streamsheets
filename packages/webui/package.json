@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/webui",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "private": true,
   "devDependencies": {
     "@babel/cli": "7.1.2",

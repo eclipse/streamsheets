@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/error-codes",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Central point to declare error constants with simple helper methods",
   "main": "index.js",
   "scripts": {

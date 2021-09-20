@@ -1,6 +1,6 @@
 {
 	"name": "@cedalo/http-client",
-	"version": "2.4.0",
+	"version": "2.5.0",
 	"description": "HTTP client",
 	"main": "index.js",
 	"scripts": {

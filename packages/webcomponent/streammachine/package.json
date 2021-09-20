@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/streammachine",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Stream Machine Web Component",
   "main": "index.js",
   "scripts": {

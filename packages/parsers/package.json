@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/parsers",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Cedalo parser for different formats",
   "main": "index.js",
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/service-core",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "A package providing basic service classes.",
   "main": "index.js",
   "scripts": {

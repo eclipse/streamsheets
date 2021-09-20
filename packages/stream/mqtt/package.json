@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-mqtt",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "DL MQTT feeder",
   "main": "index.js",
   "scripts": {

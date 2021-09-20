@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/stream-rest-client",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Rest Client Feeder",
   "main": "index.js",
   "scripts": {

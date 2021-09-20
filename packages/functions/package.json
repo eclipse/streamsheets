@@ -1,6 +1,6 @@
 {
   "name": "@cedalo/functions",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Definition and implementation of general Sheet Functions",
   "main": "index.js",
   "scripts": {
