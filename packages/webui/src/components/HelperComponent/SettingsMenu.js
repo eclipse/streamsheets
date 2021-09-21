@@ -49,7 +49,7 @@ import {Path} from '../../helper/Path';
 import ListItemText from "@material-ui/core/ListItemText";
 
 const VERSION = process.env.REACT_APP_VERSION || '2.5';
-// const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
+const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
 
 const isPremiumLicense = (license) => license && license.edition === 'pro';
 
@@ -193,7 +193,6 @@ export class SettingsMenu extends React.Component {
 						<strong>{service.name}</strong>
 					</TableCell>
 					<TableCell>{service.version}</TableCell>
-					{/* <TableCell>{service.buildNumber}</TableCell> */}
 					<TableCell>{instance.status === 'running' ? <CheckCircleIcon style={{color: 'green'}} /> : ''}</TableCell>
 					{/* <TableCell>{instance.id}</TableCell> */}
 				</TableRow>
@@ -471,6 +470,17 @@ export class SettingsMenu extends React.Component {
 										</TableCell>
 										<TableCell>{isPremiumLicense(this.props.meta.licenseInfo) ? getPremium() : this.props.meta.licenseInfo.edition}</TableCell>
 									</TableRow>
+									<TableRow>
+										<TableCell>
+											<b>
+												<FormattedMessage
+													id="BuildNumber"
+													defaultMessage="BuildNumber"
+												/>
+											</b>
+										</TableCell>
+										<TableCell>{BUILD_NUMBER}</TableCell>
+									</TableRow>
 									{isPremiumLicense(this.props.meta.licenseInfo) && (
 										<TableRow>
 											<TableCell>
@@ -503,12 +513,6 @@ export class SettingsMenu extends React.Component {
 											defaultMessage="Version"
 										/>
 									</TableCell>
-									{/* <TableCell>
-									<FormattedMessage
-										id="BuildNumber"
-										defaultMessage="BuildNumber"
-									/>
-								</TableCell> */}
 									<TableCell>
 										<FormattedMessage
 											id="Status"
@@ -528,7 +532,6 @@ export class SettingsMenu extends React.Component {
 								<TableRow>
 									<TableCell><strong>Web UI</strong></TableCell>
 									<TableCell>{VERSION}</TableCell>
-									{/* <TableCell>{BUILD_NUMBER}</TableCell> */}
 									<TableCell>
 										<CheckCircleIcon style={{color: 'green'}}/>
 									</TableCell>
