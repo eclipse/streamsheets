@@ -47,6 +47,7 @@ import {withStyles} from '@material-ui/core/styles';
 import {Path} from '../../helper/Path';
 import ListItemText from "@material-ui/core/ListItemText";
 import {
+	getLicenseStreamsheetsInfo,
 	getLicenseValidUntil,
 	getPremium,
 	isPremiumLicense
@@ -453,6 +454,19 @@ export class SettingsMenu extends React.Component {
 												</b>
 											</TableCell>
 											<TableCell>{getLicenseValidUntil(licenseInfo.daysLeft)}</TableCell>
+										</TableRow>
+									)}
+									{isPremiumLicense(licenseInfo) && (
+										<TableRow>
+											<TableCell>
+												<b>
+													<FormattedMessage
+														id="License.Info.Streamsheets.max"
+														defaultMessage="Maximum number of Streamsheets"
+													/>
+												</b>
+											</TableCell>
+											<TableCell>{getLicenseStreamsheetsInfo(licenseInfo)}</TableCell>
 										</TableRow>
 									)}
 								</TableBody>
