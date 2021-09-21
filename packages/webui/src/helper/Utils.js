@@ -26,8 +26,12 @@ export default class Utils {
 		return '';
 	};
 
-	static areSheetsAvailable(licenseInfo = {}) {
+	static getAvailableSheetsCount(licenseInfo = {}) {
 		const { maxStreamsheets = -1, usedStreamsheets = 0 } = licenseInfo;
-		return maxStreamsheets < 0 || maxStreamsheets - usedStreamsheets > 0;
+		return maxStreamsheets < 0 ? maxStreamsheets : Math.max(0, maxStreamsheets - usedStreamsheets);
+	}
+	static areSheetsAvailable(licenseInfo = {}) {
+		const available = Utils.getAvailableSheetsCount(licenseInfo);
+		return available < 0 || available > 0;
 	}
 }
