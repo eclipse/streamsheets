@@ -240,15 +240,15 @@ export default class ChartInfoFeedbackView extends View {
 				value.x = this.selection.dataPoints[0].x;
 				value.y = this.selection.dataPoints[0].y;
 				if (mapInfo.dispChart) {
-					if (index !== -1) {
-						const sheet = ref.y.range._worksheet;
-						const selection = new Selection(sheet);
-						selection.setAt(0, new CellRange(sheet, 0, 0));
-						const view = createView(mapInfo.chartNode);
-						view.getItem().title.formula = new StringExpression(getLabel(value, true, false));
-						view.getItem().title.visible = true;
-						this.chartView.drawMapChart(graphics, view, item, serie, feature, sheet, selection, ref, index, mapInfo, true);
-					}
+					// if (index !== -1) {
+					// 	const sheet = ref.y.range._worksheet;
+					// 	const selection = new Selection(sheet);
+					// 	selection.setAt(0, new CellRange(sheet, 0, 0));
+					// 	const view = createView(mapInfo.chartNode);
+					// 	view.getItem().title.formula = new StringExpression(getLabel(value, true, false));
+					// 	view.getItem().title.visible = true;
+					// 	this.chartView.drawMapChart(graphics, view, item, serie, feature, sheet, selection, ref, index, mapInfo, true);
+					// }
 					return;
 				}
 				values.push(value);

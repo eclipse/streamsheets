@@ -35,7 +35,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import DeleteIcon from '@material-ui/icons/Delete';
 import JSG from '@cedalo/jsg-ui';
-import { Locale, NullTerm, Term } from '@cedalo/parser';
+import { Locale, NullTerm } from '@cedalo/parser';
 
 import CellRangeComponent from './CellRangeComponent';
 import * as Actions from '../../actions/actions';
@@ -223,7 +223,12 @@ export class StreamChartProperties extends Component {
 				});
 			}
 		} else {
-			expr = JSG.ExpressionHelper.createExpressionFromValueTerm(Term.fromString(value));
+			try {
+				const term = JSG.FormulaParser.parse(value, item.getGraph(), item);
+				expr = JSG.ExpressionHelper.createExpressionFromValueTerm(term);
+			} catch (e) {
+				expr = new JSG.StringExpression(value);
+			}
 		}
 
 		return expr;
@@ -1448,7 +1453,7 @@ export class StreamChartProperties extends Component {
 	}
 
 	usesCValues(serie) {
-		return serie.type === 'bubble' || serie.type === 'state' || serie.type === 'heatmap';
+		return serie.type === 'bubble' || serie.type === 'state' || serie.type === 'heatmap' || serie.type === 'map';
 	}
 
 	isFunnelChart() {
@@ -1583,9 +1588,7 @@ export class StreamChartProperties extends Component {
 			let formula = '';
 			for (let i = 0; i < expr.length; i += 1) {
 				const expression = expr[i];
-				formula += expression ? expression.toLocaleString(JSG.getParserLocaleSettings(), {
-					item: sheet, useName: true
-				}) : '';
+				formula += expression ? expression.toParamString(sheet, -1, true) : '';
 				if (i < expr.length - 1) {
 					formula += JSG.getParserLocaleSettings().separators.parameter;
 				}

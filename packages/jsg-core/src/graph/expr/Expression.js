@@ -569,12 +569,12 @@ class Expression {
 		return str;
 	}
 
-	toParamString(item, round = 0) {
+	toParamString(item, round = 0, equal = false) {
 		// let str = this._formula != null ? this._formula : null;
 		const locale = JSG.getParserLocaleSettings();
 		let str =
 			this._term != null
-				? `${this._term.toLocaleString(locale, {item, useName: true})}`
+				? `${equal ? '=' : ''}${this._term.toLocaleString(locale, {item, useName: true})}`
 				: null;
 		if (str == null) {
 			const value = this.getValue();
