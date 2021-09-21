@@ -1728,6 +1728,10 @@ class GraphItem extends Model {
 		);
 	}
 
+	isCopyAllowed() {
+		return true;
+	}
+
 	/**
 	 * Returns <code>true</code> if this item selecting by using the TAB key is allowed, and false, if not.
 	 * This method is intended to be overwritten by subclasses. Default implementation simply returns

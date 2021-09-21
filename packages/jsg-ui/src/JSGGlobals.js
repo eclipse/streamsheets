@@ -157,6 +157,7 @@ JSG.copyItems = (selection) => {
 	const file = new JSG.JSONWriter();
 	const items = selection.length === undefined ? [selection] : selection;
 	const graphItems = items[0].getModel().getParent().subItems;
+	let valid = false;
 
 	// sort items first, so drawing order of copied items does not change
 	items.sort((a, b) => {
@@ -170,8 +171,11 @@ JSG.copyItems = (selection) => {
 	file.writeStartArray('graphitem');
 
 	items.forEach((sel) => {
-		sel.getModel().resolveParentReferences(true);
-		sel.getModel().save(file, true);
+		if (sel.getModel().isCopyAllowed()) {
+			sel.getModel().resolveParentReferences(true);
+			sel.getModel().save(file, true);
+			valid = true;
+		}
 	});
 
 	file.writeEndArray('graphitem');
@@ -180,7 +184,7 @@ JSG.copyItems = (selection) => {
 
 	// this.debug.log(file.flush());
 
-	return file.flush();
+	return valid ? file.flush() : undefined;
 };
 
 /**

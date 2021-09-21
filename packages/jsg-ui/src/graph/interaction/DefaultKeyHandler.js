@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -231,9 +231,11 @@ class DefaultKeyHandler extends InteractionActivator {
 				case 68:
 					// ctrl d -> duplicate
 					if (event.event.ctrlKey) {
-						const xml = JSG.copyItems(viewer.getSelection());
-						const cmd = new PasteItemsCommand(xml, viewer);
-						dispatcher.getInteractionHandler().execute(cmd);
+						const data = JSG.copyItems(viewer.getSelection());
+						if (data) {
+							const cmd = new PasteItemsCommand(data, viewer);
+							dispatcher.getInteractionHandler().execute(cmd);
+						}
 						event.consume();
 						// event.doPreventDefault = true;
 					}

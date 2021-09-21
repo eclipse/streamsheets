@@ -649,6 +649,9 @@ class InteractionHandler {
 	copySelection() {
 		JSG.clipOffset = new Point(0, 0);
 		JSG.clipXML = JSG.copyItems(this.viewer.getSelection());
+		if (!JSG.clipXML) {
+			return;
+		}
 
 		const focus = document.activeElement;
 		const textarea = document.createElement('textarea');
@@ -710,8 +713,6 @@ class InteractionHandler {
 	 */
 	cutSelection() {
 		this.copySelection();
-		// JSG.clipOffset = new Point(0, 0);
-		// JSG.clipXML = JSG.copyItems(this.viewer.getSelection());
 
 		const deleteCmd = new CompoundCommand();
 		const selection = this.viewer.getSelection();

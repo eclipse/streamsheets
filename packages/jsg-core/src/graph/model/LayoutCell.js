@@ -312,5 +312,9 @@ module.exports = class LayoutCell extends Node {
 			}
 		}
 	}
+
+	isCopyAllowed() {
+		return false;
+	}
 };
 

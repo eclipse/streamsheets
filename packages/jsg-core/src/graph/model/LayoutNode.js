@@ -464,6 +464,10 @@ module.exports = class LayoutNode extends Node {
 		this.refresh(true);
 	}
 
+	isCopyAllowed() {
+		return false;
+	}
+
 	isAddLabelAllowed() {
 		return false;
 	}

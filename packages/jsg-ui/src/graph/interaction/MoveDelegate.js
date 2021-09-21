@@ -793,10 +793,13 @@ class MoveDelegate extends Delegate {
 	 * @return {Command} Command to perform the copy-on-move.
 	 */
 	createCopyOnMoveCmd(feedback, target, event, viewer) {
-		const xml = JSG.copyItems(viewer.getSelection());
+		const data = JSG.copyItems(viewer.getSelection());
+		if (data) {
+			return undefined;
+		}
 		const offset = new Point();
 		feedback.getLocation(offset).subtract(this._startpos);
-		return new PasteItemsCommand(xml, viewer, target, offset);
+		return new PasteItemsCommand(data, viewer, target, offset);
 	}
 
 	/**
