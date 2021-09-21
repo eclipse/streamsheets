@@ -26,8 +26,8 @@ const createLicenseInfo = (licenseInfo = {}, errcode) => {
 	// TODO: extract every information from license object?
 	const {
 		edition = 'Open Source',
-		invalid,
 		service,
+		valid,
 		validUntil,
 		issuedBy,
 		issuedTo,
@@ -36,7 +36,6 @@ const createLicenseInfo = (licenseInfo = {}, errcode) => {
 		usedStreamsheets
 	} = licenseInfo;
 	const info = {
-		isInvalid: !!invalid,
 		edition,
 		service,
 		issuedBy,
@@ -44,6 +43,7 @@ const createLicenseInfo = (licenseInfo = {}, errcode) => {
 		maxInstallations,
 		maxStreamsheets,
 		usedStreamsheets,
+		isInvalid: !valid,
 		errorCode: errcode
 	};
 	if (validUntil != null) info.daysLeft = expiresInDays(validUntil);
