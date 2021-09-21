@@ -81,6 +81,15 @@ const prepareFilters = (globalContext: GlobalContext): GlobalContext => {
 	return { ...globalContext, filterMap };
 };
 
+const prepareHooks = (globalContext: GlobalContext): GlobalContext => {
+	const hooks = Object.values(globalContext.hooks).reduce((acc, hooks) => [...acc, ...hooks], []);
+	const hookMap = hooks.reduce(
+		(acc, [key, func]) => ({ ...acc, [key]: acc[key] ? [...acc[key], func] : [func] }),
+		{} as { [key: string]: Array<(...args: any) => any> }
+	);
+	return { ...globalContext, hookMap };
+};
+
 export const init = async (config: any, plugins: string[]) => {
 	const mongoClient: MongoClient = await MongoDBConnection.create();
 	const graphRepository = new MongoDBGraphRepository(config.mongodb);
@@ -115,47 +124,54 @@ export const init = async (config: any, plugins: string[]) => {
 		});
 	}
 
-	const context = prepareFilters(await applyPlugins(
-		{
-			mongoClient,
-			interceptors: {},
-			runAfterStart: [],
-			repositories: RepositoryManager,
-			encryption: encryptionContext,
-			machineRepo: RepositoryManager.machineRepository,
-			userRepo: RepositoryManager.userRepository,
-			streamRepo: RepositoryManager.streamRepository,
-			rawAuth: baseAuth,
-			authStrategies: {},
-			middleware: {},
-			filters: {},
-			filterMap: {},
-			rawApi: RawAPI,
-			machineServiceProxy,
-			getActor,
-			getRequestContext,
-			login: async (context: GlobalContext, username: string, password: string) => {
-				try {
-					const hash = await context.userRepo.getPassword(username);
-					const valid = await context.encryption.verify(hash, password);
-					if (!valid) {
-						throw new Error('INVALID_CREDENTIALS');
+	const context = prepareHooks(
+		prepareFilters(
+			await applyPlugins(
+				{
+					mongoClient,
+					interceptors: {},
+					repositories: RepositoryManager,
+					encryption: encryptionContext,
+					machineRepo: RepositoryManager.machineRepository,
+					userRepo: RepositoryManager.userRepository,
+					streamRepo: RepositoryManager.streamRepository,
+					rawAuth: baseAuth,
+					authStrategies: {},
+					middleware: {},
+					filters: {},
+					filterMap: {},
+					hooks: {},
+					hookMap: {},
+					rawApi: RawAPI,
+					machineServiceProxy,
+					runHook: (context: GlobalContext, key: string, ...args: any[]) =>
+						context.hookMap[key]?.forEach((func) => func(context, ...args)),
+					getActor,
+					getRequestContext,
+					login: async (context: GlobalContext, username: string, password: string) => {
+						try {
+							const hash = await context.userRepo.getPassword(username);
+							const valid = await context.encryption.verify(hash, password);
+							if (!valid) {
+								throw new Error('INVALID_CREDENTIALS');
+							}
+							const user = await context.userRepo.findUserByUsername(username);
+							if (!user) {
+								throw new Error('INVALID_CREDENTIALS');
+							}
+							return user;
+						} catch (e) {
+							if (e.code === 'USER_NOT_FOUND') {
+								throw new Error('INVALID_CREDENTIALS');
+							}
+							throw e;
+						}
 					}
-					const user = await context.userRepo.findUserByUsername(username);
-					if (!user) {
-						throw new Error('INVALID_CREDENTIALS');
-					}
-					return user;
-				} catch (e) {
-					if (e.code === 'USER_NOT_FOUND') {
-						throw new Error('INVALID_CREDENTIALS');
-					}
-					throw e;
-				}
-			}
-		} as GlobalContext,
-		plugins
-	));
+				} as GlobalContext,
+				plugins
+			)
+		)
+	);
 
 	return context;
 };

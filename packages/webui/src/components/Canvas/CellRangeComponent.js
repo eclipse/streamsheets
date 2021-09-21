@@ -176,7 +176,9 @@ class CellRangeComponent extends React.Component {
 		}
 
 		if (event.type === 'keydown') {
-			event.target.blur();
+			if (event.target) {
+				event.target.blur();
+			}
 		} else {
 			this.props.onBlur(event);
 			if (event.target) {

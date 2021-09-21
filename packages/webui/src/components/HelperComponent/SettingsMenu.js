@@ -47,15 +47,14 @@ import {withStyles} from '@material-ui/core/styles';
 import {Path} from '../../helper/Path';
 import ListItemText from "@material-ui/core/ListItemText";
 import {
-	getLicenseStreamsheetsInfo,
 	getLicenseValidUntil,
 	getPremium,
 	isPremiumLicense
 } from '../../helper/license';
 
 
-const VERSION = process.env.REACT_APP_VERSION || '2.4';
-// const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
+const VERSION = process.env.REACT_APP_VERSION || '2.5';
+const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
 
 
 /**
@@ -184,7 +183,6 @@ export class SettingsMenu extends React.Component {
 						<strong>{service.name}</strong>
 					</TableCell>
 					<TableCell>{service.version}</TableCell>
-					{/* <TableCell>{service.buildNumber}</TableCell> */}
 					<TableCell>{instance.status === 'running' ? <CheckCircleIcon style={{color: 'green'}} /> : ''}</TableCell>
 					{/* <TableCell>{instance.id}</TableCell> */}
 				</TableRow>
@@ -206,13 +204,10 @@ export class SettingsMenu extends React.Component {
 		return (
 			<div
 				style={{
-					marginLeft: '20px'
+					marginLeft: '20px',
 				}}
 			>
-				<Tooltip
-					enterDelay={300}
-					title={<FormattedMessage id="Tooltip.SettingsMenu" defaultMessage="User Settings and Info" />}
-				>
+				<Tooltip enterDelay={300} title={<FormattedMessage id="Tooltip.SettingsMenu" defaultMessage="User Settings and Info" />}>
 					<div>
 						<IconButton
 							aria-label="More"
@@ -239,7 +234,7 @@ export class SettingsMenu extends React.Component {
 							elevation={0}
 							style={{
 								marginTop: '-8px',
-								outline: 'none'
+								outline: 'none',
 							}}
 						>
 							<CardHeader
@@ -253,7 +248,7 @@ export class SettingsMenu extends React.Component {
 								disabled
 								style={{
 									backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
-									outline: 'none'
+									outline: 'none',
 								}}
 							/>
 						</Card>
@@ -409,137 +404,141 @@ export class SettingsMenu extends React.Component {
 					</Dialog>
 				) : null}
 				{this.props.openHelp ? (
-					<Dialog open={this.props.openHelp} onClose={this.handleCloseHelp}>
-						<DialogTitle>
-							<FormattedMessage id="Product.name" defaultMessage="Streamsheets" />{' '}
-							<FormattedMessage id="Version" defaultMessage="Version" /> {VERSION}
-						</DialogTitle>
-						<DialogContent
-							style={{
-								width: '470px'
-							}}
-						>
-							{licenseInfo && (
-								<Table size="small">
-									<TableBody>
+				<Dialog open={this.props.openHelp} onClose={this.handleCloseHelp} >
+					<DialogTitle>
+						<FormattedMessage id="Product.name" defaultMessage="Streamsheets" />{' '}
+						<FormattedMessage id="Version" defaultMessage="Version"	/> {' '} {VERSION}
+					</DialogTitle>
+					<DialogContent
+						style={{
+							width: '470px'
+						}}
+					>
+
+						{licenseInfo && (
+							<Table size="small">
+								<TableBody>
+									<TableRow>
+										<TableCell>
+											<b>
+												<FormattedMessage
+													id="License.edition"
+													defaultMessage="Edition"
+												/>
+											</b>
+										</TableCell>
+										<TableCell>
+											{isPremiumLicense(licenseInfo) ? getPremium() : licenseInfo.edition}
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell>
+											<b>
+												<FormattedMessage
+													id="BuildNumber"
+													defaultMessage="BuildNumber"
+												/>
+											</b>
+										</TableCell>
+										<TableCell>{BUILD_NUMBER}</TableCell>
+									</TableRow>
+									{isPremiumLicense(licenseInfo) && (
 										<TableRow>
 											<TableCell>
 												<b>
-													<FormattedMessage id="License.edition" defaultMessage="Edition" />
+													<FormattedMessage
+														id="License.validUntil"
+														defaultMessage="License valid until"
+													/>
 												</b>
 											</TableCell>
-											<TableCell>
-												{isPremiumLicense(licenseInfo) ? getPremium() : licenseInfo.edition}
-											</TableCell>
+											<TableCell>{getLicenseValidUntil(licenseInfo.daysLeft)}</TableCell>
 										</TableRow>
-										{isPremiumLicense(licenseInfo) && (
-											<TableRow>
-												<TableCell>
-													<b>
-														<FormattedMessage
-															id="License.validUntil"
-															defaultMessage="License valid until"
-														/>
-													</b>
-												</TableCell>
-												<TableCell>{getLicenseValidUntil(licenseInfo.daysLeft)}</TableCell>
-											</TableRow>
-										)}
-										{isPremiumLicense(licenseInfo) && (
-											<TableRow>
-												<TableCell>
-													<b>
-														<FormattedMessage
-															id="License.Info.Streamsheets.max"
-															defaultMessage="Maximum number of Streamsheets"
-														/>
-													</b>
-												</TableCell>
-												<TableCell>{getLicenseStreamsheetsInfo(licenseInfo)}</TableCell>
-											</TableRow>
-										)}
-									</TableBody>
-								</Table>
-							)}
-							<br />
-							<Table size="small">
-								<TableHead>
-									<TableRow>
-										<TableCell>
-											<FormattedMessage id="Component" defaultMessage="Component" />
-										</TableCell>
-										<TableCell>
-											<FormattedMessage id="Version" defaultMessage="Version" />
-										</TableCell>
-										{/* <TableCell>
-									<FormattedMessage
-										id="BuildNumber"
-										defaultMessage="BuildNumber"
-									/>
-								</TableCell> */}
-										<TableCell>
-											<FormattedMessage id="Status" defaultMessage="Status" />
-										</TableCell>
-										{/* <TableCell>
+									)}
+								</TableBody>
+							</Table>
+					)}
+						<br />
+						<Table size="small">
+							<TableHead>
+								<TableRow>
+									<TableCell>
+										<FormattedMessage id="Component" defaultMessage="Component" />
+									</TableCell>
+									<TableCell>
+										<FormattedMessage id="Version" defaultMessage="Version" />
+									</TableCell>
+									<TableCell>
+										<FormattedMessage id="Status" defaultMessage="Status" />
+									</TableCell>
+									{/* <TableCell>
 										<FormattedMessage
 											id="Instances"
 											defaultMessage="Instances"
 										/>
 									</TableCell> */}
-									</TableRow>
-								</TableHead>
-								<TableBody>
-									{/* TODO: make this table more generic to display any number of services */}
-									<TableRow>
-										<TableCell>
-											<strong>Web UI</strong>
-										</TableCell>
-										<TableCell>{VERSION}</TableCell>
-										{/* <TableCell>{BUILD_NUMBER}</TableCell> */}
-										<TableCell>
-											<CheckCircleIcon style={{ color: 'green' }} />
-										</TableCell>
-										{/* <TableCell>webui</TableCell> */}
-									</TableRow>
-									{services &&
-										Object.values(services)
-											.sort((a, b) => a.name && a.name.localeCompare(b.name))
-											.map((service) => this.renderServiceDetails(service))}
-								</TableBody>
-							</Table>
-							<FormControlLabel
-								style={{
-									marginTop: '10px'
-								}}
-								control={
-									<Checkbox checked={this.state.experimental} onChange={this.handleExperimental()} />
+								</TableRow>
+							</TableHead>
+							<TableBody>
+								{/* TODO: make this table more generic to display any number of services */}
+								<TableRow>
+									<TableCell><strong>Web UI</strong></TableCell>
+									<TableCell>{VERSION}</TableCell>
+									{/* <TableCell>{BUILD_NUMBER}</TableCell> */}
+									<TableCell>
+										<CheckCircleIcon style={{color: 'green'}}/>
+									</TableCell>
+									{/* <TableCell>webui</TableCell> */}
+								</TableRow>
+								{
+									services &&
+									Object.values(services)
+										.sort((a, b) => a.name && a.name.localeCompare(b.name))
+										.map((service) => this.renderServiceDetails(service)
+									)
 								}
-								label={
-									<FormattedMessage
-										id="Settings.ExperimentalFeatures"
-										defaultMessage="Experimental Features"
-									/>
-								}
+							</TableBody>
+						</Table>
+						<FormControlLabel
+							style={{
+								marginTop:'10px',
+							}}
+							control={
+								<Checkbox
+									checked={this.state.experimental}
+									onChange={this.handleExperimental()}
+								/>
+							}
+							label={<FormattedMessage
+								id="Settings.ExperimentalFeatures"
+								defaultMessage="Experimental Features"
+							/>}
+						/>
+						<FormControlLabel
+							style={{
+								marginTop:'10px',
+							}}
+							control={
+								<Checkbox
+									checked={this.state.debug}
+									onChange={() => this.setState({debug: !this.state.debug})}
+								/>
+							}
+							label={<FormattedMessage id="Settings.Debug" defaultMessage="Debug Mode" />}
+						/>
+					</DialogContent>
+					<DialogActions>
+						<Button
+							color="primary"
+							onClick={this.handleCloseHelp}
+						>
+							<FormattedMessage
+								id="Close"
+								defaultMessage="Close"
 							/>
-							<FormControlLabel
-								style={{
-									marginTop: '10px'
-								}}
-								control={
-									<Checkbox
-										checked={this.state.debug}
-										onChange={() => this.setState({ debug: !this.state.debug })}
-									/>
-								}
-								label={<FormattedMessage id="Settings.Debug" defaultMessage="Debug Mode" />}
-							/>
-						</DialogContent>
-						<DialogActions>
-							<Button color="primary" onClick={this.handleCloseHelp}>
-								<FormattedMessage id="Close" defaultMessage="Close" />
-							</Button>
-						</DialogActions>
-					</Dialog>
+						</Button>
+					</DialogActions>
+				</Dialog>
 				) : null}
 			</div>
 		);

@@ -39,3 +39,5 @@ jspm_packages
 # Typescript Output
 out
 backups
+/config/cedalo.key.pub
+/config/license/loadLicense.lic
