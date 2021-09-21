@@ -47,7 +47,7 @@ class CombinedResourceListing extends Component {
 		disabled: PropTypes.bool,
 		canEdit: PropTypes.bool,
 		sortQuery: PropTypes.string,
-		licenseInfo: PropTypes.object.isRequired
+		licenseInfo: PropTypes.object
 	};
 
 	static defaultProps = {
@@ -65,7 +65,8 @@ class CombinedResourceListing extends Component {
 		nameFilter: undefined,
 		menuOptions: [],
 		sortQuery: 'lastModified_desc',
-		onMenuSelect: undefined
+		onMenuSelect: undefined,
+		licenseInfo: {}
 	};
 
 	constructor() {

@@ -601,7 +601,7 @@ const MachineList = withShowable((props) => {
 	);
 });
 
-const validateAvailableSheets = (machines, selected, license) => {
+const validateAvailableSheets = (machines, selected, license = {}) => {
 	const availableStreamsheets = Utils.getAvailableSheetsCount(license);
 	const requiredStreamsheets = machines.reduce((total, data) => {
 		const { machine = {} } = data;
