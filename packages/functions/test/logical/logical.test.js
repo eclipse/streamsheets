@@ -133,6 +133,24 @@ describe('logical functions', () => {
 			expect(createTerm('or(A1:A3, C3, D1:E4)', sheet).value).toBe(true);
 			expect(createTerm('or(A1:A3, B1:B3)', sheet).value).toBe(true);
 		});
+		// DL-5277
+		it('should stop evaluating on first truthy term', () => {
+			const sheet = new StreamSheet().sheet;
+			sheet.loadCells({
+				A1: true,
+				B1: false,
+				C1: { formula: 'read(,C3,,,true)' },
+			});
+			expect(sheet.cellAt('C3').value.code).toBe(ERROR.NA);
+			expect(createTerm('or(A1)', sheet).value).toBe(true);
+			expect(createTerm('or(A1,B1)', sheet).value).toBe(true);
+			expect(createTerm('or(A1,C3)', sheet).value).toBe(true);
+			expect(createTerm('or(B1,A1,C3)', sheet).value).toBe(true);
+			expect(createTerm('or(isna(C3),C3!="cedalo/lokal")', sheet).value).toBe(true);
+			expect(createTerm('or(B1,A1,setvalue(true, "hello", C4))', sheet).value).toBe(true);
+			// check setvalue was not executed:
+			expect(sheet.cellAt('C4')).toBeUndefined();
+		});
 		// DL-1400
 		it('should work with boolean like values', () => {
 			const sheet = new StreamSheet().sheet.load({ cells: { A1: 5, B1: 0, C1: -1, A2: 'false', B2: 'true' } });
