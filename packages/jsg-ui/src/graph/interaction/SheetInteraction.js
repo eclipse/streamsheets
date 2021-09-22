@@ -25,7 +25,7 @@ import {
 	CellRange,
 	Expression,
 	WorksheetNode,
-	LayoutNode,
+	LayoutCell,
 	ExecuteFunctionCommand,
 	TreeItemsNode,
 	StreamSheet,
@@ -36,7 +36,7 @@ import {
 import { FuncTerm, Term } from '@cedalo/parser';
 import CellFeedbackView from '../feedback/CellFeedbackView';
 import WorksheetView from '../view/WorksheetView';
-import LayoutView from '../view/LayoutView';
+import LayoutCellView from '../view/LayoutCellView';
 import TreeItemsView from '../view/TreeItemsView';
 import EditCellInteraction from './EditCellInteraction';
 import CellEditor from '../view/CellEditor';
@@ -421,34 +421,27 @@ export default class SheetInteraction extends Interaction {
 		if (!controller) {
 			return this._controller;
 		}
+		const item = controller.getModel();
 
-		if (controller.getModel() instanceof TreeItemsNode) {
+		if ((item instanceof TreeItemsNode) || (item instanceof LayoutCell)) {
 			return controller;
 		}
 
-		const parentController = controller.getParent();
-		if (parentController) {
-			if (parentController.getModel() instanceof LayoutNode) {
-				return controller;
-			}
-		}
-
 		if (
-			!(controller.getModel() instanceof CellsNode) &&
-			!(controller.getModel() instanceof HeaderNode) &&
-			!(controller.getModel() instanceof SheetHeaderNode)
+			!(item instanceof CellsNode) &&
+			!(item instanceof HeaderNode) &&
+			!(item instanceof SheetHeaderNode)
 		) {
 			return undefined;
 			// return this._controller;
 		}
 
+		const parentController = controller.getParent();
 		controller = parentController.getParent();
 		if (controller === undefined) {
 			return undefined;
 		}
 
-		const view = controller.getView();
-		const item = view.getItem();
 		const bounds = item.getTranslatedBoundingBox(item.getGraph());
 		const hScrollSize =
 			item.getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
@@ -697,7 +690,7 @@ export default class SheetInteraction extends Interaction {
 						return;
 					}
 					const targetView = targetController.getView();
-					if (targetView.getParent() instanceof LayoutView) {
+					if (targetView instanceof LayoutCellView) {
 						Highlighter.getDefault().highlightController(targetController, viewer);
 						this._targetController = targetController;
 						return;
@@ -976,7 +969,7 @@ export default class SheetInteraction extends Interaction {
 					return;
 				}
 				const targetView = targetController.getView();
-				if (targetView.getParent() instanceof LayoutView) {
+				if (targetView instanceof LayoutCellView) {
 					const node = new JSG.StreamSheet();
 					// editor.getGraph()._sheetWrapper = node;
 					// node.addAttribute(new JSG.NumberAttribute('streamsheet', this._controller.getModel().getId()));
