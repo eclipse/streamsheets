@@ -36,7 +36,7 @@ const DotOperatorParserContext = (BaseParserContext) =>
 		isFunctionPrefix(prefix = '', expr, index) {
 			prefix = prefix.toUpperCase();
 			const hasPrefix = checkPrefix(prefix, expr, index);
-			return this.functionNames.some(hasPrefix) || this.functionNames.some(hasPrefix);
+			return this.functionNames.some(hasPrefix);
 		}
 	};
 

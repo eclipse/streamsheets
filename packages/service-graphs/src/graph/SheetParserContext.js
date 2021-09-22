@@ -17,17 +17,19 @@ const { GraphParserContext } = JSG;
 const isFunctionParam = (node, parent) => parent && parent.type === 'function' && node.type === 'string';
 
 const FN_CALC = () => '#CALC';
-const FN_NAMES = Object.values(fnshelp).reduce((all, { functions = {} } = {}) => {
+const CORE_FUNCTIONS = Object.values(fnshelp).reduce((all, { functions = {} } = {}) => {
 	Object.keys(functions).forEach((name) => all.push(name));
 	return all;
 }, []);
-const ALL_FUNCTIONS = new Set(FN_NAMES);
+const ALL_FUNCTIONS = new Set(CORE_FUNCTIONS);
+let FN_NAMES = Array.from(ALL_FUNCTIONS);
 
 
 class SheetParserContext extends GraphParserContext {
 	static updateFunctions(fnDefinitions = []) {
 		// seems we only need function names for copy paste => remove when c&p is done by machine server...
 		fnDefinitions.forEach((def) => ALL_FUNCTIONS.add(def.name));
+		FN_NAMES = Array.from(ALL_FUNCTIONS);
 	}
 
 	get functionNames() {
