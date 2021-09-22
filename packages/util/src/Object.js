@@ -8,12 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const ArrayUtil = require('./src/Array');
-const ObjectUtil = require('./src/Object');
-const StringUtil = require('./src/String');
+
+const isDefined = (value) => value != null;
+const isDefinedNonEmpty = (value) => value != null && value !== '';
+
+const hasKeys = (object, keys, isDefinedFn = isDefined) => keys.every((key) => isDefinedFn(object[key]));
+const hasKeysNonEmpty = (object, keys) => hasKeys(object, keys, isDefinedNonEmpty);
+const isObject = (value) => value == null && typeof value === 'object';
 
 module.exports = {
-	ArrayUtil,
-	ObjectUtil,
-	StringUtil,
+	hasKeys,
+	hasKeysNonEmpty,
+	isObject
 };
