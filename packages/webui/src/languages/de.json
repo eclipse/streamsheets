@@ -353,7 +353,7 @@
 	"Import.Error.NameRequired": "Neuer Name wird benötigt!",
 	"Import.Error.DuplicateName": "Name ist mehrmals vergeben!",
 	"Import.Error.NotPossible": "Import nicht möglich!",
-	"Import.Error.Message.NotEnoughSheets": "Nicht genügend Streamsheets vorhanden! Es werden {required} benötigt, aber nur {remain} Stramsheets sind verfügbar!",
+	"Import.Error.Message.NotEnoughSheets": "Nicht genügend Streamsheets vorhanden! Es werden {required} benötigt, aber nur {remain} Streamsheets sind verfügbar!",
 	"Import.Stream.ImportAs": "Importieren als",
 	"Import.List.Streams.ShowAdvanced": "Fortgeschritten",
 	"Import.Machine.ImportAs": "Importieren als",
