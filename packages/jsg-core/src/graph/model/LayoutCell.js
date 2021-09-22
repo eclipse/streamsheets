@@ -262,7 +262,6 @@ module.exports = class LayoutCell extends Node {
 		if (currentColumns < newColumns) {
 			for (let i = currentColumns; i < newColumns; i+= 1) {
 				const node = new LayoutCell();
-				// node.getFormat().setFillColor('#DDDDDD');
 				cmp.add(new AddItemCommand(node, this, i));
 			}
 		} else if (currentColumns > newColumns) {
@@ -281,22 +280,25 @@ module.exports = class LayoutCell extends Node {
 			return;
 		}
 
-		GraphUtils.traverseItem(this, item => {
-			if (!(item instanceof LayoutCell)) {
-				subItems.push(item);
-			}
-		}, false);
-
 		if (oldLayout === 'column' && (newLayout === 'row' || newLayout === 'none')) {
 			// collect non cell sub items and attach them to this node
-			this.handleLayoutColumnChange(0, cmp);
+			GraphUtils.traverseItem(this, item => {
+				if (!(item instanceof LayoutCell) && (item.getParent() instanceof LayoutCell)) {
+					subItems.push(item);
+				}
+			}, false);
+
 			subItems.forEach(subItem => {
-				cmp.add(new AddItemCommand(subItem, this));
+				cmp.add(new ChangeParentCommand(subItem, this));
+				// cmp.add(new AddItemCommand(subItem, this));
 			});
+
+			this.handleLayoutColumnChange(0, cmp);
+
 		} else 	if (oldLayout !== 'column' && newLayout === 'column') {
-			// remove items from current layout
-			subItems.forEach(subItem => {
-				cmp.add(new DeleteItemCommand(subItem));
+			// move content from current layout to first column
+			this.subItems.forEach(subItem => {
+				subItems.push(subItem);
 			});
 
 			// update layout cells
@@ -305,7 +307,8 @@ module.exports = class LayoutCell extends Node {
 				if (i === 0) {
 					// attach subitems to first column
 					subItems.forEach(subItem => {
-						node.addItem(subItem);
+						cmp.add(new ChangeParentCommand(subItem, node));
+						// node.addItem(subItem);
 					});
 				}
 				cmp.add(new AddItemCommand(node, this, i));
