@@ -504,9 +504,16 @@ export class GeometryProperties extends Component {
 	getRotationCenter() {
 		const item = this.props.view.getItem();
 		const pin = item.getPin();
-		const x = pin.getLocalX().getFormula();
-		const y = pin.getLocalY().getFormula();
+		let x = pin.getLocalX().getFormula();
+		let y = pin.getLocalY().getFormula();
 		let ret = 4;
+
+		if (x) {
+			x = x.replace(/\s+/g, '');
+		}
+		if (y) {
+			y = y.replace(/\s+/g, '');
+		}
 
 		if (x === undefined) {
 			if (y === undefined) {
