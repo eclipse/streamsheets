@@ -65,6 +65,7 @@ const {
 	MathUtils,
 	ViewActivator,
 	WorksheetNode,
+	LayoutNode,
 	CellInfoView
 } = JSG;
 
@@ -610,18 +611,6 @@ export default class GraphManager {
 
 		const cmd = SheetCommandFactory.createCommand(this.getGraph(), command, editor.getGraphViewer());
 		if (cmd) {
-			let container;
-			if ((cmd instanceof JSG.AddItemCommand) && (cmd._graphItem instanceof JSG.StreamSheetContainer)) {
-				container = cmd._graphItem;
-				const type = container.getSheetType();
-				switch (type) {
-				case 'dashboard':
-					container.addDashboardSettings();
-					break;
-				default:
-					break;
-				}
-			}
 			// commands received from graph-service are volatile:
 			cmd.isVolatile = true;
 			if (options && options.undo) {
@@ -630,27 +619,38 @@ export default class GraphManager {
 				editor.getInteractionHandler().baseRedo(cmd);
 			} else {
 				editor.getInteractionHandler().baseExecute(cmd, this.graphWrapper);
-				if (container) {
-					const type = container.getSheetType();
-					switch (type) {
-					case 'dashboard': {
-						let path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,
-							JSG.WorksheetAttributes.SHOWGRID);
-						const cmp = new JSG.CompoundCommand();
-						cmp.add(new JSG.SetAttributeAtPathCommand(container.getStreamSheet(), path, false));
-						path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,
-							JSG.WorksheetAttributes.SHOWHEADER);
-						cmp.add(new JSG.SetAttributeAtPathCommand(container.getStreamSheet(), path, false));
-						editor.getInteractionHandler().execute(cmp);
-						break;
-					}
-					case 'cellsheet': {
-						this.getGraph()._sheetWrapper.addAttribute(new JSG.NumberAttribute('streamsheet', container.getId()));
-						this.getGraph()._sheetWrapper = undefined;
-						break;
-					}
-					default:
-						break;
+				if ((cmd instanceof JSG.AddItemCommand) && (cmd._graphItem instanceof JSG.StreamSheetContainer)) {
+					const container = cmd._graphItem;
+					if (container) {
+						const type = container.getSheetType();
+						switch (type) {
+						case 'dashboard': {
+							const cmp = new JSG.CompoundCommand();
+							const layoutNode = new LayoutNode();
+							layoutNode.setSize(20000, 10000);
+							layoutNode.getPin().setLocalPoint(0, 0);
+							layoutNode.setOrigin(0, 0);
+							layoutNode.getItemAttributes().setMoveable(false);
+							layoutNode.getItemAttributes().setDeleteable(false);
+							cmp.add(new JSG.AddItemCommand(layoutNode, container.getStreamSheet().getCells()));
+							let path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,
+								JSG.WorksheetAttributes.SHOWGRID);
+							cmp.add(new JSG.SetAttributeAtPathCommand(container.getStreamSheet(), path, false));
+							path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,
+								JSG.WorksheetAttributes.SHOWHEADER);
+							cmp.add(new JSG.SetAttributeAtPathCommand(container.getStreamSheet(), path, false));
+							editor.getInteractionHandler().execute(cmp);
+							break;
+						}
+						case 'cellsheet': {
+							this.getGraph()._sheetWrapper
+								.addAttribute(new JSG.NumberAttribute('streamsheet', container.getId()));
+							this.getGraph()._sheetWrapper = undefined;
+							break;
+						}
+						default:
+							break;
+						}
 					}
 				}
 			}
