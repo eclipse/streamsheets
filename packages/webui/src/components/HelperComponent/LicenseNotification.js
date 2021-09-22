@@ -77,19 +77,26 @@ const getConfig = (isInvalid, isExpired, errorCode) => {
 	// eslint-disable-next-line
 	return isInvalid ? Config.notfound : (isExpired ? Config.expired : Config.warning);
 };
+const isExpireWarning = (oldDaysLeft, newDaysLeft) => newDaysLeft < 20 && newDaysLeft !== oldDaysLeft;
+const isErrorCode = (oldCode, newCode) => newCode && newCode !== oldCode;
+const stateChanged = (state, daysLeft, errorCode) =>
+	isExpireWarning(state.daysLeft, daysLeft) || isErrorCode(state.errorCode, errorCode);
 
 function LicenseNotification({ isInvalid, edition = '', service = '', daysLeft, errorCode = '', clearLicenseError }) {
 	const [open, setOpen] = useState(false);
-	const [config, setConfig] = useState(Config.warning)
+	const [config, setConfig] = useState(Config.warning);
+	const [prevState, setPrevState] = useState({});
 	const isExpired = daysLeft < 1;
 	const days = isExpired ? '' : daysLeft.toFixed();
 	
 	const onClose = () => {
 		setOpen(false);
 		clearLicenseError();
+		setPrevState({ daysLeft, errorCode: undefined });
 	}
-	if (!open && (daysLeft < 20 || errorCode)) {
+	if (!open && stateChanged(prevState, daysLeft, errorCode)) {
 		setOpen(true);
+		setPrevState({ daysLeft, errorCode });
 		setConfig(getConfig(isInvalid, isExpired, errorCode));
 	}
 
