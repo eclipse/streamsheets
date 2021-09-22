@@ -24,10 +24,12 @@ import Drawer from '@material-ui/core/Drawer';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import { FormattedMessage } from 'react-intl';
 import * as Actions from '../../actions/actions';
+import Utils from '../../helper/Utils';
 import { Restricted } from '../HelperComponent/Restricted';
 import { withStyles } from '@material-ui/core/styles';
 import ListItemText from '@material-ui/core/ListItemText';
 import { MainDrawerExtensions } from '@cedalo/webui-extensions';
+import MenuItemWithTooltip from '../HelperComponent/MenuItemWithTooltip';
 
 export class MainDrawer extends Component {
 	setAppState(state) {
@@ -102,6 +104,7 @@ export class MainDrawer extends Component {
 	render() {
 		const { user } = this.props.user;
 		const { open, isAdminPage, isMachineDetailPage } = this.props;
+		const canAddMachine = Utils.areSheetsAvailable(this.props.licenseInfo);
 		if (!user || !open) return null;
 		return (
 			<Drawer width={300} open={open} onClose={() => this.setAppState({ drawerOpen: false })}>
@@ -123,12 +126,15 @@ export class MainDrawer extends Component {
 				{isAdminPage ? null : (
 					<React.Fragment>
 						<Restricted all={['machine.edit']}>
-							<MenuItem dense onClick={this.handleNew}>
+							<MenuItemWithTooltip
+								tooltipTitle={canAddMachine ? null : <FormattedMessage id="License.Info.Streamsheets.max.reached"/>}
+								MenuItemProps={{dense: true, disabled: !canAddMachine}}
+								onClick={this.handleNew}>
 								<ListItemIcon>
 									<NewIcon />
 								</ListItemIcon>
 								<ListItemText primary={<FormattedMessage id="New" defaultMessage="New" />} />
-							</MenuItem>
+							</MenuItemWithTooltip>
 						</Restricted>
 						<Restricted all={['machine.view']}>
 							<MenuItem dense onClick={this.handleOpen}>
@@ -141,14 +147,17 @@ export class MainDrawer extends Component {
 						<Restricted all={['machine.edit']}>
 							{isMachineDetailPage ? (
 								<div>
-									<MenuItem dense onClick={() => this.handleSaveAs()}>
-										<ListItemIcon>
-											<CloneIcon />
-										</ListItemIcon>
-										<ListItemText
-											primary={<FormattedMessage id="SaveCopyAs" defaultMessage="Save Copy As" />}
-										/>
-									</MenuItem>
+								<MenuItemWithTooltip
+									tooltipTitle={canAddMachine ? null : <FormattedMessage id="License.Info.Streamsheets.max.reached"/>}
+									MenuItemProps={{dense: true, disabled: !canAddMachine}}
+									onClick={this.handleSaveAs}>
+									<ListItemIcon>
+										<CloneIcon />
+									</ListItemIcon>
+									<ListItemText
+										primary={<FormattedMessage id="SaveCopyAs" defaultMessage="Save Copy As" />}
+									/>
+								</MenuItemWithTooltip>
 								</div>
 							) : null}
 						</Restricted>
@@ -167,14 +176,17 @@ export class MainDrawer extends Component {
 						<MainDrawerExtensions.FileSection isMachineDetailPage={isMachineDetailPage} />
 						<Divider />
 						<Restricted all={['machine.edit', 'stream']}>
-							<MenuItem dense onClick={() => this.handleImport()}>
+							<MenuItemWithTooltip
+								tooltipTitle={canAddMachine ? null : <FormattedMessage id="License.Info.Streamsheets.max.reached"/>}
+								MenuItemProps={{dense: true, disabled: !canAddMachine}}
+								onClick={this.handleImport}>
 								<ListItemIcon>
 									<SvgIcon>
 										<path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z" />
 									</SvgIcon>
 								</ListItemIcon>
 								<ListItemText primary={<FormattedMessage id="Import" defaultMessage="Import" />} />
-							</MenuItem>
+							</MenuItemWithTooltip>
 						</Restricted>
 						<Restricted oneOf={['machine.view', 'stream']}>
 							<MenuItem dense onClick={() => this.handleExport()}>
@@ -235,6 +247,7 @@ function mapStateToProps(state) {
 	return {
 		open: state.appState.drawerOpen,
 		machineId: state.monitor.machine.id,
+		licenseInfo: state.meta.licenseInfo,
 		user: state.user
 	};
 }

@@ -669,6 +669,7 @@ class DashBoardComponent extends Component {
 								handleNew={this.props.rights.includes('machine.edit') ? this.handleNew : undefined}
 								filter={this.props.filter}
 								canEdit={canEdit}
+								licenseInfo={this.props.licenseInfo}
 							/>
 							<ImageUploadDialog
 								open={this.state.dialogMachineTitleImageOpen}
@@ -775,7 +776,8 @@ function mapStateToProps(state) {
 		streams: state.streams,
 		machine: state.monitor.machine,
 		machines: state.machines.data,
-		rights: state.user.rights
+		rights: state.user.rights,
+		licenseInfo: state.meta.licenseInfo
 	};
 }
 function mapDispatchToProps(dispatch) {

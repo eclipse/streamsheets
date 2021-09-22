@@ -79,6 +79,11 @@ export function goBackPage() {
 	return (dispatch) => dispatch(goBack());
 }
 
+const clearLicenseError = () => ({
+	type: ActionTypes.LICENSE_CLEAR_ERROR
+});
+export const clearLicenseErrorState = () => store.dispatch(clearLicenseError());
+
 const putAppState = (newState) => ({
 	type: ActionTypes.SET_APP_STATE,
 	newState,
@@ -1042,9 +1047,9 @@ export function cloneMachine(originalMachineId) {
 // 	};
 // }
 
-export function showErrorDialog(titleId, messageId) {
+export function showErrorDialog(titleId, messageId, values) {
 	return (dispatch) => {
-		dispatch(putAppState({ errorDialog: { open: true, titleId, messageId } }));
+		dispatch(putAppState({ errorDialog: { open: true, titleId, messageId, values } }));
 	};
 }
 

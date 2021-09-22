@@ -25,10 +25,10 @@ function ErrorDialog(props) {
 	const handleConfirm = () => {
 		props.setAppState({ errorDialog: { open: false } });
 	};
-	const { titleId, messageId, open } = props.errorDialog;
+	const { titleId, messageId, values, open } = props.errorDialog;
 	const { intl } = props;
 	const title = open && intl.formatMessage({ id: titleId, defaultMessage: 'Error' });
-	const message = open && intl.formatMessage({ id: messageId, defaultMessage: 'An error occurred' });
+	const message = open && intl.formatMessage({ id: messageId, defaultMessage: 'An error occurred' }, values);
 
 	return (
 		<Dialog open={open}>
@@ -53,6 +53,7 @@ ErrorDialog.propTypes = {
 	errorDialog: PropTypes.shape({
 		messageId: PropTypes.string,
 		titleId: PropTypes.string,
+		values: PropTypes.object,
 		open: PropTypes.bool,
 	}).isRequired,
 	// eslint-disable-next-line react/no-typos

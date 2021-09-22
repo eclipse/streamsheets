@@ -16,6 +16,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import { NotAllowed, Restricted } from '../HelperComponent/Restricted';
+import Utils from '../../helper/Utils';
 
 const convertLegacyFormat = (json) => ({
 	machines: [json.data],
@@ -36,7 +37,10 @@ class ImportDropzone extends React.Component {
 	};
 
 	handleImport = (acceptedFiles) => {
-		if (acceptedFiles.length === 1) {
+		const canImport = Utils.areSheetsAvailable(this.props.licenseInfo);
+		if (!canImport) {
+			this.props.showErrorDialog('Import.Error.NotPossible', "License.Info.Streamsheets.max.reached")
+		} else if (acceptedFiles.length === 1) {
 			const fileReader = new FileReader();
 			fileReader.onload = (event) => {
 				const { result } = event.target;
@@ -105,8 +109,8 @@ class ImportDropzone extends React.Component {
 	}
 }
 
-function mapStateToProps() {
-	return {};
+function mapStateToProps({ meta }) {
+	return { licenseInfo: meta.licenseInfo };
 }
 function mapDispatchToProps(dispatch) {
 	return bindActionCreators({ ...Actions }, dispatch);

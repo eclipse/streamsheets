@@ -21,6 +21,7 @@ import { Interceptor } from './ws/ProxyConnection';
 import { UserRepository } from './user/UserRepository';
 import { Strategy } from 'passport';
 
+
 export interface GenericGlobalContext<APIS extends { [key: string]: FunctionObject }, AUTH extends FunctionObject> {
 	mongoClient: MongoClient;
 	rawApi: APIS;

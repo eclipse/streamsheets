@@ -15,27 +15,17 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
-import PremiumVersionIcon from '@material-ui/icons/VerifiedUser';
 import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
-
-const isPremiumLicense = (license) => license && license.edition === 'pro';
-
-const getPremium = () => {
-	return (
-		<span>
-			<PremiumVersionIcon fontSize="small" style={{ color: '#ffc107', verticalAlign: 'middle' }} /> Premium
-		</span>
-	);
-};
-
-const getLicenseValidUntil = (daysLeft) => {
-	const date = new Date();
-	date.setDate(date.getDate() + daysLeft);
-	return date.toLocaleDateString();
-}
+import {
+	getLicenseInstallationsInfo,
+	getLicenseStreamsheetsInfo,
+	getLicenseValidUntil,
+	getPremium,
+	isPremiumLicense
+} from '../../../helper/license';
 
 const useStyles = makeStyles(() => ({
 	tableContainer: {
@@ -47,11 +37,12 @@ const useStyles = makeStyles(() => ({
 
 const License = (props) => {
 	const classes = useStyles();
+	const { licenseInfo } = props;
 
 	return (
 		<div style={{ padding: '24px' }}>
 			<Paper>
-				{props.meta.licenseInfo && (
+				{licenseInfo && (
 					<TableContainer component={Paper} className={classes.tableContainer}>
 							<Table size="medium">
 								<TableBody>
@@ -80,9 +71,9 @@ const License = (props) => {
 												/>
 											</b>
 										</TableCell>
-										<TableCell>{isPremiumLicense(props.meta.licenseInfo) ? getPremium() : props.meta.licenseInfo.edition}</TableCell>
+										<TableCell>{isPremiumLicense(licenseInfo) ? getPremium() : licenseInfo.edition}</TableCell>
 									</TableRow>
-									{isPremiumLicense(props.meta.licenseInfo) && (
+									{isPremiumLicense(licenseInfo) && (
 										<TableRow>
 											<TableCell>
 												<b>
@@ -92,10 +83,10 @@ const License = (props) => {
 													/>
 												</b>
 											</TableCell>
-											<TableCell>{getLicenseValidUntil(props.meta.licenseInfo.daysLeft)}</TableCell>
+											<TableCell>{getLicenseValidUntil(licenseInfo.daysLeft)}</TableCell>
 										</TableRow>
 									)}
-									{isPremiumLicense(props.meta.licenseInfo) && (
+									{isPremiumLicense(licenseInfo) && (
 										<TableRow>
 											<TableCell>
 												<b>
@@ -105,10 +96,10 @@ const License = (props) => {
 													/>
 												</b>
 											</TableCell>
-											<TableCell>{props.meta.licenseInfo.issuedBy}</TableCell>
+											<TableCell>{licenseInfo.issuedBy}</TableCell>
 										</TableRow>
 									)}
-									{isPremiumLicense(props.meta.licenseInfo) && (
+									{isPremiumLicense(licenseInfo) && (
 										<TableRow>
 											<TableCell>
 												<b>
@@ -118,10 +109,10 @@ const License = (props) => {
 													/>
 												</b>
 											</TableCell>
-											<TableCell>{props.meta.licenseInfo.issuedTo}</TableCell>
+											<TableCell>{licenseInfo.issuedTo}</TableCell>
 										</TableRow>
 									)}
-									{isPremiumLicense(props.meta.licenseInfo) && (
+									{isPremiumLicense(licenseInfo) && (
 										<TableRow>
 											<TableCell>
 												<b>
@@ -131,7 +122,20 @@ const License = (props) => {
 													/>
 												</b>
 											</TableCell>
-											<TableCell>{props.meta.licenseInfo.maxInstallations}</TableCell>
+											<TableCell>{getLicenseInstallationsInfo(licenseInfo)}</TableCell>
+										</TableRow>
+									)}
+									{isPremiumLicense(licenseInfo) && (
+										<TableRow>
+											<TableCell>
+												<b>
+													<FormattedMessage
+														id="License.Info.Streamsheets.max"
+														defaultMessage="Maximum number of Streamsheets"
+													/>
+												</b>
+											</TableCell>
+											<TableCell>{getLicenseStreamsheetsInfo(licenseInfo)}</TableCell>
 										</TableRow>
 									)}
 								</TableBody>
@@ -145,7 +149,8 @@ const License = (props) => {
 
 function mapStateToProps(state) {
 	return {
-		meta: state.meta,
+		// meta: state.meta,
+		licenseInfo: state.meta.licenseInfo,
 	};
 }
 
