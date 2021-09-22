@@ -24,7 +24,14 @@ const {
 
 const ERROR = FunctionErrors.code;
 
-const toStaticCell = cell => (cell != null ? new Cell(cell.value, Term.fromValue(cell.value)) : undefined);
+const toStaticCell = (cell) => {
+	let staticCell;
+	if (cell != null) {
+		const value = FunctionErrors.isError(cell.value) ? cell.value.code : cell.value;
+		staticCell = new Cell(value, Term.fromValue(value));
+	}
+	return staticCell;
+};
 
 const cellFromFunc = (func) => {
 	const funcTerm = func.term;
