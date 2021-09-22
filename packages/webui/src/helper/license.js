@@ -28,9 +28,16 @@ export const getLicenseValidUntil = (daysLeft) => {
 	return date.toLocaleDateString();
 };
 
+export const getLicenseInstallationsInfo = ({ maxInstallations = -1 }) => {
+	if (maxInstallations < 0) {
+		return <FormattedMessage id="License.Info.Unlimited" defaultMessage="Unlimited" />;
+	}
+	return maxInstallations;
+};
+
 export const getLicenseStreamsheetsInfo = ({ maxStreamsheets = -1, usedStreamsheets = 0 }) => {
 	if (maxStreamsheets < 0) {
-		return <FormattedMessage id="License.Info.Streamsheets.unlimited" defaultMessage="Unlimited" />;
+		return <FormattedMessage id="License.Info.Unlimited" defaultMessage="Unlimited" />;
 	}
 	const remaining = Math.max(0, maxStreamsheets - usedStreamsheets);
 	return (

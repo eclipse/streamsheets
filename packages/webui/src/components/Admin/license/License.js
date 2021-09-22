@@ -20,6 +20,7 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import {
+	getLicenseInstallationsInfo,
 	getLicenseStreamsheetsInfo,
 	getLicenseValidUntil,
 	getPremium,
@@ -121,7 +122,7 @@ const License = (props) => {
 													/>
 												</b>
 											</TableCell>
-											<TableCell>{licenseInfo.maxInstallations}</TableCell>
+											<TableCell>{getLicenseInstallationsInfo(licenseInfo)}</TableCell>
 										</TableRow>
 									)}
 									{isPremiumLicense(licenseInfo) && (
