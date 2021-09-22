@@ -9,6 +9,7 @@
  *
  ********************************************************************************/
 import * as Actions from '../constants/ActionTypes';
+import * as Messages from '../constants/WebsocketMessageTypes';
 
 const defaultMetaInformationState = {
 	services: {},
@@ -21,29 +22,41 @@ const defaultMetaInformationState = {
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const msToDays = (ms) => ms / DAY_IN_MS;
 const expiresInDays = (validUntil) => Math.ceil(msToDays(validUntil - Date.now()));
-const createLicenseInfo = (licenseInfo = {}) => {
+const createLicenseInfo = (licenseInfo = {}, errcode) => {
 	// TODO: extract every information from license object?
 	const {
 		edition = 'Open Source',
-		invalid,
 		service,
+		valid,
 		validUntil,
 		issuedBy,
 		issuedTo,
-		maxInstallations
+		maxInstallations,
+		maxStreamsheets,
+		usedStreamsheets
 	} = licenseInfo;
 	const info = {
-		isInvalid: !!invalid,
 		edition,
 		service,
 		issuedBy,
 		issuedTo,
-		maxInstallations
+		maxInstallations,
+		maxStreamsheets,
+		usedStreamsheets,
+		isInvalid: !valid,
+		errorCode: errcode
 	};
-	if (validUntil != null) {
-		info.daysLeft = expiresInDays(validUntil);
-	}
+	if (validUntil != null) info.daysLeft = expiresInDays(validUntil);
 	return info;
+};
+
+const getError = ({ data = {} }) => {
+	const { machineserver = {} } = data;
+	return machineserver.error || {};
+};
+const handleLicenseError = (error, state) => {
+	const { type, code, info } = error;
+	return type === 'LicenseError' ? { ...state, licenseInfo: createLicenseInfo(info, code) } : state;
 };
 
 export default function metaInformationReducer(state = defaultMetaInformationState, action) {
@@ -73,6 +86,23 @@ export default function metaInformationReducer(state = defaultMetaInformationSta
 			return {
 				...state,
 				licenseInfo: createLicenseInfo(licenseInfo),
+			};
+		}
+		case Actions.RECEIVE_CREATE_STREAMSHEET: {
+			// is send even if request failed... => check for error
+			const error = getError(action);
+			return handleLicenseError(error, state);
+		}
+		case Messages.REQUEST_FAILED: {
+			const { error = {} } = action;
+			return handleLicenseError(error, state);
+		}
+		case Actions.LICENSE_CLEAR_ERROR: {
+			const licenseInfo = { ...state.licenseInfo };
+			licenseInfo.errorCode = undefined;
+			return {
+				...state,
+				licenseInfo
 			};
 		}
 		default:

@@ -32,6 +32,7 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
+import Utils from '../../helper/Utils';
 import gatewayClient from '../../helper/GatewayClient';
 import { useGraphQL } from '../../helper/Hooks';
 import { Overlay } from '../HelperComponent/Overlay';
@@ -82,6 +83,7 @@ const DO_IMPORT = `
 			import(input: $input, file: $file)	{
 				success
 				code
+				info
 			}
 		}
 	}
@@ -283,7 +285,8 @@ const reducer = (state, action) => {
 			return {
 				...state,
 				importing: false,
-				importError: action.data
+				importError: action.data,
+				importDone: action.done
 			};
 		default:
 			throw new Error(`UNKNOWN ACTION: ${action.type}`);
@@ -598,10 +601,41 @@ const MachineList = withShowable((props) => {
 	);
 });
 
+const validateAvailableSheets = (machines, selected, license = {}) => {
+	const availableStreamsheets = Utils.getAvailableSheetsCount(license);
+	const requiredStreamsheets = machines.reduce((total, data) => {
+		const { machine = {} } = data;
+		const { id, streamsheets = [] } = machine;
+		return selected.includes(id) ? total + streamsheets.length : total;
+	}, 0);
+	return availableStreamsheets < requiredStreamsheets
+		? { code: 'NOT_ENOUGH_STREAMSHEETS', info: { ...license, requiredStreamsheets } }
+		: undefined;
+};
+const getErrorDialogInfo = (code, info = {}) => {
+	if (code === 'NOT_ENOUGH_STREAMSHEETS') {
+		const { maxStreamsheets = 0, usedStreamsheets = 0, requiredStreamsheets: required = 0 } = info;
+		const remain = Math.max(0, maxStreamsheets - usedStreamsheets);
+		return {
+			titleId: 'Import.Error.NotPossible',
+			messageId: 'Import.Error.Message.NotEnoughSheets',
+			values: { required, remain }
+		};
+	}
+	return undefined;
+};
+const handleInnerError = ({ code, info } = {}, props, dispatch) => {
+	const errorInfo = getErrorDialogInfo(code, info);
+	dispatch({ type: 'import_error', data: code, done: !!errorInfo });
+	if (errorInfo) {
+		props.showErrorDialog(errorInfo.titleId, errorInfo.messageId, errorInfo.values);
+	}
+};
 function ImportDialogInner(props) {
 	const {
 		importData: { machines, streams },
 		importInfoInput,
+		licenseInfo,
 		scope
 	} = props;
 	const { data, loading } = useGraphQL(IMPORT_INFO_QUERY, { scope, input: importInfoInput }, [scope.id]);
@@ -661,26 +695,31 @@ function ImportDialogInner(props) {
 			streams: props.importData.streams.filter((s) => selectedStreamIds.includes(s.id))
 		};
 		try {
-			const result = await gatewayClient.graphql(
-				DO_IMPORT,
-				{
-					scope,
-					file: null,
-					input: {
-						machines: machineSelection,
-						streams: streamSelection
-					}
-				},
-				new Blob([JSON.stringify(trimmedImportFileContent)], {
-					type: 'text/plain;charset=utf8;'
-				})
-			);
-			const { success, code } = result.data.scoped.import;
-			if (success) {
-				dispatch({ type: 'import_success' });
-				props.updateMachines();
+			const validationError = validateAvailableSheets(machines, selectedMachineIds, licenseInfo);
+			if (!validationError) {
+				const result = await gatewayClient.graphql(
+					DO_IMPORT,
+					{
+						scope,
+						file: null,
+						input: {
+							machines: machineSelection,
+							streams: streamSelection
+						}
+					},
+					new Blob([JSON.stringify(trimmedImportFileContent)], {
+						type: 'text/plain;charset=utf8;'
+					})
+				);
+				const { success } = result.data.scoped.import;
+				if (success) {
+					dispatch({ type: 'import_success' });
+					props.updateMachines();
+				} else {
+					handleInnerError(result.data.scoped.import, props, dispatch);
+				}
 			} else {
-				dispatch({ type: 'import_error', data: code });
+				handleInnerError(validationError, props, dispatch);
 			}
 		} catch (error) {
 			dispatch({ type: 'import_error', data: 'UNEXPECTED_ERROR' });
@@ -862,8 +901,9 @@ ImportDialogInner.propTypes = {
 	// importMachinesAndStreams: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = ({ user }) => ({
-	scope: user.user ? user.user.scope : null
+const mapStateToProps = ({ meta, user }) => ({
+	scope: user.user ? user.user.scope : null,
+	licenseInfo: meta.licenseInfo
 });
 
 function mapDispatchToProps(dispatch) {

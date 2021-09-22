@@ -22,7 +22,7 @@ import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
 import FilterName from '../components/base/listing/FilterName';
 import DashBoardComponent from '../components/Dashboard/DashBoardComponent';
-import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
+import LicenseNotification from '../components/HelperComponent/LicenseNotification';
 import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
 import OpenDialog from '../components/Dialogs/OpenDialog';
 import SaveAsDialog from '../components/Dialogs/SaveAsDialog';
@@ -166,7 +166,7 @@ export function DashboardPageComponent(props) {
 								height: '58px'
 							}}
 						>
-							<LicenseExpireNotification />
+							<LicenseNotification />
 							<div style={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
 								<InfoToolBar
 									title={<FormattedMessage id="MainTitle" defaultMessage="Streamsheets" />}

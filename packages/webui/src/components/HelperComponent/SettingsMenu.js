@@ -40,32 +40,23 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import {Assignment, ExitToApp, Info, Security, Settings} from '@material-ui/icons';
-import PremiumVersionIcon from '@material-ui/icons/VerifiedUser';
 
 import * as Actions from '../../actions/actions';
 import {graphManager} from '../../GraphManager';
 import {withStyles} from '@material-ui/core/styles';
 import {Path} from '../../helper/Path';
 import ListItemText from "@material-ui/core/ListItemText";
+import {
+	getLicenseStreamsheetsInfo,
+	getLicenseValidUntil,
+	getPremium,
+	isPremiumLicense
+} from '../../helper/license';
+
 
 const VERSION = process.env.REACT_APP_VERSION || '2.5';
 const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
 
-const isPremiumLicense = (license) => license && license.edition === 'pro';
-
-const getPremium = () => {
-	return (
-		<span>
-			<PremiumVersionIcon fontSize="small" style={{ color: '#ffc107', verticalAlign: 'middle' }} /> Premium
-		</span>
-	);
-};
-
-const getLicenseValidUntil = (daysLeft) => {
-	const date = new Date();
-	date.setDate(date.getDate() + daysLeft);
-	return date.toLocaleDateString();
-}
 
 /**
  * A modal dialog can only be closed by selecting one of the actions.
@@ -210,6 +201,7 @@ export class SettingsMenu extends React.Component {
 	render() {
 		const { displayName } = JSON.parse(localStorage.getItem('user')) || {};
 		const { user } = this.props.user;
+		const { licenseInfo, services } = this.props.meta;
 		return (
 			<div
 				style={{
@@ -223,8 +215,9 @@ export class SettingsMenu extends React.Component {
 							color="inherit"
 							aria-owns={this.props.openMoreSettingMenu ? 'long-menu' : null}
 							aria-haspopup="true"
-							onClick={event =>
-								this.props.setAppState({ anchorEl: event.currentTarget, openMoreSettingMenu: true })}
+							onClick={(event) =>
+								this.props.setAppState({ anchorEl: event.currentTarget, openMoreSettingMenu: true })
+							}
 						>
 							<Avatar alt="User" src="images/avatar.png" />
 						</IconButton>
@@ -235,7 +228,7 @@ export class SettingsMenu extends React.Component {
 						id="long-menu"
 						anchorEl={this.props.anchorEl}
 						open={this.props.openMoreSettingMenu}
-						onClose={() => this.props.setAppState({anchorEl: null, openMoreSettingMenu: false})}
+						onClose={() => this.props.setAppState({ anchorEl: null, openMoreSettingMenu: false })}
 					>
 						<Card
 							square
@@ -246,9 +239,13 @@ export class SettingsMenu extends React.Component {
 							}}
 						>
 							<CardHeader
-								title={<div style={{color: Colors.grey[50]}}>{displayName}</div>}
-								subheader={<address style={{color: Colors.grey[50]}}>{user ? user.mail : ""}</address>}
-								avatar={<Avatar alt="User" src="images/avatar.png" onClick={this.showPreferencesDialog} />}
+								title={<div style={{ color: Colors.grey[50] }}>{displayName}</div>}
+								subheader={
+									<address style={{ color: Colors.grey[50] }}>{user ? user.mail : ''}</address>
+								}
+								avatar={
+									<Avatar alt="User" src="images/avatar.png" onClick={this.showPreferencesDialog} />
+								}
 								disabled
 								style={{
 									backgroundColor: this.props.theme.overrides.MuiAppBar.colorPrimary.backgroundColor,
@@ -258,197 +255,160 @@ export class SettingsMenu extends React.Component {
 						</Card>
 						<MenuItem dense onClick={this.showPreferencesDialog}>
 							<ListItemIcon>
-								<Settings/>
+								<Settings />
 							</ListItemIcon>
 							<ListItemText
-								primary={<FormattedMessage id="UserPreferences" defaultMessage="User Preferences"/>}/>
+								primary={<FormattedMessage id="UserPreferences" defaultMessage="User Preferences" />}
+							/>
 						</MenuItem>
 						{this.props.isAdminPage ? null : (
 							<MenuItem dense onClick={this.handleOpenAdmin}>
 								<ListItemIcon>
-									<Security/>
+									<Security />
 								</ListItemIcon>
 								<ListItemText
-									primary={<FormattedMessage id="Administration" defaultMessage="Administration"/>}/>
-							</MenuItem>)}
+									primary={<FormattedMessage id="Administration" defaultMessage="Administration" />}
+								/>
+							</MenuItem>
+						)}
 						<MenuItem dense onClick={this.showHelpDialog}>
 							<ListItemIcon>
-								<Info/>
+								<Info />
 							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="Info" defaultMessage="Info"/>}/>
+							<ListItemText primary={<FormattedMessage id="Info" defaultMessage="Info" />} />
 						</MenuItem>
-						{ this.getLocale().toUpperCase() === 'DE' && <MenuItem dense onClick={() => this.showLicenseAgreement('DE')}>
-							<ListItemIcon>
-								<Assignment/>
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseDE"
-																	 defaultMessage="Download license"/>}/>
-						</MenuItem>
-						}
-						{ this.getLocale().toUpperCase() === 'EN' && <MenuItem dense onClick={() => this.showLicenseAgreement('EN')}>
-							<ListItemIcon>
-								<Assignment/>
-							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="Setup.LicenseAgreement.DownloadLicenseEN"
-																	 defaultMessage="Download license"/>}/>
-						</MenuItem>
-						}
-						<Divider/>
+						{this.getLocale().toUpperCase() === 'DE' && (
+							<MenuItem dense onClick={() => this.showLicenseAgreement('DE')}>
+								<ListItemIcon>
+									<Assignment />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<FormattedMessage
+											id="Setup.LicenseAgreement.DownloadLicenseDE"
+											defaultMessage="Download license"
+										/>
+									}
+								/>
+							</MenuItem>
+						)}
+						{this.getLocale().toUpperCase() === 'EN' && (
+							<MenuItem dense onClick={() => this.showLicenseAgreement('EN')}>
+								<ListItemIcon>
+									<Assignment />
+								</ListItemIcon>
+								<ListItemText
+									primary={
+										<FormattedMessage
+											id="Setup.LicenseAgreement.DownloadLicenseEN"
+											defaultMessage="Download license"
+										/>
+									}
+								/>
+							</MenuItem>
+						)}
+						<Divider />
 						<MenuItem dense onClick={this.logout}>
 							<ListItemIcon>
-								<ExitToApp/>
+								<ExitToApp />
 							</ListItemIcon>
-							<ListItemText primary={<FormattedMessage id="Logout" defaultMessage="Logout"/>}/>
+							<ListItemText primary={<FormattedMessage id="Logout" defaultMessage="Logout" />} />
 						</MenuItem>
 					</Menu>
 				) : null}
 				{this.props.openPreferences ? (
-				<Dialog
-					open={this.props.openPreferences}
-					onClose={this.handlePreferencesCancel}
-				>
-					<DialogTitle>
-						<FormattedMessage
-							id="DialogPreferences.title"
-							defaultMessage="User Preferences"
-						/>
-					</DialogTitle>
-					<DialogContent style={{
-						minWidth: '350px',
-					}}
-					>
-						<div
+					<Dialog open={this.props.openPreferences} onClose={this.handlePreferencesCancel}>
+						<DialogTitle>
+							<FormattedMessage id="DialogPreferences.title" defaultMessage="User Preferences" />
+						</DialogTitle>
+						<DialogContent
 							style={{
-								position: 'relative',
+								minWidth: '350px'
 							}}
 						>
-							{ this.props.showLoading ? (
-								<div
-									style={{
-										width: '100%',
-										height: '100%',
-										position: 'absolute',
-										boxSizing: 'border-box',
-										zIndex: 10,
-										background: 'rgba(255, 255, 255, 0.8)',
-										display: 'flex',
-										flexDirection: 'column',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									<CircularProgress color={Colors.blue[800]} />
-								</div>
-							) : null }
-							{ user && user.settings ? (
-								<div style={{display: 'flex', flexDirection: 'column'}}>
-									<FormControl
-										margin="normal"
+							<div
+								style={{
+									position: 'relative'
+								}}
+							>
+								{this.props.showLoading ? (
+									<div
+										style={{
+											width: '100%',
+											height: '100%',
+											position: 'absolute',
+											boxSizing: 'border-box',
+											zIndex: 10,
+											background: 'rgba(255, 255, 255, 0.8)',
+											display: 'flex',
+											flexDirection: 'column',
+											alignItems: 'center',
+											justifyContent: 'center'
+										}}
 									>
-										<TextField
-											variant="outlined"
-											size="small"
-											select
-											value={this.props.locale}
-											onChange={event => this.handleLanguageChange(event)}
-											label={
-												<FormattedMessage
-													id="Language"
-													defaultMessage="Language"
-												/>
-											}
-										>
-											<MenuItem value="en">
-												<FormattedMessage
-													id="English"
-													defaultMessage="English"
-												/>
-											</MenuItem>
-											<MenuItem value="de">
-												<FormattedMessage
-													id="German"
-													defaultMessage="German"
-												/>
-											</MenuItem>
-										</TextField>
-									</FormControl>
-									<FormControl
-										margin="normal"
-									>
-										<TextField
-											id="theme-selection"
-											value={this.state.theme}
-											select
-											variant="outlined"
-											size="small"
-											onChange={event => this.handleThemeChange(event)}
-											inputProps={{
-												name: "theme-selection",
-												id: "theme-selection"
-											}}
-											label={
-												<FormattedMessage
-													id="Theme"
-													defaultMessage="Theme"
-												/>
-											}
-										>
-											<MenuItem value="Default">
-												<FormattedMessage
-													id="Default"
-													defaultMessage="Default"
-												/>
-											</MenuItem>
-											<MenuItem value="Dark">
-												<FormattedMessage
-													id="Dark"
-													defaultMessage="Dark"
-												/>
-											</MenuItem>
-										</TextField>
-									</FormControl>
-								</div>) : null}
-						</div>
-					</DialogContent>
-					<DialogActions>
-						<Button
-							color="primary"
-							onClick={this.handlePreferencesCancel}
-						>
-							<FormattedMessage
-								id="Cancel"
-								defaultMessage="Cancel"
-							/>
-						</Button>
-						<Button
-							color="primary"
-							onClick={this.handlePreferencesSubmit}
-						>
-							<FormattedMessage
-								id="OK"
-								defaultMessage="OK"
-							/>
-						</Button>
-					</DialogActions>
-				</Dialog>
+										<CircularProgress color={Colors.blue[800]} />
+									</div>
+								) : null}
+								{user && user.settings ? (
+									<div style={{ display: 'flex', flexDirection: 'column' }}>
+										<FormControl margin="normal">
+											<TextField
+												variant="outlined"
+												size="small"
+												select
+												value={this.props.locale}
+												onChange={(event) => this.handleLanguageChange(event)}
+												label={<FormattedMessage id="Language" defaultMessage="Language" />}
+											>
+												<MenuItem value="en">
+													<FormattedMessage id="English" defaultMessage="English" />
+												</MenuItem>
+												<MenuItem value="de">
+													<FormattedMessage id="German" defaultMessage="German" />
+												</MenuItem>
+											</TextField>
+										</FormControl>
+										<FormControl margin="normal">
+											<TextField
+												id="theme-selection"
+												value={this.state.theme}
+												select
+												variant="outlined"
+												size="small"
+												onChange={(event) => this.handleThemeChange(event)}
+												inputProps={{
+													name: 'theme-selection',
+													id: 'theme-selection'
+												}}
+												label={<FormattedMessage id="Theme" defaultMessage="Theme" />}
+											>
+												<MenuItem value="Default">
+													<FormattedMessage id="Default" defaultMessage="Default" />
+												</MenuItem>
+												<MenuItem value="Dark">
+													<FormattedMessage id="Dark" defaultMessage="Dark" />
+												</MenuItem>
+											</TextField>
+										</FormControl>
+									</div>
+								) : null}
+							</div>
+						</DialogContent>
+						<DialogActions>
+							<Button color="primary" onClick={this.handlePreferencesCancel}>
+								<FormattedMessage id="Cancel" defaultMessage="Cancel" />
+							</Button>
+							<Button color="primary" onClick={this.handlePreferencesSubmit}>
+								<FormattedMessage id="OK" defaultMessage="OK" />
+							</Button>
+						</DialogActions>
+					</Dialog>
 				) : null}
 				{this.props.openHelp ? (
-				<Dialog
-					open={this.props.openHelp}
-					onClose={this.handleCloseHelp}
-				>
+				<Dialog open={this.props.openHelp} onClose={this.handleCloseHelp} >
 					<DialogTitle>
-						<FormattedMessage
-							id="Product.name"
-							defaultMessage="Streamsheets"
-						/>
-						{" "}
-						<FormattedMessage
-							id="Version"
-							defaultMessage="Version"
-						/>
-						{" "}
-						{VERSION}
+						<FormattedMessage id="Product.name" defaultMessage="Streamsheets" />{' '}
+						<FormattedMessage id="Version" defaultMessage="Version"	/> {' '} {VERSION}
 					</DialogTitle>
 					<DialogContent
 						style={{
@@ -456,7 +416,7 @@ export class SettingsMenu extends React.Component {
 						}}
 					>
 
-						{this.props.meta.licenseInfo && (
+						{licenseInfo && (
 							<Table size="small">
 								<TableBody>
 									<TableRow>
@@ -468,7 +428,9 @@ export class SettingsMenu extends React.Component {
 												/>
 											</b>
 										</TableCell>
-										<TableCell>{isPremiumLicense(this.props.meta.licenseInfo) ? getPremium() : this.props.meta.licenseInfo.edition}</TableCell>
+										<TableCell>
+											{isPremiumLicense(licenseInfo) ? getPremium() : licenseInfo.edition}
+										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell>
@@ -481,7 +443,7 @@ export class SettingsMenu extends React.Component {
 										</TableCell>
 										<TableCell>{BUILD_NUMBER}</TableCell>
 									</TableRow>
-									{isPremiumLicense(this.props.meta.licenseInfo) && (
+									{isPremiumLicense(licenseInfo) && (
 										<TableRow>
 											<TableCell>
 												<b>
@@ -491,7 +453,20 @@ export class SettingsMenu extends React.Component {
 													/>
 												</b>
 											</TableCell>
-											<TableCell>{getLicenseValidUntil(this.props.meta.licenseInfo.daysLeft)}</TableCell>
+											<TableCell>{getLicenseValidUntil(licenseInfo.daysLeft)}</TableCell>
+										</TableRow>
+									)}
+									{isPremiumLicense(licenseInfo) && (
+										<TableRow>
+											<TableCell>
+												<b>
+													<FormattedMessage
+														id="License.Info.Streamsheets.max"
+														defaultMessage="Maximum number of Streamsheets"
+													/>
+												</b>
+											</TableCell>
+											<TableCell>{getLicenseStreamsheetsInfo(licenseInfo)}</TableCell>
 										</TableRow>
 									)}
 								</TableBody>
@@ -502,22 +477,13 @@ export class SettingsMenu extends React.Component {
 							<TableHead>
 								<TableRow>
 									<TableCell>
-										<FormattedMessage
-											id="Component"
-											defaultMessage="Component"
-										/>
+										<FormattedMessage id="Component" defaultMessage="Component" />
 									</TableCell>
 									<TableCell>
-										<FormattedMessage
-											id="Version"
-											defaultMessage="Version"
-										/>
+										<FormattedMessage id="Version" defaultMessage="Version" />
 									</TableCell>
 									<TableCell>
-										<FormattedMessage
-											id="Status"
-											defaultMessage="Status"
-										/>
+										<FormattedMessage id="Status" defaultMessage="Status" />
 									</TableCell>
 									{/* <TableCell>
 										<FormattedMessage
@@ -532,14 +498,15 @@ export class SettingsMenu extends React.Component {
 								<TableRow>
 									<TableCell><strong>Web UI</strong></TableCell>
 									<TableCell>{VERSION}</TableCell>
+									{/* <TableCell>{BUILD_NUMBER}</TableCell> */}
 									<TableCell>
 										<CheckCircleIcon style={{color: 'green'}}/>
 									</TableCell>
 									{/* <TableCell>webui</TableCell> */}
 								</TableRow>
 								{
-									this.props.meta.services &&
-									Object.values(this.props.meta.services)
+									services &&
+									Object.values(services)
 										.sort((a, b) => a.name && a.name.localeCompare(b.name))
 										.map((service) => this.renderServiceDetails(service)
 									)
@@ -571,10 +538,7 @@ export class SettingsMenu extends React.Component {
 									onChange={() => this.setState({debug: !this.state.debug})}
 								/>
 							}
-							label={<FormattedMessage
-								id="Settings.Debug"
-								defaultMessage="Debug Mode"
-							/>}
+							label={<FormattedMessage id="Settings.Debug" defaultMessage="Debug Mode" />}
 						/>
 					</DialogContent>
 					<DialogActions>

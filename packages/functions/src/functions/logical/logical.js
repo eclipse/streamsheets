@@ -15,25 +15,41 @@ const { isType } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
-const runWith = (sheet, terms, logic) =>
+const and = (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.run(() => {
-			let error;
 			let res;
+			let error;
 			onTerms.iterateValues(sheet, terms, (value, err) => {
-				error = error || err;
-				const bool = convert.toBoolean(value);
+				// stop on error
+				error = err;
+				if (err) return true;
 				// ignore values which could not be converted
-				if (bool != null) res = logic(res, bool);
+				const bool = convert.toBoolean(value);
+				if (bool != null) res = res == null ? bool : res && bool;
+				return false;
+			});
+			return error || (res == null ? ERROR.VALUE : res);
+		});
+const or = (sheet, ...terms) =>
+	runFunction(sheet, terms)
+		.withMinArgs(1)
+		.run(() => {
+			let res;
+			let error;
+			onTerms.iterateValues(sheet, terms, (value, err) => {
+				// stop on error
+				error = err;
+				if (err) return true;
+				// ignore values which could not be converted
+				const bool = convert.toBoolean(value);
+				if (bool != null) res = bool;
+				return res;
 			});
 			return error || (res == null ? ERROR.VALUE : res);
 		});
 
-// boolean values: strings always true!! and 0 always false 
-const and = (sheet, ...terms) => runWith(sheet, terms, (res, currbool) => (res == null ? currbool : res && currbool));
-
-const or = (sheet, ...terms) => runWith(sheet, terms, (res, currbool) => res || currbool);
 
 const termValue = (term) => term ? term.value : null;
 

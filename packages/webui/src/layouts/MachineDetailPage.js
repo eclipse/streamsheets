@@ -23,7 +23,7 @@ import InfoToolBar from '../components/AppBarComponent/InfoToolBar';
 import MainDrawer from '../components/AppBarComponent/MainDrawer';
 import CanvasToolBar from '../components/Canvas/CanvasToolBar';
 import InboxSettings from '../components/HelperComponent/InboxSettings';
-import LicenseExpireNotification from '../components/HelperComponent/LicenseExpireNotification';
+import LicenseNotification from '../components/HelperComponent/LicenseNotification';
 import MachineSettingsDialog from '../components/Dialogs/MachineSettingsDialog';
 import NewMachineDialog from '../components/Dialogs/NewMachineDialog';
 import OpenDialog from '../components/Dialogs/OpenDialog';
@@ -330,7 +330,7 @@ export function MachineDetailPage(props) {
 									}}
 								>
 									{canEditMachine ? <MachineControlBar /> : null}
-									<LicenseExpireNotification />
+									<LicenseNotification />
 									<Toolbar
 										style={{
 											paddingRight: '5px',

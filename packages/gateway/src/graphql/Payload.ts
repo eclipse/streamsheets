@@ -13,7 +13,7 @@ import { InternalError } from '../errors';
 const INTERNAL_ERROR_PAYLOAD = {
 	success: false,
 	code: 'INTERNAL_ERROR',
-	message: 'An internal server error occured'
+	message: 'An internal server error occurred'
 };
 
 export interface Payload {
