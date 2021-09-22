@@ -138,7 +138,8 @@ class MachineTaskRunner {
 const create = async (runneropts) => {
 	logger.info('create new MachineTaskRunner...');
 	const runner = new MachineTaskRunner(runneropts);
-	await runner.request('registerFunctionModules', undefined, {modules: FunctionModulesResolver.getModules() });
+	const modules = await FunctionModulesResolver.getModules();
+	await runner.request('registerFunctionModules', undefined, { modules });
 	await runner.request('registerStreams', undefined, { descriptors: StreamManager.getDescriptors() });
 	return runner;
 };
