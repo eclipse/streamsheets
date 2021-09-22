@@ -608,7 +608,7 @@ const validateAvailableSheets = (machines, selected, license = {}) => {
 		const { id, streamsheets = [] } = machine;
 		return selected.includes(id) ? total + streamsheets.length : total;
 	}, 0);
-	return availableStreamsheets < requiredStreamsheets
+	return availableStreamsheets >= 0 && availableStreamsheets < requiredStreamsheets
 		? { code: 'NOT_ENOUGH_STREAMSHEETS', info: { ...license, requiredStreamsheets } }
 		: undefined;
 };
