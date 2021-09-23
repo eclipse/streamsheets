@@ -11,7 +11,7 @@
 const crypto = require('../src/functions/crypto/help');
 const database = require('../src/functions/database/help');
 const date = require('../src/functions/date/help');
-const drawing = require('../src/functions/drawing/help');
+const shape = require('../src/functions/drawing/help');
 const engineering = require('../src/functions/engineering/help');
 const http = require('../src/functions/http/help');
 const info = require('../src/functions/info/help');
@@ -32,7 +32,7 @@ module.exports = {
 	crypto,
 	database,
 	date,
-	drawing,
+	shape,
 	engineering,
 	http,
 	info,

@@ -9,8 +9,8 @@
  *
  ********************************************************************************/
 module.exports = {
-	en: 'Drawing',
-	de: 'Zeichnen',
+	en: 'Shapes',
+	de: 'Zeichenobjekte',
 	functions: {
 		AXIS: {
 			en: {
@@ -31,7 +31,7 @@ module.exports = {
 			},
 			de: {
 				argumentList: 'Zahl,Richtung,Füllfarbe,Linienfarbe',
-				description: 'Zeichnet einen vertikalen oder horizonalen Balken in der Zelle, wo die Funktion ist'
+				description: 'Zeichnet einen vertikalen oder horizontalen Balken in der Zelle, wo die Funktion ist'
 			}
 		},
 		CELLCHART: {
