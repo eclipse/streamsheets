@@ -328,20 +328,22 @@ export class LayoutSectionProperties extends Component {
 									/>
 								}
 							/>
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={this.state.expanded}
-										onChange={(event => this.handleExpandedChange(event))}
-									/>
-								}
-								label={
-									<FormattedMessage
-										id="GraphItemProperties.Expanded"
-										defaultMessage="Expanded"
-									/>
-								}
-							/>
+							{this.state.expandable ? (
+								<FormControlLabel
+									control={
+										<Checkbox
+											checked={this.state.expanded}
+											onChange={(event => this.handleExpandedChange(event))}
+										/>
+									}
+									label={
+										<FormattedMessage
+											id="GraphItemProperties.Expanded"
+											defaultMessage="Expanded"
+										/>
+									}
+								/>) : null
+							}
 							</FormGroup>
 						] : null}
 					</div>
