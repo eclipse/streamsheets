@@ -8,7 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { StringUtil } from '@cedalo/util';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Paper from '@material-ui/core/Paper';
 import CheckIcon from '@material-ui/icons/Check';
@@ -32,7 +31,7 @@ const createUserReducer = (state, action) => {
 				user: { ...state.user, username: action.data },
 				errors: {
 					...state.errors,
-					username: StringUtil.isEmpty(action.data) ? 'USERNAME_REQUIRED' : undefined
+					username: !action.data ? 'USERNAME_REQUIRED' : undefined
 				}
 			};
 		case 'set_password':
@@ -105,7 +104,7 @@ mutation CreateUser($user: UserInput!) {
 `;
 
 const hasFieldError = (errors) =>
-	Object.entries(errors).filter(([key, value]) => key !== 'form' && !StringUtil.isEmpty(value)).length > 0;
+	Object.entries(errors).filter(([key, value]) => key !== 'form' && !!value).length > 0;
 
 export const CreatUserPageComponent = (props) => {
 	const { onCancel, onSubmit } = props;

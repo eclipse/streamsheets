@@ -8,8 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { StringUtil } from '@cedalo/util';
-
 const lowerCaseIfString = (s) => (typeof s === 'string' ? s.toLowerCase() : s);
 
 export const filterAndSort = (fields = []) => (entities = [], filterText, sort) => {
@@ -34,4 +32,4 @@ export const filterAndSort = (fields = []) => (entities = [], filterText, sort) 
 };
 
 export const hasFieldError = (errors) =>
-	Object.entries(errors).filter(([key, value]) => key !== 'form' && !StringUtil.isEmpty(value)).length > 0;
+	Object.entries(errors).filter(([key, value]) => key !== 'form' && !!value).length > 0;

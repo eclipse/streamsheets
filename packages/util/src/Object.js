@@ -12,9 +12,10 @@
 const isDefined = (value) => value != null;
 const isDefinedNonEmpty = (value) => value != null && value !== '';
 
-const hasKeys = (object, keys, isDefinedFn = isDefined) => keys.every((key) => isDefinedFn(object[key]));
+const isObject = (value) => value != null && typeof value === 'object';
+const hasKeys = (object, keys, isDefinedFn = isDefined) =>
+	isObject(object) ? keys.every((key) => isDefinedFn(object[key])) : false;
 const hasKeysNonEmpty = (object, keys) => hasKeys(object, keys, isDefinedNonEmpty);
-const isObject = (value) => value == null && typeof value === 'object';
 
 module.exports = {
 	hasKeys,

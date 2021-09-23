@@ -17,13 +17,10 @@ const capitalize = (s) => {
 	return '';
 };
 
-const isEmpty = (s) => !s || s.length === 0;
-
 // removes any quotes from beginning and end of given string
 const unwrap = (s) => s ? s.replace(UNWRAP_REGEX, '') : s;
 
 module.exports = {
 	capitalize,
-	isEmpty,
 	unwrap
 };

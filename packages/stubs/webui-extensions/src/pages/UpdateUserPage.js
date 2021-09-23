@@ -8,7 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-import { StringUtil } from '@cedalo/util';
 import { getDataStores, openPage } from '@cedalo/webui/src/actions/actions';
 import { Overlay } from '@cedalo/webui/src/components/HelperComponent/Overlay';
 import gatewayClient from '@cedalo/webui/src/helper/GatewayClient';
@@ -46,7 +45,7 @@ mutation UpdateUser($id: ID!, $newPassword: String!) {
 `;
 
 const hasFieldError = (errors) =>
-	Object.entries(errors).filter(([key, value]) => key !== 'form' && !StringUtil.isEmpty(value)).length > 0;
+	Object.entries(errors).filter(([key, value]) => key !== 'form' && !!value).length > 0;
 
 const updateUserReducer = (state, action) => {
 	switch (action.type) {

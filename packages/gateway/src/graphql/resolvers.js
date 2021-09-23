@@ -360,9 +360,10 @@ const resolvers = {
 			const referencedStreams = [].concat(
 				...machine.streamsheets.map((t) => {
 					const cells = Object.values(t.sheet.cells);
-					const cellStreamRefs = ArrayUtil.flatten(
-						cells.filter((c) => !!c.references).map((c) => c.references)
-					)
+					const cellStreamRefs = cells
+						.filter((c) => !!c.references)
+						.map((c) => c.references)
+						.flat()
 						.filter((ref) => ref.startsWith('|'))
 						.map((ref) => machine.namedCells[ref])
 						.filter((stream) => stream !== undefined)

@@ -16,25 +16,7 @@
   },
   "dependencies": {},
   "jest": {
-    "collectCoverage": true,
-    "coverageDirectory": "coverage",
-    "moduleDirectories": [
-      "node_modules"
-    ],
-    "testPathIgnorePatterns": [
-      "/node_modules/"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/test/"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 50,
-        "functions": 90,
-        "lines": 85,
-        "statements": 85
-      }
-    }
+    "collectCoverage": true
   },
   "bugs": {
     "url": "https://github.com/cedalo/streamsheets/issues"

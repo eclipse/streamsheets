@@ -8,8 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const flatten = (arrays) => [].concat(...arrays);
-
 const unique = (array) => [...new Set(array)];
 
 const updateWhere = (array, update, f, upsert = true) => {
@@ -24,11 +22,11 @@ const updateWhere = (array, update, f, upsert = true) => {
 	return isNew && upsert ? [...updatedArray, update] : updatedArray;
 }
 
-const intersperse = (array, separator) => {
-	const applyWithIndex = typeof separator === 'function';
+const intersperse = (array, item) => {
+	const applyWithIndex = typeof item === 'function';
 	return array.reduce((acc, element, index) => {
 		const isLast = index === array.length - 1;
-		return [...acc, element, ...(isLast ? [] : [applyWithIndex ? separator(index) : separator])];
+		return [...acc, element, ...(isLast ? [] : [applyWithIndex ? item(index) : item])];
 	}, []);
 };
 
@@ -43,7 +41,6 @@ const partition = (array, keyF) =>
 	}, {});
 
 module.exports = {
-	flatten,
 	unique,
 	updateWhere,
 	intersperse,
