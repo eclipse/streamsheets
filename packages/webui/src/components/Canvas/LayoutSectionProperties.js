@@ -269,31 +269,27 @@ export class LayoutSectionProperties extends Component {
 							margin: '8px'
 						}}
 					>
-						<TextField
-							variant="outlined"
-							size="small"
-							fullWidth
-							margin="normal"
-							select
-							value={this.state.sizeMode}
-							onChange={event => this.handleSizeMode(event)}
-							label={
-								<FormattedMessage id="GraphItemProperties.SizeMode" defaultMessage="Size" />
-							}
-						>
-							{isRowSection ? [
+						{isRowSection ? (
+							<TextField
+								variant="outlined"
+								size="small"
+								fullWidth
+								margin="normal"
+								select
+								value={this.state.sizeMode}
+								onChange={event => this.handleSizeMode(event)}
+								label={
+									<FormattedMessage id="GraphItemProperties.SizeMode" defaultMessage="Size" />
+								}
+							>
 								<MenuItem value="auto">
 									<FormattedMessage id="GraphItemProperties.Automatic" defaultMessage="Automatic"/>
 								</MenuItem>,
 								<MenuItem value="absolute">
 									<FormattedMessage id="GraphItemProperties.Absolute" defaultMessage="Absolute"/>
 								</MenuItem>
-								] : (
-								<MenuItem value="relative">
-									<FormattedMessage id="GraphItemProperties.Relative" defaultMessage="Relative"/>
-								</MenuItem>
-							)}
-						</TextField>
+							</TextField>
+						) : null}
 						{/*<TextField*/}
 						{/*	variant="outlined"*/}
 						{/*	size="small"*/}
