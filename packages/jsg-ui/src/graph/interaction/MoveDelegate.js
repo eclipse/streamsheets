@@ -794,7 +794,7 @@ class MoveDelegate extends Delegate {
 	 */
 	createCopyOnMoveCmd(feedback, target, event, viewer) {
 		const data = JSG.copyItems(viewer.getSelection());
-		if (data) {
+		if (!data) {
 			return undefined;
 		}
 		const offset = new Point();
