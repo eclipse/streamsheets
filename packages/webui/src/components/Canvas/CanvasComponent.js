@@ -237,6 +237,7 @@ export class CanvasComponent extends Component {
 	onAddDashboardSheet() {
 		const graph = graphManager.getGraph();
 		const cnt = graph.getStreamSheetContainerCount() % 8;
+		this.setState({speedOpen: false});
 
 		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, 'cellsheet');
 	}
@@ -244,6 +245,7 @@ export class CanvasComponent extends Component {
 	onAdd = (type) => {
 		const graph = graphManager.getGraph();
 		let cnt = graph.getStreamSheetContainerCount();
+		this.setState({speedOpen: false});
 
 		if (cnt > 9) {
 			JSG.NotificationCenter.getInstance().send(
