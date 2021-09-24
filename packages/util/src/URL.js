@@ -8,14 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const ArrayUtil = require('./src/Array');
-const ObjectUtil = require('./src/Object');
-const StringUtil = require('./src/String');
-const URLUtil = require('./src/URL');
+const isURL = (value) => {
+	try {
+		// eslint-disable-next-line
+		new URL(value);
+		return true;
+	} catch (e) {
+		return false;
+	}
+}
 
 module.exports = {
-	ArrayUtil,
-	ObjectUtil,
-	StringUtil,
-	URLUtil
+	isURL
 };
