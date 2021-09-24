@@ -848,6 +848,7 @@
 	"GraphItemProperties.Custom": "Frei",
 	"GraphItemProperties.LeftOutside": "Links daneben",
 	"GraphItemProperties.RightOutSide": "Rechts daneben",
+	"GraphItemProperties.WidthFromParent": "An Zelle anpassen",
 	"GraphItemProperties.Above": "Drüber",
 	"GraphItemProperties.Top": "Oben",
 	"GraphItemProperties.Bottom": "Unten",

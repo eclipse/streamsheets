@@ -88,13 +88,28 @@ module.exports = class LayoutCell extends Node {
 				if (subItem.isVisible()) {
 					subItem.layout();
 					const height = subItem.getHeight().getValue();
+					const align = subItem.getItemAttributes().getHorizontalAlignment().getValue();
 					if (!subItem.getWidth().hasFormula()) {
-						subItem.setWidth(size.x - margin * 2);
+						if (align === 0) {
+							subItem.setWidth(size.x - margin * 2);
+						}
 					}
 					if (!subItem.getHeight().hasFormula()) {
 						subItem.setHeight(height);
 					}
-					subItem.setOrigin(margin, yInner);
+					switch (align) {
+					case 2:
+						subItem.setOrigin((size.x - subItem.getWidth().getValue()) / 2, yInner);
+						break;
+					case 3:
+						subItem.setOrigin(size.x - margin - subItem.getWidth().getValue(), yInner);
+						break;
+					case 0:
+					case 1:
+					default:
+						subItem.setOrigin(margin, yInner);
+						break;
+					}
 					yInner += height + (index === this.getItemCount() - 1 ? 0 : gap);
 				}
 			});

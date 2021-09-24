@@ -142,6 +142,16 @@ export class AttributeProperties extends Component {
 			   }}
 			>
 				{this.getAttributeHandler("GraphItemProperties.Label", item, JSG.ItemAttributes.LABEL)}
+				{
+					item.getParent() instanceof JSG.LayoutCell ?
+						this.getAttributeHandler("GraphItemProperties.Alignment", item, JSG.ItemAttributes.HALIGN, [
+							{ value: '0', label: 'GraphItemProperties.WidthFromParent'},
+							{ value: '1', label: 'GraphItemProperties.Left'},
+							{ value: '2', label: 'GraphItemProperties.AlignCenter'},
+							{ value: '3', label: 'GraphItemProperties.Right'},
+							]) :
+						null
+				}
 				{this.getAttributeHandler("GraphItemProperties.Container", item, JSG.ItemAttributes.CONTAINER)}
 				{this.getAttributeHandler("GraphItemProperties.Selection", item, JSG.ItemAttributes.SELECTIONMODE,  [
 					{ value: '0', label: 'GraphItemProperties.NotSelectable'},

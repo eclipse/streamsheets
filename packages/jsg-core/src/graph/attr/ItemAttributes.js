@@ -1069,12 +1069,12 @@ class ItemAttributes extends AttributeList {
 		return this.getAttribute(ItemAttributes.LABEL);
 	}
 
-	setScaleShow(flag) {
-		this.setAttribute(ItemAttributes.SCALESHOW, flag);
+	setHorizontalAlignment(type) {
+		this.setAttribute(ItemAttributes.HALIGN, type);
 	}
 
-	getScaleShow() {
-		return this.getAttribute(ItemAttributes.SCALESHOW);
+	getHorizontalAlignment() {
+		return this.getAttribute(ItemAttributes.HALIGN);
 	}
 
 	static retainFromSelection(selection) {
@@ -1378,8 +1378,8 @@ class ItemAttributes extends AttributeList {
 		return 'label';
 	}
 
-	static get SCALESHOW() {
-		return 'scaleshow';
+	static get HALIGN() {
+		return 'halign';
 	}
 
 	static get TemplateID() {
@@ -1454,7 +1454,7 @@ class ItemAttributes extends AttributeList {
 			ItemAttributes.EditMask.NONE
 		);
 		addAttribute(new StringAttribute(ItemAttributes.LABEL), '');
-		addAttribute(new BooleanAttribute(ItemAttributes.SCALESHOW), false);
+		addAttribute(new NumberAttribute(ItemAttributes.HALIGN), 0);
 
 		return attributes.toTemplate(ItemAttributes.TemplateID);
 	}

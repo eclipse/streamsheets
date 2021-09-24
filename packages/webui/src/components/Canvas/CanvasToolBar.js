@@ -514,16 +514,6 @@ export class CanvasToolBar extends Component {
 
 		const node = new JSG.Node();
 		switch (type) {
-		case 'top':
-			// node.setItemAttribute(ItemAttributes.SCALESHOW, true);
-			node.setItemAttribute(ItemAttributes.SCALETYPE, type);
-			break;
-		case 'bottom':
-			node.setItemAttribute(ItemAttributes.SCALETYPE, type);
-			break;
-		case 'scale':
-			node.setItemAttribute(ItemAttributes.SCALETYPE, type);
-			break;
 		case 'matrix1':
 			node.setLayout(MatrixLayout.TYPE);
 			node.getLayoutSettings().set(MatrixLayout.COLUMNS, 1);
