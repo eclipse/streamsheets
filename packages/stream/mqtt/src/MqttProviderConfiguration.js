@@ -25,11 +25,11 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			type: sdk.ProviderConfiguration.FIELDTYPES.SELECT_NUM,
 			options: [
 				{
-					label: "MQTT v5.0",
+					label: 'MQTT v5.0',
 					value: 5
 				},
 				{
-					label: "MQTT v3.1.1",
+					label: 'MQTT v3.1.1',
 					value: 4
 				}
 			],
@@ -52,8 +52,8 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				de: 'User Properties (connect)'
 			},
 			help: {
-				en: 'TODO',
-				de: 'TODO'
+				en: 'MQTT v5 User Properties for CONNECT',
+				de: 'MQTT v5 User Properties für CONNECT'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.MULTITEXTFIELDPAIRS,
 			advanced: true,
@@ -67,10 +67,6 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'Static Client Id',
 				de: 'Statische Client Id'
 			},
-			help: {
-				en: 'TODO',
-				de: 'TODO'
-			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
 			defaultValue: false
 		});
@@ -81,8 +77,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				de: 'Client Id'
 			},
 			help: {
-				en: 'The Client Id is used for identification of the client by the broker. Identical Client Ids can lead to unforeseeable effects on the broker and the system!',
-				de: 'Die Client Id wird vom Broker zur Identifizierung des Clients verwendet. Identische Client Ids können zu unvorhersehbaren Auswirkungen auf den Broker und das System führen!'
+				en:
+					'The Client Id is used for identification of the client by the broker. Identical Client Ids can lead to unforeseeable effects on the broker and the system!',
+				de:
+					'Die Client Id wird vom Broker zur Identifizierung des Clients verwendet. Identische Client Ids können zu unvorhersehbaren Auswirkungen auf den Broker und das System führen!'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.RANDOM_STRING,
 			dependsOnPath: 'fixedClientId',
@@ -96,10 +94,6 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				en: 'Static Client Id',
 				de: 'Statische Client Id'
 			},
-			help: {
-				en: 'TODO',
-				de: 'TODO'
-			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
 			defaultValue: false
 		});
@@ -110,8 +104,10 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				de: 'Client Id'
 			},
 			help: {
-				en: 'The Client Id is used for identification of the client by the broker. Identical Client Ids can lead to unforeseeable effects on the broker and the system!',
-				de: 'Die Client Id wird vom Broker zur Identifizierung des Clients verwendet. Identische Client Ids können zu unvorhersehbaren Auswirkungen auf den Broker und das System führen!'
+				en:
+					'The Client Id is used for identification of the client by the broker. Identical Client Ids can lead to unforeseeable effects on the broker and the system!',
+				de:
+					'Die Client Id wird vom Broker zur Identifizierung des Clients verwendet. Identische Client Ids können zu unvorhersehbaren Auswirkungen auf den Broker und das System führen!'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.RANDOM_STRING,
 			dependsOnPath: 'fixedClientId',
@@ -126,11 +122,11 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				de: 'Clean'
 			},
 			help: {
-				en: 'TODO',
-				de: 'TODO'
+				en: 'Start a clean session when (re)connecting to the broker',
+				de: 'Beim (wieder)verbinden zum Broker eine neue Session benutzen'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
-			defaultValue: true,
+			defaultValue: true
 		});
 
 		this.addProducerDefinition({
@@ -140,11 +136,11 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				de: 'Clean'
 			},
 			help: {
-				en: 'TODO',
-				de: 'TODO'
+				en: 'Start a clean session when (re)connecting to the broker',
+				de: 'Beim (wieder)verbinden zum Broker eine neue Session benutzen'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
-			defaultValue: true,
+			defaultValue: true
 		});
 
 		this.addConsumerDefinition({
@@ -154,13 +150,13 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				de: 'User Properties (subscribe)'
 			},
 			help: {
-				en: 'TODO',
-				de: 'TODO'
+				en: 'MQTT v5 User Properties for SUBSCRIBE',
+				de: 'MQTT v5 User Properties für SUBSCRIBE'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.MULTITEXTFIELDPAIRS,
 			dependsOnPath: 'connector.protocolVersion',
 			dependsOnValue: [5],
-			advanced: true,
+			advanced: true
 		});
 		this.addConnectorDefinition({
 			id: 'userName',
@@ -171,7 +167,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 			help: {
 				en: 'User or client name to connect to the broker',
 				de: 'Benutzer- oder Klientenname, um sich beim Broker anzumelden!'
-			},
+			}
 		});
 		this.addConnectorDefinition({
 			id: 'password',
@@ -231,8 +227,8 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 				de: 'Nachricht behalten'
 			},
 			help: {
-				en: 'TODO',
-				de: 'TODO'
+				en: 'The broker stores the last published message for the given topic',
+				de: 'Der Broker speichert die letze publizierte Nachricht pro Topic'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.CHECKBOX,
 			defaultValue: false,
@@ -303,17 +299,17 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 		this.addProducerDefinition({
 			id: 'userPropertiesProduce',
 			label: {
-				en: 'User Properties (produce)',
-				de: 'User Properties (produce)'
+				en: 'User Properties (publish)',
+				de: 'User Properties (publish)'
 			},
 			help: {
-				en: 'TODO',
-				de: 'TODO'
+				en: 'MQTT v5 User Properties for PUBLISH',
+				de: 'MQTT v5 User Properties für PUBLISH'
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.MULTITEXTFIELDPAIRS,
 			dependsOnPath: 'protocolVersion',
 			dependsOnValue: [5],
-			advanced: true,
+			advanced: true
 		});
 
 		const functionDefinition = {
@@ -330,11 +326,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 					description: '',
 					type: {
 						name: 'union',
-						types: [
-							{ name: 'json' },
-							{ name: 'number' },
-							{ name: 'string' }
-						]
+						types: [{ name: 'json' }, { name: 'number' }, { name: 'string' }]
 					}
 				},
 				{
@@ -372,11 +364,7 @@ module.exports = class MqttProviderConfiguration extends sdk.ProviderConfigurati
 					description: '',
 					type: {
 						name: 'union',
-						types: [
-							{ name: 'json' },
-							{ name: 'number' },
-							{ name: 'string' }
-						]
+						types: [{ name: 'json' }, { name: 'number' }, { name: 'string' }]
 					},
 					optional: true
 				}
