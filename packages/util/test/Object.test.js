@@ -10,7 +10,6 @@
  ********************************************************************************/
 
 const { ObjectUtil } = require('..');
-// hasKeys, hasKeysNonEmpty, isObject;
 
 describe('ObjectUtil', () => {
 	describe('isObject', () => {

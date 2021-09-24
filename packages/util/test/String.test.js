@@ -10,9 +10,6 @@
  ********************************************************************************/
 
 const { StringUtil } = require('..');
-// capitalize,
-// 	isEmpty,
-// 	unwrap
 
 describe('StringUtil', () => {
 	describe('capitalize', () => {
