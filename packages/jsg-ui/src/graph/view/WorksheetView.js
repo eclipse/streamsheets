@@ -93,6 +93,20 @@ export default class WorksheetView extends ContentNodeView {
 		return this;
 	}
 
+	setBackgroundColor() {
+		const model = this.getItem();
+		const graph = model.getGraph();
+		const viewSettings = graph.viewSettings;
+
+		// TODO use better flag to identify view mode
+		if (viewSettings.active) {
+			this._viewpanel.getFormat().setFillColor(JSG.theme.sheet);
+		} else {
+			const attr = model.getAttributeAtPath('range');
+			this._viewpanel.getFormat().setFillColor(attr ? JSG.theme.sheet : '#EEEEEE');
+		}
+	}
+
 	draw(graphics) {
 		super.draw(graphics);
 	}

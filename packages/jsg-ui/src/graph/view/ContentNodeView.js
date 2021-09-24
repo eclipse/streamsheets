@@ -230,18 +230,14 @@ class ContentNodeView extends NodeView {
 
 	invalidate() {}
 
-	layout() {
-		const model = this.getItem();
-		const graph = model.getGraph();
-		const viewSettings = graph.viewSettings;
+	setBackgroundColor() {
+	}
 
-		// TODO use better flag to identify view mode
-		if (viewSettings.active) {
-			this._viewpanel.getFormat().setFillColor(JSG.theme.sheet);
-		} else {
-			const attr = model.getAttributeAtPath('range');
-			this._viewpanel.getFormat().setFillColor(attr ? JSG.theme.sheet : JSG.theme.graph);
-		}
+	layout() {
+		this.setBackgroundColor();
+
+		const model = this.getItem();
+
 		model._updateBoundingBox();
 		const box = JSG.boxCache.get();
 		const bounds = this.getBoundingBox(box).toRectangle(JSG.rectCache.get());
