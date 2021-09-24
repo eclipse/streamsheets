@@ -16,7 +16,7 @@
   },
   "dependencies": {},
   "jest": {
-    "collectCoverage": true
+    "collectCoverage": false
   },
   "bugs": {
     "url": "https://github.com/cedalo/streamsheets/issues"
