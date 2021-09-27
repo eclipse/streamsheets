@@ -421,7 +421,7 @@ export default class SheetInteraction extends Interaction {
 		if (!controller) {
 			return this._controller;
 		}
-		const item = controller.getModel();
+		let item = controller.getModel();
 
 		if ((item instanceof TreeItemsNode) || (item instanceof LayoutCell)) {
 			return controller;
@@ -441,6 +441,7 @@ export default class SheetInteraction extends Interaction {
 		if (controller === undefined) {
 			return undefined;
 		}
+		item = controller.getModel();
 
 		const bounds = item.getTranslatedBoundingBox(item.getGraph());
 		const hScrollSize =
