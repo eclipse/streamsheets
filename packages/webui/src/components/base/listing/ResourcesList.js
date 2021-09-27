@@ -29,7 +29,19 @@ import { getImageByResource } from './Utils';
 const MAX_LENGTH = 20;
 const PREF_KEY_SORTQUERYLIST = 'streamsheets-prefs-list-sortby';
 
-const styles = ( /* theme */ ) => ({
+const styles = (theme) => ({
+	[theme.breakpoints.down('sm')]: {
+		hideOnSmallDisplays: {
+			display: 'none'
+		}
+	},
+	cellContentContainer: {
+		display: 'block',
+		width: '200px',
+		whiteSpace: 'nowrap',
+		overflow: 'hidden',
+		textOverflow: 'ellipsis'
+	},
 	tablePaperContainer: {
 		maxHeight: '100%',
 		padding: '24px',
@@ -217,11 +229,11 @@ class ResourcesList extends React.Component {
 						<TableSortHeader
 							height={48}
 							cells={[
-								{ id: 'gap', numeric: false, padding: false, label: '', width: '1%', minWidth: '16px' },
+								{ id: 'gap', hideOnSmallDisplays: true, numeric: false, padding: false, label: '', width: '1%', minWidth: '16px' },
 								{ id: 'name', numeric: false, padding: false, label: 'Name', width: '25%' },
-								{ id: 'sheets', numeric: false, sort: false, label: 'Dashboard.sheets', width: '7%' },
-								{ id: 'consumers', numeric: false, label: 'Dashboard.consumers', width: '40%' },
-								{ id: 'lastModified', numeric: false, label: 'LastModified', width: '17%' },
+								{ id: 'sheets', hideOnSmallDisplays: true, numeric: false, sort: false, label: 'Dashboard.sheets', width: '12%' },
+								{ id: 'consumers', hideOnSmallDisplays: true, numeric: false, label: 'Dashboard.consumers', width: '35%' },
+								{ id: 'lastModified', hideOnSmallDisplays: true, numeric: false, label: 'LastModified', width: '17%' },
 								{ id: 'action', numeric: false, sort: true, label: 'Streams.Actions', width: '15%', minWidth: '150px' }
 							]}
 							orderBy={this.state.streamSortBy}
@@ -239,7 +251,7 @@ class ResourcesList extends React.Component {
 									tabIndex={-1}
 									key={`${resource.className}-${resource.id}`}
 								>
-									<TableCell onClick={() => this.handleSelection(resource)} padding="none">
+									<TableCell className={classes.hideOnSmallDisplays} onClick={() => this.handleSelection(resource)} padding="none">
 										<div
 											onClick={() => this.handleSelection(resource)}
 											style={{
@@ -254,11 +266,13 @@ class ResourcesList extends React.Component {
 										</div>
 									</TableCell>
 									<TableCell style={{fontWeight: 'bold'}} onClick={() => this.handleSelection(resource)} padding="none" component="th" scope="row">
-										{resource.name}
+										<div className={classes.cellContentContainer}>
+											{resource.name}
+										</div>
 									</TableCell>
-									<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.streamsheets.length}</TableCell>
-									<TableCell onClick={() => this.handleSelection(resource)} padding="none">{this.getConsumers(resource)}</TableCell>
-									<TableCell onClick={() => this.handleSelection(resource)} padding="none">{resource.lastModifiedFormatted}</TableCell>
+									<TableCell className={classes.hideOnSmallDisplays} onClick={() => this.handleSelection(resource)} padding="none">{resource.streamsheets.length}</TableCell>
+									<TableCell className={classes.hideOnSmallDisplays} onClick={() => this.handleSelection(resource)} padding="none">{this.getConsumers(resource)}</TableCell>
+									<TableCell className={classes.hideOnSmallDisplays} onClick={() => this.handleSelection(resource)} padding="none">{resource.lastModifiedFormatted}</TableCell>
 									<TableCell padding="none">
 									{!canEdit ? null : [
 											<IconButton

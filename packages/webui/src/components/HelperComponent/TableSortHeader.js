@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
@@ -12,6 +13,14 @@ import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
+
+const styles = (theme) => ({
+	[theme.breakpoints.down('sm')]: {
+		hideOnSmallDisplays: {
+			display: 'none'
+		}
+	},
+});
 
 class TableSortHeader extends React.Component {
 	constructor(props) {
@@ -45,7 +54,7 @@ class TableSortHeader extends React.Component {
 
 
 	render() {
-		const { order, orderBy } = this.props;
+		const { classes, order, orderBy } = this.props;
 
 		return (
 			<TableHead>
@@ -64,6 +73,7 @@ class TableSortHeader extends React.Component {
 										width: row.width,
 										minWidth: row.minWidth
 									}}
+									className={row.hideOnSmallDisplays ? classes.hideOnSmallDisplays : ''}
 									padding={row.padding ? 'default' : 'none'}
 									key={row.id}
 									align={row.numeric ? 'right' : 'left'}
@@ -165,4 +175,4 @@ TableSortHeader.defaultProps = {
 	height: 25
 };
 
-export default injectIntl(TableSortHeader);
+export default injectIntl(withStyles(styles)(TableSortHeader));
