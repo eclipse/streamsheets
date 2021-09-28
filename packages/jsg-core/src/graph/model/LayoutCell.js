@@ -81,6 +81,27 @@ module.exports = class LayoutCell extends Node {
 		this._layoutHeight = undefined;
 
 		switch (attr.getLayout().getValue()) {
+		case 'none':
+			this.subItems.forEach((subItem, index) => {
+				if (subItem.isVisible()) {
+					const origin = subItem.getOrigin();
+					const align = subItem.getItemAttributes().getHorizontalAlignment().getValue();
+					switch (align) {
+					case 2:
+						subItem.setOrigin((size.x - subItem.getWidth().getValue()) / 2, origin.y);
+						break;
+					case 3:
+						subItem.setOrigin(size.x - margin - subItem.getWidth().getValue(), origin.y);
+						break;
+					case 0:
+					case 1:
+					default:
+						subItem.setOrigin(margin, origin.y);
+						break;
+					}
+				}
+			});
+			break;
 		case 'row':
 			yInner += margin;
 			this.subItems.forEach((subItem, index) => {

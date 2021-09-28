@@ -103,7 +103,7 @@ export default class WorksheetView extends ContentNodeView {
 			this._viewpanel.getFormat().setFillColor(JSG.theme.sheet);
 		} else {
 			const attr = model.getAttributeAtPath('range');
-			this._viewpanel.getFormat().setFillColor(attr ? JSG.theme.sheet : '#EEEEEE');
+			this._viewpanel.getFormat().setFillColor(attr ? JSG.theme.sheet : JSG.theme.sheetbackground);
 		}
 	}
 
