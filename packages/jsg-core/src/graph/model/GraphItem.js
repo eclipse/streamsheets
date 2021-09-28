@@ -1116,7 +1116,8 @@ class GraphItem extends Model {
 		const isVisible = this.isItemVisible();
 
 		this._subItems.forEach((subItem) => {
-			if (isVisible && (!isCollapsed || subItem.isTextNode())) {
+			const isItemVisible = subItem.isItemVisible();
+			if (isItemVisible && isVisible && (!isCollapsed || subItem.isTextNode())) {
 				totalrect.union(subItem.getTotalBoundingRect(target, tmprect));
 			}
 		});

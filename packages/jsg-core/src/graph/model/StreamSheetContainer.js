@@ -529,7 +529,7 @@ module.exports = class StreamSheetContainer extends Node {
 				layoutNode.setOrigin(0, 0);
 				sheetSize = Math.max(sheetSize, minWidth)
 				sheetSize = Math.min(sheetSize, maxWidth)
-				const scroll = (size.y - heightCaption) < layoutSize.y;
+				const scroll = (size.y - heightCaption) < layoutSize.y && sheetSize > layoutSize.x;
 				if (scroll) {
 					sheetSize -= JSG.ScrollBar.SIZE;
 				}
@@ -548,6 +548,10 @@ module.exports = class StreamSheetContainer extends Node {
 				break;
 			}
 		}
+
+		const event = new JSG.Event(JSG.Event.BBOX, box);
+		event.source = this;
+		this.sendPostEvent(event);
 
 		if (captions) {
 			box.setTop(0);
