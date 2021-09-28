@@ -167,7 +167,13 @@ const setCellValue = (sheet, index, value, keepFormula = false) => {
 		else cell.term = termFromValue(value);
 	}
 };
-
+const setCellError = (term, errorInfo) => {
+	const cell = term && !term.isDisposed && term.cell;
+	if (cell) {
+		cell.setCellInfo('error', errorInfo);
+		term.cellValue = errorInfo ? errorInfo.code : undefined;
+	}
+};
 
 module.exports = {
 	cellFromFunc,
@@ -183,5 +189,6 @@ module.exports = {
 	getStreamSheetByName,
 	messageFromBox,
 	messageFromBoxOrValue,
-	setCellValue
+	setCellValue,
+	setCellError
 };
