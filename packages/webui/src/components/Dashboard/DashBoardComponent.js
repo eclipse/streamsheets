@@ -328,6 +328,7 @@ class DashBoardComponent extends Component {
 			{ id: 'name', numeric: false, sort: true, label: 'Streams.Name', width: '12%', minWidth: '250px' },
 			{
 				id: 'provider',
+				hideOnSmallDisplays: true, 
 				numeric: false,
 				sort: true,
 				label: 'Streams.Provider',
@@ -335,10 +336,11 @@ class DashBoardComponent extends Component {
 				minWidth: '170px',
 				fields
 			},
-			{ id: 'url', numeric: false, sort: true, label: 'Streams.URL' },
-			{ id: 'topic', numeric: false, sort: true, label: 'Streams.Topic'},
+			{ id: 'url', hideOnSmallDisplays: true, numeric: false, sort: true, label: 'Streams.URL' },
+			{ id: 'topic', hideOnSmallDisplays: true, numeric: false, sort: true, label: 'Streams.Topic'},
 			{
 				id: 'lastModified',
+				hideOnSmallDisplays: true, 
 				numeric: false,
 				sort: true,
 				label: 'Streams.LastModified',
