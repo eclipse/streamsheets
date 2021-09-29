@@ -199,7 +199,7 @@ const handleResponse = (handle, sheet, target, resultKeys, message, funcTerm) =>
 				putToTarget(sheet, target, message);
 				return true;
 			case 'values':
-				if (funcTerm.cell) {
+				if (funcTerm && funcTerm.cell) {
 					setCellInfo(funcTerm.cell, { ...info, values: message.data, marker: funcTerm._marker });
 					return true;
 				}
