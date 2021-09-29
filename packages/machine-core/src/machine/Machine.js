@@ -136,6 +136,7 @@ class Machine {
 	}
 
 	async load(definition = {}, functionDefinitions = [], currentStreams = []) {
+		logger.info(`Machine start loading... ${functionDefinitions.map((def) => def.name).join(', ')}`);
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		const def = Object.assign({}, DEF_CONF, definition);
 		const { settings = {}, metadata, extensionSettings = {} } = definition;
@@ -191,9 +192,11 @@ class Machine {
 		} else if (def.state === State.PAUSED) {
 			this.pause();
 		}
+		logger.info(`Machine ${this.name} loaded!`);
 	}
 
 	loadFunctions(functionDefinitions = []) {
+		logger.info(`Machine ${this.name} load functions: ${functionDefinitions.map((def) => def.name).join(', ')}`);
 		FunctionRegistry.registerFunctionDefinitions(functionDefinitions);
 		this._streamsheets.forEach((streamsheet) => {
 			const { sheet } = streamsheet;
@@ -409,7 +412,7 @@ class Machine {
 	}
 
 	async reload() {
-		logger.info(`reloading streamsheets of machine: ${this.id}`);
+		logger.info(`reloading streamsheets of machine: ${this.name}`);
 		this._loadStreamSheets(this.streamsheets.map((t) => t.toJSON()));
 		const data = {
 			timestamp: new Date(),
@@ -453,7 +456,7 @@ class Machine {
 				if (resumed) this._resume();
 				else this.cycle();
 				this._emitter.emit('didStart', this);
-				logger.info(`Machine: -> STARTED machine ${this.id}`);
+				logger.info(`Machine: -> STARTED machine ${this.name}`);
 			} catch (err) {
 				this._clearCycle();
 				this._state = oldstate;
@@ -474,7 +477,7 @@ class Machine {
 				if (!streamsheet.stop(forced)) this._pendingStreamSheets.set(streamsheet.id, streamsheet);
 			});
 			if (!this._pendingStreamSheets.size) this._didStop();
-			logger.info(`Machine: -> ${this._state} machine ${this.id}`);
+			logger.info(`Machine: -> ${this._state} machine ${this.name}`);
 			this._emitter.emit('update', 'state', { new: this._state, old: prevstate });
 		}
 	}
@@ -507,7 +510,7 @@ class Machine {
 			this.stats.cyclesPerSecond = 0;
 			this.streamsheets.forEach((streamsheet) => streamsheet.pause());
 			this._emitter.emit('update', 'state', { new: this._state, old: oldstate });
-			logger.info(`Machine: -> PAUSED machine ${this.id}`);
+			logger.info(`Machine: -> PAUSED machine ${this.name}`);
 		}
 	}
 
@@ -517,7 +520,7 @@ class Machine {
 				this._isManualStep = true;
 				await this._doStep(true);
 			} catch (err) {
-				logger.error(`Error while performing manual step on machine ${this.id}!!`, err);
+				logger.error(`Error while performing manual step on machine ${this.name}!!`, err);
 				this._emitter.emit('error', err);
 			}
 		}
@@ -551,7 +554,7 @@ class Machine {
 			}
 		} catch (err) {
 			this.stop(true);
-			logger.error(`Error while performing next cycle on machine ${this.id}!! Stopped machine...`, err);
+			logger.error(`Error while performing next cycle on machine ${this.name}!! Stopped machine...`, err);
 			this._emitter.emit('error', err);
 		}
 	}
