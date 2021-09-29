@@ -15,24 +15,7 @@ const { isType } = require('@cedalo/machine-core');
 
 const ERROR = FunctionErrors.code;
 
-const and = (sheet, ...terms) =>
-	runFunction(sheet, terms)
-		.withMinArgs(1)
-		.run(() => {
-			let res;
-			let error;
-			onTerms.iterateValues(sheet, terms, (value, err) => {
-				// stop on error
-				error = err;
-				if (err) return true;
-				// ignore values which could not be converted
-				const bool = convert.toBoolean(value);
-				if (bool != null) res = res == null ? bool : res && bool;
-				return false;
-			});
-			return error || (res == null ? ERROR.VALUE : res);
-		});
-const or = (sheet, ...terms) =>
+const runLogicalOperator = (doStop) => (sheet, ...terms) =>
 	runFunction(sheet, terms)
 		.withMinArgs(1)
 		.run(() => {
@@ -45,11 +28,13 @@ const or = (sheet, ...terms) =>
 				// ignore values which could not be converted
 				const bool = convert.toBoolean(value);
 				if (bool != null) res = bool;
-				return res;
+				return doStop(res);
 			});
 			return error || (res == null ? ERROR.VALUE : res);
 		});
 
+const and = runLogicalOperator((res) => !res);
+const or = runLogicalOperator((res) => res);
 
 const termValue = (term) => term ? term.value : null;
 
