@@ -45,29 +45,31 @@ module.exports = class TreeNode extends ContentNode {
 	 * @method layout
 	 */
 	layout() {
-		const numOfItems = this._tree.getVisibleTreeItemCount();
-		const heightOfItem = this._tree
-			.getTreeItemAttributes()
-			.getTreeItemHeight()
-			.getValue();
-		const depthOffset = this._tree
-			.getTreeItemAttributes()
-			.getDepthOffset()
-			.getValue();
-		const newBoxHeight = numOfItems * depthOffset + heightOfItem;
-		const height = this.getHeight().getValue();
-		const width = this.getWidth().getValue();
+		if (this.isVisible) {
+			const numOfItems = this._tree.getVisibleTreeItemCount();
+			const heightOfItem = this._tree
+				.getTreeItemAttributes()
+				.getTreeItemHeight()
+				.getValue();
+			const depthOffset = this._tree
+				.getTreeItemAttributes()
+				.getDepthOffset()
+				.getValue();
+			const newBoxHeight = numOfItems * depthOffset + heightOfItem;
+			const height = this.getHeight().getValue();
+			const width = this.getWidth().getValue();
 
-		const box = JSG.boxCache.get();
+			const box = JSG.boxCache.get();
 
-		box.setLeft(0);
-		box.setTop(0);
-		box.setWidth(width - (newBoxHeight > height ? 450 : 0));
-		box.setHeight(Math.max(height /* - 450 */, newBoxHeight));
+			box.setLeft(0);
+			box.setTop(0);
+			box.setWidth(width - (newBoxHeight > height ? 450 : 0));
+			box.setHeight(Math.max(height /* - 450 */, newBoxHeight));
 
-		this._tree.setBoundingBoxTo(box);
+			this._tree.setBoundingBoxTo(box);
 
-		JSG.boxCache.release(box);
+			JSG.boxCache.release(box);
+		}
 
 		super.layout();
 	}

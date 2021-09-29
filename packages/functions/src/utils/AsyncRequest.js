@@ -12,6 +12,7 @@ const logger = require('@cedalo/logger').create({ name: 'AsyncRequest' });
 const { FunctionErrors, ErrorInfo } = require('@cedalo/error-codes');
 const IdGenerator = require('@cedalo/id-generator');
 const { RequestState, SheetIndex } = require('@cedalo/machine-core');
+const { setCellError } = require('./sheet');
 
 const noop = () => {};
 
@@ -29,15 +30,11 @@ const setStatus = (sheet, reqId, state) => {
 	if (!sheet.setRequestState(reqId, state)) sheet.registerRequest(reqId, state);
 };
 
-const setCellError = (context, error) => {
-	const term = context.term;
-	const cell = term && !term.isDisposed && term.cell;
-	if (cell) {
-		const resError = error ? ErrorInfo.create(FunctionErrors.code.RESPONSE, error.message) : undefined;
-		cell.setCellInfo('error', resError);
-		term.cellValue = resError ? resError.code : undefined;
-	}
+const setResponseError = (context, error) => {
+	const responseError = error ? ErrorInfo.create(FunctionErrors.code.RESPONSE, error.message) : undefined;
+	setCellError(context.term, responseError);
 };
+
 const resolve = async (request) => {
 	const { context, error, result, sheet } = request;
 	try {
@@ -56,7 +53,7 @@ const resolve = async (request) => {
 				cellerror = newresp;
 				request.state = RequestState.REJECTED;
 			}
-			setCellError(context, cellerror);
+			setResponseError(context, cellerror);
 		}
 	} catch (err) {
 		/* ignore */
