@@ -33,7 +33,6 @@ const styles = ( /* theme */ ) => ({
 		margin: '3px',
 		transition: 'all 0.2s ease-out',
 		'&:hover': {
-			backgroundColor: grey[100],
 			border: `thin solid ${grey[400]}`,
 		    transform: 'scale(1.02)'
 		}
