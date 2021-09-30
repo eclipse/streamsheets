@@ -232,7 +232,7 @@ module.exports = class LayoutCell extends Node {
 				const origin = subItem.getOrigin();
 				subItem.setOrigin(origin.x, 0);
 			});
-			this.setHeight(this._layoutHeight);
+			// this.setHeight(this._layoutHeight);
 			break;
 		}
 		default:
@@ -390,8 +390,9 @@ module.exports = class LayoutCell extends Node {
 		}
 	}
 
-	isCopyAllowed() {
-		return false;
+	getCopyRestriction() {
+		const attr = this.getLayoutCellAttributes();
+		return attr.getLayout().getValue() === 'column' ? 'prohibit' : 'children';
 	}
 };
 

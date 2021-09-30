@@ -1745,8 +1745,8 @@ class GraphItem extends Model {
 		);
 	}
 
-	isCopyAllowed() {
-		return true;
+	getCopyRestriction() {
+		return 'none';
 	}
 
 	/**

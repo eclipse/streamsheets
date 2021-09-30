@@ -171,10 +171,23 @@ JSG.copyItems = (selection) => {
 	file.writeStartArray('graphitem');
 
 	items.forEach((sel) => {
-		if (sel.getModel().isCopyAllowed()) {
+		const restriction = sel.getModel().getCopyRestriction();
+		switch (restriction) {
+		case 'prohibit':
+			break;
+		case 'children':
+			sel.getModel().subItems.forEach(item => {
+				item.resolveParentReferences(true);
+				item.save(file, true);
+				valid = true;
+			});
+			break;
+		case 'none':
+		default:
 			sel.getModel().resolveParentReferences(true);
 			sel.getModel().save(file, true);
 			valid = true;
+			break;
 		}
 	});
 
