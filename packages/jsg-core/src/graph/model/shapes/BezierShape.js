@@ -393,17 +393,17 @@ class BezierShape extends PolygonShape {
 		return ret;
 	}
 
-	toJSON() {
-		const json = super.toJSON();
+	toJSON(item) {
+		const json = super.toJSON(item);
 		json.to = [];
 		json.from = [];
 
 		this._cpFromCoordinates.forEach((coor) => {
-			json.from.push(coor.toJSON());
+			json.from.push(coor.toJSON(item));
 		});
 
 		this._cpToCoordinates.forEach((coor) => {
-			json.to.push(coor.toJSON());
+			json.to.push(coor.toJSON(item));
 		});
 
 		if (this._pie) {

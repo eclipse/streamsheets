@@ -219,8 +219,8 @@ class ReshapeCoordinate extends Coordinate {
 		}
 	}
 
-	toJSON() {
-		const json = super.toJSON();
+	toJSON(item) {
+		const json = super.toJSON(item);
 
 		json.name = this._name;
 		json.xType = this._xtype;

@@ -89,10 +89,10 @@ class Coordinate {
 		this._yExpression.fromJSON(json.y);
 	}
 
-	toJSON(serverCalc = false) {
+	toJSON(item, serverCalc = false) {
 		return {
-			x: this._xExpression.toJSON(serverCalc),
-			y: this._yExpression.toJSON(serverCalc),
+			x: this._xExpression.toJSON(item, serverCalc),
+			y: this._yExpression.toJSON(item, serverCalc),
 		}
 	}
 
@@ -214,6 +214,19 @@ class Coordinate {
 		return copy;
 	}
 
+	fixExpression(item, expr) {
+		const formula = expr.getFormula();
+		if (formula) {
+			if (formula.indexOf('WIDTH*0.5') !== -1) {
+				expr.setFormula('WIDTH*0.5');
+				expr.evaluate(item);
+			} else if  (formula.indexOf('HEIGHT*0.5') !== -1) {
+				expr.setFormula('HEIGHT*0.5');
+				expr.evaluate(item);
+			}
+		}
+	}
+
 	/**
 	 * Evaluate all formulas in this coordinate. The parser will parse, evaluate the formula strings and create
 	 * precompiled terms.
@@ -224,6 +237,9 @@ class Coordinate {
 	evaluate(item) {
 		this._xExpression.evaluate(item);
 		this._yExpression.evaluate(item);
+		// remove later
+		this.fixExpression(item, this._xExpression);
+		this.fixExpression(item, this._yExpression);
 	}
 
 	/**

@@ -470,7 +470,7 @@ module.exports = class WorksheetNode extends ContentNode {
 	toJSON() {
 		const ret = super.toJSON();
 
-		ret.worksheetattributes = this.getWorksheetAttributes().toJSON(true);
+		ret.worksheetattributes = this.getWorksheetAttributes().toJSON(this, true);
 
 		return ret;
 	}

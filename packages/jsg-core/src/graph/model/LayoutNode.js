@@ -38,7 +38,6 @@ module.exports = class LayoutNode extends Node {
 		this.updateData();
 
 		this.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.AREA);
-		this.getFormat().setFillStyle(FormatAttributes.FillStyle.NONE);
 		this.getFormat().setLineStyle(FormatAttributes.LineStyle.NONE);
 		this.getItemAttributes().setPortMode(ItemAttributes.PortMode.NONE);
 		this.getItemAttributes().setRotatable(false);
@@ -46,7 +45,7 @@ module.exports = class LayoutNode extends Node {
 
 		this.addAttribute(new StringAttribute('layoutmode', 'resize'));
 		this.addAttribute(new NumberAttribute('minwidth', 10000));
-		this.addAttribute(new NumberAttribute('maxwidth', 50000));
+		this.addAttribute(new NumberAttribute('maxwidth', 100000));
 	}
 
 	newInstance() {
@@ -204,6 +203,10 @@ module.exports = class LayoutNode extends Node {
 				}
 			});
 		});
+
+		for (let i = this.getItemCount() - 1; i >= this._rowData.length * this._columnData.length; i-= 1) {
+			this.removeItem(this.getItemAt(i));
+		}
 	}
 
 	fromJSON(json) {
@@ -300,6 +303,8 @@ module.exports = class LayoutNode extends Node {
 
 		let vRow = 0;
 
+		this.updateData();
+
 		// create virtual rows for wrapping
 		this._rowData.forEach((row, rowIndex) => {
 			this._columnData.forEach((column, columnIndex) => {
@@ -311,6 +316,7 @@ module.exports = class LayoutNode extends Node {
 						this._virtualRowData[vRow].columnData = [];
 						this._virtualRowData[vRow].index = rowIndex;
 						this._virtualRowData[vRow].expandable = columnIndex === 0 && row.expandable;
+						this._virtualRowData[vRow].sourceRow = row;
 					}
 					const copy = column.copy()
 					copy.nodeIndex = rowIndex * this._columnData.length + columnIndex;
@@ -330,7 +336,13 @@ module.exports = class LayoutNode extends Node {
 			let absSizes = size.x;
 			let relSizes = 0;
 
-			row.columnData.forEach((column, index) => {
+			row.columnData.forEach((column, columnIndex) => {
+				node = this.getItemAt(column.nodeIndex);
+				if (node) {
+					node._expandable = row.expandable;
+					node._merged = false;
+					node._sourceRow = row.sourceRow
+				}
 				relSizes += column.size;
 			});
 
@@ -354,16 +366,9 @@ module.exports = class LayoutNode extends Node {
 
 		const margin = 200;
 
-		// update
+		// update merged state
 
 		this._virtualRowData.forEach((row, rowIndex) => {
-			row.columnData.forEach((column, columnIndex) => {
-				node = this.getItemAt(column.nodeIndex);
-				if (node) {
-					node._expandable = row.expandable;
-					node._merged = false;
-				}
-			});
 			row.columnData.forEach((column, columnIndex) => {
 				node = this.getItemAt(column.nodeIndex);
 				if (node) {
@@ -394,7 +399,8 @@ module.exports = class LayoutNode extends Node {
 		// do sublayouts to set all widths and corresponding height
 
 		this.subItems.forEach(subItem => {
-			subItem.layout();
+			subItem.subLayout();
+			subItem.subLayout();
 		});
 
 
@@ -444,8 +450,8 @@ module.exports = class LayoutNode extends Node {
 			row.columnData.forEach((column, columnIndex) => {
 				node = this.getItemAt(column.nodeIndex);
 				if (node) {
-					node.setOrigin(x, y);
 					node.setHeight(row.layoutSize);
+					node.setOrigin(x, y);
 				}
 
 				x += column.layoutSize;

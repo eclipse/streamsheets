@@ -676,7 +676,7 @@ class Expression {
 		}
 	}
 
-	toJSON(serverCalc) {
+	toJSON(item, serverCalc) {
 		const ret =  {};
 
 		if (this._formula !== undefined) {
@@ -684,7 +684,7 @@ class Expression {
 			if (this._term === undefined) {
 				ret.f = Strings.encode(this._formula);
 			} else {
-				ret.f = Strings.encode(this._term.toString({useName: true, forceName: true}));
+				ret.f = Strings.encode(this._term.toString({item, useName: true, forceName: true}));
 			}
 		}
 		if (this._value !== undefined) {
