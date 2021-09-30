@@ -229,6 +229,8 @@ module.exports = class LayoutCell extends Node {
 				} else {
 					subItem.setHeight(size.y);
 				}
+				const origin = subItem.getOrigin();
+				subItem.setOrigin(origin.x, 0);
 			});
 			this.setHeight(this._layoutHeight);
 			break;
