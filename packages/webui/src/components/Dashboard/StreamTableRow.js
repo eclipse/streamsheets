@@ -23,7 +23,12 @@ import StreamHelper from '../../helper/StreamHelper';
 import { FormattedMessage } from 'react-intl';
 import Tooltip from '@material-ui/core/Tooltip';
 
-const styles = () => ({
+const styles = (theme) => ({
+	[theme.breakpoints.down('sm')]: {
+		hideOnSmallDisplays: {
+			display: 'none'
+		}
+	},
 	emptyTableRow: {
 		// TODO: should be handled by Material UI table settings, but somehow isn't
 		height: '30px',
@@ -94,25 +99,25 @@ const StreamTableRow = (props) => {
 				{row.name}
 			</TableCell>
 			<TableCell 
-			 	className={classes.tableCell}
+			 	className={`${classes.tableCell} ${classes.hideOnSmallDisplays}`}
 				style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
 				align='left'>
 				{row.provider.name}
 			</TableCell>
 			<TableCell 
-			 	className={classes.tableCell}
+			 	className={`${classes.tableCell} ${classes.hideOnSmallDisplays}`}
 				style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
 				align='left'>
 				{row.url}
 			</TableCell>
 			<TableCell
-			 	className={classes.tableCell}
+			 	className={`${classes.tableCell} ${classes.hideOnSmallDisplays}`}
 				style={{ cursor: 'pointer', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px' }}
 				onClick={() => setOpen(!openConnector)} padding='none' align='left'>
 				{row.topic}
 			</TableCell>
 			<TableCell 
-			 	className={classes.tableCell}
+			 	className={`${classes.tableCell} ${classes.hideOnSmallDisplays}`}
 				style={{ cursor: 'pointer' }} onClick={() => setOpen(!openConnector)} padding='none'
 				align='left'>
 				{row.lastModified}
@@ -244,16 +249,19 @@ const StreamTableRow = (props) => {
 											align='left'>
 											{historyRow.provider.name}
 										</TableCell>
-										<TableCell style={{ width: '20%' }} padding='none' align='left'>
+										<TableCell style={{ width: '20%' }} padding='none' align='left'
+											className={classes.hideOnSmallDisplays} >
 											{historyRow.url}
 										</TableCell>
 										<TableCell padding='none' align='left' style={{
-											overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'
-										}}>
+												overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'
+											}}
+											className={classes.hideOnSmallDisplays} >
 											{historyRow.topic}
 										</TableCell>
 										<TableCell style={{ width: '120px', minWidth: '120px' }} padding='none'
-											align='left'>
+											align='left' 
+											className={classes.hideOnSmallDisplays} >
 											{historyRow.lastModified}
 										</TableCell>
 										<TableCell style={{ width: '95px', minWidth: '95px' }} padding='none'
@@ -377,19 +385,23 @@ const StreamTableRow = (props) => {
 											{historyRow.name}
 										</TableCell>
 										<TableCell style={{ width: '10%', minWidth: '170px' }} padding='none'
-											align='left'>
+											align='left'
+											className={classes.hideOnSmallDisplays} >
 											{historyRow.provider.name}
 										</TableCell>
-										<TableCell style={{ width: '20%' }} padding='none' align='left'>
+										<TableCell style={{ width: '20%' }} padding='none' align='left'
+											className={classes.hideOnSmallDisplays} >
 											{historyRow.url}
 										</TableCell>
 										<TableCell padding='none' align='left' style={{
-											overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'
-										}}>
+												overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '1000px'
+											}}
+											className={classes.hideOnSmallDisplays} >
 											{historyRow.topic}
 										</TableCell>
 										<TableCell style={{ width: '120px', minWidth: '120px' }} padding='none'
-											align='left'>
+											align='left'
+											className={classes.hideOnSmallDisplays} >
 											{historyRow.lastModified}
 										</TableCell>
 										<TableCell style={{ width: '95px', minWidth: '95px' }} padding='none'

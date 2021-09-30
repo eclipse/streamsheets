@@ -63,6 +63,24 @@ describe('logical functions', () => {
 			expect(createTerm('and(A1:B1, C2:C3)', sheet).value).toBe(true); // ERROR.VALUE);
 			expect(createTerm('and(A1:B1, C4, C2:C3)', sheet).value).toBe(true); // ERROR.VALUE);
 		});
+		// DL-5277
+		it('should stop evaluating on first falsy term', () => {
+			const sheet = new StreamSheet().sheet;
+			sheet.loadCells({
+				A1: false,
+				B1: true,
+				C1: { formula: 'read(,C3,,,true)' },
+			});
+			expect(sheet.cellAt('C3').value.code).toBe(ERROR.NA);
+			expect(createTerm('and(A1)', sheet).value).toBe(false);
+			expect(createTerm('and(A1,B1)', sheet).value).toBe(false);			
+			expect(createTerm('and(A1,C3)', sheet).value).toBe(false);			
+			expect(createTerm('and(B1,A1,C3)', sheet).value).toBe(false);
+			expect(createTerm('and(isna(C3),C4!="cedalo/lokal")', sheet).value).toBe(true);
+			expect(createTerm('and(B1,A1,setvalue(true, "hello", C4))', sheet).value).toBe(false);
+			// check setvalue was not executed:
+			expect(sheet.cellAt('C4')).toBeUndefined();
+		});
 	});
 	describe('if', () => {
 		it('should return true value if condition is true and false value otherwise', () => {

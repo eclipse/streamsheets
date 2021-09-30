@@ -167,9 +167,9 @@ module.exports = class MachineService extends MessagingService {
 				this._handleEventMessage(topic, message);
 			}
 		} else if (topic === STREAM_FUNCTIONS_TOPIC) {
-			logger.debug('Received Stream function definitions');
-			const functionDefinitions = message.event.data || [];
-			this._machineServer.functionDefinitions = functionDefinitions;
+			const fnDefinitions = message.event.data || [];
+			logger.debug(`Received Stream function definitions: ${fnDefinitions.map((def) => def.name).join(', ')}`);
+			this._machineServer.functionDefinitions = fnDefinitions;
 			await this._ensureScope();
 			this._loadRunningMachines();
 		}

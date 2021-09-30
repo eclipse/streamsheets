@@ -3114,40 +3114,6 @@
 					"id": "root"
 				},
 				"namedCells": {
-					"|HTTP_Client_Producer": {
-						"value": {
-							"id": "PRODUCER_HTTP",
-							"name": "HTTP_Client_Producer",
-							"type": "producer",
-							"state": "connected",
-							"timestamp": 1632232578224,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|Webhook": {
-						"value": {
-							"id": "CONSUMER_WEBHOOK",
-							"name": "Webhook",
-							"type": "stream",
-							"state": "connected",
-							"timestamp": 1632232578228,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
 					"|MQTT_Consumer": {
 						"value": {
 							"id": "CONSUMER_MQTT",
@@ -3189,23 +3155,6 @@
 							"type": "producer",
 							"state": "connected",
 							"timestamp": 1632232578251,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|OPCUA_Server_Streamsheets_Producer": {
-						"value": {
-							"id": "By-TY2Ezx8",
-							"name": "OPCUA_Server_Streamsheets_Producer",
-							"type": "producer",
-							"state": "disconnected",
-							"timestamp": 1632730116054,
 							"scope": {
 								"id": "root"
 							}
@@ -7006,159 +6955,6 @@
 					"id": "root"
 				},
 				"namedCells": {
-					"|Clarifai_Producer": {
-						"value": {
-							"id": "SJGRZrjbuu",
-							"name": "Clarifai_Producer",
-							"type": "producer",
-							"state": "connected",
-							"timestamp": 1626774719062,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|MQTT_Consumer1": {
-						"value": {
-							"id": "r1lPaZcTOO",
-							"name": "MQTT_Consumer1",
-							"type": "stream",
-							"state": "connected",
-							"timestamp": 1626774719080,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|Kristian_iPhone": {
-						"value": {
-							"id": "B1ZRWSiWdO",
-							"name": "Kristian_iPhone",
-							"type": "stream",
-							"state": "connected",
-							"timestamp": 1626774719124,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|ROSTA_Sensoren_Brasilien": {
-						"value": {
-							"id": "SJZfCEi-d_",
-							"name": "ROSTA_Sensoren_Brasilien",
-							"type": "stream",
-							"state": "disconnected",
-							"timestamp": 1626776811023,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|OPCUA_Consumer": {
-						"value": {
-							"id": "BkefRVi-d_",
-							"name": "OPCUA_Consumer",
-							"type": "stream",
-							"state": "disconnected",
-							"timestamp": 1626776845498,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|Getstokt_producer": {
-						"value": {
-							"id": "HJeAtvU46O",
-							"name": "Getstokt_producer",
-							"type": "producer",
-							"state": "disconnected",
-							"timestamp": 1626776849517,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|OPCUA_Producer": {
-						"value": {
-							"id": "SJbwpZ5Tu_",
-							"name": "OPCUA_Producer",
-							"type": "producer",
-							"state": "disconnected",
-							"timestamp": 1626776857105,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|HTTP_Client_Producer": {
-						"value": {
-							"id": "PRODUCER_HTTP",
-							"name": "HTTP_Client_Producer",
-							"type": "producer",
-							"state": "connected",
-							"timestamp": 1632232578224,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|Webhook": {
-						"value": {
-							"id": "CONSUMER_WEBHOOK",
-							"name": "Webhook",
-							"type": "stream",
-							"state": "connected",
-							"timestamp": 1632232578228,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
 					"|MQTT_Consumer": {
 						"value": {
 							"id": "CONSUMER_MQTT",
@@ -7200,23 +6996,6 @@
 							"type": "producer",
 							"state": "connected",
 							"timestamp": 1632232578251,
-							"scope": {
-								"id": "root"
-							}
-						},
-						"type": "object",
-						"info": {
-							"rawtype": "object"
-						},
-						"level": 0
-					},
-					"|OPCUA_Server_Streamsheets_Producer": {
-						"value": {
-							"id": "By-TY2Ezx8",
-							"name": "OPCUA_Server_Streamsheets_Producer",
-							"type": "producer",
-							"state": "disconnected",
-							"timestamp": 1632730116054,
 							"scope": {
 								"id": "root"
 							}

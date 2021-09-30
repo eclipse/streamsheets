@@ -138,6 +138,8 @@ class FunctionRegistry {
 				return fns;
 			}, {});
 			addAdditionalFunctions({ functions });
+		} else {
+			logger.error('Failed to load stream functions! No functions factory available!!');
 		}
 	}
 }
