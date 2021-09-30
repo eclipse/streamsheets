@@ -69,14 +69,14 @@ class LineShape extends Shape {
 		return ret;
 	}
 
-	toJSON() {
+	toJSON(item) {
 		const json = {
 			type: this.getType(),
 			points: [],
 		};
 
 		this._coordinates.forEach((coor) => {
-			json.points.push(coor.toJSON(true));
+			json.points.push(coor.toJSON(item, true));
 		});
 
 		return json;

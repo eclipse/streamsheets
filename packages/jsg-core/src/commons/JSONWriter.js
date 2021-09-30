@@ -13,8 +13,8 @@ const Arrays = require('./Arrays');
 const Strings = require('./Strings');
 
 module.exports = class JSONWriter extends Writer {
-	writeStartDocument(toStringParams) {
-		super.writeStartDocument(toStringParams);
+	writeStartDocument() {
+		super.writeStartDocument();
 
 		this.writeStartElement('root', true);
 	}

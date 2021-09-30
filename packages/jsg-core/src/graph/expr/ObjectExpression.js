@@ -88,7 +88,7 @@ class ObjectExpression extends Expression {
 		return this.toString();
 	}
 
-	toJSON(serverCalc) {
+	toJSON(item, serverCalc) {
 		if (
 			this._value !== undefined &&
 			this._value.save &&

@@ -719,6 +719,10 @@ class GraphItem extends Model {
 		return false;
 	}
 
+	isRowExpanded() {
+		return this.getItemType() === 'layoutcell' || !this._expandable || this._expanded === true;
+	}
+
 	/**
 	 * Convenience method to get value of the visible attribute.</br>
 	 * Note: this method takes the current layer settings into account and checks also parent items.</br>
@@ -729,9 +733,15 @@ class GraphItem extends Model {
 	 */
 	isVisible() {
 		if (this._attrCache.visible !== undefined) {
+			if (!this.isRowExpanded()) {
+				return false;
+			}
 			return this._attrCache.visible;
 		}
 
+		if (!this.isRowExpanded()) {
+			return false;
+		}
 		let visible = this.getItemAttribute(ItemAttributes.VISIBLE).getValue();
 		if (Numbers.isNumber(visible)) {
 			const graph = this.getGraph()
@@ -776,10 +786,16 @@ class GraphItem extends Model {
 	 */
 	isItemVisible() {
 		if (this._attrCache.itemvisible !== undefined) {
+			if (!this.isRowExpanded()) {
+				return false;
+			}
 			return this._attrCache.itemvisible;
 		}
 
 		const visible = this.getItemAttribute(ItemAttributes.VISIBLE).getValue();
+		if (!this.isRowExpanded()) {
+			return false;
+		}
 		if (visible) {
 			if (this._layer.getValue() !== '') {
 				const graph = this.getGraph();
@@ -3512,12 +3528,12 @@ class GraphItem extends Model {
 			id: this._id,
 			// parent: this._parent.getItemType() === 'cellsnode' ? this._parent.getSheet().getId() : this._parent.getId(),
 			itemType: this.getItemType(),
-			x: this.getPin().getX().toJSON(true),
-			y: this.getPin().getY().toJSON(true),
-			localX: this.getPin().getLocalX().toJSON(),
-			localY: this.getPin().getLocalY().toJSON(),
-			width: this.getWidth().toJSON(true),
-			height: this.getHeight().toJSON(true),
+			x: this.getPin().getX().toJSON(this, true),
+			y: this.getPin().getY().toJSON(this, true),
+			localX: this.getPin().getLocalX().toJSON(this),
+			localY: this.getPin().getLocalY().toJSON(this),
+			width: this.getWidth().toJSON(this, true),
+			height: this.getHeight().toJSON(this, true),
 		};
 
 		if (this._parent.getItemType() === 'cellsnode' && this._parent.getSheet().sourceSheet) {
@@ -3528,11 +3544,11 @@ class GraphItem extends Model {
 		}
 
 		if (this._angle.getValue() !== 0 || this._angle.hasFormula()) {
-			ret.angle = this.getAngle().toJSON(true);
+			ret.angle = this.getAngle().toJSON(this, true);
 		}
 
 		if (this._name.getValue() !== '') {
-			ret.name = this.getName().toJSON(true);
+			ret.name = this.getName().toJSON(this, true);
 		}
 
 		if (this._type.getValue() !== '') {
@@ -3542,13 +3558,13 @@ class GraphItem extends Model {
 		if (this._reshapeCoordinates.length) {
 			ret.reshape = [];
 			this._reshapeCoordinates.forEach((coordinate) => {
-				ret.reshape.push(coordinate.toJSON());
+				ret.reshape.push(coordinate.toJSON(this));
 			});
 		}
 
-		ret.shape = this._shape.toJSON();
+		ret.shape = this._shape.toJSON(this);
 
-		ret.format = this.getFormat().toJSON(true);
+		ret.format = this.getFormat().toJSON(this, true);
 		const pattern = this.getFormat().getPattern().getValue();
 		if (pattern && pattern.indexOf('dataimage') !== -1) {
 			const image = JSG.imagePool.get(pattern);
@@ -3556,11 +3572,11 @@ class GraphItem extends Model {
 				ret.patternImage = image.src;
 			}
 		}
-		ret.textformat = this.getTextFormat().toJSON(true);
-		ret.attributes = this.getItemAttributes().toJSON(true);
-		ret.events = this.getEvents().toJSON();
-		ret.modelattributes = this.getModelAttributes().toJSON(true);
-		ret.layoutattributes = this.getLayoutAttributes().toJSON(true);
+		ret.textformat = this.getTextFormat().toJSON(this, true);
+		ret.attributes = this.getItemAttributes().toJSON(this, true);
+		ret.events = this.getEvents().toJSON(this, );
+		ret.modelattributes = this.getModelAttributes().toJSON(this, true);
+		ret.layoutattributes = this.getLayoutAttributes().toJSON(this, true);
 
 		return ret;
 	}

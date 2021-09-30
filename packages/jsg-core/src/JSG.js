@@ -362,6 +362,7 @@ JSG.theme = {
 	headertext: '#333333',
 	outline: '#777777',
 	sheet: '#FFFFFF',
+	sheetbackground: '#EEEEEE',
 	grid: '#CCCCCC',
 	border: '#000000',
 	text: '#000000',

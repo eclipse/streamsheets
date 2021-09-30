@@ -84,12 +84,12 @@ module.exports = class GraphReference extends Reference {
 	 * @return {String} A string description of this reference or the raw reference description if this
 	 * Reference instance is not resolved.
 	 */
-	toString(forItem, useName) {
+	toString(params) {
 		if (this.isResolved() && this._item && this._item.isA() === 'GraphItem') {
 			const propString = this.getPropertyString();
 			const id = this._item.getId();
-			if (!forItem) {
-				if (useName) {
+			if (!params.item) {
+				if (params.useName) {
 					return `${this._item.getName().getValue()}!${propString}`;
 				}
 				if (id !== undefined) {
@@ -97,13 +97,13 @@ module.exports = class GraphReference extends Reference {
 				}
 			}
 
-			if (id === undefined || forItem === this._item) {
+			if (id === undefined || params.item === this._item) {
 				return propString;
 			}
-			if (forItem._parent === this._item) {
+			if (params.item._parent === this._item) {
 				return `Parent!${propString}`;
 			}
-			if (useName) {
+			if (params.useName) {
 				return `${this._item.getName().getValue()}!${propString}`;
 			}
 			return `Item${id}!${propString}`;

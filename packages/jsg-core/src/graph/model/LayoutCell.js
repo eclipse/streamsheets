@@ -17,12 +17,14 @@ const DeleteItemCommand = require('../command/DeleteItemCommand');
 const AddItemCommand = require('../command/AddItemCommand');
 const ChangeParentCommand = require('../command/ChangeParentCommand');
 const ItemAttributes = require('../attr/ItemAttributes');
+const FormatAttributes = require('../attr/FormatAttributes');
 
 module.exports = class LayoutCell extends Node {
 	constructor() {
 		super();
 
 		this.getFormat().setLineStyle(0);
+		this.getFormat().setFillStyle(FormatAttributes.FillStyle.NONE);
 		this.getItemAttributes().setRotatable(false);
 		this.getItemAttributes().setMoveable(false);
 		this.getItemAttributes().setSizeable(false);
@@ -71,6 +73,9 @@ module.exports = class LayoutCell extends Node {
 	}
 
 	layout() {
+	}
+
+	subLayout() {
 		const attr = this.getLayoutCellAttributes();
 		const size = this.getSizeAsPoint();
 		const margin = attr.getMargin().getValue();
@@ -79,41 +84,90 @@ module.exports = class LayoutCell extends Node {
 		let xInner = 0;
 
 		this._layoutHeight = undefined;
+		if (!this._sourceRow) {
+			return;
+		}
 
 		switch (attr.getLayout().getValue()) {
-		case 'row':
-			yInner += margin;
+		case 'none':
 			this.subItems.forEach((subItem, index) => {
 				subItem._expandable = this._expandable;
+				subItem._expanded = this._sourceRow.expanded;
+				subItem.layout();
 				if (subItem.isVisible()) {
-					subItem.layout();
-					const height = subItem.getHeight().getValue();
+					const origin = subItem.getOrigin();
 					const align = subItem.getItemAttributes().getHorizontalAlignment().getValue();
-					if (!subItem.getWidth().hasFormula()) {
-						if (align === 0) {
-							subItem.setWidth(size.x - margin * 2);
-						}
-					}
-					if (!subItem.getHeight().hasFormula()) {
-						subItem.setHeight(height);
-					}
 					switch (align) {
 					case 2:
-						subItem.setOrigin((size.x - subItem.getWidth().getValue()) / 2, yInner);
+						subItem.setOrigin((size.x - subItem.getWidth().getValue()) / 2, origin.y);
 						break;
 					case 3:
-						subItem.setOrigin(size.x - margin - subItem.getWidth().getValue(), yInner);
+						subItem.setOrigin(size.x - margin - subItem.getWidth().getValue(), origin.y);
 						break;
 					case 0:
 					case 1:
 					default:
-						subItem.setOrigin(margin, yInner);
+						subItem.setOrigin(margin, origin.y);
 						break;
 					}
-					yInner += height + (index === this.getItemCount() - 1 ? 0 : gap);
 				}
+				subItem.layout();
 			});
-			this._layoutHeight = yInner + margin;
+			break;
+		case 'row':
+			yInner += margin;
+			if (this._expandable && !this._sourceRow.expanded) {
+				this._layoutHeight = 800;
+				this.subItems.forEach((subItem, index) => {
+					subItem._expandable = this._expandable;
+					subItem._expanded = this._sourceRow.expanded;
+					subItem.layout();
+				});
+				this.setHeight(this._layoutHeight);
+			} else {
+				this.subItems.forEach((subItem, index) => {
+					subItem._expandable = this._expandable;
+					subItem._expanded = this._sourceRow.expanded;
+					if (subItem.isVisible()) {
+						subItem.layout();
+						const height = subItem.getHeight().getValue();
+						yInner += height + (index === this.getItemCount() - 1 ? 0 : gap);
+					}
+				});
+				this._layoutHeight = yInner + margin;
+				this.setHeight(this._layoutHeight);
+				// this.setRefreshNeeded(true);
+				// this._update();
+				yInner = this._expandable ? 600 + margin : margin;
+				this.subItems.forEach((subItem, index) => {
+					if (subItem.isVisible()) {
+						const height = subItem.getHeight().getValue();
+						const align = subItem.getItemAttributes().getHorizontalAlignment().getValue();
+						if (!subItem.getWidth().hasFormula()) {
+							if (align === 0) {
+								subItem.setWidth(size.x - margin * 2);
+							}
+						}
+						if (!subItem.getHeight().hasFormula()) {
+							subItem.setHeight(height);
+						}
+						switch (align) {
+						case 2:
+							subItem.setOrigin((size.x - subItem.getWidth().getValue()) / 2, yInner);
+							break;
+						case 3:
+							subItem.setOrigin(size.x - margin - subItem.getWidth().getValue(), yInner);
+							break;
+						case 0:
+						case 1:
+						default:
+							subItem.setOrigin(margin, yInner);
+							break;
+						}
+						yInner += height + (index === this.getItemCount() - 1 ? 0 : gap);
+					}
+				});
+			}
 			break;
 		case 'column': {
 			let absSizes = size.x;
@@ -129,7 +183,9 @@ module.exports = class LayoutCell extends Node {
 			this.subItems.forEach((subItem, index) => {
 				const column = this._columnData[index];
 				subItem._expandable = this._expandable;
-				subItem.layout();
+				subItem._sourceRow = this._sourceRow;
+				subItem._expanded = this._sourceRow.expanded;
+				subItem.subLayout();
 				if (subItem._layoutHeight) {
 					this._layoutHeight = this._layoutHeight === undefined ? subItem._layoutHeight :
 						Math.max(this._layoutHeight, subItem._layoutHeight);
@@ -174,6 +230,7 @@ module.exports = class LayoutCell extends Node {
 					subItem.setHeight(size.y);
 				}
 			});
+			this.setHeight(this._layoutHeight);
 			break;
 		}
 		default:

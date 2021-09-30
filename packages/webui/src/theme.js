@@ -249,6 +249,7 @@ const createByName = () => {
 			headertext: '#CCCCCC',
 			outline: '#CCCCCC',
 			sheet: '#000000',
+			sheetbackground: '#222222',
 			grid: '#777777',
 			border: '#FFFFFF',
 			text: '#FFFFFF',

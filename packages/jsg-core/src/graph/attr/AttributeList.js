@@ -819,7 +819,7 @@ class AttributeList extends Attribute {
 		});
 	}
 
-	toJSON(serverCalc = false) {
+	toJSON(item, serverCalc = false) {
 		if (this._transient) {
 			return undefined;
 		}
@@ -833,7 +833,7 @@ class AttributeList extends Attribute {
 
 		attributes.forEach((attr) => {
 			if (!(attr instanceof AttributeList) && !attr.isTransient()) {
-				ret[attr.getName()] = attr.getExpression().toJSON(serverCalc);
+				ret[attr.getName()] = attr.getExpression().toJSON(item, serverCalc);
 				saved = true;
 			}
 		});

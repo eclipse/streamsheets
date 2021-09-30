@@ -66,17 +66,17 @@ class PolygonShape extends Shape {
 		return ret;
 	}
 
-	toJSON() {
+	toJSON(item) {
 		const json = {
 			type: this.getType(),
 			points: [],
 		};
 
 		this._coordinates.forEach((coor) => {
-			json.points.push(coor.toJSON());
+			json.points.push(coor.toJSON(item));
 		});
 
-		json.source = this._source.toJSON(true);
+		json.source = this._source.toJSON(item, true);
 
 		return json;
 	}

@@ -14,10 +14,9 @@ module.exports = class Writer {
 	 *
 	 * @method writeStartDocument
 	 */
-	writeStartDocument(toStringParams = {}) {
+	writeStartDocument() {
 		this.close();
 		this.tree = [];
-		this.toStringParams = toStringParams;
 	}
 
 	/**
