@@ -722,6 +722,9 @@ module.exports = class TreeItemsNode extends Node {
 		});
 	}
 
+	getTreeItemParent(item) {
+		return item.parent === -1 ? undefined : this._jsonTree[item.parent];
+	}
 	/**
 	 * Check, if parent is of type ARRAY
 	 * @param item
