@@ -34,7 +34,7 @@ const styles = ( /* theme */ ) => ({
 		transition: 'all 0.2s ease-out',
 		'&:hover': {
 			border: `thin solid ${grey[400]}`,
-		    transform: 'scale(1.025)'
+		    transform: 'scale(1.02)'
 		}
 	}
 });
