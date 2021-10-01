@@ -54,9 +54,6 @@ const styles = (theme) => ({
 		maxWidth: '960px',
 		margin: 'auto',
 		position: 'relative'
-	},
-	table: {
-		backgroundColor: 'white',
 	}
 });
 
