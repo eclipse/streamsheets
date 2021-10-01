@@ -634,7 +634,7 @@ export class StreamChartProperties extends Component {
 
 		item.chart.formula = new JSG.Expression('');
 
-		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter);
+		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter === ',' ? ';' : ',');
 
 		series.formulaXValues = [];
 		formulas.forEach((form) => {
@@ -654,7 +654,7 @@ export class StreamChartProperties extends Component {
 
 		item.chart.formula = new JSG.Expression('');
 
-		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter);
+		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter === ',' ? ';' : ',');
 
 		series.formulaYValues = [];
 		formulas.forEach((form) => {
@@ -674,7 +674,7 @@ export class StreamChartProperties extends Component {
 
 		item.chart.formula = new JSG.Expression('');
 
-		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter);
+		const formulas = formula.split(JSG.getParserLocaleSettings().separators.parameter === ',' ? ';' : ',');
 
 		series.formulaCValues = [];
 		formulas.forEach((form) => {
@@ -1590,7 +1590,7 @@ export class StreamChartProperties extends Component {
 				const expression = expr[i];
 				formula += expression ? expression.toParamString(sheet, -1, true) : '';
 				if (i < expr.length - 1) {
-					formula += JSG.getParserLocaleSettings().separators.parameter;
+					formula += (JSG.getParserLocaleSettings().separators.parameter === ',' ? ';' : ',');
 				}
 			}
 			return formula;
