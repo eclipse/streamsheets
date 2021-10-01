@@ -27,13 +27,7 @@ const createErrorInfo = (error, term) => {
 	return errorInfo;
 };
 
-const getTermValue = (term, defval) => {
-	const val = term != null ? term.value : null;
-	return val != null ? val : defval;
-};
-
 module.exports = {
 	calc,
-	createErrorInfo,
-	getTermValue
+	createErrorInfo
 };
