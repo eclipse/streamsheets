@@ -5,7 +5,7 @@ export default [
 	},
 	{
 		target: '#dashboard-stream-apps',
-		content: 'The main menu of Streamsheets consists of two tabs. On the left, you find an overview of all your Stream Apps. Under this tab you find an overview of all your Stream Apps.'
+		content: 'The main menu of Streamsheets consists of two tabs. On the left, you find an overview of all your Stream Apps.'
 	},
 	{
 		target: '#dashboard-streams',
