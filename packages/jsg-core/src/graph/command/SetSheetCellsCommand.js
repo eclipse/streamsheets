@@ -104,8 +104,7 @@ module.exports = class SetSheetCellsCommand extends AbstractItemCommand {
 			} else {
 				let expr = cell.getExpression();
 				if (expr) {
-					const term = expr.getTerm();
-					if (term && expr.getFormula() !== cellData.formula) {
+					if (expr.getFormula() !== cellData.formula) {
 						expr = createExpression(cellData);
 						cell.setExpression(expr);
 					}

@@ -11,7 +11,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import {FormattedMessage, injectIntl} from 'react-intl';
-import * as Colors from '@material-ui/core/colors';
+// import * as Colors from '@material-ui/core/colors';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import Drawer from '@material-ui/core/Drawer';
@@ -89,7 +89,7 @@ class NotificationsDrawer extends React.Component {
 									secondary={
 										<React.Fragment>
 											<div style={{ maxWidth: '250px' }}>
-												<span style={{ color: Colors.grey[900], maxWidth: '250px'  }}>
+												<span style={{ maxWidth: '250px'  }}>
 													{DateTimeHelper.formatTimestamp(notification.timestamp)}
 												</span> --
 												{notification.message}

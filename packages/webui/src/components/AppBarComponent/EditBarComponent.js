@@ -86,14 +86,17 @@ export class EditBarComponent extends Component {
 
 		const formula = document.getElementById('editbarformula');
 		const info = document.getElementById('editbarreference');
-		const selection = graphManager.getGraphViewer().getSelection();
+		const viewer = graphManager.getGraphViewer();
+		const selection = viewer.getSelection();
 		let formulaText = '';
 		let infoText = '';
 		const jsgState = {};
 		const appState = {};
+		const graphView = viewer.getGraphView();
+		const focus = graphView.getFocus();
 
 		if (selection.length) {
-			graphManager.getGraphViewer().getGraphView().setFocus(selection[0]);
+			graphView.setFocus(selection[0]);
 		}
 
 		if (selection !== undefined && selection.length === 1) {
@@ -110,17 +113,15 @@ export class EditBarComponent extends Component {
 				}
 				if (item instanceof JSG.SheetPlotNode) {
 				  	if (attr && attr.getValue() === true) {
-						item.createSeriesFromSelection(
-							graphManager.getGraphViewer(),
-							sheet,
-							graphManager.chartSelection,
-							graphManager.chartType
-						);
+						const treeSelected = focus && (focus.getView() instanceof JSG.TreeItemsView)
+						if (treeSelected) {
+							item.createSeriesFromInbox({action: 'replaceSeries', actionSeriesIndex: -1}, focus.getModel(), viewer, graphManager.chartType);
+						} else {
+							item.createSeriesFromSelection(viewer, sheet, graphManager.chartSelection,
+								graphManager.chartType);
+						}
 						graphManager.getGraphEditor().invalidate();
 						attr.setExpressionOrValue(false);
-					} else if (!item.isProtected()) {
-						// NotificationCenter.getInstance().send(
-						// 	new Notification(JSG.PLOT_DOUBLE_CLICK_NOTIFICATION));
 					}
 				}
 				infoText = item.getName().getValue();
@@ -128,7 +129,7 @@ export class EditBarComponent extends Component {
 
 			const view = getProcessContainerView(selection[0]);
 			if (view !== undefined) {
-				view.moveSheetToTop(graphManager.getGraphViewer());
+				view.moveSheetToTop(viewer);
 			}
 		} else {
 			appState.showStreamChartProperties = false;
@@ -141,14 +142,12 @@ export class EditBarComponent extends Component {
 		if (this.props.cellSelected === true) {
 			jsgState.cellSelected = false;
 		}
-
 		if (Object.keys(jsgState).length) {
 			this.props.setJsgState(jsgState);
 		}
 		if (Object.keys(appState).length) {
 			this.props.setAppState(appState);
 		}
-
 	}
 
 	onSheetSelectionChanged(notification) {

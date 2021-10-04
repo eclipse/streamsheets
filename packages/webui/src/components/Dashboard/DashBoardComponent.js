@@ -52,6 +52,9 @@ const toDataURL = (image) => {
 }
 
 const styles = (theme) => ({
+	tabs: {
+		color: '#666666',
+	},
 	tablePaperContainer: {
 		maxHeight: '100%',
 		padding: '24px',
@@ -570,7 +573,7 @@ class DashBoardComponent extends Component {
 					>
 						<Tabs
 							indicatorColor="primary"
-							textColor="primary"
+							className={classes.tabs}
 							value={this.state.activeTab}
 							onChange={this.handleTabChange}
 						>

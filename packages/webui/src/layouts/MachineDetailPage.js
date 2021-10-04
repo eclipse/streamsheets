@@ -122,6 +122,16 @@ export function MachineDetailPage(props) {
 		}
 	}, [showViewMode, viewSettings, machineLoaded]);
 
+	useEffect(() => {
+		const url = new URL(window.location);
+		if (showViewMode && !url.searchParams.get('preview')) {
+			url.searchParams.append('preview', true);
+		} else if (!showViewMode && url.searchParams.get('preview')) {
+			url.searchParams.delete('preview', true);
+		}
+		window.history.replaceState({}, null, url.toString());
+	}, [showViewMode]);
+
 	useLayoutEffect(() => {
 		if (machineLoaded) {
 			graphManager.updateCanvas(viewMode);
@@ -193,10 +203,11 @@ export function MachineDetailPage(props) {
 			`,
 				{ machineId }
 			);
+			if (sharedMachine || query.preview) {
+				props.setAppState({ showViewMode: true });
+			}
 			if (!sharedMachine) {
 				setCanEditMachine(scopedByMachine.machine.canEdit);
-			} else {
-				props.setAppState({ showViewMode: true });
 			}
 			props.receiveStreams({ streams: scopedByMachine.streamsLegacy });
 			props.setScope(scopedByMachine.machine.scope.id);

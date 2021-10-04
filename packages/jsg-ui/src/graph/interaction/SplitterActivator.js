@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -102,6 +102,10 @@ export default class SplitterActivator extends InteractionActivator {
 	_getControllerAt(location, viewer, dispatcher) {
 		return viewer.filterFoundControllers(Shape.FindFlags.AREAWITHFRAME, (cont) => {
 			if (!(cont.getModel() instanceof SplitterNode)) {
+				return false;
+			}
+			const index = viewer.foundControllerIndex(cont);
+			if (index === -1 || index > 3) {
 				return false;
 			}
 			return true;

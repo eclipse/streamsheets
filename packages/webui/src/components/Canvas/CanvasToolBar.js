@@ -157,7 +157,8 @@ export class CanvasToolBar extends Component {
 			toolsOpen: false,
 			chartsOpen: false,
 			borderOpen: false,
-			graphSelected: false
+			graphSelected: false,
+			treeSelected: false
 		};
 	}
 
@@ -168,12 +169,26 @@ export class CanvasToolBar extends Component {
 			.register(this, JSG.WorksheetNode.SELECTION_CHANGED_NOTIFICATION, 'onSheetSelectionChanged');
 		JSG.NotificationCenter.getInstance()
 			.register(this, SelectionProvider.SELECTION_CHANGED_NOTIFICATION, 'onGraphSelectionChanged');
+		JSG.NotificationCenter.getInstance()
+			.register(this, JSG.TreeItemsNode.SELECTION_CHANGED_NOTIFICATION, 'onTreeSelectionChanged');
+
 	}
 
 	componentWillUnmount() {
 		JSG.NotificationCenter.getInstance().unregister(this, CommandStack.STACK_CHANGED_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.WorksheetNode.SELECTION_CHANGED_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, SelectionProvider.SELECTION_CHANGED_NOTIFICATION);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.TreeItemsNode.SELECTION_CHANGED_NOTIFICATION);
+	}
+
+	onTreeSelectionChanged() {
+		const graphView = graphManager.getGraphViewer().getGraphView();
+		const focus = graphView.getFocus();
+		const treeSelected = focus && (focus.getView() instanceof JSG.TreeItemsView)
+
+		if (this.state.treeSelected !== treeSelected) {
+			this.setState({ treeSelected });
+		}
 	}
 
 	onSheetSelectionChanged(notification) {
@@ -189,7 +204,7 @@ export class CanvasToolBar extends Component {
 		}
 
 		this.props.setJsgState({ cellSelected: true });
-		this.updateState({ graphSelected: false });
+		this.updateState({ graphSelected: false, treeSelected: false });
 	}
 
 	onGraphSelectionChanged() {
@@ -202,7 +217,7 @@ export class CanvasToolBar extends Component {
 		const conts = selection.filter((controller) => controller.getModel() instanceof JSG.StreamSheetContainer);
 
 		if (conts.length === 0) {
-			this.updateState({ graphSelected: true });
+			this.updateState({ graphSelected: true, treeSelected: false });
 		}
 	}
 
@@ -606,12 +621,12 @@ export class CanvasToolBar extends Component {
 			const node = new JSG.SheetPlotNode();
 			const attr = node.addAttribute(new BooleanAttribute('showwizard', true));
 			attr.setTransient(true);
+			graphManager.chartType = type;
 			const sheetView = graphManager.getActiveSheetView();
 			if (sheetView) {
 				const selection = sheetView.getOwnSelection();
 				if (selection) {
 					graphManager.chartSelection = selection.copy();
-					graphManager.chartType = type;
 				}
 			}
 
@@ -3785,7 +3800,7 @@ export class CanvasToolBar extends Component {
 						<IconButton
 							style={buttonStyle}
 							onClick={this.onShowCharts}
-							disabled={!this.props.cellSelected && !this.isChartSelected()}
+							disabled={!this.props.cellSelected && !this.isChartSelected() && !this.state.treeSelected}
 						>
 							<SvgIcon>
 								<path d='M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z' />

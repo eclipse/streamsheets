@@ -401,6 +401,16 @@ class GraphViewer extends ControllerViewer {
 		this.collectVisibleControllersAt(event.location, this._controllers);
 	}
 
+	foundControllerIndex(controller) {
+		for (let i = 0; i < this._controllers.length; i += 1) {
+			const info = this._controllers.data[i];
+			if (info.controller.getModel().getId() === controller.getModel().getId()) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	filterFoundControllers(flag, callback) {
 		if (this._controllers === undefined || this._controllers.length === 0) {
 			return undefined;

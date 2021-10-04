@@ -308,16 +308,13 @@ class ShapeReference extends AbstractReference {
 	static fromString(str, scope, streamSheetId) {
 		let sheet = scope;
 		if (streamSheetId) {
-			const machine = scope.machine;
+			const machine = scope.machine || scope;
 			if (machine && machine.getStreamSheet) {
-				sheet = machine.getStreamSheet(streamSheetId);
-				if (!sheet) {
-					return undefined;
-				}
-				sheet = sheet.sheet;
+				const streamsheet = machine.getStreamSheet(streamSheetId);
+				sheet = streamsheet ? streamsheet.sheet : undefined;
 			}
 		}
-		const shape = sheet && sheet.shapes.getShapeByName(str);
+		const shape = sheet && sheet.shapes && sheet.shapes.getShapeByName(str);
 		return shape ? new ShapeReference(scope, str) : undefined;
 	}
 

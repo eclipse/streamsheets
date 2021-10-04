@@ -470,8 +470,8 @@ module.exports = class LayoutNode extends Node {
 		this.refresh(true);
 	}
 
-	isCopyAllowed() {
-		return false;
+	getCopyRestriction() {
+		return 'prohibit';
 	}
 
 	isAddLabelAllowed() {
