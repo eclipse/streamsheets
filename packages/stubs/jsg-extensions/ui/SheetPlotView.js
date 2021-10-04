@@ -14,7 +14,6 @@
 
 import {
 	CellRange,
-	default as JSG,
 	Expression,
 	Selection,
 	StringExpression,
@@ -486,6 +485,7 @@ export default function SheetPlotViewFactory(JSG, ...args) {
 			const final = item.getAxisEnd(axis);
 			const thresholds = item.hasLegendRange() ? legendData : undefined;
 			let last;
+			// eslint-disable-next-line prefer-const
 			let first = true;
 			let width = 0;
 			let pos;
