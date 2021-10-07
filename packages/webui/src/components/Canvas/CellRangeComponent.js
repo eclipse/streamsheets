@@ -130,6 +130,7 @@ class CellRangeComponent extends React.Component {
 			cellEditor = CellEditor.activateCellEditor(event.target, graphManager.getGraphViewer(), view.getItem());
 		}
 		cellEditor.alwaysReplace = this.props.onlyReference;
+		cellEditor.allowNoEqual = true;
 		cellEditor.activateReferenceMode();
 		cellEditor.updateEditRangesView(this.props.sheetView);
 		this.setState({

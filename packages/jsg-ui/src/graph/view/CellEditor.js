@@ -782,7 +782,11 @@ export default class CellEditor {
 			this.updateEditRangesView();
 			this.selectedRangeByIndex(0);
 		} else {
-			if (this.oldContent === undefined) {
+			if (this.allowNoEqual && this.div.innerHTML === '') {
+				this.div.innerHTML = '=';
+				this.oldContent = this.div.innerHTML;
+				this.oldContentPos = {start: 1, end: 1};
+			} else if (this.oldContent === undefined) {
 				this.oldContent = this.div.innerHTML;
 				this.oldContentPos = this.saveSelection();
 			}
