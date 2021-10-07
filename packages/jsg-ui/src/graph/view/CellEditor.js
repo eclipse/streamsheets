@@ -778,7 +778,7 @@ export default class CellEditor {
 
 		// simply replace
 		if (this.alwaysReplace) {
-			this.div.innerHTML = this.allowNoEqual ? refText : `=${refText}`;
+			this.div.innerHTML = `=${refText}`;
 			this.updateEditRangesView();
 			this.selectedRangeByIndex(0);
 		} else {
