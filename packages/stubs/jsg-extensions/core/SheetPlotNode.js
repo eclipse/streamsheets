@@ -50,12 +50,21 @@ const getTimeCell = (item, serie) => {
 	const cell = item.getDataSourceInfo(serie);
 	return cell && cell.time;
 };
-const getCellReference = (item, formula) => {
+
+const getCellReference = (item, serie) => {
 	// which index is it? 1 or 2 or should we search?
-	const { range, sheet } = item.getParamInfo(formula.getTerm(), 2);
-	if (range) range.shiftToSheet();
-	return range && sheet ? `${sheet.getName()}!${range.toString()}` : undefined;
+	const ref = item.getDataSourceInfo(serie);
+	if (!ref.time) {
+		return false;
+	}
+	const info  = item.getRangeInfo(ref.time.getExpression());
+	if (!info) {
+		return undefined;
+	}
+	info.range.shiftToSheet();
+	return `${info.sheet.getName()}!${info.range.toString()}`;
 };
+
 
 const templates = {
 	basic: {
@@ -6051,7 +6060,7 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 					item.chartZoom = false;
 					item.series.forEach((serie) => {
 						const cell = getTimeCell(item, serie);
-						const cellref = isValuesCell(cell) && getCellReference(item, serie.formula);
+						const cellref = isValuesCell(cell) && getCellReference(item, serie);
 						item.chartZoom = !!cellref;
 						// support multiple items on same reference
 						if (item.chartZoom) items.set(item, cellref);
