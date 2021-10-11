@@ -1354,6 +1354,12 @@ module.exports.SheetPlotNode = class SheetPlotNode extends Node {
 				expression.correctFormula();
 				// term can change
 				term = expression.getTerm();
+
+				viewer.getInteractionHandler().execute(JSG.SheetCommandFactory.create('command.SetChartFormulaCommand', this, {
+					index: 0,
+					element: 'xAxis',
+					data: this.xAxes[0],
+				}, expression));
 			}
 		});
 		if (selection) {
