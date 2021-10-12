@@ -149,6 +149,7 @@ export class AttributeProperties extends Component {
 							{ value: '1', label: 'GraphItemProperties.Left'},
 							{ value: '2', label: 'GraphItemProperties.AlignCenter'},
 							{ value: '3', label: 'GraphItemProperties.Right'},
+							{ value: '4', label: 'GraphItemProperties.None'},
 							]) :
 						null
 				}
