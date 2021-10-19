@@ -12,6 +12,10 @@ export default [
 		content: 'Further, you can enter the "view mode" to show your app without the edit tools. In addition, you are able to control the "cycle speed" of your App. If any of your sheets calculate continuously they do this with this "cycle speed".'
 	},
 	{
+		target: '#stream-app-controlbar',
+		content: 'Further, you can enter the "view mode" to show your app without the edit tools. In addition, you are able to control the "cycle speed" of your App. If any of your sheets calculate continuously they do this with this "cycle speed".'
+	},
+	{
 		target: '#stream-app-edit-area',
 		content: 'This is the edit area of your Stream App. It contains one or multiple Streamsheets and/or a Dashboard sheet.'
 	},
