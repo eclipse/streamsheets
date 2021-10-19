@@ -99,6 +99,21 @@ module.exports = class Utils {
 				}
 				break;
 			}
+			case 'application/xml': {
+				try {
+					msg = convert.xml2js(msgString, convertOptions);
+				} catch (e) {
+					throw new Error(
+						'Invalid data for mimeType application/xml'
+					);
+				}
+				break;
+			}
+			// TODO: buffer should be separate from mime type
+			case 'buffer': {
+				msg = { value: message };
+				break;
+			}
 			default:
 				msg = { value: msgString };
 		}

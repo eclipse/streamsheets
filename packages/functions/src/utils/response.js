@@ -9,7 +9,8 @@
  *
  ********************************************************************************/
 const { jsonpath } = require('@cedalo/commons');
-const { Message } = require('@cedalo/machine-core');
+const { FunctionErrors: { code: ERROR } } = require('@cedalo/error-codes');
+const { Message, RequestState } = require('@cedalo/machine-core');
 const { getInbox } = require('./sheet');
 const { getCellRangeFromTerm, isInboxTerm, isOutboxTerm, termFromValue } = require('./terms');
 
@@ -59,17 +60,18 @@ const addResultToTarget = (sheet, target, resobj) => {
 	}
 };
 
-const handleResponse = (sheet, target) => {
+const handleResponse = (sheet, target, extractErrorData, extractResultData) => {
 	return (context, response, error) => {
-		const term = context.term;
 		const reqId = context._reqId;
-		const resobj = response;
-		// resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
-		if (target) addResultToTarget(sheet, target, resobj);
-		if (term && !term.isDisposed) {
-			term.cellValue = error ? ERROR.RESPONSE : undefined;
+		if(error){
+			throw new Error(error);
 		}
-		return error ? RequestState.REJECTED : undefined;
+		const resobj = error ? {error} : response;
+		if (typeof resobj === 'object') {
+			resobj.metadata = {};
+			resobj.metadata.label = error ? `Error: ${context.term.name}` : context.term.name;
+		}
+		if (target) addResultToTarget(sheet, target, resobj);
 	};
 };
 

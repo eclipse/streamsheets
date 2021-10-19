@@ -98,7 +98,10 @@ export default class StreamFieldComponents {
 				label: 'XML', value: 'application/xml'
 			}, {
 				label: 'STRING', value: 'text/plain'
-			}],
+			}, {
+				label: 'Buffer', value: 'buffer'
+			}, 
+			],
 			help: {
 				en: 'Data Format of payload',
 				de: 'Payload Datenformat',
