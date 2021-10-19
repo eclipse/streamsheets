@@ -26,7 +26,7 @@ module.exports = class LayoutCell extends Node {
 		this.getFormat().setLineStyle(0);
 		this.getFormat().setFillStyle(FormatAttributes.FillStyle.NONE);
 		this.getItemAttributes().setRotatable(false);
-		this.getItemAttributes().setMoveable(false);
+		this.getItemAttributes().setMoveable(ItemAttributes.Moveable.NONE);
 		this.getItemAttributes().setSizeable(false);
 		this.getItemAttributes().setDeleteable(false);
 		this.getItemAttributes().setSelectionMode(ItemAttributes.SelectionMode.AREA);

@@ -192,6 +192,10 @@ module.exports = class Cell {
 		this.clearContent();
 	}
 
+	getTerm() {
+		return this._expr ? this._expr.getTerm() : undefined;
+	}
+
 	getExpression() {
 		return this._expr;
 	}

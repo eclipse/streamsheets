@@ -324,6 +324,15 @@ export default class WorksheetView extends ContentNodeView {
 				}
 				doDefault();
 				break;
+		case 'p':
+			if (event.event.ctrlKey) {
+				this.getItem().collectPredecessors();
+				this.getItem().collectDependants();
+				event.consume();
+				invalidate();
+				return true;
+			}
+			break;
 			case 'q':
 				// scribble to create png from range
 				if (event.event.ctrlKey) {

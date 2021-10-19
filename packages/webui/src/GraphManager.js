@@ -630,7 +630,7 @@ export default class GraphManager {
 							layoutNode.setSize(20000, 10000);
 							layoutNode.getPin().setLocalPoint(0, 0);
 							layoutNode.setOrigin(0, 0);
-							layoutNode.getItemAttributes().setMoveable(false);
+							layoutNode.getItemAttributes().setMoveable(JSG.ItemAttributes.Moveable.NONE);
 							layoutNode.getItemAttributes().setDeleteable(false);
 							cmp.add(new JSG.AddItemCommand(layoutNode, container.getStreamSheet().getCells()));
 							let path = JSG.AttributeUtils.createPath(JSG.WorksheetAttributes.NAME,

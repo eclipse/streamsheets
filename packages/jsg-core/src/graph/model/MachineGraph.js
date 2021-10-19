@@ -9,7 +9,6 @@
  *
  ********************************************************************************/
 const JSG = require('../../JSG');
-const StringAttribute = require('../attr/StringAttribute');
 const FormatAttributes = require('../attr/FormatAttributes');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Arrays = require('../../commons/Arrays');
@@ -17,7 +16,6 @@ const Graph = require('./Graph');
 const MachineContainer = require('./MachineContainer');
 const SheetName = require('./SheetName');
 const StreamSheet = require('./StreamSheet');
-const CellsNode = require('./CellsNode');
 const GraphUtils = require('../GraphUtils');
 
 const getStreamSheet = (item) => {
@@ -190,21 +188,6 @@ module.exports = class MachineGraph extends Graph {
 			if (sheet.getSheetType() === 'dashboard') {
 				result = sheet;
 			}
-		});
-
-		return result;
-	}
-
-	getTopStreamSheetContainerId() {
-		const container = this.getStreamSheetsContainer();
-		let result;
-
-		if (container === undefined) {
-			return undefined;
-		}
-
-		container.enumerateStreamSheetContainers((sheet) => {
-			result = sheet.getStreamSheet().getId();
 		});
 
 		return result;
