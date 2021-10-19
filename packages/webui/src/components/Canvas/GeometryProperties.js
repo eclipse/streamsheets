@@ -185,6 +185,9 @@ export class GeometryProperties extends Component {
 	handleX = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event).expression;
+		if (!expr) {
+			return;
+		}
 		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		let cmd;
 
@@ -211,6 +214,9 @@ export class GeometryProperties extends Component {
 	handleY = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event).expression;
+		if (!expr) {
+			return;
+		}
 		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		let cmd;
 
@@ -237,6 +243,9 @@ export class GeometryProperties extends Component {
 	handleWidth = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event).expression;
+		if (!expr) {
+			return;
+		}
 		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		let cmd;
 
@@ -261,6 +270,9 @@ export class GeometryProperties extends Component {
 	handleHeight = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event).expression;
+		if (!expr) {
+			return;
+		}
 		const line = item.getShape().getType() === JSG.LineShape.TYPE;
 		let cmd;
 
@@ -285,8 +297,10 @@ export class GeometryProperties extends Component {
 	handleRotation = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
-		const cmd = new JSG.RotateItemCommand(item, expr.expression);
-		graphManager.synchronizedExecute(cmd);
+		if (expr) {
+			const cmd = new JSG.RotateItemCommand(item, expr.expression);
+			graphManager.synchronizedExecute(cmd);
+		}
 	}
 
 	handleName = (event) => {
@@ -295,9 +309,10 @@ export class GeometryProperties extends Component {
 		}
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
-
-		const cmd = new JSG.SetNameCommand(item, expr.expression);
-		graphManager.synchronizedExecute(cmd);
+		if (expr) {
+			const cmd = new JSG.SetNameCommand(item, expr.expression);
+			graphManager.synchronizedExecute(cmd);
+		}
 	}
 
 	validateCoordinate = (value, label) => {
@@ -423,6 +438,9 @@ export class GeometryProperties extends Component {
 	handlePointRange = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
+		if (!expr) {
+			return;
+		}
 		const cmd = new JSG.SetPointSourceCommand(item, expr.expression);
 		graphManager.synchronizedExecute(cmd);
 	}
@@ -430,6 +448,9 @@ export class GeometryProperties extends Component {
 	handleText = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
+		if (!expr) {
+			return;
+		}
 		const cmd = new JSG.SetTextCommand(item, item.getText(), expr.expression);
 		graphManager.synchronizedExecute(cmd);
 	}
@@ -437,6 +458,9 @@ export class GeometryProperties extends Component {
 	handleType = (event) => {
 		const item = this.props.view.getItem();
 		const expr = this.getExpression(item, event);
+		if (!expr) {
+			return;
+		}
 		const cmd = new JSG.SetTextCommand(item, item.getText(), expr.expression);
 		graphManager.synchronizedExecute(cmd);
 	}

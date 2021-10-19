@@ -104,6 +104,8 @@ module.exports = class LayoutCell extends Node {
 					case 3:
 						subItem.setOrigin(size.x - margin - subItem.getWidth().getValue(), origin.y);
 						break;
+					case 4:
+						break;
 					case 0:
 					case 1:
 					default:
@@ -157,6 +159,8 @@ module.exports = class LayoutCell extends Node {
 							break;
 						case 3:
 							subItem.setOrigin(size.x - margin - subItem.getWidth().getValue(), yInner);
+							break;
+						case 4:
 							break;
 						case 0:
 						case 1:
