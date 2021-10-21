@@ -31,6 +31,7 @@ import {
 	AttributeUtils,
 	Numbers,
 	Dictionary,
+	MathUtils,
 	JSONWriter,
 	JSONReader,
 	RowHeaderNode,
@@ -183,20 +184,9 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	getCellInside(event, viewer) {
-		const bounds = this.getScrollView().getBounds();
-		let point = new Point(0, 0);
-		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
-		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const point = this.translateToSheet(event.location.copy(), viewer);
 
-		point.setTo(event.location);
-		point = this.translateToSheet(point, viewer);
-
-		if (point.x > bounds.width - vScrollSize || point.y > bounds.height - hScrollSize) {
-			return undefined;
-		}
-
-		return this.getCell(point);
+		return this.isInSheetClientArea(point) ? this.getCell(point) : WorksheetHitCode.NONE;
 	}
 
 	getCell(point, cellOnly = false, anyCell = false) {
@@ -876,24 +866,109 @@ export default class WorksheetView extends ContentNodeView {
 		return changed;
 	}
 
+	isPredecessorHit(item, point) {
+		if (!item.predecessors) {
+			return undefined;
+		}
+
+		const start = new Point(0, 0);
+		const end = new Point(0, 0);
+		let cell;
+
+		const predecessor = item.predecessors.find(pre => {
+			const rectActive = this.getRangeRect(pre.cell);
+			rectActive.x += 200;
+			rectActive.y += 200;
+			let extOffset = 2000;
+			cell = pre.cells.find(range => {
+				range.shiftFromSheet();
+				const rect = this.getRangeRect(range);
+				rect.x += 200;
+				rect.y += 200;
+				range.shiftToSheet();
+				if (range.getSheet() !== item) {
+					start.x = rectActive.x + rectActive.width;
+					start.y = rectActive.y + extOffset;
+					extOffset += 400;
+				} else {
+					start.x = rect.x;
+					start.y = rect.y;
+				}
+				end.x = rectActive.x;
+				end.y = rectActive.y
+				return (MathUtils.getLinePointDistance(start, end, point) < 150);
+			});
+			return cell !== undefined;
+		});
+
+		return predecessor ? {predecessor, cell} : undefined;
+	}
+
+	isDependantHit(item, point) {
+		if (!item.dependants) {
+			return undefined;
+		}
+
+		const start = new Point(0, 0);
+		const end = new Point(0, 0);
+		let cell;
+
+		const dependant = item.dependants.find(pre => {
+			const rectActive = this.getRangeRect(pre.cell);
+			rectActive.x += 200;
+			rectActive.y += 200;
+			let extOffset = 2000;
+			cell = pre.cells.find(range => {
+				const rect = this.getRangeRect(range);
+				rect.x += 200;
+				rect.y += 200;
+				if (range.getSheet() !== item) {
+					start.x = rectActive.x;
+					start.y = rectActive.y;
+					end.x = rectActive.x + rectActive.width;
+					end.y = rectActive.y + extOffset;
+					extOffset += 400;
+				} else {
+					start.x = rect.x;
+					start.y = rect.y;
+					end.x = rectActive.x;
+					end.y = rectActive.y;
+				}
+				return (MathUtils.getLinePointDistance(start, end, point) < 150);
+			});
+			return cell !== undefined;
+		});
+
+		return dependant ? {dependant, cell} : undefined;
+	}
+
+	isInSheetClientArea(point) {
+		const scrollView = this.getScrollView();
+		const bounds = scrollView.getBounds();
+		const hScrollSize = scrollView.getHorizontalScrollbar().isVisible() ? ScrollBar.SIZE : 0;
+		const vScrollSize = scrollView.getVerticalScrollbar().isVisible() ? ScrollBar.SIZE : 0;
+
+		return !(point.x > bounds.width - vScrollSize || point.y > bounds.height - hScrollSize);
+	}
+
 	getHitCode(location, viewer, checkSelectedRange = false) {
 		const item = this.getItem();
 		if (item.getLayoutNode()) {
 			return WorksheetView.HitCode.NONE;
 		}
 
-		const scrollView = this.getScrollView();
-		const bounds = scrollView.getBounds();
-		let point = location.copy();
-		const hScrollSize = scrollView.getHorizontalScrollbar().isVisible() ? ScrollBar.SIZE : 0;
-		const vScrollSize = scrollView.getVerticalScrollbar().isVisible() ? ScrollBar.SIZE : 0;
-			// item.getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
-		// const vScrollSize = item.getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const point = this.translateToSheet(location.copy(), viewer);
 
-		point = this.translateToSheet(point, viewer);
-
-		if (point.x > bounds.width - vScrollSize || point.y > bounds.height - hScrollSize) {
+		if (!this.isInSheetClientArea(point)) {
 			return WorksheetHitCode.NONE;
+		}
+
+		if (this.isPredecessorHit(item, point)) {
+			return WorksheetHitCode.PREDECESSOR;
+		}
+
+		if (this.isDependantHit(item, point)) {
+			return WorksheetHitCode.DEPENDANT;
 		}
 
 		if (checkSelectedRange) {
@@ -1040,17 +1115,11 @@ export default class WorksheetView extends ContentNodeView {
 	}
 
 	getSection(hitCode, location, viewer) {
-		const bounds = this.getScrollView().getBounds();
-		let point = location.copy();
 		let cv;
-		const hScrollSize =
-			this.getItem().getHorizontalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
-		const vScrollSize = this.getItem().getVerticalScrollbarMode() === JSG.ScrollBarMode.HIDDEN ? 0 : ScrollBar.SIZE;
+		const point = this.translateToSheet(location.copy(), viewer);
 
-		point = this.translateToSheet(point, viewer);
-
-		if (point.x > bounds.width - vScrollSize || point.y > bounds.height - hScrollSize) {
-			return undefined;
+		if (!this.isInSheetClientArea(point)) {
+			return WorksheetHitCode.NONE;
 		}
 
 		switch (hitCode) {
@@ -1146,6 +1215,10 @@ export default class WorksheetView extends ContentNodeView {
 				break;
 			case WorksheetHitCode.SELECTIONEXTEND:
 				interaction.setCursor(Cursor.Style.CROSSHAIR);
+				break;
+			case WorksheetHitCode.DEPENDANT:
+			case WorksheetHitCode.PREDECESSOR:
+				interaction.setCursor(Cursor.Style.AUTO);
 				break;
 			case WorksheetHitCode.DATAVIEW:
 			case WorksheetHitCode.ERRORVIEW:
