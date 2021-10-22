@@ -555,6 +555,7 @@ module.exports = class MachineGraph extends Graph {
 
 	clearSearchResult(key) {
 		this.searchResult = undefined;
+		this.activeSearchIndex = -1;
 	}
 
 	collectSearchResult(key) {
@@ -605,6 +606,7 @@ module.exports = class MachineGraph extends Graph {
 		}
 
 		if (this.activeSearchIndex === -1) {
+			this.activeSearchIndex = 0;
 			for (let i = 0; i < this.searchResult.length; i += 1) {
 				const range = this.searchResult[i];
 				// cell behind in this sheet

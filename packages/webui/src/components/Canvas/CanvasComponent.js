@@ -207,7 +207,8 @@ export class CanvasComponent extends Component {
 
 	handleSearchClose = () => {
 		this.setState({
-			searchOpen: false
+			searchOpen: false,
+			searchText: '',
 		});
 		graphManager.getGraph().clearSearchResult();
 		graphManager.redraw();
