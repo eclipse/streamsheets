@@ -11,7 +11,7 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react';
-import { Button, Typography, Slide } from '@material-ui/core';
+import { Button, Typography, Slide, TextField, IconButton } from '@material-ui/core';
 import { connect } from 'react-redux';
 import AddIcon from '@material-ui/icons/Add';
 import SheetIcon from '@material-ui/icons/GridOn';
@@ -27,6 +27,9 @@ import Fab from '@material-ui/core/Fab';
 import SpeedDial from '@material-ui/lab/SpeedDial';
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
+import Paper from '@material-ui/core/Paper';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
@@ -106,6 +109,8 @@ export class CanvasComponent extends Component {
 			loaded: false,
 			loading: 1,
 			speedOpen: false,
+			searchOpen: false,
+			searchText: '',
 			dummy: ''
 		};
 	}
@@ -125,6 +130,8 @@ export class CanvasComponent extends Component {
 			JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION,
 			'onButtonClicked',
 		);
+		JSG.NotificationCenter.getInstance()
+			.register(this, JSG.WorksheetView.SHEET_SEARCH_NOTIFICATION, 'onSheetSearch');
 		/* eslint-disable react/no-did-mount-set-state */
 		this.setState({ graphEditor });
 		/* eslint-enable react/no-did-mount-set-state */
@@ -135,6 +142,7 @@ export class CanvasComponent extends Component {
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ZOOM_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ADD_SHEET_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.WorksheetView.SHEET_SEARCH_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 		canvas._jsgEditor.destroy();
 		delete canvas._jsgEditor;
@@ -170,6 +178,40 @@ export class CanvasComponent extends Component {
 			}
 		}
 	}
+
+	onSheetSearch() {
+		this.setState({ searchOpen: true });
+		setTimeout(() => {
+			document.getElementById('sheet-search').focus();
+		}, 100);
+	};
+
+	handleSearch = (event) => {
+		this.setState({
+			searchText: event.target.value
+		})
+
+		graphManager.getGraph().collectSearchResult(event.target.value);
+		graphManager.redraw();
+	};
+
+	handleSearchPrevious = () => {
+		graphManager.getGraph().getPreviousSearchResult();
+		graphManager.redraw();
+	};
+
+	handleSearchNext = () => {
+		graphManager.getGraph().getNextSearchResult();
+		graphManager.redraw();
+	};
+
+	handleSearchClose = () => {
+		this.setState({
+			searchOpen: false
+		});
+		graphManager.getGraph().clearSearchResult();
+		graphManager.redraw();
+	};
 
 	onZoom() {
 		const { canvas } = this;
@@ -352,6 +394,61 @@ export class CanvasComponent extends Component {
 						<GraphContextMenu />
 						<LayoutContextMenu />
 						<EditPointsContextMenu />
+						<Paper
+							elevation={4}
+							style={{
+								overflow: 'hidden',
+								position: 'absolute',
+								top: '10px',
+								right: '10px',
+								visibility: this.state.searchOpen ? 'visible' : 'hidden',
+								display: 'inline-flex',
+								alignItems: 'center'
+							}}
+						>
+							<TextField
+								variant="outlined"
+								inputProps={{
+									id: "sheet-search"
+								}}
+								size="small"
+								margin="normal"
+								style={{
+									width: '180px',
+									display: 'inline-block',
+									marginLeft: '8px',
+								}}
+								label={
+									<FormattedMessage id="Search" defaultMessage="Search" />
+								}
+								value={this.state.searchText}
+								onChange={this.handleSearch}
+							/>
+							<IconButton
+								style= {{
+								}}
+								size='small'
+								onClick={(e) => this.handleSearchPrevious(e)} disabled={false}
+							>
+								<KeyboardArrowUpIcon />
+							</IconButton>
+							<IconButton
+								style= {{
+								}}
+								size='small'
+								onClick={(e) => this.handleSearchNext(e)} disabled={false}
+							>
+								<KeyboardArrowDownIcon />
+							</IconButton>
+							<IconButton
+								style= {{
+								}}
+								size='small'
+								onClick={(e) => this.handleSearchClose(e)} disabled={false}
+							>
+								<CloseIcon />
+							</IconButton>
+						</Paper>
 					</React.Fragment>
 				)}
 				<canvas

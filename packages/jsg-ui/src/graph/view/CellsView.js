@@ -99,6 +99,7 @@ export default class CellsView extends NodeView {
 
 		this.drawPredecessors(graphics);
 		this.drawDependants(graphics);
+		this.drawSearchResult(graphics);
 	}
 
 	drawFill(graphics, format, rect) {
@@ -1688,7 +1689,6 @@ export default class CellsView extends NodeView {
 				}
 			})
 		});
-
 	}
 
 	drawDependants(graphics) {
@@ -1750,7 +1750,40 @@ export default class CellsView extends NodeView {
 				}
 			})
 		});
+	}
 
+	drawSearchResult(graphics) {
+		const graph = this._wsItem.getGraph();
+		if (!graph.searchResult) {
+			return;
+		}
+
+		graphics.setTransparency(20);
+		graphics.setFillColor('#00FF00');
+		graphics.beginPath();
+
+		graph.searchResult.forEach(range => {
+			if (range.getSheet() === this._wsItem) {
+				const rect = this._wsItem.getCellRect(range);
+				graphics.fillRectangle(rect.x, rect.y, rect.width, rect.height);
+			}
+		});
+
+		graphics.fill();
+		graphics.setTransparency(100);
+
+		if (graph.activeSearchIndex !== -1) {
+			const range = graph.searchResult[graph.activeSearchIndex];
+			if (range.getSheet() === this._wsItem) {
+				const rect = this._wsItem.getCellRect(range);
+				graphics.setLineWidth(50);
+				graphics.setLineColor(JSG.theme.border);
+				graphics.drawRectangle(rect.x - 100, rect.y - 100, rect.width + 200, rect.height + 200);
+				graphics.stroke();
+
+				graphics.setLineWidth(1);
+			}
+		}
 	}
 
 	rectangle(graphics, rect, fillColor, transparency) {

@@ -14,7 +14,9 @@
 import JSG from '@cedalo/jsg-ui';
 import { NumberFormatter } from '@cedalo/number-format';
 import { ToolbarExtensions, ChartExtensions } from '@cedalo/webui-extensions';
-import { Button, Divider, GridList, GridListTile, IconButton, Input, MenuItem, MenuList } from '@material-ui/core';
+import {
+	Button, Divider, GridList, GridListTile, IconButton, Input, MenuItem, MenuList,
+} from '@material-ui/core';
 import Popover from '@material-ui/core/Popover';
 import Select from '@material-ui/core/Select';
 import SvgIcon from '@material-ui/core/SvgIcon';
