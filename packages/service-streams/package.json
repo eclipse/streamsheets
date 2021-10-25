@@ -38,6 +38,7 @@
     "@cedalo/stream-rest-client": "2.4.0",
     "@cedalo/rest-server": "2.4.0",
     "@cedalo/stream-mqtt": "2.4.0",
+    "@cedalo/stream-toit": "2.4.0",
     "@cedalo/logger": "2.4.0",
     "@cedalo/messaging-client": "2.4.0",
     "@cedalo/protocols": "2.4.0",
