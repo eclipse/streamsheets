@@ -196,6 +196,10 @@ module.exports = class Cell {
 		return this._expr ? this._expr.getTerm() : undefined;
 	}
 
+	getFormula() {
+		return this._expr && this._expr.hasFormula() ? this._expr.getFormula() : undefined;
+	}
+
 	getExpression() {
 		return this._expr;
 	}

@@ -18,6 +18,8 @@ const SheetName = require('./SheetName');
 const StreamSheet = require('./StreamSheet');
 const GraphUtils = require('../GraphUtils');
 const CellRange = require('./CellRange');
+const { StreamSheetContainer } = require('../../../index');
+const WorksheetView = require('../../../../jsg-ui/src/graph/view/WorksheetView');
 
 const getStreamSheet = (item) => {
 	let sheet = item;
@@ -558,7 +560,7 @@ module.exports = class MachineGraph extends Graph {
 		this.activeSearchIndex = -1;
 	}
 
-	collectSearchResult(key) {
+	collectSearchResult(key, options) {
 		const cont = this.getStreamSheetsContainer();
 
 		this.searchResult = undefined;
@@ -567,24 +569,42 @@ module.exports = class MachineGraph extends Graph {
 			return;
 		}
 
-		key = key.toUpperCase();
+		if (!options.matchCase) {
+			key = key.toUpperCase();
+		}
 
 		cont.enumerateStreamSheetContainers((container) => {
 			const sheet = container.getStreamSheet();
-			const data = sheet.getDataProvider();
-			// const shift = sheet.getColumns().getInitialSection()
+			if (!options.activeSheet || sheet === options.sheet) {
+				const data = sheet.getDataProvider();
+				// const shift = sheet.getColumns().getInitialSection()
 
-			data.enumerate((column, row, cell) => {
-				const val = cell.getValue();
-				if (val) {
-					if (String(val).toUpperCase().indexOf(key) !== -1) {
-						if (!this.searchResult) {
-							this.searchResult = [];
+				data.enumerate((column, row, cell) => {
+					let val = cell.getValue();
+					if (val !== undefined) {
+						val = String(val);
+						if (!options.matchCase) {
+							val = val.toUpperCase();
 						}
-						this.searchResult.push(new CellRange(sheet, column, row));
+						if (val.indexOf(key) !== -1) {
+							if (!this.searchResult) {
+								this.searchResult = [];
+							}
+							this.searchResult.push(new CellRange(sheet, column, row));
+						} else if (options.formulas) {
+							const formula = cell.getFormula();
+							if (formula) {
+								if (formula.indexOf(key) !== -1) {
+									if (!this.searchResult) {
+										this.searchResult = [];
+									}
+									this.searchResult.push(new CellRange(sheet, column, row));
+								}
+							}
+						}
 					}
-				}
-			});
+				});
+			}
 		});
 
 		this.activeSearchIndex = -1
@@ -627,7 +647,6 @@ module.exports = class MachineGraph extends Graph {
 		} else {
 			this.activeSearchIndex += 1;
 		}
-
 	}
 
 	getPreviousSearchResult() {

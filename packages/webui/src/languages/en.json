@@ -1159,5 +1159,13 @@
   "StreamChart.TypesColumn": "Column and Bar Charts",
   "StreamChart.TypesLine": "Line Charts",
   "StreamChart.TypesArea": "Area Charts",
-  "StreamChart.TypesFunnel": "Funnel Charts"
+  "StreamChart.TypesFunnel": "Funnel Charts",
+  "ShowPredecessors": "Show Predecessors",
+  "ShowDependants": "Show dependant Cells",
+  "RemoveCellInfo": "Remove Arrows",
+  "SearchText": "Search",
+  "SearchCaps": "Match Case",
+  "SearchFormulas": "Also search in formulas",
+  "SearchActiveSheet": "Only search in active Sheet",
+  "SearchResult": "Search (Result {index} of {count})"
 }
