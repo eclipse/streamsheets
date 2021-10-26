@@ -193,6 +193,25 @@ JSG.copyItems = (selection) => {
 
 	file.writeEndArray('graphitem');
 	file.writeEndElement();
+
+	// save all data uri images to restore them
+	file.writeStartElement('images');
+
+	items.forEach((item) => {
+		const pattern = item.getModel().getFormat().getPattern().getValue();
+		if (pattern.indexOf('dataimage') !== -1) {
+			file.writeStartElement(pattern);
+			const image = JSG.imagePool.get(pattern);
+			if (image !== undefined) {
+				file.writeStartElement('data');
+				file.writeString(image.src);
+				file.writeEndElement();
+			}
+			file.writeEndElement();
+		}
+	});
+
+	file.writeEndElement();
 	file.writeEndDocument();
 
 	// this.debug.log(file.flush());

@@ -129,7 +129,6 @@ class DefaultKeyHandler extends InteractionActivator {
 					this._handleTab(event, viewer, dispatcher);
 					event.doRepaint = true;
 					event.consume();
-					// event.doPreventDefault = true;
 				}
 				return;
 			case 107:
@@ -138,7 +137,6 @@ class DefaultKeyHandler extends InteractionActivator {
 					viewer.setZoom(viewer.getZoom() + 0.1);
 					event.doRepaint = true;
 					event.consume();
-					// event.doPreventDefault = true;
 				}
 				return;
 			case 109:
@@ -147,7 +145,6 @@ class DefaultKeyHandler extends InteractionActivator {
 					viewer.setZoom(viewer.getZoom() - 0.1);
 					event.doRepaint = true;
 					event.consume();
-					// event.doPreventDefault = true;
 				}
 				return;
 			case 90:
