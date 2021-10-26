@@ -1,4 +1,5 @@
 const os = require('os');
+const urlModule = require('url');
 const logger = require('@cedalo/logger').create({ name: 'HTTP Client' });
 const IdGenerator = require('@cedalo/id-generator');
 
@@ -63,6 +64,17 @@ class HTTPClient {
 	async post(url, body, headers, config = {}) {
 		config.headers = headers;
 		config = this._checkConfig(config);
+		if (headers['Content-Type'] && headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+			const formParams = {
+				...body.data
+			}
+			try {
+				const params = new urlModule.URLSearchParams(formParams);
+				return axios.post(url, params.toString(), config);
+			} catch (error) {
+				console.error(error);
+			}
+		}
 		// axios serialize json data
 		return axios.post(url, body, config)
 	}
