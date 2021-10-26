@@ -1733,6 +1733,7 @@ class Graphics {
 			} else {
 				this._context2D.drawImage(image, p.x, p.y);
 			}
+			// eslint-disable-next-line no-empty
 		} catch(e) {
 
 		}
