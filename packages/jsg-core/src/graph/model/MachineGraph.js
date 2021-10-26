@@ -18,8 +18,6 @@ const SheetName = require('./SheetName');
 const StreamSheet = require('./StreamSheet');
 const GraphUtils = require('../GraphUtils');
 const CellRange = require('./CellRange');
-const { StreamSheetContainer } = require('../../../index');
-const WorksheetView = require('../../../../jsg-ui/src/graph/view/WorksheetView');
 
 const getStreamSheet = (item) => {
 	let sheet = item;
