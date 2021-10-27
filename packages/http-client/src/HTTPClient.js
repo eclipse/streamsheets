@@ -66,7 +66,7 @@ class HTTPClient {
 		config = this._checkConfig(config);
 		if (headers['Content-Type'] && headers['Content-Type'] === 'application/x-www-form-urlencoded') {
 			const formParams = {
-				...body.data
+				...body
 			}
 			try {
 				const params = new urlModule.URLSearchParams(formParams);
