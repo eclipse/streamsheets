@@ -12,32 +12,32 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-nested-ternary */
 
+import { ImageUploadDialog } from '@cedalo/webui-extensions';
+import { Fab, Tab, Table, TableBody, Tabs } from '@material-ui/core';
+import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
+import SvgIcon from '@material-ui/core/SvgIcon';
+import Tooltip from '@material-ui/core/Tooltip';
+import Add from '@material-ui/icons/Add';
 import React, { Component } from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as Actions from '../../actions/actions';
 import Constants from '../../constants/Constants';
+import { Path } from '../../helper/Path';
+import StreamHelper from '../../helper/StreamHelper';
+import GridViewButton from '../../layouts/GridViewButton';
+import StreamDeleteDialog from '../Admin/streams/StreamDeleteDialog';
 import CombinedResourceListing from '../base/listing/CombinedResourceListing';
+import { formatDateString } from '../base/listing/Utils';
+import SortSelector from '../base/sortSelector/SortSelector';
+import TableSortHeader from '../HelperComponent/TableSortHeader';
 import { IconPause, IconPlay, IconStop } from '../icons';
 import ImportDropzone from '../ImportExport/ImportDropzone';
-import { formatDateString } from '../base/listing/Utils';
-import { ImageUploadDialog } from '@cedalo/webui-extensions';
-import { Path } from '../../helper/Path';
-import { Table, TableBody, Tabs, Tab, Fab } from '@material-ui/core';
-import TableSortHeader from '../HelperComponent/TableSortHeader';
-import StreamHelper from '../../helper/StreamHelper';
-import StreamDeleteDialog from '../Admin/streams/StreamDeleteDialog';
-import Tooltip from '@material-ui/core/Tooltip';
-import Add from '@material-ui/icons/Add';
+import StreamSettings from './StreamSettings';
 import StreamTableRow from './StreamTableRow';
 import StreamWizard from './StreamWizard';
-import GridViewButton from '../../layouts/GridViewButton';
-import StreamSettings from './StreamSettings';
-import IconButton from '@material-ui/core/IconButton';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import SortSelector from '../base/sortSelector/SortSelector';
 
 const PREF_KEY_LAYOUT = 'streamsheets-prefs-listing-layout';
 const PREF_KEY_SORTSTREAMS = 'streamsheets-prefs-streams-sort';
