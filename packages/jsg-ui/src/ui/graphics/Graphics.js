@@ -1718,19 +1718,24 @@ class Graphics {
 			p.y -= 0.5;
 		}
 
-		const angle = this.getRotation();
-		if (angle && width && height) {
-			this._context2D.translate(p.x, p.y);
-			this._context2D.rotate(angle);
-			this._context2D.drawImage(image, 0, 0, width, height);
-			this._context2D.rotate(-angle);
-			this._context2D.translate(-p.x, -p.y);
-		} else if (sx !== undefined && sy !== undefined && swidth !== undefined && sheight !== undefined) {
-			this._context2D.drawImage(image, sx, sy, swidth, sheight, p.x, p.y, width, height);
-		} else if (width !== undefined && height !== undefined) {
-			this._context2D.drawImage(image, p.x, p.y, width, height);
-		} else {
-			this._context2D.drawImage(image, p.x, p.y);
+		try {
+			const angle = this.getRotation();
+			if (angle && width && height) {
+				this._context2D.translate(p.x, p.y);
+				this._context2D.rotate(angle);
+				this._context2D.drawImage(image, 0, 0, width, height);
+				this._context2D.rotate(-angle);
+				this._context2D.translate(-p.x, -p.y);
+			} else if (sx !== undefined && sy !== undefined && swidth !== undefined && sheight !== undefined) {
+				this._context2D.drawImage(image, sx, sy, swidth, sheight, p.x, p.y, width, height);
+			} else if (width !== undefined && height !== undefined) {
+				this._context2D.drawImage(image, p.x, p.y, width, height);
+			} else {
+				this._context2D.drawImage(image, p.x, p.y);
+			}
+			// eslint-disable-next-line no-empty
+		} catch(e) {
+
 		}
 	}
 
