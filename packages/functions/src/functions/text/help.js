@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -9,6 +9,48 @@
  *
  ********************************************************************************/
 module.exports = {
+	functionList: {
+		CONCAT: {
+			version: '2.4',
+			license: 'pro',
+			status: '(optional) deprecated, experimental...',
+			section: 'Text',
+			default: {
+				description: 'Description of Function',
+				arguments: [{
+					type: 'string',
+					name: 'name of argument (will be concatinated function name for syntax)',
+					optional: false,
+					description: 'Description of first argument'
+				}, {
+					type: 'number',
+					name: 'name of argument (will be concatinated function name for syntax)',
+					optional: true,
+					description: 'Description of second argument',
+					defaultValue: '1'
+				}],
+				note: 'additional info, if necessary',
+				return: {
+					type: 'number',
+					description: 'description of return value',
+					errors: [
+						{
+							value: '#ARGS',
+							description: 'At least 3 Arguments must be provided'
+						}
+					]
+				},
+				examples: [{
+					formula: '=CONCAT("Test", "test") @image.png (insert image link)',
+					result: 'Testtest',
+					comment: 'additional info',
+				}]
+			},
+			de: {
+				// translation, used if available using same keys
+			}
+		}
+	},
 	en: 'Text',
 	de: 'Text',
 	functions: {
