@@ -8,8 +8,6 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const toitAuthModels = require("@toit/api/src/toit/api/auth_pb");
-const toitAuthStub = require("@toit/api/src/toit/api/auth_grpc_pb");
 const grpc = require("@grpc/grpc-js")
 const sdk = require('@cedalo/sdk-streams');
 
@@ -27,35 +25,14 @@ module.exports = class ToitConnector extends sdk.Connector {
 		return typeof userProperties === 'object' && Object.keys(userProperties).length > 0;
 	}
 
-	login(credentials, username, password) {
-		return new Promise((resolve, reject) => {
-			let channel = new grpc.Channel("api.toit.io", credentials, {});
-			let client = new toitAuthStub.AuthClient("", null, { channelOverride: channel });
-			let loginRequest = new toitAuthModels.LoginRequest();
-			loginRequest.setUsername(username);
-			loginRequest.setPassword(password);
-			client.login(loginRequest, function (err, response) {
-				channel.close();
-				if (err) {
-					reject(err);
-				} else if (!response) {
-					reject("Empty response was returned from login")
-				} else {
-					resolve(response);
-				};
-			});
-		});
-	}
-
 	async connect() {
 		if (this._channel) {
 			return;
 		}
 		try {
 			const credentials = grpc.credentials.createSsl();
-			const auth = await this.login(credentials, this.config.connector.userName, this.config.connector.password);
 
-			const token = Buffer.from(auth.getAccessToken_asU8(),  "utf-8");
+			const token = this.config.connector.apikey;
 
 			const channel = new grpc.Channel("api.toit.io",
 				grpc.credentials.combineChannelCredentials(credentials,
