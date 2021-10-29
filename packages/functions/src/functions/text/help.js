@@ -14,22 +14,21 @@ module.exports = {
 			version: '2.4',
 			license: 'pro',
 			status: '(optional) deprecated, experimental...',
-			section: 'Text',
 			default: {
-				description: 'Description of Function',
+				category: 'Text',
+				description: 'Turns values of specified cells or cell-ranges into a string.',
 				arguments: [{
 					type: 'string',
-					name: 'name of argument (will be concatinated function name for syntax)',
+					name: 'Text1',
 					optional: false,
-					description: 'Description of first argument'
+					description: 'Description of first **Note** argument'
 				}, {
 					type: 'number',
-					name: 'name of argument (will be concatinated function name for syntax)',
+					name: 'Text2...',
 					optional: true,
 					description: 'Description of second argument',
 					defaultValue: '1'
 				}],
-				note: 'additional info, if necessary',
 				return: {
 					type: 'number',
 					description: 'description of return value',
@@ -40,14 +39,25 @@ module.exports = {
 						}
 					]
 				},
-				examples: [{
-					formula: '=CONCAT("Test", "test") @image.png (insert image link)',
-					result: 'Testtest',
-					comment: 'additional info',
-				}]
+				hint: 'additional info, if necessary',
+				examples: {
+					info: 'general info about examples</p><img src={require("../../_images/mqttpub.png").default} width="50%"/>',
+					formulas: [{
+						formula: '=CONCAT("Test", "test") @image.png (insert image link)',
+						result: 'Testtest',
+						comment: 'additional info',
+					}]
+				}
 			},
 			de: {
 				// translation, used if available using same keys
+				category: 'Textd',
+				arguments: [{
+					type: 'string',
+					name: 'Text1d',
+					optional: false,
+					description: 'Beschreibung'
+				}]
 			}
 		}
 	},
