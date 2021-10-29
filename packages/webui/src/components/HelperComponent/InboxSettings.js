@@ -92,6 +92,20 @@ const getLimitText = (streamsheet) => {
 		maxchars: enabled ? maxchars : 1000
 	};
 };
+const getMaxChars = (limitText) => {
+	if (!limitText) return undefined;
+	return limitText.enabled ? limitText.maxchars : -1;
+};
+
+// const updatePrefState = (prop, component) => (event, state) => updatePreferences({ [prop]: state }, component);
+const updatePreferences = (valobj, component) => {
+	component.setState({
+		preferences: {
+			...component.state.preferences,
+			...valobj
+		}
+	});
+};
 
 /**
  * A modal dialog can only be closed by selecting one of the actions.
@@ -120,10 +134,15 @@ export class InboxSettings extends React.Component {
 		return { ...state, streams };
 	}
 
+	/*
+	SETTINGS:
+	SHEET: name, cols, rows, protect, limit, showGrid, showHeaders, showFormulas, showInbox, greyIf
+	STREAM: consumer/stream, trigger: { type, repeat}, loop: {path, recursive}, hideMessages 
+	*/
+
 	constructor(props) {
 		super(props);
 		const streams = getStreamsFromProps(props);
-		const limitText = getLimitText();
 		this.state = {
 			anchorEl: null,
 			streams,
@@ -138,6 +157,7 @@ export class InboxSettings extends React.Component {
 			showAdvanced: false,
 			providerFilter: [],
 			preferences: {
+				name: '',
 				showGrid: true,
 				showHeader: true,
 				showInbox: true,
@@ -145,8 +165,11 @@ export class InboxSettings extends React.Component {
 				sheetColumns: 52,
 				sheetRows: 100,
 				sheetProtect: false,
-				sheetShowFormulas: false,
-				limitText
+				showFormulas: false,
+				hideMessages: false,
+				limitText: { enabled: true, maxchars: 1000 },
+				loop: { enabled: false, path: '', recursive: false },
+				trigger: { type: 'none', repeat: 'once' }
 			}
 		};
 		this.handleClose = this.handleClose.bind(this);
@@ -261,6 +284,7 @@ export class InboxSettings extends React.Component {
 							streamsheetId: streamsheet.id,
 							preferences: {
 								...this.state.preferences,
+								name: this.processSheet.getName().getValue(),
 								hideMessages: cAttr.getHideMessages().getValue(),
 								showInbox: cAttr.getInboxVisible().getValue(),
 								showGrid: wsAttr.getShowGrid().getValue(),
@@ -270,7 +294,11 @@ export class InboxSettings extends React.Component {
 								sheetColumns: wsAttr.getColumns().getValue() - 2,
 								showHeader: wsAttr.getShowHeader().getValue(),
 								showFormulas: wsAttr.getShowFormulas().getValue(),
-								limitText: getLimitText(streamsheet)
+								limitText: getLimitText(streamsheet),
+								// TODO:
+								loop: { enabled: false, path: '', recursive: false },
+								trigger: { type: 'none', repeat: 'once' }
+
 							}
 						};
 						this.setState(settings);
@@ -311,146 +339,49 @@ export class InboxSettings extends React.Component {
 	};
 
 	handleShowGrid = (event, state) => {
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				showGrid: state
-			}
-		});
+		updatePreferences({ showGrid: state }, this);
 	};
 
 	handleGreyIfRows = (event, state) => {
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				greyIfRows: state
-			}
-		});
+		updatePreferences({ greyIfRows: state }, this);
 	};
 
 	handleShowHeader = (event, state) => {
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				showHeader: state
-			}
-		});
+		updatePreferences({ showHeader: state }, this);
 	};
 
 	handleShowFormulas = (event, state) => {
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				showFormulas: state
-			}
-		});
+		updatePreferences({ showFormulas: state }, this);
 	};
 
 	handleShowInbox = (event, state) => {
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				showInbox: state
-			}
-		});
+		updatePreferences({ showInbox: state }, this);
 	};
 
 	handleSheetProtect = (event, state) => {
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				sheetProtect: state
-			}
-		});
+		updatePreferences({ showProtect: state }, this);
 	};
 
 	handleSheetName = (event) => {
-		this.setState({ name: event.target.value });
+		updatePreferences({ name: event.target.value }, this);
 	};
 
 	handleSheetRows = (event) => {
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				sheetRows: Number(event.target.value)
-			}
-		});
+		updatePreferences({ sheetRows: Number(event.target.value) }, this);
 	};
 
 	handleSheetColumns = (event) => {
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				sheetColumns: Number(event.target.value)
-			}
-		});
+		updatePreferences({ sheetColumns: Number(event.target.value) }, this);
 	};
 
 	handleLimitTextEnabled = (event, state) => {
 		const enabled = state;
 		const limitText = { ...this.state.preferences.limitText, enabled };
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				limitText
-			}
-		});
+		updatePreferences(limitText, this);
 	}
 	handleLimitTextMaxChars = (event) => {
 		const limitText = { ...this.state.preferences.limitText, maxchars: Number(event.target.value) };
-		this.setState({
-			preferences: {
-				...this.state.preferences,
-				limitText
-			}
-		});
-	};
-
-	handleSave = () => {
-		const settings = Object.assign({}, { ...this.state });
-		if (!settings.inbox.stream || settings.inbox.stream.name === 'none') {
-			settings.inbox.stream = {
-				name: ''
-			};
-		} else {
-			settings.inbox.stream = {
-				id: settings.inbox.stream.id,
-				name: settings.inbox.stream.name,
-			};
-		}
-		const limitText = settings.preferences.limitText;
-		settings.preferences.maxchars = limitText.enabled ? limitText.maxchars : -1;
-		delete settings.streams;
-		delete settings.preferences.limitText;
-		delete settings.loopPathError;
-
-		this.props.saveProcessSettings(settings);
-
-		const getWorksheetCommand = (valuePath, value) => {
-			const path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, valuePath);
-			return new SetAttributeAtPathCommand(this.processSheet, path, value);
-		};
-		const getContainerCommand = (valuePath, value) => {
-			const path = AttributeUtils.createPath(JSG.StreamSheetContainerAttributes.NAME, valuePath);
-			return new SetAttributeAtPathCommand(this.processSheet.getStreamSheetContainer(), path, value);
-		};
-
-		const cmd = new CompoundCommand();
-		cmd.add(new SetNameCommand(this.processSheet, this.state.name));
-		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWGRID, this.state.preferences.showGrid));
-		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWHEADER, this.state.preferences.showHeader));
-		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWFORMULAS, this.state.preferences.showFormulas));
-		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.PROTECTED, this.state.preferences.sheetProtect));
-		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.GREYIFROWS, this.state.preferences.greyIfRows));
-		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.ROWS, this.state.preferences.sheetRows));
-		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.COLUMNS, this.state.preferences.sheetColumns + 2));
-
-		cmd.add(getContainerCommand(JSG.StreamSheetContainerAttributes.HIDEMESSAGES, this.state.preferences.hideMessages));
-		cmd.add(getContainerCommand(JSG.StreamSheetContainerAttributes.INBOXVISIBLE, this.state.preferences.showInbox));
-
-		graphManager.synchronizedExecute(cmd);
-
-		this.handleClose();
+		updatePreferences(limitText, this);
 	};
 
 	parsePath(path) {
@@ -476,35 +407,78 @@ export class InboxSettings extends React.Component {
 				loopPathError: e.message
 			});
 		}
-		this.setState({
-			loop: {
-				...this.state.loop,
-				path
-			}
-		});
+		updatePreferences({ loop: { ...this.state.preferences.loop, path } }, this);
 	};
 
 	handleLoopEnabled = (event, state) => {
 		const enabled = state;
-		this.setState({ loop: { ...this.state.loop, enabled } });
+		updatePreferences({ loop: { ...this.state.preferences.loop, enabled } }, this);
 	};
 	handleLoopRecursively = (event, state) => {
 		const recursively = state;
-		this.setState({ loop: { ...this.state.loop, recursively } });
+		updatePreferences({ loop: { ...this.state.preferences.loop, recursively } }, this);
 	};
 
-	handleRepeatCalculation = (event, state) => {
-		const repeat = state ? 'endless' : 'once';
-		this.setState({ trigger: { ...this.state.trigger, repeat } });
+	handleTriggerChange = (valobj) => {
+		updatePreferences({	trigger: { ...this.state.preferences.trigger, ...valobj } }, this);
 	};
 
 	handleHideMessages = (event, state) => {
-		this.setState({
-			preferences: {
-				...this.state.hideMessages,
-				hideMessages: state
-			}
-		});
+		updatePreferences({ hideMessages: state }, this);
+	};
+
+	handleSave = () => {
+		const { inbox, preferences /* , stream */ } = this.state;
+
+		// TODO: check inbox stream setting
+		if (!inbox.stream || inbox.stream.name === 'none') {
+			inbox.stream = { name: '' };
+		} else {
+			inbox.stream = { id: inbox.stream.id, name: inbox.stream.name };
+		}
+		
+		const settings = {
+			name: preferences.name,
+			sheet: {
+				maxrow: preferences.sheetRows,
+				maxcol: preferences.sheetColumns,
+				// maxchars: preferences.maxchars,
+				maxchars: getMaxChars(preferences.limitText),
+				protected: preferences.sheetProtect
+			},
+			// TODO: check inbox stream setting
+			inbox: {},
+			loop: { ...preferences.loop },
+			trigger: { ...preferences.trigger }
+		}
+
+		this.props.saveProcessSettings(settings);
+
+		const getWorksheetCommand = (valuePath, value) => {
+			const path = AttributeUtils.createPath(JSG.WorksheetAttributes.NAME, valuePath);
+			return new SetAttributeAtPathCommand(this.processSheet, path, value);
+		};
+		const getContainerCommand = (valuePath, value) => {
+			const path = AttributeUtils.createPath(JSG.StreamSheetContainerAttributes.NAME, valuePath);
+			return new SetAttributeAtPathCommand(this.processSheet.getStreamSheetContainer(), path, value);
+		};
+
+		const cmd = new CompoundCommand();
+		cmd.add(new SetNameCommand(this.processSheet, preferences.name));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWGRID, preferences.showGrid));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWHEADER, preferences.showHeader));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.SHOWFORMULAS, preferences.showFormulas));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.PROTECTED, preferences.sheetProtect));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.GREYIFROWS, preferences.greyIfRows));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.ROWS, preferences.sheetRows));
+		cmd.add(getWorksheetCommand(JSG.WorksheetAttributes.COLUMNS, preferences.sheetColumns + 2));
+
+		cmd.add(getContainerCommand(JSG.StreamSheetContainerAttributes.HIDEMESSAGES, preferences.hideMessages));
+		cmd.add(getContainerCommand(JSG.StreamSheetContainerAttributes.INBOXVISIBLE, preferences.showInbox));
+
+		graphManager.synchronizedExecute(cmd);
+
+		this.handleClose();
 	};
 
 	handleClose = () => {
@@ -657,14 +631,6 @@ export class InboxSettings extends React.Component {
 		this.setState({ providerFilter: this.state.providerFilter });
 	}
 
-	handleTriggerChange = (event) => {
-		const type = event.target.value;
-		const newState = { trigger: { ...this.state.trigger, type } };
-		// endlessly should be selected explicitly so:
-		newState.trigger.repeat = 'once';
-		this.setState(newState);
-	};
-
 	handleTabChange = (event, value) => {
 		this.setState({ tabSelected: value });
 	};
@@ -687,7 +653,7 @@ export class InboxSettings extends React.Component {
 		}
 		const streams = this.getStreams();
 		const canEdit = MachineHelper.currentMachineCan(RESOURCE_ACTIONS.EDIT);
-		const { tabSelected, filter } = this.state;
+		const { tabSelected, filter, preferences } = this.state;
 
 		if (this.scroll) {
 			const sel = document.getElementById(this.scroll);
@@ -898,8 +864,12 @@ export class InboxSettings extends React.Component {
 											style={{
 												width: '65%'
 											}}
-											value={this.state.trigger.type}
-											onChange={this.handleTriggerChange}
+											value={preferences.trigger.type}
+											onChange={(event) => this.handleTriggerChange({
+												type: event.target.value,
+												// endlessly should be selected explicitly so:
+												repeat: 'once'
+											})}
 											label={
 												<FormattedMessage
 													id="InboxSettings.calcStreamSheet"
@@ -927,9 +897,11 @@ export class InboxSettings extends React.Component {
 										<FormControlLabel
 											control={
 												<Checkbox
-													checked={this.state.trigger.repeat === 'endless'}
-													onChange={this.handleRepeatCalculation}
-													disabled={this.state.trigger.type === 'none'}
+													checked={preferences.trigger.repeat === 'endless'}
+													onChange={(event, state) => this.handleTriggerChange({
+															repeat: state ? 'endless' : 'once'
+													})}
+													disabled={preferences.trigger.type === 'none'}
 												/>
 											}
 											// eslint-disable-next-line
@@ -942,7 +914,7 @@ export class InboxSettings extends React.Component {
 										/>
 									</FormGroup>
 
-									{this.state.trigger.type === 'random' || this.state.trigger.type === 'time' ? (
+									{preferences.trigger.type === 'random' || preferences.trigger.type === 'time' ? (
 										<div>
 											<TextField
 												variant="outlined"
@@ -955,19 +927,14 @@ export class InboxSettings extends React.Component {
 													/>
 												}
 												type="datetime-local"
-												defaultValue={this.state.trigger.start}
+												defaultValue={preferences.trigger.start}
 												style={{ width: '11rem', marginRight: '10px' }}
 												InputLabelProps={{
 													shrink: true
 												}}
-												onChange={(event) =>
-													this.setState({
-														trigger: {
-															...this.state.trigger,
-															start: event.target.value
-														}
-													})
-												}
+												onChange={(event) => this.handleTriggerChange({
+													start: event.target.value
+												})}
 												disabled={!canEdit}
 											/>
 											<TextField
@@ -981,7 +948,7 @@ export class InboxSettings extends React.Component {
 													/>
 												}
 												type="number"
-												defaultValue={this.state.trigger.interval}
+												defaultValue={preferences.trigger.interval}
 												style={{ width: '4rem', marginRight: '10px' }}
 												InputLabelProps={{
 													shrink: true
@@ -990,14 +957,9 @@ export class InboxSettings extends React.Component {
 													min: 0,
 													step: 1
 												}}
-												onChange={(event) =>
-													this.setState({
-														trigger: {
-															...this.state.trigger,
-															interval: event.target.value
-														}
-													})
-												}
+												onChange={(event) => this.handleTriggerChange({
+													interval: event.target.value
+												})}
 												disabled={!canEdit}
 											/>
 											<TextField
@@ -1005,7 +967,7 @@ export class InboxSettings extends React.Component {
 												size="small"
 												margin="normal"
 												select
-												value={this.state.trigger.intervalUnit || 'ms'}
+												value={preferences.trigger.intervalUnit || 'ms'}
 												// eslint-disable-next-line
 												label={
 													<FormattedMessage
@@ -1014,14 +976,9 @@ export class InboxSettings extends React.Component {
 													/>
 												}
 												style={{ width: '9rem' }}
-												onChange={(event) =>
-													this.setState({
-														trigger: {
-															...this.state.trigger,
-															intervalUnit: event.target.value
-														}
-													})
-												}
+												onChange={(event) => this.handleTriggerChange({
+													intervalUnit: event.target.value
+												})}
 												input={
 													<Input
 														name="processSetting.intervalUnit"
