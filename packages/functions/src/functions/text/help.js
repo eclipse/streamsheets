@@ -41,7 +41,7 @@ module.exports = {
 				},
 				hint: 'additional info, if necessary',
 				examples: {
-					info: 'general info about examples</p><img src={require("../../_images/mqttpub.png").default} width="50%"/>',
+					description: 'general info about examples</p><img src={require("../../_images/mqttpub.png").default} width="50%"/>',
 					formulas: [{
 						formula: '=CONCAT("Test", "test") @image.png (insert image link)',
 						result: 'Testtest',
