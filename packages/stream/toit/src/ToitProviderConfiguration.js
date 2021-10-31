@@ -16,27 +16,15 @@ module.exports = class ToitProviderConfiguration extends sdk.ProviderConfigurati
 			name: 'Toit Provider'
 		});
 		this.addConnectorDefinition({
-			id: 'userName',
+			id: 'apikey',
 			label: {
-				en: 'User Name',
-				de: 'Benutzername'
+				en: 'API Key',
+				de: 'API Schlüssel'
 			},
 			help: {
-				en: 'User or client name to connect to the Toit server',
-				de: 'Benutzer- oder Klientenname, um sich beim Toit server anzumelden!'
+				en: 'API Key to connect to the Toit server',
+				de: 'API Schlüssel, um sich beim Toit server anzumelden!'
 			},
-		});
-		this.addConnectorDefinition({
-			id: 'password',
-			label: {
-				en: 'Password',
-				de: 'Kennwort'
-			},
-			help: {
-				en: 'User or client password to connect to the Toit server',
-				de: 'Benutzer- oder Klientenkennwort, um sich beim Toit server anzumelden!'
-			},
-			type: sdk.ProviderConfiguration.FIELDTYPES.PASSWORD
 		});
 		this.addConsumerDefinition({
 			id: 'topic',
