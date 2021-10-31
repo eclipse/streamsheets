@@ -40,7 +40,8 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 		let streamRequest = new toitSubscribeModel.StreamRequest();
 		streamRequest.setSubscription(subscription);
 		let stream = this.client.stream(streamRequest);
-		stream.on('data', (e) => {
+
+		const onData = (e) => {
 			let toAcknowledge = [];
 			try {
 				let messages = e.getMessagesList();
@@ -61,26 +62,44 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 				ackRequest.setEnvelopeIdsList(toAcknowledge);
 				this.client.acknowledge(ackRequest, (err) => {
 					if (err) {
-						// TODO(florian): this could also be a 'handleError'.
 						this.handleWarning(err);
 					}
 				});
 			}
-		});
-		stream.on('error', (err) => {
-			console.log(err);
-			if (err.code == grpc.status.INTERNAL) {
-				// TODO(florian): there is a case when the connection to the
-				// server is cut. We should just reestablish the connection in
-				// that case.
-				// Not 100% sure it's this internal error here...
-				console.log("Hitting internal error.");
+		}
+
+		const onError = (err) => {
+			if (this.isRetryableGrpcError(err)) {
+				stream = this.client.stream(streamRequest);
+				bindStream(stream);
+			} else {
+				this.handleError(err);
 			}
-			this.handleError(err);
-		});
-		stream.on('end', (status) => {
-			this.onClose();
-		});
+		}
+
+		const bindStream = (stream) => {
+			stream.on('data', onData);
+			stream.on('error', onError);
+			stream.on('end', () => this.onClose());
+		}
+		bindStream(stream);
+	}
+
+	isRetryableGrpcError(err) {
+		switch (err.code) {
+			case grpc.status.INVALID_ARGUMENT:
+			case grpc.status.NOT_FOUND:
+			case grpc.status.ALREADY_EXISTS:
+			case grpc.status.PERMISSION_DENIED:
+			case grpc.status.FAILED_PRECONDITION:
+			case grpc.status.ABORTED:
+			case grpc.status.OUT_OF_RANGE:
+			case grpc.status.UNIMPLEMENTED:
+			case grpc.status.DATA_LOSS:
+			case grpc.status.UNAUTHENTICATED:
+				return false
+		}
+		return true
 	}
 
 	createSubscription() {
