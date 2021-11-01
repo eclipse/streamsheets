@@ -13,6 +13,7 @@ const ToitConnector = require('./ToitConnector');
 const toitSubscribe = require("@toit/api/src/toit/api/pubsub/subscribe_grpc_pb");
 const toitSubscribeModel = require("@toit/api/src/toit/api/pubsub/subscribe_pb");
 const grpc = require("@grpc/grpc-js")
+const { serialnumber: { ms2serial } } = require('@cedalo/commons');
 
 module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 	constructor(config) {
@@ -50,11 +51,10 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 					let msg = envelope.getMessage();
 					let createdAt = msg.getCreatedAt().toDate();
 					let data = Buffer.from(msg.getData(),  "utf-8");
-					let decoded = JSON.parse(data);
-					this.onMessage(this.config.topic, {
-						"data": decoded,
-						"createdAt": createdAt,
-					})
+					let meta = {
+						arrivalTime: ms2serial(createdAt),
+					};
+					this.onMessage(this.config.topic, data, meta);
 				}
 			} finally {
 				let ackRequest = new toitSubscribeModel.AcknowledgeRequest();
