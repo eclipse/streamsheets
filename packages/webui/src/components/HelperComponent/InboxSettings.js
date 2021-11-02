@@ -134,12 +134,6 @@ export class InboxSettings extends React.Component {
 		return { ...state, streams };
 	}
 
-	/*
-	SETTINGS:
-	SHEET: name, cols, rows, protect, limit, showGrid, showHeaders, showFormulas, showInbox, greyIf
-	STREAM: consumer/stream, trigger: { type, repeat}, loop: {path, recursive}, hideMessages 
-	*/
-
 	constructor(props) {
 		super(props);
 		const streams = getStreamsFromProps(props);
@@ -168,7 +162,7 @@ export class InboxSettings extends React.Component {
 				showFormulas: false,
 				hideMessages: false,
 				limitText: { enabled: true, maxchars: 1000 },
-				loop: { enabled: false, path: '', recursive: false },
+				loop: { enabled: false, path: '', recursively: false },
 				trigger: { type: 'none', repeat: 'once' }
 			}
 		};
@@ -277,6 +271,7 @@ export class InboxSettings extends React.Component {
 				if (machine.streamsheets.length > 0) {
 					const streamsheet = machine.streamsheets.find((t) => t.id === id);
 					if (streamsheet) {
+						const { loop, trigger } = streamsheet;
 						const settings = {
 							tabSelected: item.getName().getValue() === 'settings' ? 1 : 0,
 							...streamsheet,
@@ -295,10 +290,8 @@ export class InboxSettings extends React.Component {
 								showHeader: wsAttr.getShowHeader().getValue(),
 								showFormulas: wsAttr.getShowFormulas().getValue(),
 								limitText: getLimitText(streamsheet),
-								// TODO:
-								loop: { enabled: false, path: '', recursive: false },
-								trigger: { type: 'none', repeat: 'once' }
-
+								loop: { enabled: !!loop.enabled, path: loop.path, recursively: !!loop.recursively },
+								trigger: { type: trigger.type || 'none', repeat: trigger.repeat || 'once' }
 							}
 						};
 						this.setState(settings);
@@ -359,7 +352,7 @@ export class InboxSettings extends React.Component {
 	};
 
 	handleSheetProtect = (event, state) => {
-		updatePreferences({ showProtect: state }, this);
+		updatePreferences({ sheetProtect: state }, this);
 	};
 
 	handleSheetName = (event) => {
@@ -377,11 +370,11 @@ export class InboxSettings extends React.Component {
 	handleLimitTextEnabled = (event, state) => {
 		const enabled = state;
 		const limitText = { ...this.state.preferences.limitText, enabled };
-		updatePreferences(limitText, this);
+		updatePreferences({ limitText }, this);
 	}
 	handleLimitTextMaxChars = (event) => {
 		const limitText = { ...this.state.preferences.limitText, maxchars: Number(event.target.value) };
-		updatePreferences(limitText, this);
+		updatePreferences({ limitText }, this);
 	};
 
 	parsePath(path) {
@@ -399,15 +392,11 @@ export class InboxSettings extends React.Component {
 		const path = event.target.value;
 		try {
 			this.parsePath(path);
-			this.setState({
-				loopPathError: null
-			});
+			this.setState({ loopPathError: null });
 		} catch (e) {
-			this.setState({
-				loopPathError: e.message
-			});
+			this.setState({ loopPathError: e.message });
 		}
-		updatePreferences({ loop: { ...this.state.preferences.loop, path } }, this);
+		if (!this.state.loopPathError) updatePreferences({ loop: { ...this.state.preferences.loop, path } }, this);
 	};
 
 	handleLoopEnabled = (event, state) => {
@@ -428,26 +417,24 @@ export class InboxSettings extends React.Component {
 	};
 
 	handleSave = () => {
-		const { inbox, preferences /* , stream */ } = this.state;
+		const { inbox, preferences, machineId, streamsheetId } = this.state;
 
-		// TODO: check inbox stream setting
-		if (!inbox.stream || inbox.stream.name === 'none') {
-			inbox.stream = { name: '' };
-		} else {
-			inbox.stream = { id: inbox.stream.id, name: inbox.stream.name };
-		}
+		const stream =
+			!inbox.stream || inbox.stream.id === 'none' || inbox.stream.name === 'none'
+				? { id: 'none', name: '' }
+				: { id: inbox.stream.id, name: inbox.stream.name };
 		
 		const settings = {
+			machineId,
+			streamsheetId,
 			name: preferences.name,
 			sheet: {
 				maxrow: preferences.sheetRows,
 				maxcol: preferences.sheetColumns,
-				// maxchars: preferences.maxchars,
 				maxchars: getMaxChars(preferences.limitText),
 				protected: preferences.sheetProtect
 			},
-			// TODO: check inbox stream setting
-			inbox: {},
+			inbox: { stream },
 			loop: { ...preferences.loop },
 			trigger: { ...preferences.trigger }
 		}
@@ -509,7 +496,7 @@ export class InboxSettings extends React.Component {
 			this.setState({
 				inbox: {
 					...this.state.inbox,
-					stream: { id: 'none' }
+					stream: { name: 'none', id: 'none' }
 				},
 				anchorEl: null,
 			});
@@ -1026,7 +1013,7 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 												control={
 													<Checkbox
-														checked={this.state.loop.enabled}
+														checked={preferences.loop.enabled}
 														onChange={this.handleLoopEnabled}
 													/>
 												}
@@ -1048,13 +1035,13 @@ export class InboxSettings extends React.Component {
 													defaultMessage="Loop Array"
 												/>
 											}
-											disabled={!this.state.loop.enabled}
+											disabled={!preferences.loop.enabled}
 											margin="normal"
 											fullWidth
 											onChange={this.handleLoopPathChange}
 											error={!!this.state.loopPathError}
 											helperText={this.state.loopPathError}
-											value={this.state.loop.path}
+											value={preferences.loop.path}
 											style={{
 												marginLeft: '35px',
 												width: '59%',
@@ -1067,7 +1054,7 @@ export class InboxSettings extends React.Component {
 											}}
 											control={
 												<Checkbox
-													checked={!!this.state.loop.recursively}
+													checked={!!preferences.loop.recursively}
 													onChange={this.handleLoopRecursively}
 												/>
 											}
@@ -1078,14 +1065,14 @@ export class InboxSettings extends React.Component {
 													defaultMessage="Recursively"
 												/>
 											}
-											disabled={!canEdit || !this.state.loop.enabled}
+											disabled={!canEdit || !preferences.loop.enabled}
 										/>
 									</FormGroup>
 									<FormGroup>
 										<FormControlLabel
 											control={
 												<Checkbox
-													checked={this.state.preferences.hideMessages}
+													checked={preferences.hideMessages}
 													onChange={this.handleHideMessages}
 												/>
 											}
@@ -1179,9 +1166,9 @@ export class InboxSettings extends React.Component {
 												max: 50,
 												step: 1
 											}}
-											error={this.state.preferences.sheetColumns > 50}
+											error={preferences.sheetColumns > 50}
 											helperText={
-												this.state.preferences.sheetColumns > 50 ? (
+												preferences.sheetColumns > 50 ? (
 													<FormattedMessage
 														id="InboxSettings.tooManyColumns"
 														defaultMessage="Only 50 columns allowed!"
@@ -1190,7 +1177,7 @@ export class InboxSettings extends React.Component {
 													''
 												)
 											}
-											value={this.state.preferences.sheetColumns}
+											value={preferences.sheetColumns}
 											onChange={(event) => this.handleSheetColumns(event)}
 											type="number"
 										/>
@@ -1209,9 +1196,9 @@ export class InboxSettings extends React.Component {
 												max: 1000,
 												step: 1
 											}}
-											error={this.state.preferences.sheetRows > 1000}
+											error={preferences.sheetRows > 1000}
 											helperText={
-												this.state.preferences.sheetRows > 1000 ? (
+												preferences.sheetRows > 1000 ? (
 													<FormattedMessage
 														id="InboxSettings.tooManyRows"
 														defaultMessage="Only 1000 rows allowed!"
@@ -1220,7 +1207,7 @@ export class InboxSettings extends React.Component {
 													''
 												)
 											}
-											value={this.state.preferences.sheetRows}
+											value={preferences.sheetRows}
 											onChange={(event) => this.handleSheetRows(event)}
 											type="number"
 										/>
@@ -1231,7 +1218,7 @@ export class InboxSettings extends React.Component {
 											}}
 											control={
 												<Checkbox
-													checked={this.state.preferences.sheetProtect}
+													checked={preferences.sheetProtect}
 													onChange={this.handleSheetProtect}
 												/>
 											}
@@ -1245,7 +1232,7 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 												control={
 													<Checkbox
-														checked={this.state.preferences.limitText.enabled}
+														checked={preferences.limitText.enabled}
 														onChange={this.handleLimitTextEnabled}
 													/>
 												}
@@ -1261,9 +1248,9 @@ export class InboxSettings extends React.Component {
 										<TextField
 											label={<FormattedMessage id="InboxSettings.limitText.textfield" defaultMessage="Max. Characters" />}
 											type="number"
-											disabled={!canEdit || !this.state.preferences.limitText.enabled}
+											disabled={!canEdit || !preferences.limitText.enabled}
 											variant="outlined"
-											value={this.state.preferences.limitText.maxchars}
+											value={preferences.limitText.maxchars}
 											onChange={this.handleLimitTextMaxChars}
 											margin="normal"
 											size="small"
@@ -1277,9 +1264,9 @@ export class InboxSettings extends React.Component {
 												max: Number.MAX_SAFE_INTEGER,
 												step: 1
 											}}
-											error={this.state.preferences.limitText.maxchars > Number.MAX_SAFE_INTEGER}
+											error={preferences.limitText.maxchars > Number.MAX_SAFE_INTEGER}
 											helperText={
-												this.state.preferences.limitText.maxchars > Number.MAX_SAFE_INTEGER ? (
+												preferences.limitText.maxchars > Number.MAX_SAFE_INTEGER ? (
 													<FormattedMessage
 													id="InboxSettings.limitText.error"
 													defaultMessage="At most {maxchars} characters allowed!"
@@ -1320,7 +1307,7 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 												control={
 													<Checkbox
-														checked={this.state.preferences.showGrid}
+														checked={preferences.showGrid}
 														onChange={this.handleShowGrid}
 													/>
 												}
@@ -1330,7 +1317,7 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 												control={
 													<Checkbox
-														checked={this.state.preferences.showHeader}
+														checked={preferences.showHeader}
 														onChange={this.handleShowHeader}
 													/>
 												}
@@ -1342,7 +1329,7 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 												control={
 													<Checkbox
-														checked={this.state.preferences.showFormulas}
+														checked={preferences.showFormulas}
 														onChange={this.handleShowFormulas}
 													/>
 												}
@@ -1359,7 +1346,7 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 												control={
 													<Checkbox
-														checked={this.state.preferences.showInbox}
+														checked={preferences.showInbox}
 														onChange={this.handleShowInbox}
 													/>
 												}
@@ -1369,7 +1356,7 @@ export class InboxSettings extends React.Component {
 												disabled={!canEdit}
 												control={
 													<Checkbox
-														checked={this.state.preferences.greyIfRows}
+														checked={preferences.greyIfRows}
 														onChange={this.handleGreyIfRows}
 													/>
 												}
