@@ -57,7 +57,7 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 					})
 				}
 			} finally {
-				if (toAcknowledge.length != 0) {
+				if (toAcknowledge.length !== 0) {
 					let ackRequest = new toitSubscribeModel.AcknowledgeRequest();
 					ackRequest.setSubscription(subscription);
 					ackRequest.setEnvelopeIdsList(toAcknowledge);
