@@ -370,12 +370,16 @@ function handleMessageChangedEvent(/* event */) {
 }
 
 function handleStreamUpdatedEvent(event) {
-	const streamsheetId = event.src === 'streamsheet' ? event.srcId : undefined;
-	if (streamsheetId) {
-		const preferences = event.settings.preferences;
-		const settings = { streamsheetId, preferences };
+	const { src, srcId, settings } = event;
+	if (src === 'streamsheet' && srcId) {
 		store.dispatch({ type: ActionTypes.RECEIVE_SAVE_PROCESS_SETTINGS, settings });
 	}
+	// const streamsheetId = event.src === 'streamsheet' ? event.srcId : undefined;
+	// if (streamsheetId) {
+	// 	const preferences = event.settings.preferences;
+	// 	const settings = { streamsheetId, preferences };
+	// 	store.dispatch({ type: ActionTypes.RECEIVE_SAVE_PROCESS_SETTINGS, settings });
+	// }
 	/*
 	graphManager.updateStream(event.settings.streamsheetId, event.settings.inbox.stream.name);
 	try {
@@ -485,28 +489,6 @@ export function reconnect(time = 5) {
 function saveProcessSettingsAndDispatch(settings, dispatch) {
 	return gatewayClient
 		.updateStreamSheetStreams(settings.machineId, settings.streamsheetId, settings)
-		.then((response) => {
-			const streamsheet = response
-				? response.machineserver.machine.streamsheets.find((t) => t.id === settings.streamsheetId)
-				: null;
-			if (settings.inbox && settings.inbox.stream) {
-				try {
-					graphManager.updateStream(settings.streamsheetId, settings.inbox.stream);
-				} catch (e) {
-					console.error(e);
-				}
-			}
-			if (settings.loop) {
-				try {
-					graphManager.updateLoopElement(settings.streamsheetId, settings.loop);
-					graphManager.getGraphEditor().invalidate();
-				} catch (e) {
-					console.warn(e);
-				}
-			}
-			// redraw title
-			return Promise.resolve(streamsheet);
-		})
 		.then((streamsheet) => dispatch(putProcessSettings(streamsheet)))
 		.catch((error) => {
 			console.error(error);
