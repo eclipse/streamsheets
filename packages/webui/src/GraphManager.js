@@ -911,9 +911,9 @@ export default class GraphManager {
 		const { id, inbox, loop, stats } = streamsheet;
 		if (inbox) {
 			const { currentMessage, messages, stream } = inbox;
+			this.updateStream(id, stream);
 			this.addInboxMessages(id, messages)
 			if (currentMessage) this.selectInboxMessage(id, currentMessage.id, currentMessage.isProcessed);
-			if (stream) this.updateStream(id, stream);
 		}
 		if (loop) {
 			if (loop.path) this.updateLoopElement(id, loop);
@@ -953,7 +953,7 @@ export default class GraphManager {
 	updateStream(streamsheetId, stream) {
 		const processSheetContainer = this.getStreamSheetContainer(streamsheetId);
 		if (processSheetContainer) {
-			const display = `${stream.name || 'None'}`;
+			const display = stream && stream.name ? stream.name : 'None';
 			processSheetContainer.setStream(display);
 			processSheetContainer.setStatus(display === 'None' ? '' : this._streamsStatusMap[stream.id]);
 			// processSheetContainer.getInboxCaption().setIconLink(`${window.location.origin}${Path.stream(stream.id)}`);
