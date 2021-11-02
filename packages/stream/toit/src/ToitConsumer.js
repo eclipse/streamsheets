@@ -52,7 +52,7 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 					let createdAt = msg.getCreatedAt().toDate();
 					let data = Buffer.from(msg.getData(),  "utf-8");
 					let meta = {
-						arrivalTime: ms2serial(createdAt),
+						"createdAt": ms2serial(createdAt),
 					};
 					this.onMessage(this.config.topic, data, meta);
 				}
