@@ -57,14 +57,16 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 					this.onMessage(this.config.topic, data, meta);
 				}
 			} finally {
-				let ackRequest = new toitSubscribeModel.AcknowledgeRequest();
-				ackRequest.setSubscription(subscription);
-				ackRequest.setEnvelopeIdsList(toAcknowledge);
-				this.client.acknowledge(ackRequest, (err) => {
-					if (err) {
-						this.handleWarning(err);
-					}
-				});
+				if (toAcknowledge.length !== 0) {
+					let ackRequest = new toitSubscribeModel.AcknowledgeRequest();
+					ackRequest.setSubscription(subscription);
+					ackRequest.setEnvelopeIdsList(toAcknowledge);
+					this.client.acknowledge(ackRequest, (err) => {
+						if (err) {
+							this.handleWarning(err);
+						}
+					});
+				}
 			}
 		}
 
