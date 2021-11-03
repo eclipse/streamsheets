@@ -383,6 +383,7 @@ export class InboxSettings extends React.Component {
 
 	parsePath(path) {
 		// TODO: improve
+		if (!path) return '';
 		if (!path.startsWith('[')) {
 			throw new Error('expression must start with [ ');
 		}
@@ -391,7 +392,6 @@ export class InboxSettings extends React.Component {
 		}
 		return path;
 	}
-
 	handleLoopPathChange = (event) => {
 		const path = event.target.value;
 		try {
@@ -400,11 +400,11 @@ export class InboxSettings extends React.Component {
 		} catch (e) {
 			this.setState({ loopPathError: e.message });
 		}
-		if (!this.state.loopPathError) updatePreferences({ loop: { ...this.state.preferences.loop, path } }, this);
+		updatePreferences({ loop: { ...this.state.preferences.loop, path } }, this);
 	};
-
 	handleLoopEnabled = (event, state) => {
 		const enabled = state;
+		if (!enabled) this.setState({ loopPathError: null });
 		updatePreferences({ loop: { ...this.state.preferences.loop, enabled } }, this);
 	};
 	handleLoopRecursively = (event, state) => {
@@ -436,7 +436,7 @@ export class InboxSettings extends React.Component {
 			loop: { ...preferences.loop },
 			trigger: { ...preferences.trigger }
 		}
-
+		if (this.state.loopPathError) settings.loop.path = '';
 		this.props.saveProcessSettings(settings);
 
 		const getWorksheetCommand = (valuePath, value) => {
@@ -1385,7 +1385,11 @@ export class InboxSettings extends React.Component {
 						<Button color="primary" onClick={this.handleClose}>
 							<FormattedMessage id="Cancel" defaultMessage="Cancel" />
 						</Button>
-						<Button color="primary" onClick={this.handleSave} autoFocus={canEdit}>
+						<Button
+							color="primary"
+							disabled={!!this.state.loopPathError}
+							onClick={this.handleSave}
+							autoFocus={canEdit}>
 							<FormattedMessage id="SaveButton" defaultMessage="Save" />
 						</Button>
 					</div>
