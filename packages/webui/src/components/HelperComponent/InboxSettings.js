@@ -96,6 +96,10 @@ const getMaxChars = (limitText) => {
 	if (!limitText) return undefined;
 	return limitText.enabled ? limitText.maxchars : -1;
 };
+const createStreamDescr = (stream) => {
+	if (stream && stream.id !== 'none' && stream.name !== 'none') return { id: stream.id, name: stream.name };
+	return { id: 'none', name: '' };
+};
 
 // const updatePrefState = (prop, component) => (event, state) => updatePreferences({ [prop]: state }, component);
 const updatePreferences = (valobj, component) => {
@@ -418,12 +422,6 @@ export class InboxSettings extends React.Component {
 
 	handleSave = () => {
 		const { inbox, preferences, machineId, streamsheetId } = this.state;
-
-		const stream =
-			!inbox.stream || inbox.stream.id === 'none' || inbox.stream.name === 'none'
-				? { id: 'none', name: '' }
-				: { id: inbox.stream.id, name: inbox.stream.name };
-		
 		const settings = {
 			machineId,
 			streamsheetId,
@@ -434,7 +432,7 @@ export class InboxSettings extends React.Component {
 				maxchars: getMaxChars(preferences.limitText),
 				protected: preferences.sheetProtect
 			},
-			inbox: { stream },
+			inbox: { stream: createStreamDescr(inbox.stream) },
 			loop: { ...preferences.loop },
 			trigger: { ...preferences.trigger }
 		}
@@ -1136,11 +1134,11 @@ export class InboxSettings extends React.Component {
 											margin="normal"
 											fullWidth
 											onChange={this.handleSheetName}
-											value={this.state.name}
+											value={preferences.name}
 											disabled={!canEdit}
-											error={!Reference.isValidIdentifier(this.state.name)}
+											error={!Reference.isValidIdentifier(preferences.name)}
 											helperText={
-												!Reference.isValidIdentifier(this.state.name) ? (
+												!Reference.isValidIdentifier(preferences.name) ? (
 													<FormattedMessage
 														id="Reference.InvalidName"
 														defaultMessage="Only alphanumeric characters and the underscore are allowed"
