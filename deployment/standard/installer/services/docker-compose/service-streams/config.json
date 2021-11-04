@@ -8,7 +8,8 @@
 		"@cedalo/stream-file",
 		"@cedalo/stream-kafka",
 		"@cedalo/stream-mail-pop3",
-		"@cedalo/stream-mail-smtp"
+		"@cedalo/stream-mail-smtp",
+		"@cedalo/stream-toit"
 	],
 	"queueStrategies": [],
 	"database": {
