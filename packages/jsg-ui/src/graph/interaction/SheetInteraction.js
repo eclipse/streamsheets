@@ -48,6 +48,7 @@ import Cursor from '../../ui/Cursor';
 import ContentNodeView from "../view/ContentNodeView";
 import Highlighter from './Highlighter';
 import LayerId from '../view/LayerId';
+import WorksheetHitCode from '../view/WorksheetHitCode';
 
 const SHEET_SHOW_CONTEXT_MENU_NOTIFICATION = 'sheet_show_context_menu_notification';
 
@@ -793,84 +794,111 @@ export default class SheetInteraction extends Interaction {
 	}
 
 	onMouseDoubleClick(event, viewer) {
-		if (this._controller !== undefined) {
-			const view = this._controller.getView();
-			this._hitCode = view.getHitCode(event.location, viewer);
-			switch (this._hitCode) {
-				case WorksheetView.HitCode.COLUMNSIZE:
-				case WorksheetView.HitCode.COLUMNSIZEHIDDEN: {
-					if (this._section === undefined) {
-						return;
-					}
-					const ranges = view.getOwnSelection().getRanges();
-					let rangeToSet;
-					ranges.forEach((range) => {
-						if (range.isColumnRange() && range.getX1() <= this._section && range.getX2() >= this._section) {
-							rangeToSet = range;
+		if (this._controller === undefined) {
+			return;
+		}
+		const view = this._controller.getView();
+		this._hitCode = view.getHitCode(event.location, viewer);
+
+		switch (this._hitCode) {
+			case WorksheetView.HitCode.DEPENDANT:
+			case WorksheetView.HitCode.PREDECESSOR: {
+				const point = view.translateToSheet(event.location.copy(), viewer);
+				const pre = this._hitCode === WorksheetView.HitCode.PREDECESSOR ?
+					view.isPredecessorHit(this._controller.getModel(), point):
+					view.isDependantHit(this._controller.getModel(), point);
+				if (pre) {
+					const graphController = viewer.getGraphController();
+					const controller = graphController.getControllerByModelId(pre.cell.getSheet().getId());
+					if (controller) {
+						const sheetView = controller.getView();
+						if (sheetView.getItem().getParent() instanceof StreamSheetContainer) {
+							sheetView.getParent().moveSheetToTop(viewer);
 						}
-					});
-					if (rangeToSet === undefined) {
-						rangeToSet = new CellRange(view.getItem(), this._section, 0);
+						viewer.getGraphView().setFocus(controller);
+						const selection = sheetView.getOwnSelection();
+						selection.selectRange(this._hitCode === WorksheetView.HitCode.PREDECESSOR ?
+							pre.cell.copy().shiftFromSheet() :
+							pre.cell.copy());
+						sheetView.showCell(selection.getActiveCell());
+						sheetView.notifySelectionChange(viewer);
 					}
-					for (let i = rangeToSet.getX1(); i <= rangeToSet.getX2(); i += 1) {
-						const size = view.getMaxColumnWidth(i, viewer);
-						const rangeCol = new CellRange(view.getItem(), i, 0);
-						viewer.getInteractionHandler().execute(
-							new JSG.SetHeaderSectionSizeCommand(
-								view.getItem().getColumns(),
-								i,
-								[rangeCol],
-								size,
-								true,
-								false,
-								view
-									.getItem()
-									.getColumns()
-									.getSectionSize(i)
-							)
-						);
-					}
-					break;
 				}
-				case WorksheetView.HitCode.ROWSIZE:
-				case WorksheetView.HitCode.ROWSIZEHIDDEN: {
-					if (this._section === undefined) {
-						return;
-					}
-					const ranges = view.getOwnSelection().getRanges();
-					let rangeToSet;
-					ranges.forEach((range) => {
-						if (range.isRowRange() && range.getY1() <= this._section && range.getY2() >= this._section) {
-							rangeToSet = range;
-						}
-					});
-					if (rangeToSet === undefined) {
-						rangeToSet = new CellRange(view.getItem(), 0, this._section);
-					}
-					for (let i = rangeToSet.getY1(); i <= rangeToSet.getY2(); i += 1) {
-						const size = view.getMaxRowHeight(i, viewer);
-						const rangeRow = new CellRange(view.getItem(), 0, i);
-						viewer.getInteractionHandler().execute(
-							new JSG.SetHeaderSectionSizeCommand(
-								view.getItem().getRows(),
-								i,
-								[rangeRow],
-								size,
-								true,
-								true,
-								view
-									.getItem()
-									.getRows()
-									.getSectionSize(i)
-							)
-						);
-					}
-					break;
+				break;
+			}
+			case WorksheetView.HitCode.COLUMNSIZE:
+			case WorksheetView.HitCode.COLUMNSIZEHIDDEN: {
+				if (this._section === undefined) {
+					return;
 				}
-				case WorksheetView.HitCode.SHEET: {
-					this._startEditCellInteraction(event, viewer);
-					break;
+				const ranges = view.getOwnSelection().getRanges();
+				let rangeToSet;
+				ranges.forEach((range) => {
+					if (range.isColumnRange() && range.getX1() <= this._section && range.getX2() >= this._section) {
+						rangeToSet = range;
+					}
+				});
+				if (rangeToSet === undefined) {
+					rangeToSet = new CellRange(view.getItem(), this._section, 0);
 				}
+				for (let i = rangeToSet.getX1(); i <= rangeToSet.getX2(); i += 1) {
+					const size = view.getMaxColumnWidth(i, viewer);
+					const rangeCol = new CellRange(view.getItem(), i, 0);
+					viewer.getInteractionHandler().execute(
+						new JSG.SetHeaderSectionSizeCommand(
+							view.getItem().getColumns(),
+							i,
+							[rangeCol],
+							size,
+							true,
+							false,
+							view
+								.getItem()
+								.getColumns()
+								.getSectionSize(i)
+						)
+					);
+				}
+				break;
+			}
+			case WorksheetView.HitCode.ROWSIZE:
+			case WorksheetView.HitCode.ROWSIZEHIDDEN: {
+				if (this._section === undefined) {
+					return;
+				}
+				const ranges = view.getOwnSelection().getRanges();
+				let rangeToSet;
+				ranges.forEach((range) => {
+					if (range.isRowRange() && range.getY1() <= this._section && range.getY2() >= this._section) {
+						rangeToSet = range;
+					}
+				});
+				if (rangeToSet === undefined) {
+					rangeToSet = new CellRange(view.getItem(), 0, this._section);
+				}
+				for (let i = rangeToSet.getY1(); i <= rangeToSet.getY2(); i += 1) {
+					const size = view.getMaxRowHeight(i, viewer);
+					const rangeRow = new CellRange(view.getItem(), 0, i);
+					viewer.getInteractionHandler().execute(
+						new JSG.SetHeaderSectionSizeCommand(
+							view.getItem().getRows(),
+							i,
+							[rangeRow],
+							size,
+							true,
+							true,
+							view
+								.getItem()
+								.getRows()
+								.getSectionSize(i)
+						)
+					);
+				}
+				break;
+			}
+			case WorksheetView.HitCode.SHEET: {
+				this._startEditCellInteraction(event, viewer);
+				break;
 			}
 		}
 	}

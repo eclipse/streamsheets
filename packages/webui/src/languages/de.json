@@ -1158,5 +1158,13 @@
 	"StreamChart.TypesColumn": "Säulen-/Balkendiagramme",
 	"StreamChart.TypesLine": "Liniendiagramme",
 	"StreamChart.TypesArea": "Flächendiagramme",
-	"StreamChart.TypesFunnel": "Trichterdiagramme"
+	"StreamChart.TypesFunnel": "Trichterdiagramme",
+	"ShowPredecessors": "Zeige Vorgänger",
+	"ShowDependants": "Zeige abhängige Zellen",
+	"RemoveCellInfo": "Pfeile entfernen",
+	"SearchText": "Suche",
+	"SearchCaps": "Groß-/Kleinschreibung beachten",
+	"SearchFormulas": "Auch in Formeln suchen",
+	"SearchActiveSheet": "Nur aktives Sheet durchsuchen",
+	"SearchResult": "Suche (Ergebnis {index} von {count})"
 }

@@ -96,6 +96,10 @@ export default class CellsView extends NodeView {
 		if (id !== undefined && id !== this._wsItem.getId()) {
 			this.drawCopyMarker(graphics, rect);
 		}
+
+		this.drawPredecessors(graphics);
+		this.drawDependants(graphics);
+		this.drawSearchResult(graphics);
 	}
 
 	drawFill(graphics, format, rect) {
@@ -1628,6 +1632,158 @@ export default class CellsView extends NodeView {
 
 		this.setFont(graphics);
 		graphics.setLineWidth(FormatAttributes.LineStyle.HAIRLINE);
+	}
+
+	drawPredecessors(graphics) {
+		if (!this._wsItem.predecessors) {
+			return;
+		}
+
+		graphics.setLineWidth(1);
+		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
+		graphics.setTextBaseline('middle');
+		graphics.setFontSize(7);
+		graphics.setFont();
+		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
+
+		this._wsItem.predecessors.forEach(pre => {
+			const rectActive = this._wsItem.getCellRect(pre.cell);
+			rectActive.x += 200;
+			rectActive.y += 200;
+			let extOffset = 2000;
+			pre.cells.forEach(range => {
+				range.shiftFromSheet();
+				const rect = this._wsItem.getCellRect(range);
+				range.shiftToSheet();
+				if (range.getSheet() !== this._wsItem) {
+					graphics.setLineColor('#000000');
+					graphics.setFillColor('#000000');
+					graphics.beginPath();
+					rect.x += 200;
+					rect.y += 200;
+					graphics.circle(rectActive.x + rectActive.width, rectActive.y + extOffset, 75);
+					graphics.moveTo(rectActive.x + rectActive.width, rectActive.y + extOffset);
+					graphics.lineTo(rectActive.x, rectActive.y);
+					graphics.stroke();
+					graphics.fill();
+					graphics.drawArrow({ x: rectActive.x + rectActive.width, y: rectActive.y + extOffset}, { x: rectActive.x, y: rectActive.y },
+						FormatAttributes.ArrowStyle.SIZEABLE_FILLEDARROW, 150, 150);
+					graphics.fillText(range.toString({item: this._wsItem, forceName: true, useName: true}), rectActive.x + rectActive.width+ 100, rectActive.y + extOffset);
+					extOffset += 400;
+				} else {
+					graphics.setLineColor('#0000FF');
+					graphics.setFillColor('#0000FF');
+					graphics.beginPath();
+					if (range.getWidth() > 1 || range.getHeight() > 1) {
+						graphics.drawRectangle(rect.x, rect.y, rect.width, rect.height);
+					}
+					rect.x += 200;
+					rect.y += 200;
+					graphics.circle(rect.x, rect.y, 75);
+					graphics.moveTo(rect.x, rect.y);
+					graphics.lineTo(rectActive.x, rectActive.y);
+					graphics.stroke();
+					graphics.fill();
+					graphics.drawArrow({ x: rect.x, y: rect.y }, { x: rectActive.x, y: rectActive.y },
+						FormatAttributes.ArrowStyle.SIZEABLE_FILLEDARROW, 150, 150);
+				}
+			})
+		});
+	}
+
+	drawDependants(graphics) {
+		if (!this._wsItem.dependants) {
+			return;
+		}
+
+		graphics.setLineWidth(1);
+		graphics.setLineStyle(FormatAttributes.LineStyle.SOLID);
+		graphics.setTextBaseline('middle');
+		graphics.setFontSize(7);
+		graphics.setFont();
+		graphics.setTextAlignment(TextFormatAttributes.TextAlignment.LEFT);
+
+		this._wsItem.dependants.forEach(pre => {
+			const rectActive = this._wsItem.getCellRect(pre.cell);
+			rectActive.x += 200;
+			rectActive.y += 200;
+			let extOffset = 2000;
+			pre.cells.forEach(range => {
+				const rect = this._wsItem.getCellRect(range);
+				if (range.getSheet() !== this._wsItem) {
+					graphics.setLineColor('#000000');
+					graphics.setFillColor('#000000');
+					graphics.beginPath();
+					rect.x += 200;
+					rect.y += 200;
+					graphics.circle(rectActive.x, rectActive.y, 75);
+					graphics.moveTo(rectActive.x, rectActive.y);
+					graphics.lineTo(rectActive.x + rectActive.width, rectActive.y + extOffset);
+					graphics.stroke();
+					graphics.fill();
+					graphics.drawArrow(
+						{ x: rectActive.x, y: rectActive.y},
+						{ x: rectActive.x + rectActive.width, y: rectActive.y + extOffset },
+						FormatAttributes.ArrowStyle.SIZEABLE_FILLEDARROW, 150, 150);
+					range.shiftToSheet();
+					graphics.fillText(range.toString({item: this._wsItem, forceName: true, useName: true}),
+						rectActive.x + rectActive.width + 100,
+						rectActive.y + extOffset);
+					range.shiftFromSheet();
+					extOffset += 400;
+				} else {
+					graphics.setLineColor('#0000FF');
+					graphics.setFillColor('#0000FF');
+					graphics.beginPath();
+					if (range.getWidth() > 1 || range.getHeight() > 1) {
+						graphics.drawRectangle(rect.x, rect.y, rect.width, rect.height);
+					}
+					rect.x += 200;
+					rect.y += 200;
+					graphics.circle(rectActive.x, rectActive.y, 75);
+					graphics.moveTo(rect.x, rect.y);
+					graphics.lineTo(rectActive.x, rectActive.y);
+					graphics.stroke();
+					graphics.fill();
+					graphics.drawArrow({ x: rectActive.x, y: rectActive.y }, { x: rect.x, y: rect.y },
+						FormatAttributes.ArrowStyle.SIZEABLE_FILLEDARROW, 150, 150);
+				}
+			})
+		});
+	}
+
+	drawSearchResult(graphics) {
+		const graph = this._wsItem.getGraph();
+		if (!graph.searchResult) {
+			return;
+		}
+
+		graphics.setTransparency(20);
+		graphics.setFillColor('#00FF00');
+		graphics.beginPath();
+
+		graph.searchResult.forEach(range => {
+			if (range.getSheet() === this._wsItem) {
+				const rect = this._wsItem.getCellRect(range);
+				graphics.fillRectangle(rect.x, rect.y, rect.width, rect.height);
+			}
+		});
+
+		graphics.fill();
+		graphics.setTransparency(100);
+
+		if (graph.activeSearchIndex !== -1) {
+			const range = graph.searchResult[graph.activeSearchIndex];
+			if (range.getSheet() === this._wsItem) {
+				const rect = this._wsItem.getCellRect(range);
+				graphics.setLineWidth(50);
+				graphics.setLineColor(JSG.theme.border);
+				graphics.drawRectangle(rect.x - 100, rect.y - 100, rect.width + 200, rect.height + 200);
+				graphics.stroke();
+
+				graphics.setLineWidth(1);
+			}
+		}
 	}
 
 	rectangle(graphics, rect, fillColor, transparency) {

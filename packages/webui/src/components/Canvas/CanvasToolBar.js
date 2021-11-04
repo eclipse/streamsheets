@@ -14,7 +14,9 @@
 import JSG from '@cedalo/jsg-ui';
 import { NumberFormatter } from '@cedalo/number-format';
 import { ToolbarExtensions, ChartExtensions } from '@cedalo/webui-extensions';
-import { Button, Divider, GridList, GridListTile, IconButton, Input, MenuItem, MenuList } from '@material-ui/core';
+import {
+	Button, Divider, GridList, GridListTile, IconButton, Input, MenuItem, MenuList,
+} from '@material-ui/core';
 import Popover from '@material-ui/core/Popover';
 import Select from '@material-ui/core/Select';
 import SvgIcon from '@material-ui/core/SvgIcon';
@@ -63,6 +65,7 @@ import CommandStack from '../../helper/synchronization/CommandStack';
 import { numberFormatTemplates } from '../../languages/NumberFormatTemplates';
 import CustomTooltip from '../base/customTooltip/CustomTooltip';
 import { withStyles } from '@material-ui/core/styles';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const ToolTextIcon = FormatAlignCenter;
 const {
@@ -152,6 +155,7 @@ export class CanvasToolBar extends Component {
 			showBorderColor: false,
 			showBorderStyle: false,
 			showNumberFormat: false,
+			showDependencies: false,
 			anchorEl: undefined,
 			zoomOpen: false,
 			toolsOpen: false,
@@ -254,6 +258,21 @@ export class CanvasToolBar extends Component {
 	onCloseNumberFormat = () => {
 		this.setState({
 			showNumberFormat: false
+		});
+	};
+
+	onShowDependencies = (event) => {
+		// This prevents ghost click.
+		event.preventDefault();
+
+		this.setState({
+			showDependencies: true, anchorEl: event.currentTarget
+		});
+	};
+
+	onCloseDependencies = () => {
+		this.setState({
+			showDependencies: false
 		});
 	};
 
@@ -407,6 +426,48 @@ export class CanvasToolBar extends Component {
 	onStreamFunction = () => {
 		this.props.showFunctionWizard();
 	};
+
+	onShowPredecessors = () => {
+		const sheetView = graphManager.getActiveSheetView();
+		if (!sheetView) {
+			return;
+		}
+
+		this.setState({
+			showDependencies: false
+		});
+
+		sheetView.getItem().collectPredecessors();
+		graphManager.redraw();
+	};
+
+	onShowDependants = () => {
+		const sheetView = graphManager.getActiveSheetView();
+		if (!sheetView) {
+			return;
+		}
+
+		this.setState({
+			showDependencies: false
+		});
+
+		sheetView.getItem().collectDependants();
+		graphManager.redraw();
+	};
+
+	onRemoveArrows = () => {
+		const sheetView = graphManager.getActiveSheetView();
+		if (!sheetView) {
+			return;
+		}
+
+		this.setState({
+			showDependencies: false
+		});
+
+		sheetView.getItem().removeArrows();
+		graphManager.redraw();
+	}
 
 	onPasteFunction = () => {
 		// const sheetView = graphManager.getActiveSheetView();
@@ -3118,6 +3179,62 @@ export class CanvasToolBar extends Component {
 						</IconButton>
 					</div>
 				</Tooltip>
+			<Tooltip
+				enterDelay={300}
+				title={<FormattedMessage id='Tooltip.ShowReferences'
+										 defaultMessage='Visualize Cell Dependencies' />}
+			>
+				<div>
+					<IconButton
+						style={buttonStyle}
+						onClick={(e) => this.onShowDependencies(e)}
+						disabled={!this.props.cellSelected}
+					>
+						<SvgIcon>
+							<path
+								// eslint-disable-next-line max-len
+								d="M12 2L16 6H13V13.85L19.53 17.61L21 15.03L22.5 20.5L17 21.96L18.53 19.35L12 15.58L5.47 19.35L7 21.96L1.5 20.5L3 15.03L4.47 17.61L11 13.85V6H8L12 2M21 5H19V3H21V5M22 10V12H18V10H19V8H18V6H21V10H22Z"
+							/>
+						</SvgIcon>
+					</IconButton>
+				</div>
+			</Tooltip>
+				<Popover
+					open={this.state.showDependencies}
+					anchorEl={this.state.anchorEl}
+					anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+					transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+					onClose={this.onCloseDependencies}
+					onExited={this.handleFocus}
+				>
+					<MenuList>
+						<MenuItem
+							dense
+							onClick={() => this.onShowPredecessors()}
+						>
+							<ListItemText
+								primary={<FormattedMessage id="ShowPredecessors" defaultMessage="Show Predecessors" />}
+							/>
+						</MenuItem>
+						<MenuItem
+							dense
+							onClick={() => this.onShowDependants()}
+						>
+							<ListItemText
+								primary={<FormattedMessage id="ShowDependants" defaultMessage="Show depending Cells" />}
+							/>
+						</MenuItem>
+						<Divider />
+						<MenuItem
+							dense
+							onClick={() => this.onRemoveArrows()}
+						>
+							<ListItemText
+								primary={<FormattedMessage id="RemoveCellInfo" defaultMessage="Remove Arrows" />}
+							/>
+						</MenuItem>
+					</MenuList>
+				</Popover>
 				<Tooltip
 					enterDelay={300}
 					title={<FormattedMessage id='Tooltip.EditNames' defaultMessage='Edit Names' />}

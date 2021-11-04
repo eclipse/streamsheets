@@ -9,7 +9,6 @@
  *
  ********************************************************************************/
 const JSG = require('../../JSG');
-const StringAttribute = require('../attr/StringAttribute');
 const FormatAttributes = require('../attr/FormatAttributes');
 const ItemAttributes = require('../attr/ItemAttributes');
 const Arrays = require('../../commons/Arrays');
@@ -17,8 +16,8 @@ const Graph = require('./Graph');
 const MachineContainer = require('./MachineContainer');
 const SheetName = require('./SheetName');
 const StreamSheet = require('./StreamSheet');
-const CellsNode = require('./CellsNode');
 const GraphUtils = require('../GraphUtils');
+const CellRange = require('./CellRange');
 
 const getStreamSheet = (item) => {
 	let sheet = item;
@@ -190,21 +189,6 @@ module.exports = class MachineGraph extends Graph {
 			if (sheet.getSheetType() === 'dashboard') {
 				result = sheet;
 			}
-		});
-
-		return result;
-	}
-
-	getTopStreamSheetContainerId() {
-		const container = this.getStreamSheetsContainer();
-		let result;
-
-		if (container === undefined) {
-			return undefined;
-		}
-
-		container.enumerateStreamSheetContainers((sheet) => {
-			result = sheet.getStreamSheet().getId();
 		});
 
 		return result;
@@ -567,6 +551,109 @@ module.exports = class MachineGraph extends Graph {
 		});
 
 		return result;
+	}
+
+	clearSearchResult(key) {
+		this.searchResult = undefined;
+		this.activeSearchIndex = -1;
+	}
+
+	collectSearchResult(key, options) {
+		const cont = this.getStreamSheetsContainer();
+
+		this.searchResult = undefined;
+
+		if (key === '') {
+			return;
+		}
+
+		if (!options.matchCase) {
+			key = key.toUpperCase();
+		}
+
+		cont.enumerateStreamSheetContainers((container) => {
+			const sheet = container.getStreamSheet();
+			if (!options.activeSheet || sheet === options.sheet) {
+				const data = sheet.getDataProvider();
+				// const shift = sheet.getColumns().getInitialSection()
+
+				data.enumerate((column, row, cell) => {
+					let val = cell.getValue();
+					if (val !== undefined) {
+						val = String(val);
+						if (!options.matchCase) {
+							val = val.toUpperCase();
+						}
+						if (val.indexOf(key) !== -1) {
+							if (!this.searchResult) {
+								this.searchResult = [];
+							}
+							this.searchResult.push(new CellRange(sheet, column, row));
+						} else if (options.formulas) {
+							const formula = cell.getFormula();
+							if (formula) {
+								if (formula.indexOf(key) !== -1) {
+									if (!this.searchResult) {
+										this.searchResult = [];
+									}
+									this.searchResult.push(new CellRange(sheet, column, row));
+								}
+							}
+						}
+					}
+				});
+			}
+		});
+
+		this.activeSearchIndex = -1
+		this.getNextSearchResult();
+	}
+
+	getNextSearchResult() {
+		if (!this.searchResult) {
+			return;
+		}
+
+		const selection = this.getSheetSelection();
+		const getSheetIndex = (sheet) => {
+			return sheet.getParent().getIndex()
+		};
+
+		if (!selection) {
+			return;
+		}
+
+		if (this.activeSearchIndex === -1) {
+			this.activeSearchIndex = 0;
+			for (let i = 0; i < this.searchResult.length; i += 1) {
+				const range = this.searchResult[i];
+				// cell behind in this sheet
+				if (range.getSheet() === selection.getWorksheet() &&
+					((range.getX1() >= selection.getActiveCell().x && range.getY1() === selection.getActiveCell().y) ||
+						range.getY1() > selection.getActiveCell().y)) {
+					this.activeSearchIndex = i;
+					break;
+				}
+				// next sheet
+				if (getSheetIndex(range.getSheet()) > getSheetIndex(selection.getWorksheet())) {
+					this.activeSearchIndex = i;
+					break;
+				}
+			}
+		} else if (this.activeSearchIndex === this.searchResult.length - 1) {
+			this.activeSearchIndex = 0;
+		} else {
+			this.activeSearchIndex += 1;
+		}
+	}
+
+	getPreviousSearchResult() {
+
+		if (this.activeSearchIndex > 0) {
+			this.activeSearchIndex -= 1;
+		} else {
+			this.activeSearchIndex = this.searchResult.length - 1;
+		}
 	}
 
 	resolveCustomReference(item, property) {

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -260,6 +260,19 @@ class PasteItemsCommand extends Command {
 
 	_readItems(reader, head) {
 		const items = [];
+
+		const images = reader.getObject(reader.getRoot(), 'images');
+		if (images !== undefined) {
+			reader.iterateObjects(images, (name, child) => {
+				const image = reader.getObject(child, 'data');
+				if (image !== undefined) {
+					const dataURI = reader.getString(image);
+					if (dataURI) {
+						JSG.imagePool.add(dataURI, name);
+					}
+				}
+			});
+		}
 
 		reader.iterateObjects(head, (name, child) => {
 			switch (name) {

@@ -18,18 +18,10 @@ const TriggerFactory = require('./sheettrigger/TriggerFactory');
 const TaskQueue = require('./TaskQueue');
 
 
-// TODO remove!! just to support old commands which send preferences property....
-const valueOr = (value, defval) => (value != null ? value : defval);
 const getSettings = (definition, sheet) => {
-	const { preferences, settings } = definition;
-	const newsettings = settings ? { ...sheet.settings, ...settings } : { ...sheet.settings };
-	if (preferences) {
-		newsettings.maxrow = valueOr(preferences.sheetRows, newsettings.maxrow);
-		newsettings.maxcol = valueOr(preferences.sheetColumns, newsettings.maxcol);
-		newsettings.maxchars = valueOr(preferences.maxchars, newsettings.maxchars);
-		newsettings.protected = valueOr(preferences.sheetProtect, newsettings.protected);
-	}
-	return newsettings;
+	const oldSettings = sheet.settings;
+	const { sheet: newSettings } = definition;
+	return { ...oldSettings, ...newSettings };
 };
 
 
