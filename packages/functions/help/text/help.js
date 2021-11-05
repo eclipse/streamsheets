@@ -661,6 +661,7 @@ module.exports = {
 		UNICHAR: {
 			default: {
 				category: 'Text',
+				description: 'Returns the character represented by given unicode number.',
 				inlineDescription: 'Returns the character represented by given unicode number.',
 				arguments: [
 					{
