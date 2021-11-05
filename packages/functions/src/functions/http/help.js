@@ -99,6 +99,17 @@ module.exports = {
 				description:
 					'Führt eine HTTP-Anfrage über die HTTP-Methode PATCH aus'
 			}
+		}, 
+		'HTTP.TRACE': {
+			en: {
+				argumentList: 'URL,header,config,target',
+				description: 'Executes an HTTP TRACE request'
+			},
+			de: {
+				argumentList: 'URL,Header,Konfiguration,Ziel',
+				description:
+					'Führt eine HTTP-Anfrage über die HTTP-Methode TRACE aus'
+			}
 		}
 	}
 };
