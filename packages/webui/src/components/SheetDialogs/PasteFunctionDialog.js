@@ -52,7 +52,7 @@ export default class PasteFunctionDialog extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			category: 'all',
+			category: 'All',
 			filter: '',
 		};
 	}

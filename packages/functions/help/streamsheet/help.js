@@ -9,11 +9,12 @@
  *
  ********************************************************************************/
 module.exports = {
-	functionList: {
+	functions: {
 		ARRAY: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'This function can be used to efficiently add array items to a message. Creates a JSON array entry using the given keys and values. If the range has one row or column, one array entry for each cell is created. If there are two columns or rows, a nested array (array containing a subarray) will be created. Note that if both nest and flat parameters are set to true one can use range instead.',
+				inlineDescription: 'This function can be used to efficiently add array items to a message.',
 				arguments: [
 					{
 						type: '',
@@ -40,7 +41,7 @@ module.exports = {
 				},
 				examples: {
 					infoStart: '',
-					infoEnd: '\n:::tip\n  If you want to create an Outbox array step by step, you can use "-1" as last outboxdata path to automatically add a new array element to the existing outbox message. `=WRITE(OUTBOXDATA("Message";"data";-1);JSON(B1:C5);)` \n:::\n ',
+					infoEnd: '\n:::tip\n  If you want to create an Outbox array step by step, you can use "-1" as last outbox data path to automatically add a new array element to the existing outbox message. `=WRITE(OUTBOXDATA("Message";"data";-1);JSON(B1:C5);)` \n:::\n ',
 					formulas: [
 						{
 							formula: '=WRITE(OUTBOXDATA("Message", "NewItem"), ARRAY(A2:B5, FALSE), "Array") with the following cell content: <br /> <img src={require("../../_images/ARRAY1.png").default} width="50%"/>',
@@ -58,8 +59,9 @@ module.exports = {
 		},
 		AWAIT: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Pauses sheet calculation until all specified requests resolve. Please refer to AWAIT.ONE too.',
+				inlineDescription: 'Pauses sheet calculation until all specified requests resolve.',
 				arguments: [
 					{
 						type: '',
@@ -86,7 +88,7 @@ module.exports = {
 						},
 						{
 							formula: 'AWAIT(A1, B2:C3)',
-							comment: 'Waits for the request in A1 and all requests in spcefied range to resolve'
+							comment: 'Waits for the request in A1 and all requests in specified range to resolve'
 						}
 					]
 				}
@@ -94,8 +96,9 @@ module.exports = {
 		},
 		'AWAIT.ONE': {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Pauses sheet calculation until at least one of specified requests resolves. Please refer to AWAIT too.',
+				inlineDescription: 'Pauses sheet calculation until at least one of specified requests resolves.',
 				arguments: [
 					{
 						type: '',
@@ -122,16 +125,18 @@ module.exports = {
 						},
 						{
 							formula: 'AWAIT.ONE(A1, B2:C3)',
-							comment: 'Waits for request in A1 and or one of the requests in spcefied range to resolve'
+							comment: 'Waits for request in A1 and or one of the requests in specified range to resolve'
 						}
 					]
 				}
 			}
 		},
 		BREAK: {
+			license: 'enterprise',
 			default: {
-				category: 'streamsheet',
-				description: '![star](../../_images//star.svg) This is a [Streamsheets Enterprise](https://cedalo.com/get-started-with-cedalo-real-time-platform/) feature. Immediately stops traversing a JSON object via [```JSON.PROCESS()```](./jsonprocess.md).',
+				category: 'Streamsheet',
+				description: 'Immediately stops traversing a JSON object via [```JSON.PROCESS()```](./jsonprocess.md).',
+				inlineDescription: 'Immediately stops traversing a JSON object via JSON.PROCESS().',
 				return: {
 					type: '',
 					description: 'TRUE or an [error](../../other#error-codes) value.'
@@ -151,8 +156,9 @@ module.exports = {
 		},
 		CALC: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Recalculates streamsheet without doing a complete streamsheet step. Note: this function should not be used in a cell directly. Rather it is intended to be used as a parameter to drawing functions, e.g. like ONCLICK().',
+				inlineDescription: 'Recalculates streamsheet without doing a complete streamsheet step.',
 				return: {
 					type: '',
 					description: 'Nothing.'
@@ -161,8 +167,9 @@ module.exports = {
 		},
 		CLEARCELLS: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Removes value, formula or format of cells in specified range.',
+				inlineDescription: 'Removes value, formula or format of cells in specified range.',
 				arguments: [
 					{
 						type: '',
@@ -211,8 +218,9 @@ module.exports = {
 		},
 		'COLOR.CONVERT': {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Converts a given color value to another color format. Currently following color formats are supported: CMYK, HEX, HSL, HSV and RGB.',
+				inlineDescription: 'Converts a given color value to another color format.',
 				arguments: [
 					{
 						type: '',
@@ -223,7 +231,7 @@ module.exports = {
 					{
 						type: '',
 						name: 'FromColor',
-						description: 'A color format string which matchs given color value. One of CMYK, HEX, HSL, HSV or RGB.',
+						description: 'A color format string which matches given color value. One of CMYK, HEX, HSL, HSV or RGB.',
 						optional: false
 					},
 					{
@@ -257,8 +265,9 @@ module.exports = {
 		},
 		CONTINUE: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Continue current calculation at given cell. Note that if specified cell is before current cell the calculation is continued on next step. Normally a Streamsheet is calculated from left to right and top to bottom. Using CONTINUE you can jump within the calculation logic.',
+				inlineDescription: 'Continue current calculation at given cell.',
 				arguments: [
 					{
 						type: '',
@@ -286,8 +295,9 @@ module.exports = {
 		},
 		COPYVALUES: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Copies the values from the given source range to the target range. Beware that only the values are copied and not formulas. If the target range is a multiple of the source range, the target range is filled repeatedly with the source values.',
+				inlineDescription: 'Copies the values from the given source range to the target range.',
 				arguments: [
 					{
 						type: '',
@@ -321,8 +331,9 @@ module.exports = {
 		},
 		COUNTER: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Increments or decrements a cell value by specified step amount. The initial value is defined by "Start" parameter. An optional "End" parameter can be set to define a lower or upper bound. Furthermore an optional "Reset" flag can be used to restart counter if its value evaluates to TRUE.',
+				inlineDescription: 'Increments or decrements a cell value by specified step amount.',
 				arguments: [
 					{
 						type: '',
@@ -393,8 +404,9 @@ module.exports = {
 		},
 		DELETE: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Delete a message or message content based on the key. The key is provided by using one of the following functions. INBOX, OUTBOX, INBOXDATA, INBOXMETADATA, OUTBOXMETADATA, OUTBOXDATA.',
+				inlineDescription: 'Delete a message or message content based on the key.',
 				arguments: [
 					{
 						type: '',
@@ -422,8 +434,9 @@ module.exports = {
 		},
 		DELETECELLS: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Delete cell values in given range. Is able to delete itself.',
+				inlineDescription: 'Delete cell values in given range. Is able to delete itself.',
 				arguments: [
 					{
 						type: '',
@@ -451,8 +464,9 @@ module.exports = {
 		},
 		DICTIONARY: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a JSON Object using the given keys and values.',
+				inlineDescription: 'Creates a JSON Object using the given keys and values.',
 				arguments: [
 					{
 						type: '',
@@ -489,8 +503,9 @@ module.exports = {
 		},
 		'EDGE.DETECT': {
 			default: {
-				category: 'streamsheet',
-				description: 'Detects if the result of a given condition changed from FALSE to TRUE. This functions detects if a given condition evaluates from FALSE to TRUE. Only in this case TRUE is returned. In all other cases, i.e. TRUE to FALSE, FALSE to FALSE or TRUE to TRUE, EDGE.DETECT returns FALSE. If the function is processed for the first time it is assumed that a previous condition result was FALSE. That means that if the condition immediately evaluates to TRUE, this function returns TRUE. The behaviour of this function can be influenced by two optional parameters, namely *Period* and *Delay*. *Period* specifies for how long this function still returns TRUE, even if no changes were detected. On the other hand *Delay* specifes for how long this function returns FALSE, after a change was detected. The default value of both parameters is 0, meaning they have no effect. If both parameters are set and greater zero, *Period* starts after *Delay*. It is not recommended to use EDGE.DETECT within another function.',
+				category: 'Streamsheet',
+				description: 'Detects if the result of a given condition changed from FALSE to TRUE. This functions detects if a given condition evaluates from FALSE to TRUE. Only in this case TRUE is returned. In all other cases, i.e. TRUE to FALSE, FALSE to FALSE or TRUE to TRUE, EDGE.DETECT returns FALSE. If the function is processed for the first time it is assumed that a previous condition result was FALSE. That means that if the condition immediately evaluates to TRUE, this function returns TRUE. The behaviour of this function can be influenced by two optional parameters, namely *Period* and *Delay*. *Period* specifies for how long this function still returns TRUE, even if no changes were detected. On the other hand *Delay* specifies for how long this function returns FALSE, after a change was detected. The default value of both parameters is 0, meaning they have no effect. If both parameters are set and greater zero, *Period* starts after *Delay*. It is not recommended to use EDGE.DETECT within another function.',
+				inlineDescription: 'Detects if the result of a given condition changed from FALSE to TRUE.',
 				arguments: [
 					{
 						type: '',
@@ -507,7 +522,7 @@ module.exports = {
 					{
 						type: '',
 						name: 'Delay',
-						description: 'Delay in Milliseconds, where the result of this formula still is FALSE even if condition change was dectected. Defaults to 0.',
+						description: 'Delay in Milliseconds, where the result of this formula still is FALSE even if condition change was detected. Defaults to 0.',
 						optional: true
 					}
 				],
@@ -540,8 +555,9 @@ module.exports = {
 		},
 		EXECUTE: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Triggers the recalculation of another `Streamsheet`. The executed Sheet will only be executed if Streamsheet settings of executed Sheet allow execution. Calculate Streamsheet "On Execute".',
+				inlineDescription: 'Triggers the recalculation of another `Streamsheet`.',
 				arguments: [
 					{
 						type: '',
@@ -587,8 +603,9 @@ module.exports = {
 		},
 		FEEDINBOX: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'This function feeds the inbox of a Streamsheet within the same App. The Streamsheet Settings must be set to "On Data Arrival", to trigger the calculation. This way a dependent Streamsheet can be triggered in two different ways. Either using the FEEDINBOX() function, which leads to an "asynchronous" call, since the message is just added to the inbox and waits for the next step. Or using EXECUTE(), which will lead to a direct execution (synchronous).',
+				inlineDescription: 'This function feeds the inbox of a Streamsheet within the same App.',
 				arguments: [
 					{
 						type: '',
@@ -621,8 +638,9 @@ module.exports = {
 		},
 		GETCYCLE: {
 			default: {
-				category: 'streamsheet',
-				description: 'Returns the Streamsheet steps done in repeat-calculation mode.\n:::info\n This function is only valid for Streamsheets which settings are defined to calculate repeatedly. If this is not the case this function always returns 1. \n:::\n To get the number of times a Streamsheet was processed refer to getstep and to get the steps for a Streamsheet which was repeatedly triggered by execute refer to repeatindex',
+				category: 'Streamsheet',
+				description: 'Returns the Streamsheet steps done in repeat-calculation mode.\n\n:::info\n This function is only valid for Streamsheets which settings are defined to calculate repeatedly. If this is not the case this function always returns 1. \n:::\n To get the number of times a Streamsheet was processed refer to getstep and to get the steps for a Streamsheet which was repeatedly triggered by execute refer to repeatindex',
+				inlineDescription: 'Returns the Streamsheet steps done in repeat-calculation mode.',
 				return: {
 					type: '',
 					description: 'Steps done in repeat-calculation mode or 1 if Streamsheet mode is different.'
@@ -641,8 +659,9 @@ module.exports = {
 		},
 		GETCYCLETIME: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Returns the current cycle time. The Cycle Time is an overall setting in an App that applies to each Streamsheet within the App. It generally defines how long the system pauses between calculation cycles (in ms).',
+				inlineDescription: 'Returns the current cycle time.',
 				return: {
 					type: '',
 					description: 'Current cycle time in milliseconds.'
@@ -662,8 +681,9 @@ module.exports = {
 		},
 		GETEXECUTESTEP: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Returns the number of repetitions of the execute function. EXECUTE triggers the recalculation of another Streamsheet. With the repeat Parameter you can set the number of repetitions. If larger than 1 (Default), the execute function will be executed multiple times.',
+				inlineDescription: 'Returns the number of repetitions of the execute function.',
 				return: {
 					type: '',
 					description: 'Current repetition step of the execute function.'
@@ -683,8 +703,9 @@ module.exports = {
 		},
 		GETMACHINESTEP: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Returns the current step. The machine step is increased either on each machine cycle, i.e. when a machine runs, or on each manually triggered step, i.e. if an App is stopped or paused. To get the steps for a Streamsheet refer to getstep.',
+				inlineDescription: 'Returns the current step.',
 				return: {
 					type: '',
 					description: 'Current step.'
@@ -703,8 +724,9 @@ module.exports = {
 		},
 		GETSTEP: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Returns the current Streamsheet step. \n:::info\n A Streamsheet step is increased only if the Streamsheet is processed, which is not necessarily the case on each App step. \n:::\n To get the steps for an App refer to getmachinestep and to get the steps for Streamsheets which are repeatedly triggered by execute refer to repeatindex.',
+				inlineDescription: 'Returns the current Streamsheet step.',
 				arguments: [
 					{
 						type: '',
@@ -735,8 +757,9 @@ module.exports = {
 		},
 		INBOX: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a key to reference an inbox item. This key is used in functions like DELETE to identify messages inside an inbox.',
+				inlineDescription: 'Creates a key to reference an inbox item. ',
 				arguments: [
 					{
 						type: '',
@@ -770,8 +793,9 @@ module.exports = {
 		},
 		INBOXDATA: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a JSON key from the given values or range to retrieve data from within a message. This function is normally used in the READ function. INBOXDATA retrieves values from the Data section of a message.',
+				inlineDescription: 'Creates a JSON key from the given values or range to retrieve data from within a message.',
 				arguments: [
 					{
 						type: '',
@@ -821,8 +845,9 @@ module.exports = {
 		},
 		INBOXMETADATA: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a JSON key from the given values or range to retrieve metadata from within a message. This function is normally used in the READ function. INBOXMETADATA retrieves values from the Metadata section of a message.',
+				inlineDescription: 'Creates a JSON key from the given values or range to retrieve metadata from within a message.',
 				arguments: [
 					{
 						type: '',
@@ -867,8 +892,9 @@ module.exports = {
 		},
 		JSON: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'A Streamsheet has the possibility to process, generate and accumulate data. Before sending this data, the cells from a data range have to be structured, in order for an App to interpret them correctly. JSON() is paring two columns together to a key and value pair using the JSON Syntax. Alternatively it is possible to specify a text which will be parsed to JSON or use one of the various INBOX/OUTBOX functions to reference an element from a message stored in inbox or outbox respectively. The optional second parameter can be used to convert the resulting JSON object to a textual representation. This function is mostly used within publish functions like: MQTTPUBLISH. The JSON structure supports quotes "". eg. {"Key":"value"}',
+				inlineDescription: 'Converts given cell range, text or message element to JSON',
 				arguments: [
 					{
 						type: '',
@@ -921,9 +947,11 @@ module.exports = {
 			}
 		},
 		'JSON.PROCESS': {
+			license: 'enterprise',
 			default: {
-				category: 'streamsheet',
-				description: '![star](../../_images//star.svg) This is a [Streamsheets Enterprise](https://cedalo.com/get-started-with-cedalo-real-time-platform/) feature. Traverses given JSON object and processes each cell in specified cell-range. Before the cell-range is processed the current JSON value is written to defined value cell, whereas the corresponding key is returned from the function itself. A nested JSON can be completely traversed by setting the optional recursive parameter to TRUE. To immediately stop the JSON traversal use [```BREAK()```](./break.md) in processed cell-range.',
+				category: 'Streamsheet',
+				description: 'Traverses given JSON object and processes each cell in specified cell-range. Before the cell-range is processed the current JSON value is written to defined value cell, whereas the corresponding key is returned from the function itself. A nested JSON can be completely traversed by setting the optional recursive parameter to TRUE. To immediately stop the JSON traversal use [```BREAK()```](./break.md) in processed cell-range.',
+				inlineDescription: 'Traverses given JSON object and processes each cell in specified cell-range.',
 				arguments: [
 					{
 						type: '',
@@ -969,13 +997,14 @@ module.exports = {
 		},
 		'JSON.RANGE': {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Writes the content of given json to a specified cell range. It is recommended, but not a mandatory, to encode passed json with either array, dictionary, range or the json function itself. For better results the encoding type and direction parameters can be specified. Please refer to JSON.VALUE if only a single json value should be extracted.',
+				inlineDescription: 'Writes the content of given json to a specified cell range.',
 				arguments: [
 					{
 						type: '',
 						name: 'JSON',
-						description: 'A json object which data will be writen to specified target range.',
+						description: 'A json object which data will be written to specified target range.',
 						optional: false
 					},
 					{
@@ -1026,9 +1055,11 @@ module.exports = {
 			}
 		},
 		'JSON.TO.XML': {
+			license: 'enterprise',
 			default: {
-				category: 'streamsheet',
-				description: '![star](../../_images//star.svg) This is a [Streamsheets Enterprise](https://cedalo.com/get-started-with-cedalo-real-time-platform/) feature. Converts given JSON object into an XML text.',
+				category: 'Streamsheet',
+				description: 'Converts given JSON object into an XML text.',
+				inlineDescription: 'Converts given JSON object into an XML text.',
 				arguments: [
 					{
 						type: '',
@@ -1082,8 +1113,9 @@ module.exports = {
 		},
 		'JSON.VALUE': {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Returns a value from a JSON object. The value to return corresponds to the path specified by given keys. Please refer to JSON.RANGE for writing the complete data of a JSON object to the sheet.',
+				inlineDescription: 'Returns a value from a JSON object',
 				arguments: [
 					{
 						type: '',
@@ -1127,8 +1159,9 @@ module.exports = {
 		},
 		LOOPCOUNT: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Returns the length of specified loop array or #NA if loop is not available or not defined. Used to analyze Inbox loops.',
+				inlineDescription: 'Returns the length of specified loop array or #NA if loop is not available or not defined.',
 				return: {
 					type: '',
 					description: 'Number, representing the length of defined loop array.'
@@ -1148,8 +1181,9 @@ module.exports = {
 		},
 		LOOPINDEX: {
 			default: {
-				category: 'streamsheet',
-				description: 'Returns the current index within processed loop element or #NA  if loop is not available or not defined. used to analyze Inbox loops. \n:::info\n The index is based to 1. \n:::\n',
+				category: 'Streamsheet',
+				description: 'Returns the current index within processed loop element or #NA  if loop is not available or not defined. Used to analyze Inbox loops. \n:::info\n The index is based to 1. \n:::\n',
+				inlineDescription: 'Returns the current index within processed loop element or #NA  if loop is not available or not defined.',
 				return: {
 					type: '',
 					description: 'Number, representing current loop index.'
@@ -1169,8 +1203,9 @@ module.exports = {
 		},
 		MOVEVALUES: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Move values in source range to target range.',
+				inlineDescription: 'Move values in source range to target range.',
 				arguments: [
 					{
 						type: '',
@@ -1204,8 +1239,9 @@ module.exports = {
 		},
 		OPENURL: {
 			default: {
-			category: 'streamsheet',
+			category: 'Streamsheet',
 				description: 'Opens any given URL. The given URL needs to start with http/https \n:::info\n OPENURL only works in an Event. \n:::\n',
+				inlineDescription: 'Opens any given URL. OPENURL only works in an Event.',
 				arguments: [
 					{
 						type: '',
@@ -1239,8 +1275,9 @@ module.exports = {
 		},
 		OUTBOX: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a key to reference an outbox message. This key is used in functions like DELETE to identify messages inside an outbox.',
+				inlineDescription: 'Creates a key to reference an outbox message.',
 				arguments: [
 					{
 						type: '',
@@ -1268,13 +1305,14 @@ module.exports = {
 		},
 		'OUTBOX.GETIDS': {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a list with IDs of all messages currently available in the outbox. An optional id filter can be specified to control which IDs to return.',
+				inlineDescription: 'Creates a list with IDs of all messages currently available in the outbox.',
 				arguments: [
 					{
 						type: '',
 						name: 'IdFilterText',
-						description: 'A text to filter IDs. Excel wildcards like * and ? are supported. If not specifed the returned list contains the IDs of all messages currently in outbox.',
+						description: 'A text to filter IDs. Excel wildcards like * and ? are supported. If not specified the returned list contains the IDs of all messages currently in outbox.',
 						optional: true
 					}
 				],
@@ -1302,8 +1340,9 @@ module.exports = {
 		},
 		OUTBOXDATA: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a JSON key from the given values or range to reference data from within a message. This function is normally used in the WRITE function. OUTBOXDATA references values from the Data section of a message.',
+				inlineDescription: 'Creates a JSON key from the given values or range to reference data from within a message.',
 				arguments: [
 					{
 						type: '',
@@ -1338,7 +1377,7 @@ module.exports = {
 						},
 						{
 							formula: '=WRITE(OUTBOXDATA(“Message”,<br />”Output”,-1),JSON(J22:K24),)',
-							result: 'Pro tipp: If you want to create an array in the Outbox, use -1 as the last OUTBOXDATA() parameter. This way the array will automatically increment starting from 0.',
+							result: 'Pro tip: If you want to create an array in the Outbox, use -1 as the last OUTBOXDATA() parameter. This way the array will automatically increment starting from 0.',
 							comment: '<br /> <img src={require("../../_images/increment.png").default} width="80%"/>'
 						}
 					]
@@ -1347,8 +1386,9 @@ module.exports = {
 		},
 		OUTBOXMETADATA: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a JSON key from the given values or range to retrieve metadata from within a message. This function is normally used in the READ function. OUTBOXMETADATA retrieves values from the Metadata section of an outbox message.',
+				inlineDescription: 'Creates a JSON key from the given values or range to retrieve metadata from within a message.',
 				arguments: [
 					{
 						type: '',
@@ -1387,8 +1427,9 @@ module.exports = {
 		},
 		RANGE: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Creates a nested JSON array from specified cell range. Basically this is the same as using array with nested and flat parameter set to true.',
+				inlineDescription: 'Creates a nested JSON array from specified cell range.',
 				arguments: [
 					{
 						type: '',
@@ -1426,8 +1467,9 @@ module.exports = {
 		},
 		READ: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Reads the values from a JSON object using the given key. Mainly used to read inbox payloads.',
+				inlineDescription: 'Reads the values from a JSON object using the given key. ',
 				arguments: [
 					{
 						type: '',
@@ -1489,8 +1531,9 @@ module.exports = {
 		},
 		REPEATINDEX: {
 			default: {
-				category: 'streamsheet',
-				description: 'Returns the number of times a Streamsheet was triggered by execute. To get the number of steps a Streamsheet was processed refer to getstep and to get the number of steps for a Streamsheet in repeate-calculation mode refer to getcycle. Only works in the repeating Streamsheet.',
+				category: 'Streamsheet',
+				description: 'Returns the number of times a Streamsheet was triggered by execute. To get the number of steps a Streamsheet was processed refer to getstep and to get the number of steps for a Streamsheet in repeat-calculation mode refer to getcycle. Only works in the repeating Streamsheet.',
+				inlineDescription: 'Returns the number of times a Streamsheet was triggered by execute.',
 				return: {
 					type: '',
 					description: 'Current execute repetition.'
@@ -1510,8 +1553,9 @@ module.exports = {
 		},
 		RETURN: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Interrupts the recalculation cycle. This is of special interest, if a Streamsheet starts to evaluate on process start and is set to evaluate endlessly. Using RETURN, you can stop this endless recalculation.',
+				inlineDescription: 'Interrupts the recalculation cycle. ',
 				return: {
 					type: '',
 					description: 'TRUE or [error](../../other#error-codes) value.'
@@ -1530,8 +1574,9 @@ module.exports = {
 		},
 		SELECT: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Display a pick list below the cell to select a value from the pick list as the cell value. This function can only be used as an outer function, otherwise no pick list will be displayed. The function is recreated by replacing the Actual Value, when an item in the list is selected. The actual value will also be the initial value.',
+				inlineDescription: 'Display a pick list below the cell to select a value from the pick list as the cell value.',
 				arguments: [
 					{
 						type: '',
@@ -1565,8 +1610,9 @@ module.exports = {
 		},
 		SETCYCLETIME: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Set the current Cycle Time. The Cycle Time is an overall setting in an App that applies to each Streamsheet in the App. It generally defines how long the system pauses between calculation cycles (in ms).',
+				inlineDescription: 'Set the current Cycle Time.',
 				return: {
 					type: '',
 					description: 'Depends on condition. TRUE or FALSE'
@@ -1586,8 +1632,9 @@ module.exports = {
 		},
 		SETPHASE: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Puts the Text into the target cell, if the condition is true.',
+				inlineDescription: 'Puts the Text into the target cell, if the condition is true.',
 				arguments: [
 					{
 						type: '',
@@ -1638,8 +1685,9 @@ module.exports = {
 		},
 		SETVALUE: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Writes a given value into target cell, if specified condition evaluates to true.',
+				inlineDescription: 'Writes a given value into target cell, if specified condition evaluates to true.',
 				arguments: [
 					{
 						type: '',
@@ -1695,8 +1743,9 @@ module.exports = {
 		},
 		SLEEP: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Pauses sheet processing for a specified amount of time.',
+				inlineDescription: 'Pauses sheet processing for a specified amount of time.',
 				return: {
 					type: '',
 					description: 'TRUE'
@@ -1719,8 +1768,9 @@ module.exports = {
 		},
 		SUBTREE: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Extracts a sub tree from the current message.',
+				inlineDescription: 'Extracts a sub tree from the current message.',
 				arguments: [
 					{
 						type: '',
@@ -1743,8 +1793,9 @@ module.exports = {
 		},
 		SWAPVALUES: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Copies the values from the given source range to the target range and vice versa. Beware that only the values are copied and not formulas. If the target range is a multiple of the source range, the target range is filled repeatedly with the source values.',
+				inlineDescription: 'Copies the values from the given source range to the target range and vice versa.',
 				arguments: [
 					{
 						type: '',
@@ -1778,8 +1829,9 @@ module.exports = {
 		},
 		'TABLE.GET': {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Gets the value from the table cell at specified index.   To create a table like cell range please refer to TABLE.UPDATE.',
+				inlineDescription: 'Gets the value from the table cell at specified index.',
 				arguments: [
 					{
 						type: '',
@@ -1822,8 +1874,9 @@ module.exports = {
 		},
 		'TABLE.ORDERCOLUMN': {
 			default: {
-				category: 'streamsheet',
-				description: 'Orders specfied table columns according to corresponding reference columns.   To create a table like cell range please refer to TABLE.UPDATE.',
+				category: 'Streamsheet',
+				description: 'Orders specified table columns according to corresponding reference columns.   To create a table like cell range please refer to TABLE.UPDATE.',
+				inlineDescription: 'Orders specified table columns according to corresponding reference columns.',
 				arguments: [
 					{
 						type: '',
@@ -1860,8 +1913,9 @@ module.exports = {
 		},
 		'TABLE.UPDATE': {
 			default: {
-				category: 'streamsheet',
-				description: 'Creates and updates a defined cell range in a table like manner. The first row and first column of specifeid cell range defines the indices used to reference a table cell. To set or update a cell its corresponding row and column indices must be given. If a row index does not exist in current range, it can be automatically added to top or bottom. The same applies for a column index which can be automatically added to the left or right. To simply read values from a table cell refer to TABLE.GET',
+				category: 'Streamsheet',
+				description: 'Creates and updates a defined cell range in a table like manner. The first row and first column of specified cell range defines the indices used to reference a table cell. To set or update a cell its corresponding row and column indices must be given. If a row index does not exist in current range, it can be automatically added to top or bottom. The same applies for a column index which can be automatically added to the left or right. To simply read values from a table cell refer to TABLE.GET',
+				inlineDescription: 'Creates and updates a defined cell range in a table like manner. ',
 				arguments: [
 					{
 						type: '',
@@ -1890,19 +1944,19 @@ module.exports = {
 					{
 						type: '',
 						name: 'PushRowAt',
-						description: 'Defines where to insert a new row index. Should be either 1, -1, or 0. To insert new row at the bottom specfiy 1, -1 will insert it at the top and 0 will not insert at all. Defaults to 0.',
+						description: 'Defines where to insert a new row index. Should be either 1, -1, or 0. To insert new row at the bottom specify 1, -1 will insert it at the top and 0 will not insert at all. Defaults to 0.',
 						optional: true
 					},
 					{
 						type: '',
 						name: 'PushColumnAt',
-						description: 'Defines where to insert a new column index. Should be either 1, -1, or 0. To insert new column to the right specfiy 1, -1 will insert it to the left and 0 will not insert at all. Defaults to 0.',
+						description: 'Defines where to insert a new column index. Should be either 1, -1, or 0. To insert new column to the right specify 1, -1 will insert it to the left and 0 will not insert at all. Defaults to 0.',
 						optional: true
 					},
 					{
 						type: '',
 						name: 'AggregationMethod',
-						description: 'One of the predefined numbers which specifies the aggregation method to use for specified table cell. <br />Options (Defaults to 0):<br />0 : NONE (No aggregation is performed and the last valid value is returned)<br />1 : AVERAGE (Calculates the average of all received values)<br />2 : COUNT (Counts the number of received values)<br />3 : COUNTA (Counts all values which are not zero)<br />4 : MAX (Determines the maximum of all received values)<br />5 : MIN (Determines the minimum of all received values)<br />6 : PRODUCT (Calculates the product of all received values)<br />7 : STDEV.S (Calculates the standard deviation of all recieved values)<br />8 : STDEV.P (Currently not available!!)<br />9 : SUM (Calculates the sum of all received values)',
+						description: 'One of the predefined numbers which specifies the aggregation method to use for specified table cell. <br />Options (Defaults to 0):<br />0 : NONE (No aggregation is performed and the last valid value is returned)<br />1 : AVERAGE (Calculates the average of all received values)<br />2 : COUNT (Counts the number of received values)<br />3 : COUNTA (Counts all values which are not zero)<br />4 : MAX (Determines the maximum of all received values)<br />5 : MIN (Determines the minimum of all received values)<br />6 : PRODUCT (Calculates the product of all received values)<br />7 : STDEV.S (Calculates the standard deviation of all received values)<br />8 : STDEV.P (Currently not available!!)<br />9 : SUM (Calculates the sum of all received values)',
 						optional: true
 					}
 				],
@@ -1927,59 +1981,61 @@ module.exports = {
 		},
 		TRIGGERSTEP: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Triggers a streamsheet step. Note: this function should not be used in a cell directly. Rather it is intended to be used as a parameter to drawing functions, e.g. like ONCLICK.',
+				inlineDescription: 'Triggers a streamsheet step.',
 				return: {
 					type: '',
 					description: 'Nothing.'
 				}
 			}
 		},
-		WEBPAGE: {
-			default: {
-				category: 'streamsheet',
-				description: 'Creates a webpage at the given URL. This uses a special REST feeder internally.',
-				arguments: [
-					{
-						type: '',
-						name: 'URL',
-						description: 'A URL suffix which is appended to the base url provided by internally used feeder.',
-						optional: false
-					},
-					{
-						type: '',
-						name: 'HTML',
-						description: 'A String which defines the webpage to create.',
-						optional: false
-					},
-					{
-						type: '',
-						name: 'Refresh',
-						description: 'The http refresh rate in seconds',
-						optional: false
-					}
-				],
-				return: {
-					type: '',
-					description: 'TRUE on success or [error](../../other#error-codes) code otherwise.'
-				},
-				examples: {
-					infoStart: 'We assume that the used REST feeder provides following base URL: `https://dev.cedalo.com/rest/v1.0/webpages` ',
-					infoEnd: '',
-					formulas: [
-						{
-							formula: '=WEBPAGE(“test1/test2”,“`<html><body><h1>HELLO</h1></body></html>`”, 5)',
-							result: 'TRUE',
-							comment: 'Creates a webpage with a single HELLO title. The webpage is accessable at: `https://dev.cedalo.com/rest/v1.0/webpages/test1/test2`'
-						}
-					]
-				}
-			}
-		},
+		// WEBPAGE: {
+		// 	default: {
+		// 		category: 'Streamsheet',
+		// 		description: 'Creates a webpage at the given URL. This uses a special REST feeder internally.',
+		// 		arguments: [
+		// 			{
+		// 				type: '',
+		// 				name: 'URL',
+		// 				description: 'A URL suffix which is appended to the base url provided by internally used feeder.',
+		// 				optional: false
+		// 			},
+		// 			{
+		// 				type: '',
+		// 				name: 'HTML',
+		// 				description: 'A String which defines the webpage to create.',
+		// 				optional: false
+		// 			},
+		// 			{
+		// 				type: '',
+		// 				name: 'Refresh',
+		// 				description: 'The http refresh rate in seconds',
+		// 				optional: false
+		// 			}
+		// 		],
+		// 		return: {
+		// 			type: '',
+		// 			description: 'TRUE on success or [error](../../other#error-codes) code otherwise.'
+		// 		},
+		// 		examples: {
+		// 			infoStart: 'We assume that the used REST feeder provides following base URL: `https://dev.cedalo.com/rest/v1.0/webpages` ',
+		// 			infoEnd: '',
+		// 			formulas: [
+		// 				{
+		// 					formula: '=WEBPAGE(“test1/test2”,“`<html><body><h1>HELLO</h1></body></html>`”, 5)',
+		// 					result: 'TRUE',
+		// 					comment: 'Creates a webpage with a single HELLO title. The webpage is accessable at: `https://dev.cedalo.com/rest/v1.0/webpages/test1/test2`'
+		// 				}
+		// 			]
+		// 		}
+		// 	}
+		// },
 		WRITE: {
 			default: {
-				category: 'streamsheet',
+				category: 'Streamsheet',
 				description: 'Adds the key and value to a JSON object in the outbox. The path to the key will be created as needed.',
+				inlineDescription: 'Adds the key and value to a JSON object in the outbox. The path to the key will be created as needed.',
 				arguments: [
 					{
 						type: '',
@@ -2002,7 +2058,7 @@ module.exports = {
 					{
 						type: '',
 						name: 'TTL',
-						description: 'The "time to live" period in seconds. If the specified period expires the corresponding message will be removed from the outbox. Default is indefinit.',
+						description: 'The "time to live" period in seconds. If the specified period expires the corresponding message will be removed from the outbox. Default is indefinitely.',
 						optional: true
 					}
 				],
@@ -2015,447 +2071,23 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: '=WRITE(OUTBOXDATA(“Message”,<br />”Customer”, “Name”), “Maier”, “String”)',
+							formula: '=WRITE(OUTBOXDATA("Message",<br />"Customer", "Name"), "Maier", "String")',
 							result: 'Outbox Message: <br /> <img src={require("../../_images/WRITE.png").default} width="90%"/>',
 							comment: 'Example to write a value to a JSON object in the outbox.'
 						},
 						{
-							formula: '=WRITE(OUTBOXDATA(“Message”,<br />”Units”),READ(INBOXDATA(,,”Units”))) <br /> Inbox Message: <br /> <img src={require("../../_images/ARRAYIn.png").default} width="80%"/>',
+							formula: '=WRITE(OUTBOXDATA("Message",<br />"Units"),READ(INBOXDATA(,,"Units"))) <br /> Inbox Message: <br /> <img src={require("../../_images/ARRAYIn.png").default} width="80%"/>',
 							result: '<br /> <img src={require("../../_images/ARRAYOut.png").default} width="100%"/>',
-							comment: 'You can also direct data from the<br /> Inbox into the Outbox. In this example the<br /> “Units” array from the Inbox is automatically transfered to the Outbox.'
+							comment: 'You can also direct data from the<br /> Inbox into the Outbox. In this example the<br /> “Units” array from the Inbox is automatically transferred to the Outbox.'
 						},
 						{
-							formula: '=WRITE(OUTBOXDATA(“Message”,<br />”Output”,-1),JSON(J22:K24),)',
+							formula: '=WRITE(OUTBOXDATA("Message",<br />"Output",-1),JSON(J22:K24),)',
 							result: 'Outbox Message: <br /> <img src={require("../../_images/increment.png").default} width="80%"/>',
-							comment: 'Pro tipp: If you want to automatically create an array, <br />use -1 as the last OUTBOXDATA() parameter. <br />This way the array will increment starting from 0.'
+							comment: 'Pro tip: If you want to automatically create an array, <br />use -1 as the last OUTBOXDATA() parameter. <br />This way the array will increment starting from 0.'
 						}
 					]
 				}
 			}
 		}
 	},
-	en: 'Streamsheet',
-	de: 'Streamsheet',
-	functions: {
-		ARRAY: {
-			en: {
-				argumentList: 'Range,Nest,Flat',
-				description: 'Creates a JSON array entry using the given keys and values'
-			},
-			de: {
-				argumentList: 'Bereich,Verschachteln,Flach',
-				description: 'Erzeugt ein JSON Array Objekt mit den gegebenen Schlüssel und Werten'
-			}
-		},
-		AWAIT: {
-			en: {
-				argumentList: 'Cell1,Cell2...',
-				description: 'Waits until all specified request cells resolve'
-			},
-			de: {
-				argumentList: 'Zelle1,Zelle2...',
-				description: 'Wartet bis alle Anfragen in den angegebenen Zellen behandelt wurden'
-			}
-		},
-		'AWAIT.ONE': {
-			en: {
-				argumentList: 'Cell1,Cell2...',
-				description: 'Waits until one of specified request cell resolves'
-			},
-			de: {
-				argumentList: 'Zelle1,Zelle2...',
-				description: 'Wartet bis eine Anfragen in den angegebenen Zellen behandelt wurde'
-			}
-		},
-		CALC: {
-			en: {
-				argumentList: '',
-				description: 'Recalculates streamsheet without doing a complete streamsheet step'
-			},
-			de: {
-				argumentList: '',
-				description: 'Berechnet das Streamsheet neu ohne einen kompletten Streamhseet-Schritt auszulösen'
-			}
-		},
-		CLEARCELLS: {
-			en: {
-				argumentList: 'Range,Type',
-				description: 'Removes the value or formula of cells in given range' },
-			de: {
-				argumentList: 'Bereich,Typ',
-				description: 'Löscht den Wert oder die Formel aller Zellen im angegebenen Bereich' }
-		},
-		'COLOR.CONVERT': {
-			en: {
-				argumentList: 'Color,SourceFormat,TargetFormat',
-				description: 'Converts a color-string from its source format to specified target format'
-			},
-			de: {
-				argumentList: 'Farbe,Quellformat,Zielformat',
-				description: 'Konvertiert einen Farb-String aus seinem Quellformat ins Zielformat'
-			}
-		},
-		CONTINUE: {
-			en: { argumentList: 'Cell', description: 'Continues evaluation at given cell' },
-			de: { argumentList: 'Zelle', description: 'Führt die Berechnung an der angegebenen Zelle fort' }
-		},
-		COPYVALUES: {
-			en: {
-				argumentList: 'SourceRange,TargetRange',
-				description: 'Copies the values of the source range to the target range'
-			},
-			de: {
-				argumentList: 'Quellbereich,Zielbereich',
-				description: 'Kopiert die Werte aus dem Quellbereich in den Zielbereich'
-			}
-		},
-		COUNTER: {
-			en: {
-				argumentList: 'Start,Step,End,Reset',
-				description:
-					'Increments or decrements a cell value by specified Step amount until optional End is reached. Reset initialize counter to Start again'
-			},
-			de: {
-				argumentList: 'Start,Step,End,Reset',
-				description:
-					'Erhöht oder verringert den Start-Wert um Step bis der optionale End Wert erreicht wurde. Reset initialisiert den Zähler wieder mit Start-Wert'
-			}
-		},
-		DELETE: {
-			en: { argumentList: 'Key', description: 'Delete a message or message content based on the key' },
-			de: {
-				argumentList: 'Name',
-				description: 'Löscht die angegebenen Nachrichten oder den Inhalt einer Nachricht'
-			}
-		},
-		DELETECELLS: {
-			en: { argumentList: 'Range', description: 'Deletes the cells in the given range' },
-			de: { argumentList: 'Bereich', description: 'Löscht die Zellen im angegebenen Bereich' }
-		},
-		DETECTCHANGE: {
-			en: {
-				argumentList: 'Condition,Period,PreviousResultCell,TimeStampCell,Delay',
-				description: 'Detects if a condition has changed'
-			},
-			de: {
-				argumentList: 'Bedingung,Periode,VorherigesErgebnis,ZielZellenZeit,Verzögerung',
-				description: 'Ermittelt, ob sich eine Bedingung in einem Zeitraum geändert hat'
-			}
-		},
-		DICTIONARY: {
-			en: {
-				argumentList: 'Range,Horizontal',
-				description: 'Creates a JSON Object using the given keys and values'
-			},
-			de: {
-				argumentList: 'Bereich,Horizontal',
-				description: 'Erzeugt ein JSON Object mit den gegenen Schlüssel und Werten'
-			}
-		},
-		'EDGE.DETECT': {
-			en: { argumentList: 'Condition,Period,Delay', description: 'Detects if a condition has changed' },
-			de: {
-				argumentList: 'Bedingung,Periode,Verzögerung',
-				description: 'Ermittelt, ob sich eine Bedingung in einem Zeitraum geändert hat'
-			}
-		},
-		EXECUTE: {
-			en: {
-				argumentList: 'Streamsheet,Repeat,JSON,Speed',
-				description: 'Triggers the recalculation of another streamsheet'
-			},
-			de: {
-				argumentList: 'Streamsheet,Wiederholen,JSON,Geschwindigkeit',
-				description: 'Aktiviert die Neuberechnung eines andere Streamsheets'
-			}
-		},
-		FEEDINBOX: {
-			en: { argumentList: 'JSON,Target', description: 'Sends a JSON directly to another Inbox' },
-			de: { argumentList: 'JSON,Ziel', description: 'Sendet das JSON an die angegebene Inbox' }
-		},
-		GETCLIENTCOUNT: {
-			en: { argumentList: '', description: 'Returns the number of current connected clients' },
-			de: { argumentList: '', description: 'Ermittelt die Anzahl der aktuell verbundenen Clients' }
-		},
-		GETCYCLE: {
-			en: { argumentList: '', description: 'Returns the current cycle' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Zyklus' }
-		},
-		GETCYCLETIME: {
-			en: { argumentList: '', description: 'Returns the current cycle time' },
-			de: { argumentList: '', description: 'Ermittelt die aktuelle Zykluszeit' }
-		},
-		GETEXECUTESTEP: {
-			en: { argumentList: '', description: 'Returns the current execute step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Execute Schritt im Streamsheet' }
-		},
-		GETMACHINESTEP: {
-			en: { argumentList: '', description: 'Returns the current machine step count' },
-			de: { argumentList: '', description: 'Ermittelt den aktuellen Maschinenschritt' }
-		},
-		GETSTEP: {
-			en: { argumentList: 'SheetName', description: 'Returns the current step count' },
-			de: { argumentList: 'SheetName', description: 'Ermittelt den aktuellen Streamsheet Schritt' }
-		},
-		GOTO: {
-			en: { argumentList: 'Cell', description: 'Deprecated! Please use CONTINUE instead' },
-			de: { argumentList: 'Zelle', description: 'Veraltet! Bitte stattdessen CONTINUE verwenden' }
-		},
-		INBOX: {
-			en: {
-				argumentList: 'Streamsheet,Message',
-				description: 'Creates a key to reference one or more messages from inbox'
-			},
-			de: {
-				argumentList: 'Streamsheet,Nachricht',
-				description: 'Erzeugt einen Schlüssel, der einen oder mehrere Nachrichten aus der Inbox referenziert'
-			}
-		},
-		INBOXDATA: {
-			en: {
-				argumentList: 'Streamsheet,Message,ValuesOrRange',
-				description: 'Creates a JSON key from the given values or range to retrieve data'
-			},
-			de: {
-				argumentList: 'Streamsheet,Nachricht,WerteOderBereich',
-				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für den Datenbereich'
-			}
-		},
-		INBOXMETADATA: {
-			en: {
-				argumentList: 'Streamsheet,Message,ValuesOrRange',
-				description: 'Creates a JSON key from the given values or range to retrieve metadata'
-			},
-			de: {
-				argumentList: 'Streamsheet,Nachricht,WerteOderBereich',
-				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für Metadaten'
-			}
-		},
-		JSON: {
-			en: {
-				argumentList: 'RangeOrTextOrMessageElement,ResultAsText',
-				description: 'Converts given cell range, text or message element to JSON'
-			},
-			de: {
-				argumentList: 'ZellbereichOderTextOderNachrichtelement,ErgebnisAlsText',
-				description: 'Wandelt den angebenen Zellbereich, Text oder Nachrichtenelement in ein JSON Objekt um'
-			}
-		},
-		'JSON.RANGE': {
-			en: {
-				argumentList: 'JSON,CellRange,Type,Direction',
-				description: 'Writes the content of given JSON to specified cell range'
-			},
-			de: {
-				argumentList: 'JSON,Zellbereich,Typ,Richtung',
-				description: 'Schreibt den Inhalt eines JSONs in den angegebenen Zellbereich'
-			}
-		},
-		'JSON.VALUE': {
-			en: {
-				argumentList: 'JSON,key1,key2...',
-				description: 'Returns the value from JSON object which corresponds to the path specified by given keys'
-			},
-			de: {
-				argumentList: 'JSON,Schlüssel1,Schlüssel2...',
-				description:
-					'Gibt den, zu dem durch die Schlüssel definerten Pfad, passenden Wert des JSON Objekts zurück'
-			}
-		},
-		LOOPCOUNT: {
-			en: { argumentList: '', description: 'Returns the loop length' },
-			de: { argumentList: '', description: 'Gibt die Anzahl der Loopelemente zurück ' }
-		},
-		LOOPINDEX: {
-			en: { argumentList: '', description: 'Returns the current loop index' },
-			de: { argumentList: '', description: 'Gibt den aktuellen Loop Index zurück' }
-		},
-		MOVEVALUES: {
-			en: {
-				argumentList: 'SourceRange,TargetRange',
-				description: 'Moves the values of the source range to the target range'
-			},
-			de: {
-				argumentList: 'Quellbereich,Zielbereich',
-				description: 'Verschiebt die Werte aus dem Quellbereich in den Zielbereich'
-			}
-		},
-		OUTBOX: {
-			en: { argumentList: 'Message', description: 'Creates a key to reference one or more messages from outbox' },
-			de: {
-				argumentList: 'Nachricht',
-				description: 'Erzeugt einen Schlüssel, der einen oder mehrere Nachrichten aus der Outbox referenziert'
-			}
-		},
-		OUTBOXDATA: {
-			en: {
-				argumentList: 'Message,ValuesOrRange',
-				description: 'Creates a JSON key from the given values or range to retrieve data'
-			},
-			de: {
-				argumentList: 'Message,WerteOderBereich',
-				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für den Datenbereich'
-			}
-		},
-		'OUTBOX.GETIDS': {
-			en: {
-				argumentList: 'IdFilterText',
-				description: 'Returns a list of message IDs which match given filter'
-			},
-			de: {
-				argumentList: 'IdFilterText',
-				description: 'Liefert eine Liste von zum Filter passenden Nachrichten IDs zurück'
-			}
-		},
-		OUTBOXMETADATA: {
-			en: {
-				argumentList: 'Message,ValuesOrRange',
-				description: 'Creates a JSON key from the given values or range to retrieve metadata'
-			},
-			de: {
-				argumentList: 'Message,WerteOderBereich',
-				description: 'Erzeugt einen JSON Schlüssel mit den gegebenen Werten für Metadaten'
-			}
-		},
-		RANGE: {
-			en: {
-				argumentList: 'CellRange',
-				description: 'Creates a flat JSON array from given cell range'
-			},
-			de: {
-				argumentList: 'Zellbereich',
-				description: 'Erzeugt ein flaches JSON Array Objekt aus dem angegebenen Zellbereich'
-			}
-		},
-		READ: {
-			en: {
-				argumentList: 'Key,TargetCellOrRange,Type,Direction,ErrorOnMissing',
-				description: 'Reads the values from a JSON object using the given key'
-			},
-			de: {
-				argumentList: 'Schlüssel,ZielzelleOderBereich,Typ,Richtung,FehlerBeiFehlend',
-				description: 'Kopiert die Werte aus einem JSON Objekt mit dem gegebenen Schlüssel in einen Zellbereich'
-			}
-		},
-		REFRESH: {
-			en: { argumentList: 'Streamsheet', description: 'Updates the current queue of the given streamsheet' },
-			de: { argumentList: 'Streamsheet', description: 'Aktualisiert die aktuelle Warteschlange des Streamsheets' }
-		},
-		REPEATINDEX: {
-			en: { argumentList: '', description: 'Returns the current repeat index of the EXECUTE function' },
-			de: { argumentList: '', description: 'Gibt den aktuellen Repeat Index der EXECUTE Funktion zurück' }
-		},
-		RETURN: {
-			en: {
-				argumentList: '',
-				description: 'Interrupts the recalculation, if the recalculation is set to endlessly'
-			},
-			de: {
-				argumentList: '',
-				description: 'Unterbricht die Berechnung, wenn die Berechnung auf wiederholen gesetzt ist'
-			}
-		},
-		SELECT: {
-			en: { argumentList: 'ListRange,ActualValue', description: 'Display a pick list' },
-			de: { argumentList: 'Listenbereich,AktuellerWert', description: 'Zeigt eine Auswahlliste an' }
-		},
-		SETCYCLETIME: {
-			en: { argumentList: 'Milliseconds', description: 'Define the cycle time' },
-			de: { argumentList: 'Millisekunden', description: 'Setzt den Berechnungsinterval' }
-		},
-		SETPHASE: {
-			en: {
-				argumentList: 'Condition,Text,TargetCell',
-				description: 'If Condition is true, the Text will be written into target cell'
-			},
-			de: {
-				argumentList: 'Bedingung,PhasenID,ZielZelle',
-				description: 'Wenn die Bedingung TRUE ist, wird der Text in die Zielzelle geschrieben'
-			}
-		},
-		SETVALUE: {
-			en: {
-				argumentList: 'Condition,Value,TargetCell,OverwriteFormula',
-				description: 'If Condition is TRUE, the Value will be written into target cell'
-			},
-			de: {
-				argumentList: 'Bedingung,Wert,Zielzelle,ErsetzeZellFormel',
-				description: 'Wenn die Bedingung TRUE ist, wird der Wert in die Zielzelle geschrieben'
-			}
-		},
-		SLEEP: {
-			en: { argumentList: 'Seconds', description: 'Pause sheet processing' },
-			de: { argumentList: 'Sekunden', description: 'Pausiert die Sheet-Verarbeitung' }
-		},
-		SUBTREE: {
-			en: {
-				argumentList: 'TopElement,IncludeElementKey',
-				description: 'Extracts a sub tree from the current message'
-			},
-			de: {
-				argumentList: 'ÜbergeordnetesElement,InklusiveElementKey',
-				description: 'Extrahiert einen Teilbaum aus der aktuellen Nachricht'
-			}
-		},
-		SWAPVALUES: {
-			en: { argumentList: 'Range1,Range2', description: 'Swaps the values in range1 with the values in range2' },
-			de: {
-				argumentList: 'Bereich1,Bereich2',
-				description: 'Tauscht die Werte aus Bereich1 mit denen im Bereich2'
-			}
-		},
-		'TABLE.GET': {
-			en: {
-				argumentList: 'CellRange,RowIndex,ColumnIndex',
-				description: 'Gets the value from the table cell at specified index'
-			},
-			de: {
-				argumentList: 'Zellbereich,ZeilenIndex,SpaltenIndex',
-				description: 'Liefert den Wert der Tabellenzelle zum angegebenen Index'
-			}
-		},
-		'TABLE.ORDERCOLUMN': {
-			en: {
-				argumentList: 'ColumnRange,ReferenceRange',
-				description:
-					'Orders the columns in column range according to the corresponding columns in reference range'
-			},
-			de: {
-				argumentList: 'Spaltenbereich,Referenzbereich',
-				description:
-					'Ordnet die Spalten im Spaltenbereich gemäß den korrespondierenden Spalten im Referenzbereich'
-			}
-		},
-		'TABLE.UPDATE': {
-			en: {
-				argumentList: 'CellRange,Value,RowIndex,ColumnIndex,PushRow,PushColumn,AggregationMethod',
-				description: 'Creates and updates a defined cell range in a table like manner'
-			},
-			de: {
-				argumentList:
-					'Zellbereich,Wert,ZeilenIndex,SpaltenIndex,ZeileAnhängen,SpalteAnhängen,AggregationsMethode',
-				description: 'Erzeugt und aktualisiert einen Zellbereich in einer Tabellen-ähnlichen Weise'
-			}
-		},
-		TRIGGERSTEP: {
-			en: {
-				argumentList: '',
-				description: 'Triggers a streamsheet step'
-			},
-			de: {
-				argumentList: '',
-				description: 'Löst einen Streamsheet-Schritt aus'
-			}
-		},
-		WRITE: {
-			en: {
-				argumentList: 'Key,Value,Type,TTL',
-				description: 'Adds the key and value to a mesasge in the outbox'
-			},
-			de: {
-				argumentList: 'Schlüssel,Value,Typ,TTL',
-				description: 'Fügt den Schlüssel und den Wert zu einer Nachricht in der Outbox zu'
-			}
-		}
-	}
 };

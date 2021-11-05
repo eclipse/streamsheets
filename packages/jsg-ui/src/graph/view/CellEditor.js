@@ -270,6 +270,15 @@ export default class CellEditor {
 		return functionInfo ? Object.entries(functionInfo.getStrings()) : undefined;
 	}
 
+	getFunctionDescription(info) {
+		if (!info[1].default) {
+			return '';
+		}
+		return info[1][JSG.locale] && info[1][JSG.locale].inlineDescription ?
+			info[1][JSG.locale].inlineDescription :
+			info[1].default.inlineDescription;
+	}
+
 	generateFunctionListHTML(candidates) {
 		return candidates
 			.map((info, index) => {
@@ -277,7 +286,7 @@ export default class CellEditor {
 				if (index === this.funcIndex) {
 					html = `<div id="func${index}" style="padding: 3px;background-color: #DDDDDD">`;
 					html += `<p style="">${info[0]}</p>`;
-					html += `<p style="">${info[1][JSG.locale].description}</p>`;
+					html += `<p style="">${this.getFunctionDescription(info)}</p>`;
 				} else {
 					html = `<div id="func${index}" style="padding: 3px;background-color: white">`;
 					html += `<p style="">${info[0]}</p>`;
@@ -296,21 +305,38 @@ export default class CellEditor {
 				html = '<div style="padding: 3px;background-color: #DDDDDD">';
 				const width = this.propertyPage ? '235px' : '305px';
 
+				const params = info[1][JSG.locale] && info[1][JSG.locale].arguments ?
+					info[1][JSG.locale].arguments :
+					info[1].default.arguments;
+
 				if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
-					parameters = `<p style="width:${width}">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
+					if (params) {
+						let paramList = '';
+						params.forEach((param, paramIndex) => {
+							paramList += param.name;
+							if (paramIndex < params.length - 1) {
+								paramList += ',';
+							}
+						});
+						parameters = `<p style="width:${width}">${info[0]}(${paramList})</p>`;
+					}
 				} else {
-					const params = info[1][JSG.locale].argumentList.split(',');
+					// const params = info[1][JSG.locale].argumentList.split(',');
 					parameters = `<p style="width:${width}">${info[0]}(`;
-					params.forEach((param, paramIndex) => {
-						if (paramIndex === this.funcInfo.paramIndex) {
-							parameters  += `<span style="font-weight: bold">${param}</span>`;
-						} else {
-							parameters  += `${param}`;
-						}
-						if (paramIndex !== params.length - 1) {
-							parameters  += ', ';
-						}
-					});
+					if (params) {
+						params.forEach((param, paramIndex) => {
+							if (param.name) {
+								if (paramIndex === this.funcInfo.paramIndex) {
+									parameters += `<span style="font-weight: bold">${param.name}</span>`;
+								} else {
+									parameters += `${param.name}`;
+								}
+								if (paramIndex !== params.length - 1) {
+									parameters += ', ';
+								}
+							}
+						});
+					}
 					parameters  += `)</p>`;
 				}
 				parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
@@ -324,7 +350,7 @@ export default class CellEditor {
 					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
 						'Summary'
 					)}</p>`;
-					html += `<p>${info[1][JSG.locale].description}</p>`;
+					html += `<p>${this.getFunctionDescription(info)}</p>`;
 					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
 					html += `<a href="https://docs.cedalo.com/streamsheets/${versionLink}/functions/${info[1].category}/${info[0]
 						.toLowerCase()

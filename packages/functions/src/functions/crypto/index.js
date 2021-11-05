@@ -9,10 +9,8 @@
  *
  ********************************************************************************/
 const crypto = require('./crypto');
-const help = require('./help');
 
 module.exports = {
-	help,
 	functions: {
 		...crypto
 	}

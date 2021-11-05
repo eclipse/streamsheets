@@ -9,11 +9,12 @@
  *
  ********************************************************************************/
 module.exports = {
-	functionList: {
+	functions: {
 		CHAR: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Returns the character represented by given number.',
+				inlineDescription: 'Returns the character represented by given number.',
 				arguments: [
 					{
 						type: '',
@@ -52,13 +53,14 @@ module.exports = {
 		},
 		CLEAN: {
 			default: {
-				category: 'text',
-				description: 'Removes all nonprintable characters from given string. Note: by default CLEAN removes only the characters corresponding to ASCII code 0 to 31. To remove characters with ASCII code 127, 129, 141, 143, 144 and 157 set the optional extended flag to true.',
+				category: 'Text',
+				description: 'Removes all not printable characters from given string. Note: by default CLEAN removes only the characters corresponding to ASCII code 0 to 31. To remove characters with ASCII code 127, 129, 141, 143, 144 and 157 set the optional extended flag to true.',
+				inlineDescription: 'Removes all not printable characters from given string.',
 				arguments: [
 					{
 						type: '',
 						name: 'Text',
-						description: 'A string for which to remove the nonprintable characters.',
+						description: 'A string for which to remove the not printable characters.',
 						optional: false
 					},
 					{
@@ -70,7 +72,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'The text without nonprintable characters.'
+					description: 'The text without not printable characters.'
 				},
 				examples: {
 					formulas: [
@@ -84,8 +86,9 @@ module.exports = {
 		},
 		CODE: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Returns the numeric code for first character of given string.',
+				inlineDescription: 'Returns the numeric code for first character of given string.',
 				arguments: [
 					{
 						type: '',
@@ -124,8 +127,9 @@ module.exports = {
 		},
 		CONCAT: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Turns values of specified cells or cell-ranges into a string.',
+				inlineDescription: 'Turns values of specified cells or cell-ranges into a string.',
 				arguments: [
 					{
 						type: '',
@@ -156,8 +160,9 @@ module.exports = {
 		},
 		FIND: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Finds text within a string value (case-sensitive).',
+				inlineDescription: 'Finds text within a string value (case-sensitive).',
 				arguments: [
 					{
 						type: '',
@@ -194,8 +199,9 @@ module.exports = {
 		},
 		LEFT: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Excerpts a given number of characters from the left side of a string.',
+				inlineDescription: 'Excerpts a given number of characters from the left side of a string.',
 				arguments: [
 					{
 						type: '',
@@ -230,8 +236,9 @@ module.exports = {
 		},
 		LEN: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Counts characters in given text.',
+				inlineDescription: 'Counts characters in given text.',
 				arguments: [
 					{
 						type: '',
@@ -256,8 +263,9 @@ module.exports = {
 		},
 		LOWER: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Converts the letters of a given string to lowercase. To convert text to uppercase please refer to UPPER.',
+				inlineDescription: 'Converts the letters of a given string to lowercase. To convert text to uppercase please refer to UPPER.',
 				arguments: [
 					{
 						type: '',
@@ -288,8 +296,9 @@ module.exports = {
 		},
 		MID: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Return the given amount of characters starting at the given index from a string.',
+				inlineDescription: 'Return the given amount of characters starting at the given index from a string.',
 				arguments: [
 					{
 						type: '',
@@ -326,8 +335,9 @@ module.exports = {
 		},
 		RANDID: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Creates a random key with the given amount of chars.',
+				inlineDescription: 'Creates a random key with the given amount of chars.',
 				arguments: [
 					{
 						type: '',
@@ -353,8 +363,9 @@ module.exports = {
 		},
 		REPLACE: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Replaces part of a string value, based on the number of specified characters, with a different text.',
+				inlineDescription: 'Replaces part of a string value, based on the number of specified characters, with a different text.',
 				arguments: [
 					{
 						type: '',
@@ -397,8 +408,9 @@ module.exports = {
 		},
 		REPT: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Repeats given text a specified number of times',
+				inlineDescription: 'Repeats given text a specified number of times',
 				arguments: [
 					{
 						type: '',
@@ -415,7 +427,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'Repeated text string.'
+					description: 'Repeated Text string.'
 				},
 				examples: {
 					formulas: [
@@ -429,8 +441,9 @@ module.exports = {
 		},
 		RIGHT: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Excerpts a given number of characters from the right side of a string.',
+				inlineDescription: 'Excerpts a given number of characters from the right side of a string.',
 				arguments: [
 					{
 						type: '',
@@ -465,8 +478,9 @@ module.exports = {
 		},
 		SEARCH: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Return the index of the search text within the text. The search starts at index.',
+				inlineDescription: 'Return the index of the search text within the text. The search starts at index.',
 				arguments: [
 					{
 						type: '',
@@ -507,8 +521,9 @@ module.exports = {
 		},
 		SPLIT: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Splits a given text by using a specified separator and returns the part at given optional index. If the text does not contain the specified separator, the complete text is returned.The index parameter is optional. If not specified, the first part is returned. The Separator splits a text in parts. 1 returns the first part, 2 the second part, 3 the third and so on.',
+				inlineDescription: 'Splits a given text by using a specified separator and returns the part at given optional index.',
 				arguments: [
 					{
 						type: '',
@@ -538,7 +553,7 @@ module.exports = {
 						{
 							formula: '=SPLIT("cedalo/topic", "/", 2)',
 							result: 'topic',
-							comment: 'Returns the second part of splitted text.'
+							comment: 'Returns the second part of split text.'
 						},
 						{
 							formula: '=SPLIT("cedalo/topic", "/")',
@@ -553,7 +568,7 @@ module.exports = {
 						{
 							formula: '=SPLIT("cedalo/test/topic", "+", 2)',
 							result: 'cedalo/test/topic',
-							comment: 'Separator is not contained within text, so return complete text.'
+							comment: 'Separator is not contained within text, so return complete Text.'
 						}
 					]
 				}
@@ -561,8 +576,9 @@ module.exports = {
 		},
 		SUBSTITUTE: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Substitutes a text string with a new text.',
+				inlineDescription: 'Substitutes a text string with a new text.',
 				arguments: [
 					{
 						type: '',
@@ -603,10 +619,11 @@ module.exports = {
 				}
 			}
 		},
-		TEXT: {
+		Text: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Formats a number and converts it to text.',
+				inlineDescription: 'Formats a number and converts it to text.',
 				arguments: [
 					{
 						type: '',
@@ -643,8 +660,8 @@ module.exports = {
 		},
 		UNICHAR: {
 			default: {
-				category: 'text',
-				description: 'Returns the character represented by given unicode number. :::info Unicodes UTF-8 & UTF-16 are supported, so the provided number must be within 0 - 65535. :::',
+				category: 'Text',
+				inlineDescription: 'Returns the character represented by given unicode number.',
 				arguments: [
 					{
 						type: '',
@@ -677,8 +694,9 @@ module.exports = {
 		},
 		UNICODE: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Returns the unicode number for first character of given string.',
+				inlineDescription: 'Returns the unicode number for first character of given string.',
 				arguments: [
 					{
 						type: '',
@@ -707,8 +725,9 @@ module.exports = {
 		},
 		UPPER: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Converts the letters of a given string to uppercase. To convert text to lowercase please refer to LOWER.',
+				inlineDescription: 'Converts the letters of a given string to uppercase. To convert text to lowercase please refer to LOWER.',
 				arguments: [
 					{
 						type: '',
@@ -739,8 +758,9 @@ module.exports = {
 		},
 		VALUE: {
 			default: {
-				category: 'text',
+				category: 'Text',
 				description: 'Converts a textual number representation to a number.',
+				inlineDescription: 'Converts a textual number representation to a number.',
 				arguments: [
 					{
 						type: '',
@@ -778,187 +798,4 @@ module.exports = {
 			}
 		}
 	},
-	en: 'Text',
-	de: 'Text',
-	functions: {
-		CHAR: {
-			en: {
-				argumentList: 'Number,CharacterSet',
-				description: 'Returns the character represented by given number'
-			},
-			de: {
-				argumentList: 'Zahl,CharacterSet',
-				description: 'Liefert das Zeichen, das der angegebenen Zahl entspricht, zurück'
-			}
-		},
-		CLEAN: {
-			en: { argumentList: 'Text,Extended', description: 'Removes all non-printable characters from given text' },
-			de: {
-				argumentList: 'Text,Extended',
-				description: 'Entfernt alle nicht darstellbaren Zeichen des übergebenen Textes'
-			}
-		},
-		CODE: {
-			en: {
-				argumentList: 'Text,CharacterSet',
-				description: 'Returns the numeric code for the first character of given text'
-			},
-			de: {
-				argumentList: 'Text,CharacterSet',
-				description: 'Gibt die Zahl, die dem 1. Zeichen des übergebenen Textes entspricht, zurück'
-			}
-		},
-		CONCAT: {
-			en: {
-				argumentList: 'Value1,ValueN',
-				description: 'Combines values of specified cells or cell ranges to one string'
-			},
-			de: {
-				argumentList: 'Wert1,WertN',
-				description: 'Fügt alle Werte der angegebenen Zellen oder Zellbereiche zu einem Text zusammen'
-			}
-		},
-		FIND: {
-			en: {
-				argumentList: 'Text,WithinText,FromPos',
-				description: 'Returns index of first character of Text in WithinText if found, otherwise #VALUE!'
-			},
-			de: {
-				argumentList: 'Text,InText,StartAnPos',
-				description: 'Liefert den Index des ersten Zeichens von Text in InText zurück oder #VALUE!'
-			}
-		},
-		LEFT: {
-			en: {
-				argumentList: 'Text,NumChars',
-				description: 'Return the given amount of characters starting at the beginning of the text'
-			},
-			de: {
-				argumentList: 'Text,Anzahl',
-				description: 'Gibt die gegebenen Anzahl von Zeichen vom Anfang des Textes zurück'
-			}
-		},
-		LEN: {
-			en: { argumentList: 'Text', description: 'Counts characters in given text' },
-			de: { argumentList: 'Text', description: 'Zählt die Anzahl der Zeichen im Text' }
-		},
-		LOWER: {
-			en: { argumentList: 'Text', description: 'Converts given text to lowercase' },
-			de: { argumentList: 'Text', description: 'Wandelt den übergebenen Text in Kleinbuchstaben um' }
-		},
-		MID: {
-			en: {
-				argumentList: 'Text,Index,Count',
-				description: 'Return the given amount of characters starting at the given index'
-			},
-			de: {
-				argumentList: 'Text,Index,Anzahl',
-				description: 'Gibt die gegebenene Anzahl von Zeichen ab dem angebenenen Index innerhalb Textes zurück'
-			}
-		},
-		RANDID: {
-			en: { argumentList: 'Length', description: 'Creates a random key with the given amount of chars' },
-			de: {
-				argumentList: 'Länge',
-				description: 'Erzeugt einen Schlüsselstring mit der angegebenen Anzahl Zeichen'
-			}
-		},
-		REPLACE: {
-			en: {
-				argumentList: 'OldText,StartPos,NumChars,NewText',
-				description: 'Replaces the amount of characters in text at specified start position with new text'
-			},
-			de: {
-				argumentList: 'BisherigerText,StartPos,Anzahl,MitText',
-				description:
-					'Ersetzt die angegebene Anzahl an Zeichen im Text an angegebener Position durch einen neuen Text'
-			}
-		},
-		REPT: {
-			en: { argumentList: 'Text,NumTimes', description: 'Repeats given text specified number of times' },
-			de: { argumentList: 'Text,Anzahl', description: 'Wiederholt den Text so oft wie durch Anzahl festgelegt' }
-		},
-		RIGHT: {
-			en: {
-				argumentList: 'Text,NumberOfCharacters',
-				description: 'Return the given amount of characters from the end of the text'
-			},
-			de: {
-				argumentList: 'Text,AnzahlZeichen',
-				description: 'Gibt die gegebenen Anzahl von Zeichen vom Ende des Textes zurück'
-			}
-		},
-		SEARCH: {
-			en: {
-				argumentList: 'TextToSearch,Text,StartingAt',
-				description: 'Return the index of the search text within the text. The search starts at index'
-			},
-			de: {
-				argumentList: 'Suchtext,Text,BeginneMitZeichen',
-				description: 'Gibt den Index des ersten Auftretens des Suchtextes im Text aus, beginnend beim Index'
-			}
-		},
-		SPLIT: {
-			en: {
-				argumentList: 'Text,Separator,Index',
-				description: 'Splits given text by using specified separator and returns the part at given index'
-			},
-			de: {
-				argumentList: 'Text,Separator,Index',
-				description:
-					'Unterteilt den Text anhand des Separators und liefert das durch Index spezifizierte Teilstück zurück'
-			}
-		},
-		SUBSTITUTE: {
-			en: {
-				argumentList: 'Text,OldText,NewText,Occurrence',
-				description: 'Substitute specified text in given old text with new text'
-			},
-			de: {
-				argumentList: 'Text,OriginalerText,NeuerText,Vorkommen',
-				description: 'Ersetzt angegebenen Text im originalen Text durch einen neuen Text'
-			}
-		},
-		TEXT: {
-			en: {
-				argumentList: 'Number,FormatString,Locale',
-				description: 'Formats given number and converts it to text'
-			},
-			de: {
-				argumentList: 'Zahl,FormatString,Sprache',
-				description: 'Formatiert und wandelt die angegebene Zahl in einen Text um'
-			}
-		},
-		UNICHAR: {
-			en: { argumentList: 'Number', description: 'Returns the character represented by given unicode number' },
-			de: {
-				argumentList: 'Zahl',
-				description: 'Liefert das Zeichen, das der angegebenen unicode-Zahl entspricht, zurück'
-			}
-		},
-		UNICODE: {
-			en: {
-				argumentList: 'Text',
-				description: 'Returns the numeric unicode for the first character of given text'
-			},
-			de: {
-				argumentList: 'Text',
-				description: 'Gibt die unicode-Zahl, die dem 1. Zeichen des übergebenen Textes entspricht, zurück'
-			}
-		},
-		UPPER: {
-			en: { argumentList: 'Text', description: 'Converts given text to uppercase' },
-			de: { argumentList: 'Text', description: 'Wandelt den übergebenen Text in Großbuchstaben um' }
-		},
-		VALUE: {
-			en: {
-				argumentList: 'Text,Locale',
-				description: 'Converts given text to number using optional locale code'
-			},
-			de: {
-				argumentList: 'Text,Locale',
-				description: 'Konvertiert den Text in eine Zahl unter Berücksichtigung des optionalen Länder-Codes'
-			}
-		}
-	}
 };
