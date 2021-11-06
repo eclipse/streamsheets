@@ -270,13 +270,15 @@ export default class CellEditor {
 		return functionInfo ? Object.entries(functionInfo.getStrings()) : undefined;
 	}
 
-	getFunctionDescription(info) {
+	getDescriptor(info, name) {
 		if (!info[1].default) {
 			return '';
 		}
-		return info[1][JSG.locale] && info[1][JSG.locale].inlineDescription ?
-			info[1][JSG.locale].inlineDescription :
-			info[1].default.inlineDescription;
+		const desc =  info[1][JSG.locale] && info[1][JSG.locale][name] ?
+			info[1][JSG.locale][name] :
+			info[1].default[name];
+
+		return desc || '';
 	}
 
 	generateFunctionListHTML(candidates) {
@@ -286,7 +288,7 @@ export default class CellEditor {
 				if (index === this.funcIndex) {
 					html = `<div id="func${index}" style="padding: 3px;background-color: #DDDDDD">`;
 					html += `<p style="">${info[0]}</p>`;
-					html += `<p style="">${this.getFunctionDescription(info)}</p>`;
+					html += `<p style="">${this.getDescriptor(info, 'inlineDescription')}</p>`;
 				} else {
 					html = `<div id="func${index}" style="padding: 3px;background-color: white">`;
 					html += `<p style="">${info[0]}</p>`;
@@ -302,60 +304,83 @@ export default class CellEditor {
 			.map((info) => {
 				let html;
 				let parameters;
+				let paramHighlight;
+				let params;
 				html = '<div style="padding: 3px;background-color: #DDDDDD">';
 				const width = this.propertyPage ? '235px' : '305px';
 
-				const params = info[1][JSG.locale] && info[1][JSG.locale].arguments ?
-					info[1][JSG.locale].arguments :
-					info[1].default.arguments;
+				if (info.length && info[1].default) {
+					params = info[1][JSG.locale] && info[1][JSG.locale].arguments ?
+						info[1][JSG.locale].arguments :
+						info[1].default.arguments;
 
-				if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
-					if (params) {
-						let paramList = '';
-						params.forEach((param, paramIndex) => {
-							paramList += param.name;
-							if (paramIndex < params.length - 1) {
-								paramList += ',';
-							}
-						});
-						parameters = `<p style="width:${width}">${info[0]}(${paramList})</p>`;
+					if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
+						if (params) {
+							let paramList = '';
+							params.forEach((param, paramIndex) => {
+								paramList += param.name;
+								if (paramIndex < params.length - 1) {
+									paramList += ',';
+								}
+							});
+							parameters = `<p style="width:${width}">${info[0]}(${paramList})</p>`;
+						}
+					} else {
+						// const params = info[1][JSG.locale].argumentList.split(',');
+						parameters = `<p style="width:${width}">${info[0]}(`;
+						if (params) {
+							params.forEach((param, paramIndex) => {
+								if (param.name) {
+									if (paramIndex === this.funcInfo.paramIndex) {
+										paramHighlight = param;
+										parameters += `<span style="font-weight: bold">${param.name}</span>`;
+									} else {
+										parameters += `${param.name}`;
+									}
+									if (paramIndex !== params.length - 1) {
+										parameters += ', ';
+									}
+								}
+							});
+						}
+						parameters += `)</p>`;
 					}
+					parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
+					html += parameters;
 				} else {
-					// const params = info[1][JSG.locale].argumentList.split(',');
-					parameters = `<p style="width:${width}">${info[0]}(`;
-					if (params) {
-						params.forEach((param, paramIndex) => {
-							if (param.name) {
-								if (paramIndex === this.funcInfo.paramIndex) {
-									parameters += `<span style="font-weight: bold">${param.name}</span>`;
-								} else {
-									parameters += `${param.name}`;
-								}
-								if (paramIndex !== params.length - 1) {
-									parameters += ', ';
-								}
-							}
-						});
-					}
-					parameters  += `)</p>`;
+					html += `<p style="margin: 10px 0px 4px 0px;">Inline Help not available yet</p>`;
 				}
-				parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
-				html += parameters;
 				html += `<div id="expandFunc" style="width:15px;height:15px;position: absolute; top: 6px; right: 15px; transform: scale(2.0,1.0); font-size: 7pt; color: #777777;cursor: pointer">${showParamInfo ? '&#x2C4' : '&#x2C5'}</div>`;
 				if (!this.propertyPage) {
 					html +=
 						`<div id='closeFunc' style='width:13px;height:15px;position: absolute; top: 3px; right: 2px; transform: scale(1.3,1.0); font-size: 11pt; color: #777777;cursor: pointer'>x</div>`;
 				}
-				if (showParamInfo) {
-					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
-						'Summary'
-					)}</p>`;
-					html += `<p>${this.getFunctionDescription(info)}</p>`;
-					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
-					html += `<a href="https://docs.cedalo.com/streamsheets/${versionLink}/functions/${info[1].category}/${info[0]
-						.toLowerCase()
-						.replace(/\./g, '')}" target="_blank">`;
-					html += `${JSG.getLocalizedString('More Info')}</a></p>`;
+				if (showParamInfo && params) {
+					let category = this.getDescriptor(info, 'category');
+					if (category && category.length) {
+						category = category.split(',')[0];
+						if (paramHighlight) {
+							html += `<p style="margin: 10px 0px 4px 0px;font-weight: bold;">${paramHighlight.name}</p>`;
+							html += `<p style="margin: 10px 0px 4px 0px;">${paramHighlight.description}</p>`;
+						} else {
+							html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
+								'Summary'
+							)}</p>`;
+							html += `<p>${this.getDescriptor(info, 'inlineDescription')}</p>`;
+							if (params) {
+								params.forEach((param, paramIndex) => {
+									html += `<p style="margin: 10px 0px 4px 0px;font-weight: bold;">${param.name}</p>`;
+									html += `<p style="margin: 10px 0px 4px 0px;">${param.description}</p>`;
+								});
+							}
+
+							html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
+							html += `<a href="https://docs.cedalo.com/streamsheets/${versionLink}/functions/${category}/${info[0]
+								.toLowerCase()
+								.replace(/\./g, '')}" target="_blank">`;
+							html += `${JSG.getLocalizedString('More Info')}</a></p>`;
+						}
+					}
 				}
 				html += '</div>';
 				return html;

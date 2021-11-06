@@ -30,7 +30,7 @@ module.exports = {
 					name: 'AggregationMethod',
 					description: 'One of the predefined numbers which specifies the aggregation method to use. Defaults to 9. ' +
 						'<p/><table><tbody>' +
-						'<tr><td>Number</td><td>Method</td><td>Description</td></tr>' +
+						'<tr><td style="width:50px;">Number</td><td style="width:60px;">Method</td><td>Description</td></tr>' +
 						'<tr><td>0</td><td>NONE</td><td>No aggregation is performed and the last valid value of specified DataCell is returned.</td></tr>' +
 						'<tr><td>1</td><td>AVERAGE</td><td>Calculates the average of all received values.</td></tr>' +
 						'<tr><td>2</td><td>COUNT</td><td>Counts the number of received values.</td></tr>' +
@@ -100,12 +100,12 @@ module.exports = {
 					name: 'Query',
 					description: 'A JSON object which specifies the query to perform. See below for more information. A query consists of the following fields:' +
 						'<p/><table><tbody>' +
-						'<tr><td>Name</td><td>Description</td></tr>' +
+						'<tr><td style="width:50px;">Name</td><td>Description</td></tr>' +
 						'<tr><td>select</td><td>Defines the values to query. Multiple values are separated by comma. The wildcard * will select all values.</td></tr>' +
 						'<tr><td>aggregate</td><td>Optional. Defines the aggregation method to use for each value separted by comma. Must match the number of values in select clause. ' +
 						'See below for a complete list of defined aggregation methods. Defaults to none.' +
 						'<p/><table><tbody>' +
-						'<tr><td>Number</td><td>Method</td><td>Description</td></tr>' +
+						'<tr><td style="width:50px;">Number</td><td style="width:60px;">Method</td><td>Description</td></tr>' +
 						'<tr><td>0</td><td>none</td><td>No aggregation is performed and the last valid value of specified DataCell is returned.</td></tr>' +
 						'<tr><td>1</td><td>average</td><td>Calculates the average of all received values.</td></tr>' +
 						'<tr><td>2</td><td>count</td><td>Counts the number of received values.</td></tr>' +
