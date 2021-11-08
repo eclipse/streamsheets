@@ -41,8 +41,7 @@ class MachineTaskRunner {
 	static with(options = {}) {
 		const task = fork(MachineTaskFile, forkArgs(options.machineArgs), forkOptions(options.execArgs));
 		try {
-			const runner = new MachineTaskRunner(task, options);
-			return runner;
+			return new MachineTaskRunner(task, options);
 		} catch (err) {
 			task.kill(9);
 			logger.error('Failed to create new MachineTaskRunner!', err);
@@ -131,7 +130,7 @@ class MachineTaskRunner {
 	}
 
 	async loadFunctions(functionDefinitions) {
-		this.requestHandler.request({
+		return this.requestHandler.request({
 			request: 'loadFunctions',
 			functionDefinitions
 		});
@@ -153,7 +152,7 @@ const createRunner = (options) => {
 };
 const loadFunctions = async (runner) => {
 	try {
-		const modules = await FunctionModulesResolver.getModules();
+		const modules = FunctionModulesResolver.getModules();
 		await runner.request('registerFunctionModules', undefined, { modules });
 		await runner.request('registerStreams', undefined, { descriptors: StreamManager.getDescriptors() });
 		return runner;
