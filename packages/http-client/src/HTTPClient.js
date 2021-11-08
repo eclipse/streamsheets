@@ -74,10 +74,8 @@ class HTTPClient {
 			} catch (error) {
 				console.error(error);
 			}
-		} else {
-			// axios serialize json data
-			return axios.post(url, body, config)
 		}
+		return axios.post(url, body, config)
 	}
 
 	async put(url, body, headers, config = {}) {
