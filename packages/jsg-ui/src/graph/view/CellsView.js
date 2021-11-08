@@ -1634,6 +1634,15 @@ export default class CellsView extends NodeView {
 		graphics.setLineWidth(FormatAttributes.LineStyle.HAIRLINE);
 	}
 
+	getArrowTarget(sourceRect, targetRect, radius) {
+
+		const angle = Math.atan2(sourceRect.y - targetRect.y, sourceRect.x - targetRect.x);
+		return {
+			x: targetRect.x + Math.cos(angle) * radius,
+			y: targetRect.y + Math.sin(angle) * radius,
+		}
+	}
+
 	drawPredecessors(graphics) {
 		if (!this._wsItem.predecessors) {
 			return;
@@ -1681,10 +1690,13 @@ export default class CellsView extends NodeView {
 					rect.y += 200;
 					graphics.circle(rect.x, rect.y, 75);
 					graphics.moveTo(rect.x, rect.y);
-					graphics.lineTo(rectActive.x, rectActive.y);
+
+					const target = this.getArrowTarget(rect, rectActive, 75);
+					graphics.lineTo(target.x, target.y);
+
 					graphics.stroke();
 					graphics.fill();
-					graphics.drawArrow({ x: rect.x, y: rect.y }, { x: rectActive.x, y: rectActive.y },
+					graphics.drawArrow({ x: rect.x, y: rect.y }, { x: target.x, y: target.y },
 						FormatAttributes.ArrowStyle.SIZEABLE_FILLEDARROW, 150, 150);
 				}
 			})
@@ -1741,11 +1753,15 @@ export default class CellsView extends NodeView {
 					rect.x += 200;
 					rect.y += 200;
 					graphics.circle(rectActive.x, rectActive.y, 75);
-					graphics.moveTo(rect.x, rect.y);
-					graphics.lineTo(rectActive.x, rectActive.y);
+
+					graphics.moveTo(rectActive.x, rectActive.y);
+
+					const target = this.getArrowTarget(rectActive, rect, 75);
+					graphics.lineTo(target.x, target.y);
+
 					graphics.stroke();
 					graphics.fill();
-					graphics.drawArrow({ x: rectActive.x, y: rectActive.y }, { x: rect.x, y: rect.y },
+					graphics.drawArrow({ x: rectActive.x, y: rectActive.y }, { x: target.x, y: target.y },
 						FormatAttributes.ArrowStyle.SIZEABLE_FILLEDARROW, 150, 150);
 				}
 			})
