@@ -1081,7 +1081,7 @@ export default class CellEditor {
 
 	getTextAtCursor(offset) {
 		const pos = this.saveSelection();
-		if (pos) {
+		if (pos && this.div) {
 			return this.div.textContent.length + offset >= 0 ? this.div.textContent[pos.start + offset] : '';
 		}
 
