@@ -73,7 +73,7 @@ module.exports = class MachineService extends MessagingService {
 			scheduleHealthCheck(this._machineServer, (machineId, lastSuccessfulHealthCheck) => {
 				const message = buildHealthCheckFailureMessage(machineId, lastSuccessfulHealthCheck);
 				const topic = `${Topics.SERVICES_MACHINES_EVENTS}/${machineId}`;
-				this.client.publish(`${topic}/${message.type}`, new EventMessage(message));
+				this.publishMessage(`${topic}/${message.type}`, new EventMessage(message));
 			});
 		} catch (error) {
 			logger.error('error while starting machine-server', error);

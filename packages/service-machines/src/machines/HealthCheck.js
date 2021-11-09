@@ -11,7 +11,7 @@
 const logger = require('../utils/logger').create({ name: 'HealthCheck' });
 
 const HEALTH_CHECK_INTERVAL = 5000;
-const HEALTH_CHECK_INTERVAL = 1000;
+const HEALTH_CHECK_TIMEOUT = 1000;
 
 const scheduleHealthCheck = (machineServer, emitHealthCheckFailure) => {
 	const healthCheck = () => {
@@ -20,14 +20,14 @@ const scheduleHealthCheck = (machineServer, emitHealthCheckFailure) => {
 			const timeoutId = setTimeout(() => {
 				timedout = true;
 				emitHealthCheckFailure(runner.id, runner.lastSuccessfulHealthCheck);
-			}, HEALTH_CHECK_INTERVAL);
-			const result = await runner.heartbeat();
+			}, HEALTH_CHECK_TIMEOUT);
+			await runner.healthCheck();
 			if (timedout) {
-				logger.warn(`Machine ${runner.id} failed to reply to heartbeat message!`);
+				logger.warn(`Machine ${runner.id} failed to reply to healthcheck message!`);
 				return;
 			}
 			runner.lastSuccessfulHealthCheck = Date.now();
-			clearTimeout(tirtmeoutId);
+			clearTimeout(timeoutId);
 		});
 	};
 	setInterval(healthCheck, HEALTH_CHECK_INTERVAL);
