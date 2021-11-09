@@ -65,6 +65,12 @@ class TimerTrigger extends BaseTrigger {
 		this.activeCycle = new ManualMessageLoopCycle(this);
 	}
 
+	toJSON() {
+		const json = super.toJSON();
+		const { start, interval, intervalUnit,  } = this.config;
+		return Object.assign(json, { start, interval, intervalUnit });
+	}
+
 	get interval() {
 		return this.config.interval;
 	}
