@@ -350,10 +350,10 @@ function parseIdentifier(prefix) {
 		if (ch === KEY_CODES.QMARK
 			|| !isValidIdentifier(ch)
 			|| (op && !ctxt.isFunctionPrefix(`${identifier}${op}`, expr, token.start))) {
-			// || (op && !ctxt.isFunctionPrefix(`${identifier}${op}`), expr, token.start)) {
 			break;
 		}
 		identifier += String.fromCharCode(ch);
+		ch = ch2;
 	}
 	token.end = token.start + identifier.length;
 	token.value = identifier;
