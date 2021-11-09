@@ -77,8 +77,9 @@ const SpeedDialDisabledStyles = {
 		};
 	}
 };
-const getAddSheetActionStyle = (enabled) => {
-	if (enabled) return undefined;
+
+const getAddSheetActionStyle = (state) => {
+	if (state === 'yes') return undefined;
 	const style = SpeedDialDisabledStyles[localStorage.getItem('theme') || 'Default'];
 	return { style, disableRipple: true };
 };
@@ -128,6 +129,21 @@ export class CanvasComponent extends Component {
 		};
 	}
 
+	getAddSheetButtonActionStyle(state) {
+		if (state === 'yes') return undefined;
+		const theme = localStorage.getItem('theme') || 'Default';
+
+		return {
+			visibility: this.props.showTools ? 'visible' : 'hidden',
+			position: 'absolute',
+			zIndex: 1200,
+			right: '30px',
+			bottom: '26px',
+			boxShadow: 'none',
+			color: theme === 'Dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.26)',
+			backgroundColor: theme === 'Dark' ?  'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+		}
+	}
 
 	componentDidMount() {
 		const graphEditor = this.initGraphEditor();
@@ -414,6 +430,23 @@ export class CanvasComponent extends Component {
 		this.setState({ graph: sheet.getGraph() });
 	};
 
+	addSheetAllowed() {
+		const graph = graphManager.getGraph();
+		if (!graph) {
+			return false;
+		}
+
+		const license = Utils.areSheetsAvailable(this.props.licenseInfo);
+		const cnt = graph.getStreamSheetContainerCount();
+
+		if (!license) {
+			return 'lic';
+		} else if (cnt > 5) {
+			return 'max';
+		}
+		return 'yes';
+	}
+
 	onAddDashboardSheet() {
 		const graph = graphManager.getGraph();
 		const cnt = graph.getStreamSheetContainerCount() % 8;
@@ -427,27 +460,32 @@ export class CanvasComponent extends Component {
 		let cnt = graph.getStreamSheetContainerCount();
 		this.setState({speedOpen: false});
 
-		if (cnt > 9) {
-			JSG.NotificationCenter.getInstance().send(
-				new JSG.Notification(JSG.WorksheetView.SHEET_MESSAGE_NOTIFICATION, {
-					view: this,
-					message: { message: intl.formatMessage({ id: 'Alert.SheetMaximum' }, {}) },
-				}),
-			);
-
+		if (cnt > 5) {
+			// JSG.NotificationCenter.getInstance().send(
+			// 	new JSG.Notification(JSG.WorksheetView.SHEET_MESSAGE_NOTIFICATION, {
+			// 		view: this,
+			// 		message: { message: intl.formatMessage({ id: 'Alert.SheetMaximum' }, {}) },
+			// 	}),
+			// );
 			return;
 		}
 
-		graphManager
-			.getGraphViewer()
-			.getSelectionProvider()
-			.clearSelection();
+		graphManager.getGraphViewer().getSelectionProvider().clearSelection();
 
 		cnt %= 8;
 
 		graph.setViewMode(undefined, 0);
 
 		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, type);
+
+		setTimeout(() => {
+			this.props.setAppState({ viewMode: {
+					dummy: Math.random(),
+					...this.props.viewMode
+				}
+			});
+		}, 200);
+
 	};
 
 	initGraphEditor() {
@@ -466,6 +504,32 @@ export class CanvasComponent extends Component {
 		return null;
 	}
 
+	getAddTipTitle(addAllowed, sheet) {
+		switch (addAllowed) {
+		default:
+		case 'yes':
+			return sheet ?
+				<FormattedMessage
+					id="Tooltip.AddStreamSheet"
+					defaultMessage="Add StreamSheet"
+				/> :
+				<FormattedMessage
+					id="Tooltip.AddDashboard"
+					defaultMessage="Add Dashboard"
+				/>
+		case 'lic':
+			return <FormattedMessage
+				id="License.Info.Streamsheets.max.reached"
+				defaultMessage="Maximum number of Streamsheets reached!"
+			/>
+		case 'max':
+			return <FormattedMessage
+				id="Alert.SheetMaximum"
+				defaultMessage="Maximum number of 6 Sheet per Machine allowed!"
+			/>
+		}
+	}
+
 	updateDimensions() {
 		graphManager.updateDimensions();
 		graphManager.updateControls();
@@ -473,7 +537,7 @@ export class CanvasComponent extends Component {
 
 	render() {
 		const canEdit = this.props.canEditMachine;
-		const canAddStreamsheet = Utils.areSheetsAvailable(this.props.licenseInfo);
+		const canAddStreamsheet = this.addSheetAllowed();
 		const sheets = [];
 		const graph = graphManager.getGraph();
 		if (graph) {
@@ -673,22 +737,14 @@ export class CanvasComponent extends Component {
 						{graph.getDashboardContainer() ? (
 							<Tooltip
 								enterDelay={300}
-								title={
-									<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />
-								}
+								title={this.getAddTipTitle(canAddStreamsheet, true)}
 							>
 								<Fab
 									id="addSheet"
 									aria-label="add"
 									color="primary"
 									size="medium"
-									style={{
-										visibility: this.props.showTools ? 'visible' : 'hidden',
-										position: 'absolute',
-										zIndex: 1200,
-										right: '30px',
-										bottom: '26px'
-									}}
+									style={this.getAddSheetButtonActionStyle()}
 									onClick={() => this.onAdd('sheet')}
 								>
 									<AddIcon
@@ -721,20 +777,8 @@ export class CanvasComponent extends Component {
 								<SpeedDialAction
 									key="sheet"
 									icon={<SheetIcon />}
-									tooltipTitle={
-										canAddStreamsheet ? (
-											<FormattedMessage
-												id="Tooltip.AddStreamSheet"
-												defaultMessage="Add StreamSheet"
-											/>
-										) : (
-											<FormattedMessage
-												id="License.Info.Streamsheets.max.reached"
-												defaultMessage="Maximum number of Streamsheets reached!"
-											/>
-										)
-									}
-									onClick={canAddStreamsheet ? () => this.onAdd('sheet') : undefined}
+									tooltipTitle={this.getAddTipTitle(canAddStreamsheet, true)}
+									onClick={canAddStreamsheet === 'yes' ? () => this.onAdd('sheet') : undefined}
 									// disabled
 									// failed to get tooltip work if action is disabled
 									// => so fake it by setting similar styles:
@@ -743,10 +787,9 @@ export class CanvasComponent extends Component {
 								<SpeedDialAction
 									key="dash"
 									icon={<DashboardIcon />}
-									tooltipTitle={
-										<FormattedMessage id="Tooltip.AddDashboard" defaultMessage="Add Dashboard" />
-									}
-									onClick={() => this.onAdd('dashboard')}
+									tooltipTitle={this.getAddTipTitle(canAddStreamsheet, false)}
+									onClick={canAddStreamsheet === 'yes' ? () => this.onAdd('dashboard') : undefined}
+									FabProps={getAddSheetActionStyle(canAddStreamsheet)}
 								/>
 							</SpeedDial>
 						)}
