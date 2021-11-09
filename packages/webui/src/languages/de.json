@@ -526,7 +526,7 @@
 	"Schema.RemoveVer": "Version löschen",
 	"Schema.Remove": "Schema löschen",
 	"Alert.SheetDelete": "Löschen nicht möglich! Es muss mindestens ein Streamsheet vorhanden sein.",
-	"Alert.SheetMaximum": "Es können maximal 10 Streamsheets angelegt werden!",
+	"Alert.SheetMaximum": "Es können maximal 6 Streamsheets pro App angelegt werden!",
 	"Alert.SheetDoubleName": "Der Name wird bereits verwendet!",
 	"Alert.InvalidNumber": "Bitte eine gültige Zahl eingeben!",
 	"Settings.Debug": "Debug Modus",

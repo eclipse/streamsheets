@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -10,18 +10,12 @@
  ********************************************************************************/
 const fork = require('child_process').fork;
 const zlib = require('zlib');
-const {
-	Channel,
-	ChannelRequestHandler,
-	MachineTaskFile,
-	State
-} = require('@cedalo/machine-core');
+const { Channel, ChannelRequestHandler, MachineTaskFile, State } = require('@cedalo/machine-core');
 const StreamManager = require('../managers/StreamManager');
 const MachineTaskStreams = require('./MachineTaskStreams');
 const MachineTaskObserver = require('./MachineTaskObserver');
 const FunctionModulesResolver = require('../utils/FunctionModulesResolver');
 const logger = require('../utils/logger').create({ name: 'MachineTaskRunner' });
-
 
 // REVIEW: check if port is unused...
 let PORT = 9228;
@@ -44,12 +38,17 @@ const forkOptions = (options) => ({
 });
 
 class MachineTaskRunner {
-	constructor(options = {}) {
-		const task = fork(
-			MachineTaskFile,
-			forkArgs(options.machineArgs),
-			forkOptions(options.execArgs)
-		);
+	static with(options = {}) {
+		const task = fork(MachineTaskFile, forkArgs(options.machineArgs), forkOptions(options.execArgs));
+		try {
+			return new MachineTaskRunner(task, options);
+		} catch (err) {
+			task.kill(9);
+			logger.error('Failed to create new MachineTaskRunner!', err);
+		}
+		return undefined;
+	}
+	constructor(task, options) {
 		this._id = undefined;
 		this.name = undefined;
 		this.isOPCUA = false;
@@ -72,8 +71,12 @@ class MachineTaskRunner {
 		this.streams.dispose();
 		this.taskObserver.dispose();
 		this.requestHandler.dispose();
+		// deleted signals to remove outbox storage too
 		this.channel.send({ cmd: 'shutdown', deleted });
-		if (this.onDispose) this.onDispose();
+		if (this.onDispose) {
+			this.onDispose();
+			this.onDispose = undefined;
+		}
 	}
 
 	async request(type, usrId, props = {}) {
@@ -92,7 +95,7 @@ class MachineTaskRunner {
 		const zipped = await this.requestHandler.request({ request: 'definition' });
 		const zippedBuffer = Buffer.from(zipped.data);
 		return new Promise((resolve, reject) => {
-			zlib.unzip(zippedBuffer, (err, buf) => err ? reject(err) : resolve(JSON.parse(buf.toString('utf8'))));
+			zlib.unzip(zippedBuffer, (err, buf) => (err ? reject(err) : resolve(JSON.parse(buf.toString('utf8')))));
 		});
 	}
 
@@ -131,21 +134,43 @@ class MachineTaskRunner {
 	}
 
 	async loadFunctions(functionDefinitions) {
-		this.requestHandler.request({
+		return this.requestHandler.request({
 			request: 'loadFunctions',
 			functionDefinitions
 		});
 	}
+
+	async shutdown(deleted = false) {
+		await this.stop();
+		await this.dispose(deleted);
+	}
 }
 
+const createRunner = (options) => {
+	try {
+		return MachineTaskRunner.with(options);
+	} catch (err) {
+		logger.error('Failed to create new MachineTaskRunner!', err);
+	}
+	return undefined;
+};
+const loadFunctions = async (runner) => {
+	try {
+		const modules = FunctionModulesResolver.getModules();
+		await runner.request('registerFunctionModules', undefined, { modules });
+		await runner.request('registerStreams', undefined, { descriptors: StreamManager.getDescriptors() });
+		return runner;
+	} catch (err) {
+		logger.error('Failed to load functions for new machine! Shutdown machine...', err);
+		await runner.shutdown();
+	}
+	return undefined;
+};
 // returns creates a new machine runner for specified machine definition
 const create = async (runneropts) => {
 	logger.info('create new MachineTaskRunner...');
-	const runner = new MachineTaskRunner(runneropts);
-	const modules = await FunctionModulesResolver.getModules();
-	await runner.request('registerFunctionModules', undefined, { modules });
-	await runner.request('registerStreams', undefined, { descriptors: StreamManager.getDescriptors() });
-	return runner;
+	const runner = createRunner(runneropts);
+	return runner ? loadFunctions(runner) : runner;
 };
 
 module.exports = {
