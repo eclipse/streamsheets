@@ -13,11 +13,13 @@ const { MessagingService, RequestHandlers } = require('@cedalo/service-core');
 const { RepositoryManager, MongoDBMachineRepository } = require('@cedalo/repository');
 const { MachineServerMessagingProtocol, Topics, GatewayMessagingProtocol } = require('@cedalo/protocols');
 const { State } = require('@cedalo/machine-core');
+const { EventMessage } = require('@cedalo/messages');
 
 const MachineServer = require('./MachineServer');
 const FunctionModulesResolver = require('../utils/FunctionModulesResolver');
 const MachineRequestHandlers = require('../handlers/MachineRequestHandlers');
 const MachineServerRequestHandlers = require('../handlers/MachineServerRequestHandlers');
+const { scheduleHealthCheck, buildHealthCheckFailureMessage } = require('./HealthCheck');
 
 const config = require('../../config/config');
 
@@ -68,6 +70,11 @@ module.exports = class MachineService extends MessagingService {
 	async _init() {
 		try {
 			await this._machineServer.start(this);
+			scheduleHealthCheck(this._machineServer, (machineId, lastSuccessfulHealthCheck) => {
+				const message = buildHealthCheckFailureMessage(machineId, lastSuccessfulHealthCheck);
+				const topic = `${Topics.SERVICES_MACHINES_EVENTS}/${machineId}`;
+				this.publishMessage(`${topic}/${message.type}`, new EventMessage(message));
+			});
 		} catch (error) {
 			logger.error('error while starting machine-server', error);
 		}
@@ -302,10 +309,14 @@ module.exports = class MachineService extends MessagingService {
 					event.cells
 				);
 				break;
-			case MachineServerMessagingProtocol.EVENTS.SHEET_CELLRANGE_CHANGE_EVENT:
-				logger.info('PersistenceService: persist changed sheet cells...');
-				await RepositoryManager.machineRepository.updateCells(event.machineId, event.srcId, event.cells);
+			case MachineServerMessagingProtocol.EVENTS.SHEET_CELLRANGE_CHANGE_EVENT: {
+				const { machineId, srcId, cells } = event;
+				if (cells) {
+					logger.info('PersistenceService: persist changed sheet cells...');
+					await RepositoryManager.machineRepository.updateCells(machineId, srcId, cells);
+				}
 				break;
+			}
 			default:
 				break;
 		}
@@ -386,14 +397,14 @@ module.exports = class MachineService extends MessagingService {
 			case 'command.DeleteCellContentCommand':
 			case 'command.SetCellDataCommand':
 			case 'command.SetCellLevelsCommand':
-			case 'command.SetCellsCommand':
-				logger.debug('PersistenceService: update cells');
-				await RepositoryManager.machineRepository.updateCells(
-					response.machineId,
-					response.streamsheetId,
-					response.cells
-				);
+			case 'command.SetCellsCommand': {
+				const { machineId, streamsheetId, cells } = response;
+				if (cells) {
+					logger.debug('PersistenceService: update cells');
+					await RepositoryManager.machineRepository.updateCells(machineId, streamsheetId, cells);
+				}
 				break;
+			}
 			case 'command.SetGraphItemsCommand':
 				logger.debug('PersistenceService: update shapes');
 				await RepositoryManager.machineRepository.updateShapes(

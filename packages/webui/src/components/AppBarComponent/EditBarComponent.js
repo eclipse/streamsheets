@@ -245,10 +245,12 @@ export class EditBarComponent extends Component {
 	handleReferenceKeyDown = () => {};
 
 	handleFunctionMouseDown = () => {
-		this.props.setAppState({
-			formulaOpen: false,
-			showPasteFunctionsDialog: true,
-		});
+		if (!CellEditor.getActiveCellEditor()) {
+			this.props.setAppState({
+				formulaOpen: false,
+				showPasteFunctionsDialog: true,
+			});
+		}
 	};
 
 	handleFormulaFocus = () => {
@@ -261,9 +263,11 @@ export class EditBarComponent extends Component {
 			this._cellEditor = CellEditor.activateCellEditor(document.getElementById('editbarformula'),
 				graphManager.getGraphViewer(), view.getItem());
 		}
-		this._cellEditor.updateEditRangesView();
-		this._cellEditor.editBar = true;
-		this._cellEditor.focusOffset = window.getSelection().focusOffset;
+		if (this._cellEditor) {
+			this._cellEditor.updateEditRangesView();
+			this._cellEditor.editBar = true;
+			this._cellEditor.focusOffset = window.getSelection().focusOffset;
+		}
 	};
 
 	handleFormulaBlur = (ev) => {

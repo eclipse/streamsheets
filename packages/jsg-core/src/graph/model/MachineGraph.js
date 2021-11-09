@@ -159,6 +159,10 @@ module.exports = class MachineGraph extends Graph {
 
 	getStreamSheetContainerCount() {
 		const container = this.getStreamSheetsContainer();
+		if (!container) {
+			return 0;
+		}
+
 		let result = 0;
 
 		container.enumerateStreamSheetContainers((sheet) => {

@@ -1746,6 +1746,14 @@ module.exports = {
 				category: 'Streamsheet',
 				description: 'Pauses sheet processing for a specified amount of time.',
 				inlineDescription: 'Pauses sheet processing for a specified amount of time.',
+				arguments: [
+					{
+						type: 'Number',
+						name: 'Time',
+						description: 'Amount of seconds to sleep.',
+						optional: false
+					},
+				],
 				return: {
 					type: '',
 					description: 'TRUE'

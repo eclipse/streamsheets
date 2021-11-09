@@ -295,7 +295,7 @@ export class InboxSettings extends React.Component {
 								showFormulas: wsAttr.getShowFormulas().getValue(),
 								limitText: getLimitText(streamsheet),
 								loop: { enabled: !!loop.enabled, path: loop.path, recursively: !!loop.recursively },
-								trigger: { type: trigger.type || 'none', repeat: trigger.repeat || 'once' }
+								trigger: { type: 'none', repeat: 'once', ...trigger }
 							}
 						};
 						this.setState(settings);

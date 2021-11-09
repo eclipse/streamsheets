@@ -315,16 +315,16 @@ export default class CellEditor {
 						info[1].default.arguments;
 
 					if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
-						if (params) {
 							let paramList = '';
-							params.forEach((param, paramIndex) => {
-								paramList += param.name;
-								if (paramIndex < params.length - 1) {
-									paramList += ',';
-								}
-							});
+							if (params) {
+								params.forEach((param, paramIndex) => {
+									paramList += param.name;
+									if (paramIndex < params.length - 1) {
+										paramList += ',';
+									}
+								});
+							}
 							parameters = `<p style="width:${width}">${info[0]}(${paramList})</p>`;
-						}
 					} else {
 						// const params = info[1][JSG.locale].argumentList.split(',');
 						parameters = `<p style="width:${width}">${info[0]}(`;
@@ -345,7 +345,9 @@ export default class CellEditor {
 						}
 						parameters += `)</p>`;
 					}
-					parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
+					if (parameters) {
+						parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
+					}
 					html += parameters;
 				} else {
 					html += `<p style="margin: 10px 0px 4px 0px;">Inline Help not available yet</p>`;
@@ -355,7 +357,7 @@ export default class CellEditor {
 					html +=
 						`<div id='closeFunc' style='width:13px;height:15px;position: absolute; top: 3px; right: 2px; transform: scale(1.3,1.0); font-size: 11pt; color: #777777;cursor: pointer'>x</div>`;
 				}
-				if (showParamInfo && params) {
+				if (showParamInfo) {
 					let category = this.getDescriptor(info, 'category');
 					if (category && category.length) {
 						category = category.split(',')[0];
@@ -1079,7 +1081,7 @@ export default class CellEditor {
 
 	getTextAtCursor(offset) {
 		const pos = this.saveSelection();
-		if (pos) {
+		if (pos && this.div) {
 			return this.div.textContent.length + offset >= 0 ? this.div.textContent[pos.start + offset] : '';
 		}
 

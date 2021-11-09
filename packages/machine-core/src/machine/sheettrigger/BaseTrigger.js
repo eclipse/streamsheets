@@ -17,6 +17,7 @@ const configManualCycle = (manualCycle, activeCycle) => {
 };
 
 const DEF_CONF = {
+	type: 'none',
 	repeat: 'once'
 };
 
@@ -28,7 +29,8 @@ class BaseTrigger {
 	}
 
 	toJSON() {
-		return Object.assign({}, this.config);
+		const { type, repeat } = this.config;
+		return Object.assign({}, { type, repeat });
 	}
 
 	get type() {
