@@ -1052,6 +1052,15 @@ class UpdateStreamSheet extends ARequestHandler {
 	}
 }
 
+class HealthCheck extends ARequestHandler {
+	get isModifying() {
+		return false;
+	}
+	handle(msg) {
+		return Promise.resolve();
+	}
+}
+
 class RequestHandlerRegistry {
 	static of(monitor) {
 		const machine = monitor.machine;
@@ -1099,6 +1108,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('updateMachine', new UpdateMachine(machine, monitor));
 		registry.handlers.set('updateMachineMonitor', new UpdateMachineMonitor(machine, monitor));
 		registry.handlers.set('updateStreamSheet', new UpdateStreamSheet(machine, monitor));
+		registry.handlers.set('healthcheck', new HealthCheck(machine, monitor));
 		return registry;
 	}
 
