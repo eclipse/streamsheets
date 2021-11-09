@@ -30,7 +30,7 @@ class BaseTrigger {
 
 	toJSON() {
 		const { type, repeat } = this.config;
-		return Object.assign({}, type, repeat);
+		return Object.assign({}, { type, repeat });
 	}
 
 	get type() {

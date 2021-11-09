@@ -68,7 +68,7 @@ class TimerTrigger extends BaseTrigger {
 	toJSON() {
 		const json = super.toJSON();
 		const { start, interval, intervalUnit,  } = this.config;
-		return Object.assign(json, start, interval, intervalUnit);
+		return Object.assign(json, { start, interval, intervalUnit });
 	}
 
 	get interval() {
