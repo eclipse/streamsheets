@@ -13,11 +13,13 @@ const { MessagingService, RequestHandlers } = require('@cedalo/service-core');
 const { RepositoryManager, MongoDBMachineRepository } = require('@cedalo/repository');
 const { MachineServerMessagingProtocol, Topics, GatewayMessagingProtocol } = require('@cedalo/protocols');
 const { State } = require('@cedalo/machine-core');
+const { EventMessage } = require('@cedalo/messages');
 
 const MachineServer = require('./MachineServer');
 const FunctionModulesResolver = require('../utils/FunctionModulesResolver');
 const MachineRequestHandlers = require('../handlers/MachineRequestHandlers');
 const MachineServerRequestHandlers = require('../handlers/MachineServerRequestHandlers');
+const { scheduleHealthCheck, buildHealthCheckFailureMessage } = require('./HealthCheck');
 
 const config = require('../../config/config');
 
@@ -68,6 +70,11 @@ module.exports = class MachineService extends MessagingService {
 	async _init() {
 		try {
 			await this._machineServer.start(this);
+			scheduleHealthCheck(this._machineServer, (machineId, lastSuccessfulHealthCheck) => {
+				const message = buildHealthCheckFailureMessage(machineId, lastSuccessfulHealthCheck);
+				const topic = `${Topics.SERVICES_MACHINES_EVENTS}/${machineId}`;
+				this.publishMessage(`${topic}/${message.type}`, new EventMessage(message));
+			});
 		} catch (error) {
 			logger.error('error while starting machine-server', error);
 		}

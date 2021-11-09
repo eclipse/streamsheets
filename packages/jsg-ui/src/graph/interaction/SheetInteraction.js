@@ -812,7 +812,14 @@ export default class SheetInteraction extends Interaction {
 					const controller = graphController.getControllerByModelId(pre.cell.getSheet().getId());
 					if (controller) {
 						const sheetView = controller.getView();
-						if (sheetView.getItem().getParent() instanceof StreamSheetContainer) {
+						const sheet = controller.getModel();
+						if (sheet !== this._controller.getModel() || sheet
+							.getItemAttributes()
+							.getViewMode()
+							.getValue() === 2) {
+							sheet.getGraph().setViewMode(sheet.getParent(), 0);
+						}
+						if (sheet.getParent() instanceof StreamSheetContainer) {
 							sheetView.getParent().moveSheetToTop(viewer);
 						}
 						viewer.getGraphView().setFocus(controller);

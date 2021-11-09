@@ -115,6 +115,10 @@ class MachineTaskRunner {
 		return this.requestHandler.request({ request: 'unsubscribe', clientId });
 	}
 
+	async healthCheck() {
+		return this.requestHandler.request({ request: 'healthcheck' });
+	}
+
 	async load(machineDefinition, functionDefinitions) {
 		const result = await this.requestHandler.request({
 			request: 'load',
