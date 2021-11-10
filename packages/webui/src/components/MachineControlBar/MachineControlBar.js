@@ -61,7 +61,25 @@ const reverseUpdateInterval = (value) =>
 	(1 / powerUpdateInterval) *
 	Math.log(((Math.exp(powerUpdateInterval) - 1) * value) / maxUpdateInterval + 1) *
 	maxUpdateInterval;
-
+const getCycleTimeTitle = (speed, regulated) => {
+	if (regulated > 0) {
+		return (
+			<FormattedMessage
+				id="MachineControl.regulatedCycleTime"
+				defaultMessage="Cycle Time: {speed}ms, regulated to: {regulated}ms"
+				values={{ speed, regulated }}
+			/>
+		);
+	}
+	return (
+		<FormattedMessage
+			id="MachineControl.cycleTime"
+			defaultMessage="Cycle Time: {speed}ms"
+			values={{ speed, regulated }}
+		/>
+	);
+};
+ 
 class MachineControlBar extends React.Component {
 	static getDerivedStateFromProps(props, state) {
 		return { ...state, speed: props.cycletime };
@@ -347,11 +365,12 @@ class MachineControlBar extends React.Component {
 								}}
 							>
 								<Typography style={{fontSize: '10pt'}} variant='h6' color="textPrimary">
-									<FormattedMessage
+									{/* <FormattedMessage
 										id="MachineControl.cycleTime"
 										defaultMessage="Cycle Time: {speed}ms"
 										values={{ speed: this.state.speed }}
-									/>
+									/> */}
+									{getCycleTimeTitle(this.state.speed, this.props.regulatedCycle)}
 								</Typography>
 							</GridListTile>
 							<GridListTile cols={1}>
@@ -672,6 +691,7 @@ function mapStateToProps(state) {
 		clientUpdateRate: state.monitor.performance.events.size,
 		isConnected: state.monitor.isConnected,
 		cycletime: state.monitor.cycletime,
+		regulatedCycle: state.monitor.performance.regulatedCycle,
 		disabled: !state.monitor.machine.id || !MachineHelper.currentMachineCan(RESOURCE_ACTIONS.CONTROL),
 		adminSecurity: state.adminSecurity,
 	};

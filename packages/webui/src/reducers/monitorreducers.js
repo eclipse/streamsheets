@@ -240,17 +240,20 @@ export default function doRequest(state = defState, reqaction) {
 			break;
 		}
 		case ActionTypes.RECEIVE_MACHINE_STEP:
+			newstate.performance.regulatedCycle = reqaction.event.stats.regulatedCycle;
 			newstate.performance.cyclesPerSecond = reqaction.event.stats.cyclesPerSecond;
 			newstate.performance.events.add({});
 			break;
 		case ActionTypes.RECEIVE_MACHINE_LOCALE:
+		case ActionTypes.RECEIVE_MACHINE_UPDATE_SETTINGS:
 			newstate.machine.locale = applyNewLocale(reqaction.locale, newstate.machine.locale);
 			break;
-		case ActionTypes.RECEIVE_MACHINE_UPDATE_SETTINGS: {
-			newstate.machine.isOPCUA = reqaction.settings.isOPCUA;
-			newstate.machine.locale = applyNewLocale(reqaction.locale, newstate.machine.locale);
-			break;
-		}
+			// newstate.machine.isOPCUA = reqaction.settings.isOPCUA;
+			// newstate.machine.isCycleRegulated = reqaction.settings.isCycleRegulated;
+			// newstate.machine.locale = applyNewLocale(reqaction.locale, newstate.machine.locale);
+			// applyNewLocale(reqaction.locale, newstate.machine.locale);
+			// break;
+		// }
 
 		default:
 			return state;
