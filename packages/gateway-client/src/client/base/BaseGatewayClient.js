@@ -490,6 +490,11 @@ module.exports = class BaseGatewayClient {
 	loadSubscribeMachine(machineId, settings, scope) {
 		return this.socket.loadSubscribeMachine(machineId, settings, scope);
 	}
+
+	openMachine(machineId) {
+		return this.socket.openMachine(machineId);
+	}
+
 	pauseMachine(machineId) {
 		return this.socket.pauseMachine(machineId);
 	}

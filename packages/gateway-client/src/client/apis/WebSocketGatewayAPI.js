@@ -27,6 +27,7 @@ const {
 	GetCellRawValueWebSocketRequest,
 	LoadMachineWebSocketRequest,
 	LoadSubscribeMachineWebSocketRequest,
+	OpenMachineWebSocketRequest,
 	PauseMachineWebSocketRequest,
 	RenameMachineWebSocketRequest,
 	UpdateMachineImageWebSocketRequest,
@@ -241,6 +242,12 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 			new LoadSubscribeMachineWebSocketRequest(this._ws, machineId, settings, scope),
 			180000
 		);
+	}
+
+	openMachine(machineId) {
+		return this.sendRequest(
+			new OpenMachineWebSocketRequest(this._ws, machineId)
+			);
 	}
 
 	pauseMachine(machineId) {

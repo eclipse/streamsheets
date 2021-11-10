@@ -29,6 +29,7 @@ const {
 	UNLOAD_MACHINE_MESSAGE_TYPE,
 	LOAD_SUBSCRIBE_MACHINE_MESSAGE_TYPE,
 	MACHINE_UPDATE_SETTINGS_MESSAGE_TYPE,
+	OPEN_MACHINE_MESSAGE_TYPE,
 	PAUSE_MACHINE_MESSAGE_TYPE,
 	RENAME_MACHINE_MESSAGE_TYPE,
 	STREAMSHEET_STREAM_UPDATE_TYPE,
@@ -488,6 +489,19 @@ class LoadSubscribeMachineWebSocketRequest extends WebSocketRequest {
 	}
 }
 
+class OpenMachineWebSocketRequest extends WebSocketRequest {
+	constructor(ws, machineId) {
+		super(ws, OPEN_MACHINE_MESSAGE_TYPE);
+		this._machineId = machineId;
+	}
+
+	_getConfig() {
+		return {
+			machineId: this._machineId
+		};
+	}
+}
+
 class PauseMachineWebSocketRequest extends WebSocketRequest {
 	constructor(ws, machineId) {
 		super(ws, PAUSE_MACHINE_MESSAGE_TYPE);
@@ -877,6 +891,7 @@ module.exports = {
 	GetMachinesWebSocketRequest,
 	LoadMachineWebSocketRequest,
 	LoadSubscribeMachineWebSocketRequest,
+	OpenMachineWebSocketRequest,
 	PauseMachineWebSocketRequest,
 	RenameMachineWebSocketRequest,
 	UpdateMachineImageWebSocketRequest,
