@@ -37,28 +37,28 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 	}
 
 	startListening() {
-		let subscription = this._subscription;
-		let streamRequest = new toitSubscribeModel.StreamRequest();
+		const subscription = this._subscription;
+		const streamRequest = new toitSubscribeModel.StreamRequest();
 		streamRequest.setSubscription(subscription);
-		let stream = this.client.stream(streamRequest);
 
 		const onData = (e) => {
-			let toAcknowledge = [];
+			const toAcknowledge = [];
 			try {
-				let messages = e.getMessagesList();
-				for (let envelope of messages) {
+				const messages = e.getMessagesList();
+				for (let i = 0; i < messages.length; i += 1) {
+					const envelope = messages[i];
 					toAcknowledge.push(envelope.getId());
-					let msg = envelope.getMessage();
-					let createdAt = msg.getCreatedAt().toDate();
-					let data = Buffer.from(msg.getData(),  "utf-8");
-					let meta = {
+					const msg = envelope.getMessage();
+					const createdAt = msg.getCreatedAt().toDate();
+					const data = Buffer.from(msg.getData(),  "utf-8");
+					const meta = {
 						"createdAt": ms2serial(createdAt),
 					};
 					this.onMessage(this.config.topic, data, meta);
 				}
 			} finally {
 				if (toAcknowledge.length !== 0) {
-					let ackRequest = new toitSubscribeModel.AcknowledgeRequest();
+					const ackRequest = new toitSubscribeModel.AcknowledgeRequest();
 					ackRequest.setSubscription(subscription);
 					ackRequest.setEnvelopeIdsList(toAcknowledge);
 					this.client.acknowledge(ackRequest, (err) => {
@@ -70,21 +70,25 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 			}
 		}
 
+		// Mutually recursive function calls.
+		// The startStream function will be set before it is first used.
+		let startStream = null;
+
 		const onError = (err) => {
 			if (this.isRetryableGrpcError(err)) {
-				stream = this.client.stream(streamRequest);
-				bindStream(stream);
+				startStream();
 			} else {
 				this.handleError(err);
 			}
 		}
 
-		const bindStream = (stream) => {
+		startStream = () => {
+			const stream = this.client.stream(streamRequest);
 			stream.on('data', onData);
 			stream.on('error', onError);
 			stream.on('end', () => this.onClose());
 		}
-		bindStream(stream);
+		startStream();
 	}
 
 	isRetryableGrpcError(err) {
@@ -99,18 +103,19 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 			case grpc.status.UNIMPLEMENTED:
 			case grpc.status.DATA_LOSS:
 			case grpc.status.UNAUTHENTICATED:
-				return false
+				return false;
+			default:
+				return true;
 		}
-		return true
 	}
 
 	createSubscription() {
-		let topic = this.config.topic;
-		let name = "streamsheets-" + Math.floor(Math.random() * 1000000000);
-		let subscription = new toitSubscribeModel.Subscription();
+		const topic = this.config.topic;
+		const name = `streamsheets-${Math.floor(Math.random() * 1000000000)}`;
+		const subscription = new toitSubscribeModel.Subscription();
 		subscription.setTopic(topic);
 		subscription.setName(name);
-		let request = new toitSubscribeModel.CreateSubscriptionRequest();
+		const request = new toitSubscribeModel.CreateSubscriptionRequest();
 		request.setSubscription(subscription);
 		return new Promise((res, rej) => {
 			this.client.createSubscription(request, (err) => {
@@ -124,7 +129,7 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 	}
 
 	deleteSubscription(subscription) {
-		let request = new toitSubscribeModel.DeleteSubscriptionRequest();
+		const request = new toitSubscribeModel.DeleteSubscriptionRequest();
 		request.setSubscription(subscription);
 		return new Promise((res, rej) => {
 			this.client.deleteSubscription(request, (err) => {
@@ -139,7 +144,7 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 
 	async dispose() {
 		if (this._subscription) {
-			let sub = this._subscription;
+			const sub = this._subscription;
 			this._subscription = null;
 			await this.deleteSubscription(sub);
 		}

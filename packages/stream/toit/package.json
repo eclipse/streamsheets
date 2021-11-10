@@ -22,6 +22,7 @@
     "jest-cli": "21.2.1"
   },
   "dependencies": {
+    "@cedalo/commons": "2.4.0",
     "@cedalo/sdk-streams": "2.4.0",
     "@cedalo/id-generator": "2.4.0",
     "@toit/api": "0.11.2",
