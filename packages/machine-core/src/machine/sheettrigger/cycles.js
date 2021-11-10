@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const Machine = require('../Machine');
+
 class TriggerCycle {
 	constructor(trigger, parent) {
 		this.trigger = trigger;
@@ -85,7 +87,7 @@ class TimerCycle extends TriggerCycle {
 	}
 
 	getCycleTime() {
-		return 100;
+		return Machine.DEF_CYCLETIME;
 	}
 }
 

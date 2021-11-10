@@ -8,6 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+const Machine = require('../Machine');
 const BaseTrigger = require('./BaseTrigger');
 const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoopCycle');
 
@@ -53,21 +54,28 @@ const getStartInterval = (time) => {
 	const ms = parseTime(time) || now;
 	return ms > now ? ms - now : 1;
 };
+const validatedConfig = (config) => {
+	if (config.intervalUnit === 'ms') {
+		config.interval = Math.max(Machine.MIN_CYCLETIME, config.interval);
+	}
+	return config;
+};
 
 const TIMER_DEF = {
 	interval: 500,
 	intervalUnit: 'ms'
 };
+
 class TimerTrigger extends BaseTrigger {
 	constructor(config = {}) {
-		super(Object.assign({}, TIMER_DEF, config));
+		super(Object.assign({}, TIMER_DEF, validatedConfig(config)));
 		this.delayId = undefined;
 		this.activeCycle = new ManualMessageLoopCycle(this);
 	}
 
 	toJSON() {
 		const json = super.toJSON();
-		const { start, interval, intervalUnit,  } = this.config;
+		const { start, interval, intervalUnit } = this.config;
 		return Object.assign(json, { start, interval, intervalUnit });
 	}
 
@@ -88,7 +96,7 @@ class TimerTrigger extends BaseTrigger {
 	update(config = {}) {
 		const oldInterval = this.interval;
 		const oldIntervalUnit = this.intervalUnit;
-		super.update(config);
+		super.update(validatedConfig(config));
 		if (oldInterval !== this.interval || oldIntervalUnit !== this.intervalUnit) {
 			this.activeCycle.clear();
 			if (!this.isMachineStopped && !this.sheet.isPaused) this.activeCycle.schedule();
