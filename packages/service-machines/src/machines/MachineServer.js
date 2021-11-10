@@ -79,9 +79,7 @@ module.exports = class MachineServer {
 
 	shutdown() {
 		const promises = [];
-		this.machinerunners.forEach((runner) =>
-			promises.push(runner.dispose())
-		);
+		this.machinerunners.forEach((runner) => promises.push(runner.dispose()));
 		return Promise.all(promises);
 	}
 
@@ -93,9 +91,7 @@ module.exports = class MachineServer {
 
 	stopMachines() {
 		const promises = [];
-		this.machinerunners.forEach((runner) =>
-			promises.push(this._doRemoveMachine(runner))
-		);
+		this.machinerunners.forEach((runner) => promises.push(this._doRemoveMachine(runner)));
 		return Promise.all(promises);
 	}
 
@@ -107,9 +103,9 @@ module.exports = class MachineServer {
 		return this.machinerunners.has(id);
 	}
 
-	async openMachine(definition, session) {
-		const runner = this.machinerunners.get(definition.id);
-		return runner ? runner.getDefinition() : this.loadMachine(definition, session);
+	async openMachine(machineId, session) {
+		if (!this.isMachineLoaded(machineId)) await this.loadMachine(machineId, session);
+		return true;
 	}
 
 	// delete editable-web-component

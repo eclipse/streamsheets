@@ -390,8 +390,7 @@
 	 async handle(request, machineserver) {
 		 logger.info(`open machine: ${request.machineId}...`);
 		 try {
-			 // we always need a machine definition in request!
-			 const result = await machineserver.openMachine(request.machineDefinition, request.session);
+			 const result = await machineserver.openMachine(request.machineId, request.session);
 			 logger.info(`open machine ${request.machineId} successful`);
 			 return this.confirm(request, result);
 		 } catch (err) {
