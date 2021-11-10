@@ -244,12 +244,12 @@ export class GraphItemProperties extends Component {
 
 	render() {
 		if (!this.state.view || !this.props.showStreamChartProperties) {
-			return <div />;
+			return null;
 		}
 		const item = this.state.view.getItem();
 		const sheetView = this.getSheetView();
 		if (!sheetView) {
-			return <div />;
+			return null;
 		}
 		const classes = this.props.classes;
 		return (

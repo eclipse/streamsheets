@@ -220,6 +220,8 @@ export default class CellEditor {
 			return undefined;
 		}
 
+		const cell = this.formulaSheet.getOwnSelection().getActiveCell();
+
 		// DL-2461: cursor position can be behind last character:
 		if (cursorPosition > text.length) cursorPosition = text.length;
 
@@ -243,16 +245,21 @@ export default class CellEditor {
 			return undefined;
 		}
 
-		if (info.identifier) {
-			const fnName = info.identifier;
-			if (fnName.length) {
+		const showAll = text === '=*';
+
+		if (info.identifier || showAll) {
+			const fnName = showAll ? '*' : info.identifier;
+			if (fnName.length || showAll) {
 				// check for dot notation
 				if (text[info.start] === '.') {
 					return undefined;
 				} else {
-					const functions = funcInfos.filter((entry) => entry[0].startsWith(fnName));
+					let functions = funcInfos.filter((entry) => (entry[0].startsWith(fnName) || showAll) &&
+						(entry[1].cellEditor === undefined || !cell));
 					if (functions.length) {
-						this.replaceInfo = { start: info.start, length: fnName.length };
+						functions = functions.sort((a, b) => a[0].localeCompare(b[0]));
+						this.replaceInfo = showAll ? { start: 0, length: fnName.length } :
+							{ start: info.start, length: fnName.length };
 						return functions;
 					}
 				}
@@ -391,8 +398,10 @@ export default class CellEditor {
 	}
 
 	handleFunctionListKey(event, view) {
-		if (this.isReferenceByKeyAllowed(view) || !this.funcs || !this.funcs.length) {
-			return false;
+		if (!this.funcs || this.funcs.length < 2) {
+			if (this.isReferenceByKeyAllowed(view) || !this.funcs || !this.funcs.length) {
+				return false;
+			}
 		}
 		switch (event.key) {
 			case 'ArrowUp':
@@ -517,7 +526,7 @@ export default class CellEditor {
 			return;
 		}
 
-		this.funcs = this.getPotentialFunctionsUnderCursor();
+		// this.funcs = this.getPotentialFunctionsUnderCursor();
 		if (this.funcs && this.funcs.length) {
 			let html;
 			if (this.funcs.length === 1) {
@@ -536,7 +545,7 @@ export default class CellEditor {
 					this.funcDiv.style.maxHeight = '350px';
 				}
 				this.funcDiv.style.zIndex = '1000';
-				this.funcDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y}px`;
+				this.funcDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y - 3}px`;
 				this.funcDiv.style.overflowY = 'auto';
 				this.funcDiv.style.color = '#333333';
 				this.funcDiv.style.cursor = 'default';

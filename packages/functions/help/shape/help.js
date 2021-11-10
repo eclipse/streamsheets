@@ -101,10 +101,12 @@ module.exports = {
 			}
 		},
 		'DRAW.BEZIER': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a graphical bezier curve. The control points are created automatically.',
 				inlineDescription: 'Define a graphical bezier curve. The control points are created automatically.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -179,10 +181,12 @@ module.exports = {
 			}
 		},
 		'DRAW.BUTTON': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a graphical button on a given drawing.',
 				inlineDescription: 'Define a graphical button on a given drawing.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -257,10 +261,12 @@ module.exports = {
 			}
 		},
 		'DRAW.CHECKBOX': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a graphical checkbox button on a given drawing.',
 				inlineDescription: 'Define a graphical checkbox button on a given drawing.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -335,10 +341,12 @@ module.exports = {
 			}
 		},
 		'DRAW.ELLIPSE': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define an ellipse on a given drawing.',
 				inlineDescription: 'Define an ellipse on a given drawing.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -401,10 +409,12 @@ module.exports = {
 			}
 		},
 		'DRAW.KNOB': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a graphical knob on a given drawing.',
 				inlineDescription: 'Define a graphical knob on a given drawing.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -503,10 +513,12 @@ module.exports = {
 			}
 		},
 		'DRAW.LABEL': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a graphical text object.',
 				inlineDescription: 'Define a graphical text object.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -575,10 +587,12 @@ module.exports = {
 			}
 		},
 		'DRAW.LINE': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a graphical line.',
 				inlineDescription: 'Define a graphical line.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -629,10 +643,12 @@ module.exports = {
 			}
 		},
 		'DRAW.POLYGON': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a graphical polygon.',
 				inlineDescription: 'Define a graphical polygon.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -707,10 +723,12 @@ module.exports = {
 			}
 		},
 		'DRAW.RECTANGLE': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a rectangle on a given drawing.',
 				inlineDescription: 'Define a rectangle on a given drawing.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -773,10 +791,12 @@ module.exports = {
 			}
 		},
 		'DRAW.SLIDER': {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
 				description: 'Define a graphical slider on a given drawing.',
 				inlineDescription: 'Define a graphical slider on a given drawing.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',
@@ -881,10 +901,12 @@ module.exports = {
 			}
 		},
 		QRCODE: {
+			cellEditor: false,
 			default: {
 				category: 'Shape',
-				description: 'Create a QRCode key, that can be used for an image fill.',
+				description: 'Create a QRCode key, that can be used for an image fill. The fill can be used within the shape properties',
 				inlineDescription: 'Create a QRCode key, that can be used for an image fill.',
+				hint: 'This function should not be used in a cell',
 				arguments: [
 					{
 						type: '',

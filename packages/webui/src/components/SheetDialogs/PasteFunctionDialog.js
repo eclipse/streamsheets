@@ -123,15 +123,13 @@ export default class PasteFunctionDialog extends React.Component {
 			},
 		);
 
-		console.log('Undocumented Functions:');
-
-		Object.keys(JSG.FormulaParser.context.functions).forEach((func) => {
-			if (functionStrings.getStrings()[func] === undefined) {
-				if (!func.startsWith('OLAP')) {
-					console.log(func);
-				}
-			}
-		});
+		// Object.keys(JSG.FormulaParser.context.functions).forEach((func) => {
+		// 	if (functionStrings.getStrings()[func] === undefined) {
+		// 		if (!func.startsWith('OLAP')) {
+		// 			console.log(func);
+		// 		}
+		// 	}
+		// });
 	}
 
 	handleCancel = () => {
