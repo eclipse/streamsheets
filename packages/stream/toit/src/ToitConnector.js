@@ -38,7 +38,7 @@ module.exports = class ToitConnector extends sdk.Connector {
 				grpc.credentials.combineChannelCredentials(credentials,
 					grpc.credentials.createFromMetadataGenerator((_, cb) => {
 						const metadata = new grpc.Metadata();
-						metadata.set("Authorization", "Bearer " + token);
+						metadata.set("Authorization", `Bearer ${token}`);
 						cb(null, metadata);
 					})), {});
 

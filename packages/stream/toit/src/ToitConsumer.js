@@ -40,17 +40,17 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 		const subscription = this._subscription;
 		const streamRequest = new toitSubscribeModel.StreamRequest();
 		streamRequest.setSubscription(subscription);
-		const stream = this.client.stream(streamRequest);
 
 		const onData = (e) => {
 			const toAcknowledge = [];
 			try {
 				const messages = e.getMessagesList();
-				for (const envelope of messages) {
+				for (let i = 0; i < messages.length; i += 1) {
+					const envelope = messages[i];
 					toAcknowledge.push(envelope.getId());
 					const msg = envelope.getMessage();
 					const createdAt = msg.getCreatedAt().toDate();
-					const data = Buffer.from(msg.getData(),  "utf-8");
+					const data = Buffer.from(msg.getData(), "utf-8");
 					const meta = {
 						"createdAt": ms2serial(createdAt),
 					};
@@ -70,21 +70,25 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 			}
 		}
 
+		// Mutually recursive function calls.
+		// The startStream function will be set before it is first used.
+		let startStream = null;
+
 		const onError = (err) => {
 			if (this.isRetryableGrpcError(err)) {
-				stream = this.client.stream(streamRequest);
-				bindStream(stream);
+				startStream();
 			} else {
 				this.handleError(err);
 			}
 		}
 
-		const bindStream = (stream) => {
+		startStream = () => {
+			const stream = this.client.stream(streamRequest);
 			stream.on('data', onData);
 			stream.on('error', onError);
 			stream.on('end', () => this.onClose());
 		}
-		bindStream(stream);
+		startStream();
 	}
 
 	isRetryableGrpcError(err) {
@@ -99,9 +103,10 @@ module.exports = class ToitConsumer extends sdk.ConsumerMixin(ToitConnector) {
 			case grpc.status.UNIMPLEMENTED:
 			case grpc.status.DATA_LOSS:
 			case grpc.status.UNAUTHENTICATED:
-				return false
+				return false;
+			default:
+				return true;
 		}
-		return true
 	}
 
 	createSubscription() {
