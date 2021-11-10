@@ -103,8 +103,8 @@ module.exports = class MachineServer {
 		return this.machinerunners.has(id);
 	}
 
-	async openMachine(machineId, session) {
-		if (!this.isMachineLoaded(machineId)) await this.loadMachine(machineId, session);
+	async openMachine(machineId, session, loadMachineDefinition) {
+		if (!this.isMachineLoaded(machineId)) await this.loadMachine(machineId, session, loadMachineDefinition);
 		return true;
 	}
 

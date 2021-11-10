@@ -90,6 +90,13 @@
 	 throw handler.reject(request, `No machine found with id '${request.machineId}'!`);
  };
 
+ const loadMachineFromDB = (machineId, repositoryManager, scope) => async () => {
+		const machine = await repositoryManager.machineRepository.findMachine(machineId);
+		if (machine.isTemplate) machine.scope = scope;
+		return machine;
+ };
+ 
+
  class GetMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.GET_MACHINE_MESSAGE_TYPE);
@@ -387,15 +394,20 @@
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.OPEN_MACHINE_MESSAGE_TYPE);
 	 }
 
-	 async handle(request, machineserver) {
+	 async handle(request, machineserver, repositoryManager) {
 		 logger.info(`open machine: ${request.machineId}...`);
+		 const { machineId, session } = request;
 		 try {
-			 const result = await machineserver.openMachine(request.machineId, request.session);
-			 logger.info(`open machine ${request.machineId} successful`);
+			 const result = await machineserver.openMachine(
+					machineId,
+					session,
+					loadMachineFromDB(machineId, repositoryManager, session)
+				);
+			 logger.info(`open machine ${machineId} successful`);
 			 return this.confirm(request, result);
 		 } catch (err) {
-			 logger.error(`open machine ${request.machineId} failed:`, err);
-			 throw this.reject(request, `Failed to open machine with id '${request.machineId}'!`);
+			 logger.error(`open machine ${machineId} failed:`, err);
+			 throw this.reject(request, `Failed to open machine with id '${machineId}'!`);
 		 }
 	 }
  }
@@ -409,11 +421,11 @@
 		 logger.info(`load machine: ${request.machineId}...`);
 		 const { machineId, migrations, scope } = request;
 		 try {
-			 const result = await machineserver.loadMachine(machineId, scope, async () => {
-				 const machine = await repositoryManager.machineRepository.findMachine(machineId);
-				 if (machine.isTemplate) machine.scope = scope;
-				 return machine;
-			 });
+			 const result = await machineserver.loadMachine(
+					machineId,
+					scope,
+					loadMachineFromDB(machineId, repositoryManager, scope)
+				);
 			 if (migrations) {
 				 const migrated = await machineserver.applyMigrations(machineId, scope, migrations);
 				 result.machine = migrated.machine;
