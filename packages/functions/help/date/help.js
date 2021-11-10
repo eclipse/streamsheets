@@ -17,21 +17,21 @@ module.exports = {
 				inlineDescription: 'Converts a date specified by given years, months and days to a corresponding serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'Years',
-						description: 'A number which specifies years',
+						description: 'The year to be used, if a 2-digit number is entered, the current century is assumed',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Months',
-						description: 'A number which specifies months',
+						description: 'The month represented by a number between 1 and 12',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Nuumber',
 						name: 'Days',
-						description: 'A number which specifies days',
+						description: 'A number, which specifies the day of the month',
 						optional: false
 					}
 				],
@@ -46,7 +46,7 @@ module.exports = {
 						{
 							formula: '=DATE(2018, 5, 18)',
 							result: '43238',
-							comment: 'The given date value represents the 18th of May, 2018'
+							comment: 'The given serial number represents the 18th of May, 2018'
 						}
 					]
 				}
@@ -59,7 +59,7 @@ module.exports = {
 				inlineDescription: 'Converts a date specified by given text to a serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'String',
 						name: 'DateText',
 						description: 'Date string to convert.',
 						optional: false
@@ -85,17 +85,17 @@ module.exports = {
 		DAY: {
 			default: {
 				category: 'Date',
-				description: 'Returns the day of the month of the date value.',
-				inlineDescription: 'Returns the day of the time value',
+				description: 'Returns the day of the month of the serial number.',
+				inlineDescription: 'Returns the day of the serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'DateValue',
-						description: 'Insert a valid timestamp format or a cell reference to a timestamp. A timestamp consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
+						description: 'The serial number consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'Round',
 						description: 'Defines if value should be rounded. Default is true.',
 						optional: true
@@ -103,7 +103,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'Day of month evaluated from date value.'
+					description: 'Day of month evaluated from serial number.'
 				},
 				examples: {
 					infoStart: '',
@@ -137,7 +137,7 @@ module.exports = {
 					{
 						type: '',
 						name: 'Number',
-						description: 'A serial date which contains a complete date representation.',
+						description: 'A serial number, which contains a complete date representation.',
 						optional: false
 					}
 				],
@@ -152,7 +152,7 @@ module.exports = {
 						{
 							formula: '=EXCEL2JSONTIME(15453.767864710648)',
 							result: '2012-04-23T18:25:43.511Z',
-							comment: 'The given serial date represents the 23th of April, 2012, 18:24.'
+							comment: 'The given serial number represents the 23th of April, 2012, 18:24.'
 						}
 					]
 				}
@@ -161,17 +161,17 @@ module.exports = {
 		HOUR: {
 			default: {
 				category: 'Date',
-				description: 'Returns the hour of the date value.',
-				inlineDescription: 'Returns the hour of the time value',
+				description: 'Returns the hour of the serial number.',
+				inlineDescription: 'Returns the hour of the serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'NUmber',
 						name: 'DateValue',
-						description: 'Insert a valid timestamp format or a cell reference to a timestamp. A timestamp consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
+						description: 'A serial number consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'Round',
 						description: 'Defines if value should be rounded. Default is true.',
 						optional: true
@@ -179,7 +179,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'Hour evaluated from date value.'
+					description: 'Hour evaluated from serial number.'
 				},
 				examples: {
 					infoStart: '',
@@ -188,7 +188,7 @@ module.exports = {
 						{
 							formula: '=HOUR(43238.5)',
 							result: '12',
-							comment: 'The given date value represents the 18th of May, 2018, 12:00'
+							comment: 'The given date represents the 18th of May, 2018, 12:00'
 						},
 						{
 							formula: '=HOUR(43930.999999, true)',
@@ -207,11 +207,11 @@ module.exports = {
 		JSONTIME2EXCEL: {
 			default: {
 				category: 'Date',
-				description: 'Converts an ISO 8601 date string to a serial date. A serial date is recognizes as a date by Streamsheets. You can get a serial date by using NOW().',
+				description: 'Converts an ISO 8601 date string to a serial number. A serial number is recognized as a date by Streamsheets. You can get a serial number by using NOW().',
 				inlineDescription: 'Converts given date, which must be in JSON ISO 8601 format, to a serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'String',
 						name: 'text',
 						description: 'An ISO 8601 date string of following format: YYYY-MM-DDThh:mm:ss.sssZ. **Note:** minutes, seconds and milliseconds are optional and single digits are allowed.',
 						optional: false
@@ -219,7 +219,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'A serial date representing the specified date string.'
+					description: 'A serial number representing the specified date string.'
 				},
 				examples: {
 					infoStart: '',
@@ -237,17 +237,17 @@ module.exports = {
 		MINUTE: {
 			default: {
 				category: 'Date',
-				description: 'Returns the minute of the date value.',
-				inlineDescription: 'Returns the minute of the time value',
+				description: 'Returns the minute of the serial number.',
+				inlineDescription: 'Returns the minute of the serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'DateValue',
-						description: 'Insert a valid timestamp format or a cell reference to a timestamp. A timestamp consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
+						description: 'A serial number consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'Round',
 						description: 'Defines if value should be rounded. Default is true.',
 						optional: true
@@ -283,17 +283,17 @@ module.exports = {
 		MONTH: {
 			default: {
 				category: 'Date',
-				description: 'Returns the month of the date value.',
-				inlineDescription: 'Returns the month of the time value',
+				description: 'Returns the month of the serial number.',
+				inlineDescription: 'Returns the month of the serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'DateValue',
-						description: 'Insert a valid timestamp format or a cell reference to a timestamp. A timestamp consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
+						description: 'A serial number consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'Round',
 						description: 'Defines if value should be rounded. Default is true.',
 						optional: true
@@ -329,19 +329,19 @@ module.exports = {
 		MSTOSERIAL: {
 			default: {
 				category: 'Date',
-				description: 'Converts the given elapsed milliseconds, since UNIX epoch time, to a serial date value. A serial date is recognized as a date by Streamsheets.',
-				inlineDescription: 'Converts the given elapsed milliseconds to a date value',
+				description: 'Converts the given elapsed milliseconds, since UNIX epoch time, to a serial number. A serial number is recognized as a date by Streamsheets.',
+				inlineDescription: 'Converts the given elapsed milliseconds to a serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'TimeValue',
 						description: 'Milliseconds since UNIX epoch time (1st of January 1970).',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'UTC',
-						description: 'Boolean to specify if conversion should respect locale timezone, i.e. local timezone offset is added. Defaults to FALSE.',
+						description: 'Specifies, if conversion should respect locale timezone, i.e. local timezone offset is added. Defaults to FALSE.',
 						optional: false
 					}
 				],
@@ -356,7 +356,7 @@ module.exports = {
 						{
 							formula: '=MSTOSERIAL(1021072743648)',
 							result: '37386.97157',
-							comment: 'The given date value represents the 10th of May, 2002, 23:19.'
+							comment: 'The given value represents the 10th of May, 2002, 23:19.'
 						},
 						{
 							formula: '=MSTOSERIAL(1021065543648, TRUE)',
@@ -370,11 +370,11 @@ module.exports = {
 		NOW: {
 			default: {
 				category: 'Date',
-				description: 'Returns the current date value.',
-				inlineDescription: 'Returns the current local time',
+				description: 'Returns the current date as a serial number.',
+				inlineDescription: 'Returns the current local time as a serial number',
 				return: {
 					type: '',
-					description: 'Current date value. The number to the left of the decimal define the days since 1.1.1900. The number to the right of the decimal define the fraction of the day.'
+					description: 'Current date serial number. The number to the left of the decimal define the days since 1.1.1900. The number to the right of the decimal define the fraction of the day.'
 				},
 				examples: {
 					infoStart: '',
@@ -392,17 +392,17 @@ module.exports = {
 		SECOND: {
 			default: {
 				category: 'Date',
-				description: 'Returns the second of the date value.',
-				inlineDescription: 'Returns the seconds of the time value',
+				description: 'Returns the second of the serial number.',
+				inlineDescription: 'Returns the seconds of the serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'DateValue',
-						description: 'Insert a valid timestamp format or a cell reference to a timestamp. A timestamp consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
+						description: 'A serial number consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'Round',
 						description: 'Defines if value should be rounded. Default is true.',
 						optional: true
@@ -410,7 +410,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'Second evaluated from date value.'
+					description: 'Second evaluated from serial number.'
 				},
 				examples: {
 					infoStart: '',
@@ -438,17 +438,17 @@ module.exports = {
 		SERIALTOMS: {
 			default: {
 				category: 'Date',
-				description: 'Converts the given serial date to the elapsed milliseconds since 1st of January 1900. A serial date is recognized as a date by Streamsheets. You can get a serial date by using NOW().',
-				inlineDescription: 'Converts the given date to the elapsed milliseconds',
+				description: 'Converts the given serial number to the elapsed milliseconds since 1st of January 1900. A serial date is recognized as a date by Streamsheets. You can get a serial date by using NOW().',
+				inlineDescription: 'Converts the given serial number to the elapsed milliseconds',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'Date',
-						description: 'Insert a valid serial timestamp or a cell reference to a serial timestamp. A serial timestamp consists out of two numbers. The number to the left of the decimal defines the days since 01.01.1900. The number to the right of the decimal defines the fraction of the day.',
+						description: 'A serial number consists out of two numbers. The number to the left of the decimal defines the days since 01.01.1900. The number to the right of the decimal defines the fraction of the day.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'UTC',
 						description: 'Boolean to specify if conversion should respect locale timezone, i.e. local timezone offset is subtracted. Defaults to FALSE.',
 						optional: false
@@ -488,21 +488,21 @@ module.exports = {
 				inlineDescription: 'Calculates the serial number which corresponds to a time specified by given hours, minutes and seconds',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'Hours',
-						description: 'A number which specifies hours',
+						description: 'A number between 0 and 23, which specifies hours',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Minutes',
-						description: 'A number which specifies minutes',
+						description: 'A number between 0 and 59, which specifies minutes',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Seconds',
-						description: 'A number which specifies seconds',
+						description: 'A number between 0 and 59, which specifies seconds',
 						optional: false
 					}
 				],
@@ -530,7 +530,7 @@ module.exports = {
 				inlineDescription: 'Converts time given as text to a corresponding serial number',
 				arguments: [
 					{
-						type: '',
+						type: 'String',
 						name: 'TimeText',
 						description: 'A text which represents a time value.',
 						optional: false
@@ -556,17 +556,17 @@ module.exports = {
 		WEEKDAY: {
 			default: {
 				category: 'Date',
-				description: 'Returns the weekday in form of a number (1 (sunday) - 7 (saturday)) of the date value.',
-				inlineDescription: 'Returns the week day of the time value',
+				description: 'Returns the weekday in form of a number (1 (sunday) - 7 (saturday)) of the given serial number.',
+				inlineDescription: 'Returns the week day of the serial number given',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'DateValue',
 						description: 'The number to the left of the decimal define the days since 1.1.1900. The number to the right of the decimal define the fraction of the day.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'Round',
 						description: 'Defines if value should be rounded. Default is true.',
 						optional: true
@@ -606,15 +606,15 @@ module.exports = {
 				inlineDescription: 'Returns the year of the date value',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'DateValue',
-						description: 'Insert a valid timestamp format or a cell reference to a timestamp. A timestamp consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
+						description: 'A serial number consists out of two numbers. The number to the left of the decimal define the days since 01.01.1900. The number to the right of the decimal define the fraction of the day.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Boolean',
 						name: 'Round',
-						description: 'Defines if value should be rounded. Default is true.',
+						description: 'Defines, if value should be rounded. Default is true.',
 						optional: true
 					}
 				],
