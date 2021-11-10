@@ -21,6 +21,7 @@ const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
 const TaskQueue = require('./TaskQueue');
 const autoexit = require('../utils/autoexit');
+const { DEF_CYCLETIME, MIN_CYCLETIME } = require('./sheettrigger/cycles');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -39,7 +40,6 @@ const changeProcessTitle = (machine, name) => {
 };
 
 const FILE_VERSION = '2.0.0';
-const MIN_CYCLETIME = 5;
 
 const DEF_CONF = {
 	name: '',
@@ -62,7 +62,8 @@ const DEF_CONF = {
 		},
 		locale: 'en',
 		isOPCUA: false,
-		cycletime: 100
+		cycletime: DEF_CYCLETIME,
+		isCycleRegulated: false
 	}
 };
 
@@ -73,13 +74,6 @@ const DEF_CONF = {
  * @public
  */
 class Machine {
-	static get DEF_CYCLETIME() {
-		return DEF_CONF.settings.cycletime;
-	}
-	static get MIN_CYCLETIME() {
-		return MIN_CYCLETIME;
-	}
-
 	constructor() {
 		this._id = IdGenerator.generate();
 		this.namedCells = new NamedCells();
@@ -284,6 +278,16 @@ class Machine {
 		}
 	}
 
+	get isCycleRegulated() {
+		return this.settings.isCycleRegulated;
+	}
+	set isCycleRegulated(itIs) {
+		if (itIs !== this.isCycleRegulated) {
+			this.settings.isCycleRegulated = itIs;
+			this._emitter.emit('update', 'cycleregulated');
+		}
+	}
+
 	get isManualStep() {
 		return this._isManualStep;
 	}
@@ -342,6 +346,7 @@ class Machine {
 		this.titleImage = props.titleImage || this.titleImage;
 		this.previewImage = props.previewImage || this.previewImage;
 		if (props.isOPCUA != null) this.isOPCUA = props.isOPCUA;
+		if (props.isCycleRegulated != null) this.isCycleRegulated = props.isCycleRegulated;
 	}
 
 	addStreamSheet(streamsheet) {
@@ -563,20 +568,24 @@ class Machine {
 		}
 	}
 	_scheduleNextCycle(t0, t1) {
-		const last = this.cyclemonitor.last;
-		const cycletime = this.cycletime;
-		// if we were called after desired cycletime we try to speed up...
-		const delay = Math.max(0, t0 - last - cycletime);
-		const speedUp = last > 0 && delay > 0 ? delay : 0;
 		const perSecond = t1 - this.cyclemonitor.lastSecond;
 		if (perSecond >= 1000) {
 			this.stats.cyclesPerSecond = Math.ceil(this.cyclemonitor.counterSecond / (perSecond / 1000));
 			this.cyclemonitor.lastSecond = t1;
 			this.cyclemonitor.counterSecond = 0;
 		}
-		const nextcycle = Math.max(MIN_CYCLETIME, cycletime - (t1 - t0) - speedUp);
 		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
-		this.cyclemonitor.id = setTimeout(this.cycle, nextcycle);
+		this.cyclemonitor.id = setTimeout(this.cycle, this._calcNextCycle(t1 - t0));
+	}
+	_calcNextCycle(delta) {
+		const cycletime = this.cycletime;
+		if (delta > cycletime && this.isCycleRegulated) {
+			const step = cycletime < 100 ? 10 : 100;
+			this.stats.regulatedCycle = (Math.trunc(delta / step) * step) + step;
+			return this.stats.regulatedCycle - delta;
+		}
+		this.stats.regulatedCycle = -1;
+		return Math.max(MIN_CYCLETIME, cycletime - delta);
 	}
 	_clearCycle() {
 		if (this.cyclemonitor.id) {

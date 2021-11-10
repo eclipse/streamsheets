@@ -130,6 +130,11 @@ class MachineTaskMonitor {
 			case 'cycletime':
 				event = updateEvent(MachineEvents.MACHINE_CYCLETIME_EVENT, machine, { cycletime: machine.cycletime });
 				break;
+			case 'cycleregulated':
+				event = updateEvent(MachineEvents.MACHINE_CYCLEREGULATED_EVENT, machine, {
+					isCycleRegulated: machine.settings.isCycleRegulated
+				});
+				break;
 			case 'stream_reloaded':
 				event = updateEvent(MachineEvents.STREAMS_RELOAD_EVENT, machine, { data });
 				break;
@@ -138,7 +143,8 @@ class MachineTaskMonitor {
 				break;
 			case 'lastModified':
 				event = updateEvent(MachineEvents.MACHINE_LAST_MODIFIED_EVENT, machine, {
-					lastModified: machine.metadata.lastModified, lastModifiedBy: machine.metadata.lastModifiedBy
+					lastModified: machine.metadata.lastModified,
+					lastModifiedBy: machine.metadata.lastModifiedBy
 				});
 				break;
 			case 'locale':
@@ -192,7 +198,10 @@ class MachineTaskMonitor {
 				break;
 			case 'extensions': {
 				const [extensionId, extensionSettings] = data;
-				event = updateEvent(MachineEvents.MACHINE_EXTENSION_SETTINGS_EVENT, machine, { extensionId, settings: extensionSettings });
+				event = updateEvent(MachineEvents.MACHINE_EXTENSION_SETTINGS_EVENT, machine, {
+					extensionId,
+					settings: extensionSettings
+				});
 				break;
 			}
 			default:

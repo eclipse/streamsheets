@@ -990,8 +990,8 @@ class Unsubscribe extends ARequestHandler {
 class Update extends ARequestHandler {
 	handle(msg) {
 		this.machine.update(msg.props);
-		const { cycletime, id, isOPCUA, locale, name, state, view } = this.machine;
-		return Promise.resolve({ machine: { cycletime, id, isOPCUA, locale, name, state, view } });
+		const { cycletime, id, isCycleRegulated, isOPCUA, locale, name, state, view } = this.machine;
+		return Promise.resolve({ machine: { cycletime, id, isCycleRegulated, isOPCUA, locale, name, state, view } });
 	}
 }
 
