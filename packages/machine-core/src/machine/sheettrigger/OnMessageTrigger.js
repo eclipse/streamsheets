@@ -8,16 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const Machine = require('../Machine');
 const BaseTrigger = require('./BaseTrigger');
 const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
 const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoopCycle');
-const { ManualCycle, TimerCycle } = require('./cycles');
+const { ManualCycle, TimerCycle, MIN_CYCLETIME } = require('./cycles');
 
 const RepeatedOnMessageCycle = (BaseClass) =>
 	class extends RepeatedMessageLoopCycle.withBaseClass(BaseClass) {
 		getCycleTime() {
-			return Machine.MIN_CYCLETIME;
+			return MIN_CYCLETIME;
 		}
 		schedule() {
 			if (this.streamsheet.hasNewMessage()) super.schedule();
@@ -25,7 +24,7 @@ const RepeatedOnMessageCycle = (BaseClass) =>
 	};
 class OnMessageLoopCycle extends TimerMessageLoopCycle {
 	getCycleTime() {
-		return Machine.MIN_CYCLETIME;
+		return MIN_CYCLETIME;
 	}
 }
 class OnMessageCycle extends RepeatedOnMessageCycle(TimerCycle) {

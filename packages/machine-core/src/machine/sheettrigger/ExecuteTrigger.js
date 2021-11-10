@@ -8,13 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const Machine = require('../Machine');
 const BaseTrigger = require('./BaseTrigger');
 const MessageLoopCycle = require('./MessageLoopCycle');
 const { ManualMessageLoopCycle } = require('./MessageLoopCycle');
 const { TimerRepeatUntilCycle } = require('./RepeatUntilCycle');
 const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
-const { ManualCycle, TimerCycle } = require('./cycles');
+const { ManualCycle, TimerCycle, MIN_CYCLETIME } = require('./cycles');
 
 const noop = () => {};
 
@@ -144,7 +143,7 @@ class ExecuteTrigger extends BaseTrigger {
 
 	execute(repetitions, message, speed, resumeFn) {
 		// DL-4592: default to machine cycle or use 20 in ms
-		this.speed = Math.max(Machine.MIN_CYCLETIME, speed || this.machine.cycletime);
+		this.speed = Math.max(MIN_CYCLETIME, speed || this.machine.cycletime);
 		this.message = message;
 		this.repetitions = repetitions;
 		this.resumeFn = resumeFn || noop;

@@ -111,7 +111,12 @@ class NoOpCycle extends TriggerCycle {
 	}
 }
 
+const DEF_CYCLETIME = 100;
+const MIN_CYCLETIME = 5;
+
 module.exports = {
+	DEF_CYCLETIME,
+	MIN_CYCLETIME,
 	ManualCycle,
 	NoOpCycle,
 	TimerCycle,

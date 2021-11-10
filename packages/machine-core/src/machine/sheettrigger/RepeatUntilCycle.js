@@ -8,8 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const Machine = require('../Machine');
-const { ManualCycle, TimerCycle } = require('./cycles');
+const { ManualCycle, TimerCycle, MIN_CYCLETIME } = require('./cycles');
 
 const RepeatUntilCycle = (BaseCycle) =>
 	class extends BaseCycle {
@@ -17,7 +16,7 @@ const RepeatUntilCycle = (BaseCycle) =>
 			return true;
 		}
 		getCycleTime() {
-			return Machine.MIN_CYCLETIME;
+			return MIN_CYCLETIME;
 		}
 		step() {
 			if (!this.sheet.isPaused && this.sheet.isProcessed) {

@@ -8,9 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const Machine = require('../Machine');
 const BaseTrigger = require('./BaseTrigger');
-const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoopCycle');
+const { ManualMessageLoopCycle, TimerMessageLoopCycle, MIN_CYCLETIME } = require('./MessageLoopCycle');
 
 const UNITS = {};
 UNITS.ms = 1;
@@ -56,7 +55,7 @@ const getStartInterval = (time) => {
 };
 const validatedConfig = (config) => {
 	if (config.intervalUnit === 'ms') {
-		config.interval = Math.max(Machine.MIN_CYCLETIME, config.interval);
+		config.interval = Math.max(MIN_CYCLETIME, config.interval);
 	}
 	return config;
 };
