@@ -39,6 +39,7 @@ const changeProcessTitle = (machine, name) => {
 };
 
 const FILE_VERSION = '2.0.0';
+const MIN_CYCLETIME = 5;
 
 const DEF_CONF = {
 	name: '',
@@ -74,6 +75,9 @@ const DEF_CONF = {
 class Machine {
 	static get DEF_CYCLETIME() {
 		return DEF_CONF.settings.cycletime;
+	}
+	static get MIN_CYCLETIME() {
+		return MIN_CYCLETIME;
 	}
 
 	constructor() {
@@ -246,7 +250,7 @@ class Machine {
 
 	set cycletime(newtime) {
 		const oldtime = this.cycletime;
-		newtime = Math.max(1, convert.toNumber(newtime, oldtime));
+		newtime = Math.max(MIN_CYCLETIME, convert.toNumber(newtime, oldtime));
 		if (oldtime !== newtime) {
 			this.settings.cycletime = newtime;
 			this._emitter.emit('update', 'cycletime');
@@ -570,7 +574,7 @@ class Machine {
 			this.cyclemonitor.lastSecond = t1;
 			this.cyclemonitor.counterSecond = 0;
 		}
-		const nextcycle = Math.max(1, cycletime - (t1 - t0) - speedUp);
+		const nextcycle = Math.max(MIN_CYCLETIME, cycletime - (t1 - t0) - speedUp);
 		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
 		this.cyclemonitor.id = setTimeout(this.cycle, nextcycle);
 	}
