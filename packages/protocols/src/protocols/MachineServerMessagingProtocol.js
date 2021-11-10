@@ -70,6 +70,7 @@ const MACHINE_ACTION_MESSAGE_TYPE = 'machine_action';
 
 const MACHINE_ADD_EVENT = 'machine_add';
 const MACHINE_CYCLETIME_EVENT = 'machine_cycletime';
+const MACHINE_CYCLEREGULATED_EVENT = 'machine_cycleregulated';
 const MACHINE_DESCRIPTOR_UPDATE_EVENT = 'machine_descriptor_update';
 const MACHINE_LAST_MODIFIED_EVENT = 'machine_lastmodified';
 const MACHINE_LOCALE_EVENT = 'machine_locale';
@@ -147,6 +148,7 @@ module.exports = {
 	EVENTS: {
 		MACHINE_ADD_EVENT,
 		MACHINE_CYCLETIME_EVENT,
+		MACHINE_CYCLEREGULATED_EVENT,
 		MACHINE_DESCRIPTOR_UPDATE_EVENT,
 		MACHINE_LAST_MODIFIED_EVENT,
 		MACHINE_LOCALE_EVENT,
