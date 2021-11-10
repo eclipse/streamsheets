@@ -348,6 +348,18 @@ module.exports = {
 					},
 					{
 						type: '',
+						name: 'Method',
+						description: 'The HTTP-method of the request.',
+						optional: false
+					},
+					{
+						type: '',
+						name: 'Body',
+						description: 'The body of the request.',
+						optional: false
+					},
+					{
+						type: '',
 						name: 'HeadersJSON',
 						description: 'Headers of the HTTP request.',
 						optional: true
