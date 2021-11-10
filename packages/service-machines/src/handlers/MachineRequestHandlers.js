@@ -301,7 +301,7 @@
 
 	 async handle(request, machineserver, repositoryManager) {
 		 const { settings = {} } = request;
-		 const { cycleTime, isOPCUA, locale, newName, view } = settings;
+		 const { cycleTime, isCycleRegulated, isOPCUA, locale, newName, view } = settings;
 		 if (newName != null) {
 			 // check if we already have a machine with newName => its not allowed
 			 const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(
@@ -316,6 +316,7 @@
 		 return handleRequest(this, machineserver, request, 'update', {
 			 props: {
 				 cycleTime,
+				 isCycleRegulated,
 				 isOPCUA,
 				 locale,
 				 newName,

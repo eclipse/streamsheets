@@ -285,6 +285,10 @@ module.exports = class MachineService extends MessagingService {
 					event.lastModifiedBy
 				);
 				break;
+			case MachineServerMessagingProtocol.EVENTS.MACHINE_CYCLEREGULATED_EVENT:
+				logger.info(`PersistenceService: persist new machine isCycleRegulated: ${event.isCycleRegulated}`);
+				await RepositoryManager.machineRepository.updateMachineCycleRegulated(event.srcId, event.isCycleRegulated);
+				break;
 			case MachineServerMessagingProtocol.EVENTS.MACHINE_LOCALE_EVENT:
 				logger.info(`PersistenceService: persist new machine locale: ${event.locale}`);
 				await RepositoryManager.machineRepository.updateMachineLocale(event.srcId, event.locale);
