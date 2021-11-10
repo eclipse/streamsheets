@@ -131,29 +131,6 @@ module.exports = {
 				}
 			}
 		},
-		BREAK: {
-			license: 'enterprise',
-			default: {
-				category: 'Streamsheet',
-				description: 'Immediately stops traversing a JSON object via [```JSON.PROCESS()```](./jsonprocess.md).',
-				inlineDescription: 'Immediately stops traversing a JSON object via JSON.PROCESS().',
-				return: {
-					type: '',
-					description: 'TRUE or an [error](../../other#error-codes) value.'
-				},
-				examples: {
-					infoStart: 'Traverse only first key-value pair of following JSON\n\n ``` A1: {"name": "foo", "age": 42 } \nA2: =CONCAT(A2, A4, "-") \nA3: =CONCAT(A3, B3, "-") \nA4: =BREAK() \nA5: =JSON.PROCESS(JSON(A1), B3, A2:A4) \n``` ',
-					infoEnd: '',
-					formulas: [
-						{
-							formula: '=BREAK()',
-							result: 'TRUE',
-							comment: 'Cells A2 and A3 contain only first key-value pair, namely ```-name-``` and ```-foo-``` respectively.'
-						}
-					]
-				}
-			}
-		},
 		CALC: {
 			default: {
 				category: 'Streamsheet',
@@ -946,55 +923,6 @@ module.exports = {
 				}
 			}
 		},
-		'JSON.PROCESS': {
-			license: 'enterprise',
-			default: {
-				category: 'Streamsheet',
-				description: 'Traverses given JSON object and processes each cell in specified cell-range. Before the cell-range is processed the current JSON value is written to defined value cell, whereas the corresponding key is returned from the function itself. A nested JSON can be completely traversed by setting the optional recursive parameter to TRUE. To immediately stop the JSON traversal use [```BREAK()```](./break.md) in processed cell-range.',
-				inlineDescription: 'Traverses given JSON object and processes each cell in specified cell-range.',
-				arguments: [
-					{
-						type: '',
-						name: 'JSON',
-						description: 'A JSON object to process.',
-						optional: false
-					},
-					{
-						type: '',
-						name: 'ValueCell',
-						description: 'Cell-reference to write current JSON value to.',
-						optional: false
-					},
-					{
-						type: '',
-						name: 'CellRange',
-						description: 'Cell-range to process for each JSON value.',
-						optional: false
-					},
-					{
-						type: '',
-						name: 'Recursive',
-						description: 'Specify TRUE to completely traverse a nested JSON object. Defaults to FALSE.',
-						optional: true
-					}
-				],
-				return: {
-					type: '',
-					description: 'Currently processed JSON key or an [error](../../other#error-codes) value.'
-				},
-				examples: {
-					infoStart: 'Traverse simple JSON and process specified cell-range: \n```\nA1: {"name": "foo", "age": 42 } \nA2: =CONCAT(A2, A4, "-") \nA3: =CONCAT(A3, B3, "-") \n``` ',
-					infoEnd: '',
-					formulas: [
-						{
-							formula: '=JSON.PROCESS(JSON(A1), B3, A2:A3)',
-							result: 'age',
-							comment: 'Processes given cell-range for each JSON key-value pair. When finished A2 contains all the keys (```-name-age-```) and  A3 all the corresponding values (```-foo-42-```)'
-						}
-					]
-				}
-			}
-		},
 		'JSON.RANGE': {
 			default: {
 				category: 'Streamsheet',
@@ -1049,63 +977,6 @@ module.exports = {
 						{
 							formula: '=JSON.RANGE(RANGE(A1:B2), A5:B6, ”RANGE”, FALSE)',
 							result: 'Results in: <br /> A5=”v1”, B5=”v2” <br /> A6=”23”, B6=”42”'
-						}
-					]
-				}
-			}
-		},
-		'JSON.TO.XML': {
-			license: 'enterprise',
-			default: {
-				category: 'Streamsheet',
-				description: 'Converts given JSON object into an XML text.',
-				inlineDescription: 'Converts given JSON object into an XML text.',
-				arguments: [
-					{
-						type: '',
-						name: 'JSON',
-						description: 'A JSON object to convert.',
-						optional: false
-					},
-					{
-						type: '',
-						name: 'XMLHeader',
-						description: 'Provide a custom header text or specify TRUE to add a standard XML header or FALSE to add no header. Defaults to TRUE.',
-						optional: true
-					}
-				],
-				return: {
-					type: '',
-					description: 'A text representing XML or an [error](../../other#error-codes) value.'
-				},
-				examples: {
-					infoStart: '',
-					infoEnd: '',
-					formulas: [
-						{
-							formula: '=JSON.TO.XML(JSON(A1))',
-							result: '&lt;?xml version="1.0" encoding="utf-8"?&gt;<br/>&lt;name&gt;foo&lt;/name&gt;<br/>&lt;age&gt;42&lt;/age&gt;',
-							comment: 'Create an XML from a simple JSON: <br/>```A1: {"name": "foo", "age": 42 }```<br/><br/>JSON keys are used as element tags and their values as element text. A standard xml header is added.'
-						},
-						{
-							formula: '=JSON.TO.XML(JSON(A1), FALSE)',
-							result: '&lt;Customer id="1234" version="1.2"&gt;<br/>&lt;name&gt;John&lt;/name&gt;<br/>&lt;/Customer&gt;',
-							comment: 'Create an XML with tag attributes (Note: currently only keys with object/array values can have attributes): <br/>```A1: { "Customer id=\'1234\' version=\'1.2\'": { "name": "John" } }```<br/><br/>Attributes are simply listed within the JSON key.'
-						},
-						{
-							formula: '=JSON.TO.XML(JSON(A1), FALSE)',
-							result: '&lt;Customer&gt;<br/>&lt;!--a comment inside--&gt;<br/>&lt;name&gt;John&lt;/name&gt;<br/>&lt;/Customer&gt;',
-							comment: 'Create an XML with comments: <br/>```A1: { "Customer": { "<!--": "a comment inside", "name": "John" } }```<br/>`<br/>Comments must have a &lt;!-- JSON key'
-						},
-						{
-							formula: '=JSON.TO.XML(JSON(A1), FALSE)',
-							result: '&lt;Customers&gt;<br/>&lt;Customer&gt;<br/>&lt;name&gt;John&lt;/name&gt;<br/>&lt;/Customer&gt;<br/>&lt;Customer&gt;<br/>&lt;name&gt;Doe&lt;/name&gt;<br/>&lt;/Customer&gt;<br/>&lt;/Customers&gt;',
-							comment: 'Create an XML with list elements: <br/>```A1: { "Customers": { "Customer": [ { "name": "John" }, { "name": "Doe" } ] }```<br/><br/>All objects inside list must be under same JSON key.'
-						},
-						{
-							formula: '=JSON.TO.XML(JSON(A1), B1)',
-							result: '&lt;?xml version="1.0" ?&gt;<br/>&lt;name&gt;John&lt;/name&gt;',
-							comment: 'Create an XML with custom XML header: <br/>```A1: { "name": "John" }, B1: "<?xml version="1.0" ?>```<br/><br/>A custom header is simply added without any further validation.'
 						}
 					]
 				}
