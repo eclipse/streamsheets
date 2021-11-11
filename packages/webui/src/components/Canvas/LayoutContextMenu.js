@@ -66,10 +66,11 @@ const Submenu = withStyles(submenuStyles)(// Unfortunately, MUI <Menu> injects r
 								selected={popupState.isOpen}
 								ref={ref}
 							>
-								<ListItemIcon>
+								<ListItemIcon key="iconSGM">
 									<SvgIcon style={styles.menuItem} />
 								</ListItemIcon>
 								<ListItemText
+									key={title}
 									primary={title}
 								/>
 								<ChevronRight className={classes.moreArrow} />
@@ -555,7 +556,7 @@ class LayoutContextComponent extends Component {
 								{...bindMenu(popupState)}
 							>
 								{!this.isMultiSelection() ? [
-									<MenuItem onClick={this.onShowProperties} dense>
+									<MenuItem key="1" onClick={this.onShowProperties} dense>
 										<ListItemIcon>
 											<SettingsIcon style={styles.menuItem} />
 										</ListItemIcon>
@@ -563,10 +564,10 @@ class LayoutContextComponent extends Component {
 											primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
 										/>
 									</MenuItem>,
-									<Divider />
+									<Divider key="30"/>
 								] : null}
 								{isMerged ? (
-									<MenuItem onClick={this.onRemoveMerge} dense>
+									<MenuItem key="2" onClick={this.onRemoveMerge} dense>
 										<ListItemIcon>
 											<SvgIcon>
 												<path
@@ -581,7 +582,7 @@ class LayoutContextComponent extends Component {
 									</MenuItem>
 									) : null}
 								{isMergeLeft ? (
-									<MenuItem onClick={this.onMergeLeft} dense>
+									<MenuItem key="3" onClick={this.onMergeLeft} dense>
 										<ListItemIcon>
 											<SvgIcon>
 												<path
@@ -597,7 +598,7 @@ class LayoutContextComponent extends Component {
 									</MenuItem>) : null
 								}
 								{isMergeRight ? (
-									<MenuItem onClick={this.onMergeRight} dense>
+									<MenuItem key="4" onClick={this.onMergeRight} dense>
 										<ListItemIcon>
 											<SvgIcon>
 												<path
@@ -611,10 +612,10 @@ class LayoutContextComponent extends Component {
 										/>
 									</MenuItem>) : null
 								}
-								{isMerged || isMergeRight || isMergeLeft ? <Divider /> : null}
+								{isMerged || isMergeRight || isMergeLeft ? <Divider key="31" /> : null}
 								{
 									isFirst ? null :
-										<MenuItem onClick={() => this.onMoveLeft()} dense>
+										<MenuItem key="5" onClick={() => this.onMoveLeft()} dense>
 											<ListItemIcon>
 												<SvgIcon>
 													<path
@@ -629,7 +630,7 @@ class LayoutContextComponent extends Component {
 								}
 								{
 									isLast ? null :
-										<MenuItem onClick={() => this.onMoveRight()} dense>
+										<MenuItem key="6" onClick={() => this.onMoveRight()} dense>
 											<ListItemIcon>
 												<SvgIcon>
 													<path
@@ -642,28 +643,28 @@ class LayoutContextComponent extends Component {
 												primary={<FormattedMessage id='Layout.MoveRight' defaultMessage='Move Right' />} />
 										</MenuItem>
 								}
-								{isFirst && isLast ? null : (<Divider />)}
+								{isFirst && isLast ? null : (<Divider key="32" />)}
 								{layoutCell ? [
 									<Submenu
 										popupId='rowMenu' title={<FormattedMessage id='Layout.Row' defaultMessage='Row' />}
 									>
-										<MenuItem onClick={() => this.onRowProperties(popupState)} dense>
+										<MenuItem key="7" onClick={() => this.onRowProperties(popupState)} dense>
 											<ListItemText
 												primary={<FormattedMessage id='Layout.Properties' defaultMessage='Properties' />}
 											/>
 										</MenuItem>
-										<Divider />
-										<MenuItem onClick={() => this.onAddRow(popupState, true)} dense>
+										<Divider key="33" />
+										<MenuItem key="8" onClick={() => this.onAddRow(popupState, true)} dense>
 											<ListItemText primary={<FormattedMessage id='Layout.AddBefore'
 																					 defaultMessage='Add Before' />} />
 										</MenuItem>
-										<MenuItem onClick={() => this.onAddRow(popupState, false)}
+										<MenuItem key="9" onClick={() => this.onAddRow(popupState, false)}
 												  dense>
 											<ListItemText
 												primary={<FormattedMessage id='Layout.AddBehind' defaultMessage='Add Behind' />} />
 										</MenuItem>
-										<Divider />
-										<MenuItem onClick={() => this.onDeleteRow(popupState)} dense>
+										<Divider key="34" />
+										<MenuItem key="10" onClick={() => this.onDeleteRow(popupState)} dense>
 											<ListItemText
 												primary={<FormattedMessage id='Layout.Delete' defaultMessage='Delete' />} />
 										</MenuItem>
@@ -671,32 +672,32 @@ class LayoutContextComponent extends Component {
 									<Submenu
 										popupId='columnMenu' title={<FormattedMessage id='Layout.Column' defaultMessage='Column' />}
 									>
-										<MenuItem onClick={() => this.onColumnProperties(popupState)} dense>
+										<MenuItem key="11" onClick={() => this.onColumnProperties(popupState)} dense>
 											<ListItemText
 												primary={<FormattedMessage id='Layout.Properties' defaultMessage='Properties' />}
 											/>
 										</MenuItem>
-										<Divider />
+										<Divider key="35" />
 										<MenuItem
 											onClick={() => this.onAddColumn(popupState, true)}
 											dense>
 											<ListItemText primary={<FormattedMessage id='Layout.AddBefore'
 																					 defaultMessage='Add Before' />} />
 										</MenuItem>
-										<MenuItem onClick={() => this.onAddColumn(popupState, false)}
+										<MenuItem key="12" onClick={() => this.onAddColumn(popupState, false)}
 												  dense>
 											<ListItemText
 												primary={<FormattedMessage id='Layout.AddBehind' defaultMessage='Add Behind' />} />
 										</MenuItem>
-										<Divider />
-										<MenuItem onClick={() => this.onDeleteColumn(popupState)} dense>
+										<Divider key="36" />
+										<MenuItem key="13" onClick={() => this.onDeleteColumn(popupState)} dense>
 											<ListItemText
 												primary={<FormattedMessage id='Layout.Delete' defaultMessage='Delete' />} />
 										</MenuItem>
 									</Submenu>,
 								] : null}
-								<Divider />
-								<MenuItem onClick={this.onDelete} dense>
+								<Divider key="37"/>
+								<MenuItem key="14" onClick={this.onDelete} dense>
 									<ListItemIcon>
 										<DeleteIcon style={styles.menuItem} />
 									</ListItemIcon>
