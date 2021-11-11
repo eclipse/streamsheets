@@ -266,8 +266,8 @@ const doImport = async (
 		})
 	).then((mwgs) => mwgs.filter((mwg) => mwg !== null))) as MachineWithGraph[];
 
-	const successfulStreamImports: string[] = [];
-	const successfulMachineImports: string[] = [];
+	const successfulStreamImports: { id: string; name: string }[] = [];
+	const successfulMachineImports: { id: string; name: string }[] = [];
 
 	// Do the import!
 	await Promise.all(
@@ -275,7 +275,7 @@ const doImport = async (
 			try {
 				logger.info(`Importing Connector#${c.id}(${c.name})`);
 				await api.stream.saveStream(scope, c);
-				successfulStreamImports.push(c.name);
+				successfulStreamImports.push({ id: c.id, name: c.name });
 			} catch (error) {
 				logger.info(`Connector import failed! Connector#${c.id}`, error.message);
 			}
@@ -286,7 +286,7 @@ const doImport = async (
 			try {
 				logger.info(`Importing Stream#${s.id}(${s.name})`);
 				await api.stream.saveStream(scope, s);
-				successfulStreamImports.push(s.name);
+				successfulStreamImports.push({ id: s.id, name: s.name });
 			} catch (error) {
 				logger.info(`Stream import failed! Stream#${s.id}`, error.message);
 			}
@@ -297,8 +297,8 @@ const doImport = async (
 			try {
 				const { state } = await api.machine.unload(scope, machine.id);
 				logger.info(`Importing Machine#${machine.id}(${machine.name}) Graph#${graph.id}`);
-				await api.machine.saveOrUpdate(scope, machine, graph);
-				successfulMachineImports.push(machine.name);
+				const result = await api.machine.saveOrUpdate(scope, machine, graph);
+				successfulMachineImports.push({ id: machine.id, name: machine.name });
 				try {
 					// Load and Start/Pause machines that were running before import
 					if (state === 'running') {

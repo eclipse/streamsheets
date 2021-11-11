@@ -235,7 +235,9 @@ const resolvers = {
 				throw new Error('NOT_ALLOWED');
 			}
 			try {
-				await Promise.all(files.map(f => fs.unlink(path.join(MACHINE_DATA_DIR, machineId, path.basename(f)))))
+				await Promise.all(
+					files.map((f) => fs.unlink(path.join(MACHINE_DATA_DIR, machineId, path.basename(f))))
+				);
 				return Payload.createSuccess({
 					code: 'FILES_DELETED',
 					message: 'Files deleted successfully'
@@ -271,11 +273,11 @@ const resolvers = {
 				});
 				const proposedName = importInfo.machines[0].proposedName;
 				const result = await api.import.doImport(scope, exportData, [{ id: machineId, newName: proposedName }]);
-				const machines = await api.machine.findMachinesByName(scope, result.machines[0]);
+				const imortedMachine = await api.machine.findMachine(scope, result.machines[0].id);
 				return Payload.createSuccess({
 					code: 'CLONE_SUCCESS',
 					message: 'Machine cloned successfully',
-					clonedMachine: machines[0]
+					clonedMachine: imortedMachine
 				});
 			} catch (error) {
 				return Payload.createFailure(error);
