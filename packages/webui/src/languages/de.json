@@ -324,6 +324,7 @@
 	"DialogNames.local": "Streamsheet Namen",
 	"DialogNames.unique": "Name schon benutzt!",
 	"DialogNames.referenceAllowed": "Nur Bezüge mit Streamsheetnamen gültig!",
+	"DialogNames.referenceEqual": "Bitte einen Bezug mit Gleichheitszeichen eingeben!",
 	"ViewModeProperties.Title": "Anzeigemodus konfigurieren",
 	"ViewModeProperties.DisplaySheet": "Streamsheet",
 	"ViewModeProperties.Header": "Zeilen-/Spaltenköpfe anzeigen",
