@@ -445,7 +445,7 @@ module.exports = {
 	'URL.HASH': {
 		default: {
 			category: 'HTTP',
-			description: 'TODO',
+			description: 'Gets the fragment of an URL.',
 			inlineDescription: 'Gets the fragment of an URL.',
 			arguments: [{
 				type: '',
@@ -477,7 +477,7 @@ module.exports = {
 	'URL.HOST': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the host of an URL.',
 				inlineDescription: 'Gets the host of an URL.',
 				arguments: [{
 					type: '',
@@ -509,7 +509,7 @@ module.exports = {
 	'URL.HOSTNAME': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the host name of an URL.',
 				inlineDescription: 'Gets the host name of an URL.',
 				arguments: [{
 					type: '',
@@ -541,7 +541,7 @@ module.exports = {
 		'URL.ORIGIN': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the origin of an URL.',
 				inlineDescription: 'Gets the origin of an URL.',
 				arguments: [{
 					type: '',
@@ -573,7 +573,7 @@ module.exports = {
 		'URL.PASSWORD': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the password portion of an URL.',
 				inlineDescription: 'Gets the password portion of an URL.',
 				arguments: [{
 					type: '',
@@ -605,7 +605,7 @@ module.exports = {
 		'URL.PATHNAME': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the path portion of an URL.',
 				inlineDescription: 'Gets the path portion of an URL.',
 				arguments: [{
 					type: '',
@@ -637,7 +637,7 @@ module.exports = {
 		'URL.PORT': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the port of an URL.',
 				inlineDescription: 'Gets the port of an URL.',
 				arguments: [{
 					type: '',
@@ -669,7 +669,7 @@ module.exports = {
 		'URL.PROTOCOL': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the protocol of an URL.',
 				inlineDescription: 'Gets the protocol of an URL.',
 				arguments: [{
 					type: '',
@@ -701,7 +701,7 @@ module.exports = {
 		'URL.QUERY': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the query string  of an URL.',
 				inlineDescription: 'Gets the query string  of an URL.',
 				arguments: [{
 					type: '',
@@ -733,7 +733,7 @@ module.exports = {
 		'URL.USERNAME': {
 			default: {
 				category: 'HTTP',
-				description: 'TODO',
+				description: 'Gets the username portion of an URL.',
 				inlineDescription: 'Gets the username portion of an URL.',
 				arguments: [{
 					type: '',
