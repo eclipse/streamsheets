@@ -207,7 +207,7 @@ export class LayoutSectionProperties extends Component {
 
 	render() {
 		if (!this.props.showLayoutSectionProperties) {
-			return <div />;
+			return null;
 		}
 		const isRowSection = this.isRowSection();
 		return (

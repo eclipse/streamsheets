@@ -733,7 +733,7 @@ export class CanvasComponent extends Component {
 				)}
 
 				{viewMode.active === true || !canEdit ? null : (
-					<div>
+					<React.Fragment>
 						{graph.getDashboardContainer() ? (
 							<Tooltip
 								enterDelay={300}
@@ -793,7 +793,7 @@ export class CanvasComponent extends Component {
 								/>
 							</SpeedDial>
 						)}
-					</div>
+					</React.Fragment>
 				)}
 				{viewMode.active === true && canEdit
 					? [

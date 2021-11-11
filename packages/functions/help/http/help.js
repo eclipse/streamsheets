@@ -43,7 +43,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'The function HTTP.OPTIONS() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
+					description: 'The function HTTP.DELETE() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
 				},
 				examples: {
 					infoStart: '![Select](../../_images/HTTPConfigHeader.png) \n\nExamples for using the config and header parameter. Use a JSON() function around the cell range.  ',
@@ -91,7 +91,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'The function HTTP.OPTIONS() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
+					description: 'The function HTTP.GET() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
 				},
 				examples: {
 					infoStart: '![Select](../../_images/HTTPConfigHeader.png) \n\nExamples for using the config and header parameter. Use a JSON() function around the cell range.  ',
@@ -139,7 +139,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'The function HTTP.OPTIONS() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
+					description: 'The function HTTP.HEAD() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
 				},
 				examples: {
 					infoStart: '![Select](../../_images/HTTPConfigHeader.png) \n\nExamples for using the config and header parameter. Use a JSON() function around the cell range.  ',
@@ -216,6 +216,12 @@ module.exports = {
 					},
 					{
 						type: '',
+						name: 'Body',
+						description: 'The body of the request.',
+						optional: true
+					},
+					{
+						type: '',
 						name: 'HeadersJSON',
 						description: 'Headers of the HTTP request.',
 						optional: true
@@ -235,7 +241,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'The function HTTP.OPTIONS() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
+					description: 'The function HTTP.PATCH() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
 				},
 				examples: {
 					infoStart: '![Select](../../_images/HTTPConfigHeader.png) \n\nExamples for using the config and header parameter. Use a JSON() function around the cell range.  ',
@@ -258,6 +264,12 @@ module.exports = {
 					},
 					{
 						type: '',
+						name: 'Body',
+						description: 'The body of the request',
+						optional: true
+					},
+					{
+						type: '',
 						name: 'HeadersJSON',
 						description: 'Headers of the HTTP request.',
 						optional: true
@@ -277,7 +289,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'The function HTTP.OPTIONS() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
+					description: 'The function HTTP.POST() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
 				},
 				examples: {
 					infoStart: '![Select](../../_images/HTTPConfigHeader.png) \n\nExamples for using the config and header parameter. Use a JSON() function around the cell range.  ',
@@ -297,6 +309,12 @@ module.exports = {
 						name: 'URL',
 						description: 'The URL to request.',
 						optional: false
+					},
+					{
+						type: '',
+						name: 'Body',
+						description: 'The body of the request.',
+						optional: true
 					},
 					{
 						type: '',
@@ -339,6 +357,18 @@ module.exports = {
 						name: 'URL',
 						description: 'The URL to request.',
 						optional: false
+					},
+					{
+						type: '',
+						name: 'Method',
+						description: 'The HTTP-method of the request.',
+						optional: false
+					},
+					{
+						type: '',
+						name: 'Body',
+						description: 'The body of the request.',
+						optional: true
 					},
 					{
 						type: '',
@@ -403,7 +433,7 @@ module.exports = {
 				],
 				return: {
 					type: '',
-					description: 'The function HTTP.OPTIONS() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
+					description: 'The function HTTP.TRACE() always returns a unique random request ID. Otherwise an [error](../../other#error-codes) is displayed.'
 				},
 				examples: {
 					infoStart: '![Select](../../_images/HTTPConfigHeader.png) \n\nExamples for using the config and header parameter. Use a JSON() function around the cell range.  ',

@@ -17,13 +17,13 @@ module.exports = {
 				inlineDescription: 'Creates an hash for given text using specified algorithm',
 				arguments: [
 					{
-						type: '',
+						type: 'String',
 						name: 'Text',
 						description: 'A text to create hash value for.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'String',
 						name: 'Algorithm',
 						description: 'The hash algorithm to use. Defaults to "sha256"',
 						optional: true
@@ -58,19 +58,19 @@ module.exports = {
 				inlineDescription: 'Creates an hmac from given text and secret using specified algorithm',
 				arguments: [
 					{
-						type: '',
+						type: 'String',
 						name: 'Text',
 						description: 'A text to create hash value for.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'String',
 						name: 'Secret',
 						description: 'A text used as key to generate the cryptographic HMAC hash.',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'String',
 						name: 'Algorithm',
 						description: 'The hash algorithm to use. Defaults to "sha256"',
 						optional: true

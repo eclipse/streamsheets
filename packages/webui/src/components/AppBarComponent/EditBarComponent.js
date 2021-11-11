@@ -9,11 +9,11 @@
  *
  ********************************************************************************/
 /* eslint-disable react/prop-types */
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import JSG from '@cedalo/jsg-ui';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-import { graphManager } from '../../GraphManager';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {graphManager} from '../../GraphManager';
 import * as Actions from '../../actions/actions';
 import AppBar from '@material-ui/core/AppBar';
 import {withStyles} from '@material-ui/core/styles';
@@ -99,7 +99,7 @@ export class EditBarComponent extends Component {
 			graphView.setFocus(selection[0]);
 		}
 
-		if (selection !== undefined && selection.length === 1) {
+		if (selection.length === 1) {
 			const item = selection[0].getModel();
 			const sheet = getContainer(item);
 			if (sheet) {
@@ -183,9 +183,7 @@ export class EditBarComponent extends Component {
 
 		this.removeSheetSelection(item);
 
-		const value = view ? view.getEditString(activeCell) : '';
-
-		formula.innerHTML = value;
+		formula.innerHTML = view ? view.getEditString(activeCell) : '';
 		info.innerHTML = item.getOwnSelection().refToString();
 
 		if (this.props.cellSelected === false) {
@@ -228,18 +226,6 @@ export class EditBarComponent extends Component {
 				}
 			}
 		}, false);
-		// processContainer.enumerateStreamSheetContainers((container) => {
-		// 	const sheet = container.getStreamSheet();
-		// 	if (active === undefined || sheet.getId() !== active.getId()) {
-		// 		if (sheet.getOwnSelection().hasSelection()) {
-		// 			const cmd = new RemoveSelectionCommand(sheet, sheet.getSelectionId());
-		// 			// cmd._noDraw = true;
-		// 			graphManager.getGraph().markDirty();
-		// 			graphManager.getGraphViewer().getGraphView().activeView = undefined;
-		// 			graphManager.synchronizedExecute(cmd);
-		// 		}
-		// 	}
-		// });
 	}
 
 	handleReferenceKeyDown = () => {};
@@ -523,9 +509,8 @@ export class EditBarComponent extends Component {
 			>
 				<span
 					id="editbarreference"
-					disabled
 					onKeyDown={this.handleReferenceKeyDown}
-					contentEditable={this.props.cellSelected}
+					// contentEditable={this.props.cellSelected}
 					style={{
 						margin: 0,
 						padding: '3px 3px 0px 3px',
@@ -541,7 +526,6 @@ export class EditBarComponent extends Component {
 				/>
 				<span
 					id="editbarcommands"
-					disabled
 					tabIndex="-1"
 					onMouseDown={this.handleFunctionMouseDown}
 					style={{

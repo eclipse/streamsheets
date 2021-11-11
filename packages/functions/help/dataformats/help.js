@@ -18,12 +18,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'String',
-					description: '',
+					description: 'The string containing the CSV to parse.',
 					optional: false
 				}],
 				return: {
 					type: '',
-					description: ''
+					description: 'The parsed CSV object model.'
 				},
 				examples: {
 					infoStart: '',
@@ -44,12 +44,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'String',
-					description: '',
+					description: 'The string containing the XML to parse.',
 					optional: false
 				}],
 				return: {
 					type: '',
-					description: ''
+					description: 'The parsed XML tree.'
 				},
 				examples: {
 					infoStart: '',

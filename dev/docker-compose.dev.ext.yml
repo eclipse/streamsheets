@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+  streamsheets-internal-broker:
+    image: eclipse-mosquitto:1.5
+    container_name: streamsheets-internal-broker
+    ports:
+      - 1884:1883
+    expose:
+      - 1884
+    volumes:
+      - ./mosquitto-internal/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto-internal/pw.txt:/mosquitto/config/pw.txt
+    logging:
+      driver: "none"
+    networks:
+      - streamsheets
+  streamsheets-internal-redis:
+    image: redis:4.0.11-alpine
+    container_name: streamsheets-internal-redis
+    command: >
+      --bind 0.0.0.0
+      --notify-keyspace-events Kls$$
+    ports:
+      - 6379:6379
+    expose:
+      - 6379
+    logging:
+      driver: "none"
+    networks:
+      - streamsheets
+  streamsheets-internal-mongodb:
+    image: mongo:4.0
+    container_name: streamsheets-internal-database
+    ports:
+      - 27018:27017
+    expose:
+      - 27018
+    volumes:
+      - streamsheets-data:/data/db
+    networks:
+      - streamsheets
+    logging:
+      driver: "none"
+    deploy:
+      restart_policy:
+        condition: any
+volumes:
+  oklog:
+  streamsheets-data:
+    external: true
+
+networks:
+  streamsheets:
+    external:
+      name: streamsheets

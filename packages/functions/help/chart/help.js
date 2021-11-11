@@ -11,10 +11,12 @@
 module.exports = {
 	functions: {
 		AXIS: {
+			cellEditor: false,
 			default: {
 				category: 'Chart',
 				description: 'Define axis settings of a chart axis.',
 				inlineDescription: 'Defines axis parameters',
+				hint: 'This function is shown in the edit bar, if an axis is selected. It should not be used in a cell',
 				arguments: [
 					{
 						type: 'Number',
@@ -32,7 +34,7 @@ module.exports = {
 						type: 'Number',
 						name: 'Step',
 						description: 'Step for axis ticks or grid lines. For time axis the step will increment the time step.',
-						optional: false
+						optional: true
 					},
 					{
 						type: 'String',
@@ -77,37 +79,37 @@ module.exports = {
 				inlineDescription: 'Displays a chart in the cell',
 				arguments: [
 					{
-						type: '',
+						type: 'Range',
 						name: 'DataRange',
 						description: 'Cell Range to retrieve the data for the chart from',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'String',
 						name: 'ChartType',
 						description: 'Valid Chart Type. Default is line. Valid values are : line, column, bar, pie, doughnut, bubble, scatter, area.',
 						optional: true
 					},
 					{
-						type: '',
+						type: 'String',
 						name: 'LineColor',
-						description: 'Line Color to use for first series',
+						description: 'Line Color to use for first series as hexadecimal color value',
 						optional: true
 					},
 					{
-						type: '',
+						type: 'String',
 						name: 'FillColor',
-						description: 'Fill Color to use for first series',
+						description: 'Fill Color to use for first series as hexadecimal color value',
 						optional: true
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Minimum',
 						description: 'Value Axis Minimum',
 						optional: true
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Maximum',
 						description: 'Value Axis Maximum',
 						optional: true
@@ -122,7 +124,7 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: '=CELLCHART(B2:B5, "pie")',
+							formula: '=CELLCHART(B2:B5,"line")',
 							result: 'TRUE',
 							comment: 'Draw a chart in the current cell.'
 						}
@@ -131,49 +133,51 @@ module.exports = {
 			}
 		},
 		'DRAW.STREAMCHART': {
+			cellEditor: false,
 			default: {
 				category: 'Chart',
 				description: 'Define a chart on a given drawing.',
-				inlineDescription: 'Creates a chart',
+				inlineDescription: 'Contains chart parameters',
+				hint: 'This function is shown in the edit bar, if a chart is selected. It should not be used in a cell',
 				arguments: [
 					{
-						type: '',
+						type: 'Number',
 						name: 'X',
 						description: 'X Coordinate in 1/100th mm',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Y',
 						description: 'Y Coordinate in 1/100th mm',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Width',
 						description: 'Width in 1/100th mm',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Height',
 						description: 'Height in 1/100th mm',
 						optional: false
 					},
 					{
-						type: '',
+						type: 'String',
 						name: 'LineColor',
 						description: 'Options: <br /> - `None` for no line <br /> - Hexadecimal color value (`#FF0000` for Red)',
 						optional: true
 					},
 					{
-						type: '',
+						type: 'String',
 						name: 'FillColor',
-						description: 'Options: <br /> - "None" for no fill  <br />- Hexadecimal color value ("#FF0000" for Red)',
+						description: 'Options: <br /> - `None` for no fill  <br />- Hexadecimal color value (`#FF0000` for Red)',
 						optional: true
 					},
 					{
-						type: '',
+						type: 'Number',
 						name: 'Angle',
 						description: 'Angle in radians.',
 						optional: true
