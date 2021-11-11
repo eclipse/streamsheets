@@ -111,7 +111,7 @@ class NoOpCycle extends TriggerCycle {
 	}
 }
 
-const DEF_CYCLETIME = 100;
+const DEF_CYCLETIME = 1000;
 const MIN_CYCLETIME = 5;
 
 module.exports = {
