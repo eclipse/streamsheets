@@ -9,7 +9,8 @@
  *
  ********************************************************************************/
 const BaseTrigger = require('./BaseTrigger');
-const { ManualMessageLoopCycle, TimerMessageLoopCycle, MIN_CYCLETIME } = require('./MessageLoopCycle');
+const { MIN_CYCLETIME } = require('./cycles');
+const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoopCycle');
 
 const UNITS = {};
 UNITS.ms = 1;
@@ -31,7 +32,7 @@ class IntervalCycle extends TimerMessageLoopCycle {
 
 class RandomIntervalCycle extends IntervalCycle {
 	random(nr) {
-		Math.floor(Math.random() * Math.floor(nr));
+		return Math.floor(Math.random() * Math.floor(nr));
 	}
 	getCycleTime() {
 		const interval = this.random(2 * this.trigger.interval);
