@@ -149,14 +149,11 @@ class Machine {
 		this._settings.view = { ...this.settings.view, ...settings.view };
 		this.titleImage = definition.titleImage;
 		this.previewImage = definition.previewImage;
-
-		// first time load named cells so that reference to named cells are resolved on streamsheets load
-		this.namedCells.load(this, def.namedCells);
+		this.removeAllStreamSheets();
 		// at least one streamsheet (required by graph-service!!):
 		if (!streamsheets.length) streamsheets.push({});
-
-		// load streamsheets:
-		this.removeAllStreamSheets();
+		
+		// preload streamsheets:
 		streamsheets.forEach((sheetdef) => {
 			const streamsheet = new StreamSheet(sheetdef);
 			sheetdef.id = streamsheet.id;
@@ -164,6 +161,8 @@ class Machine {
 			// support to preload additions which might be referenced across sheets, e.g. shapes
 			streamsheet.preload(sheetdef);
 		});
+		// first time load named cells so that reference to named cells are resolved on streamsheets load
+		this.namedCells.load(this, def.namedCells);
 		// then load all
 		streamsheets.forEach((sheetdef) => this.getStreamSheet(sheetdef.id).load(sheetdef, this));
 		// second time load named cells so that references from named cells are resolved correctly
@@ -568,14 +567,17 @@ class Machine {
 		}
 	}
 	_scheduleNextCycle(t0, t1) {
+		this._calcCyclesPerSecond(t1);
+		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
+		this.cyclemonitor.id = setTimeout(this.cycle, this._calcNextCycle(t1 - t0));
+	}
+	_calcCyclesPerSecond(t1) {
 		const perSecond = t1 - this.cyclemonitor.lastSecond;
 		if (perSecond >= 1000) {
 			this.stats.cyclesPerSecond = Math.ceil(this.cyclemonitor.counterSecond / (perSecond / 1000));
 			this.cyclemonitor.lastSecond = t1;
 			this.cyclemonitor.counterSecond = 0;
 		}
-		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
-		this.cyclemonitor.id = setTimeout(this.cycle, this._calcNextCycle(t1 - t0));
 	}
 	_calcNextCycle(delta) {
 		const cycletime = this.cycletime;
