@@ -1149,7 +1149,8 @@ describe('counter stats', () => {
 		await wait(10);
 		await machine.pause();
 		const repeats = s1.stats.repeatsteps;
-		expect(repeats).toBeGreaterThan(2);
+		const expectedRepeats = Math.floor(10 / s1.trigger.activeCycle.getCycleTime());
+		expect(repeats).toBeGreaterThanOrEqual(expectedRepeats);
 		await wait(120);
 		// we are running in repeat mode, so
 		expect(s1.stats.steps).toBe(1);

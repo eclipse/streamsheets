@@ -10,6 +10,7 @@
  ********************************************************************************/
 const { FunctionErrors } = require('@cedalo/error-codes');
 const { ExecuteTrigger, Machine, Message, StreamSheet, TriggerFactory } = require('../../..');
+const { MIN_CYCLETIME } = require('../../../src/machine/sheettrigger/cycles');
 const { createCellAt, expectValue, monitorMachine, monitorStreamSheet, wait } = require('../../utils');
 
 const ERROR = FunctionErrors.code;
@@ -236,24 +237,25 @@ describe('behaviour on machine run', () => {
 		});
 		test('execute sheet in "repeat until..." mode after start/pause/start/stop/start/stop', async () => {
 			const { machine, s1, s2 } = setup({ s1Type: TriggerFactory.TYPE.MACHINE_START });
-			machine.cycletime = 2;
+			const MS = 5 * MIN_CYCLETIME;
+			machine.cycletime = MIN_CYCLETIME;
 			s1.sheet.loadCells({ A1: { formula: 'A1+1' }, A2: { formula: 'execute("S2")' } });
 			s2.trigger.update({ repeat: 'endless' });
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'if(B1>3,return(42),false)' } });
 			await machine.start();
-			await wait(10);
+			await wait(MS);
 			await machine.pause();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(4);
 			expect(s2.sheet.cellAt('B2').value).toBe(42);
 			await machine.start();
-			await wait(10);
+			await wait(MS);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s2.sheet.cellAt('B1').value).toBe(4);
 			expect(s2.sheet.cellAt('B2').value).toBe(42);
 			await machine.start();
-			await wait(10);
+			await wait(MS);
 			await machine.stop();
 			expect(s1.sheet.cellAt('A1').value).toBe(3);
 			expect(s2.sheet.cellAt('B1').value).toBe(5);
@@ -469,7 +471,7 @@ describe('behaviour on machine run', () => {
 			s2.trigger.update({ repeat: 'endless'});
 			s2.sheet.loadCells({ B1: { formula: 'B1+1' }, B2: { formula: 'if(mod(B1,5)=0,return(42),false)' } });
 			await machine.start();
-			await wait(100);
+			await wait(100 * MIN_CYCLETIME);
 			await machine.pause();
 			expect(s1.sheet.cellAt('A1').value).toBe(2);
 			expect(s1.sheet.cellAt('A2').value).toBe(42);
