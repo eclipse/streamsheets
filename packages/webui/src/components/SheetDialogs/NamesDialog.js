@@ -92,7 +92,7 @@ export default class NamesDialog extends React.Component {
 				data.push({
 					name: name.getName(),
 					oldName: name.getName(),
-					expression: name.getFormula(),
+					expression: `=${name.getFormula()}`,
 					errorName: '',
 					errorExpression: '',
 					id: uniqueId,
@@ -150,18 +150,22 @@ export default class NamesDialog extends React.Component {
 			}
 			case 'expression':
 				try {
-					const formula = String(event.target.value);
+					let formula = String(event.target.value);
 					if (formula.indexOf('!') === -1) {
 						closeDisabled = true;
 						rowData.errorExpression = intl.formatMessage({ id: 'DialogNames.referenceAllowed' }, {});
+					} else if (formula.indexOf('=') === -1) {
+						closeDisabled = true;
+						rowData.errorExpression = intl.formatMessage({ id: 'DialogNames.referenceEqual' }, {});
 					} else {
+						formula = formula.substring(1);
 						const term = JSG.FormulaParser.parse(
-							event.target.value,
+							formula,
 							graphManager.getGraph(),
 							graphManager.getGraph()
 						);
 						if (term && term.operand instanceof SheetReference) {
-							rowData.expression = event.target.value;
+							rowData.expression = formula;
 							rowData.errorExpression = '';
 						} else {
 							closeDisabled = true;

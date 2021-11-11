@@ -325,6 +325,7 @@
   "DialogNames.local": "Streamsheet Names",
   "DialogNames.unique": "Name must be unique!",
   "DialogNames.referenceAllowed": "Only reference including sheet name allowed!",
+  "DialogNames.referenceEqual": "Please enter a reference with equal sign!",
   "ViewModeProperties.Title": "View Mode Settings",
   "ViewModeProperties.DisplaySheet": "Display Sheet",
   "ViewModeProperties.Header": "Show Headers",
