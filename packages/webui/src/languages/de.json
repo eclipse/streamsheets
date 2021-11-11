@@ -653,6 +653,7 @@
 	"Tooltip.ReloadSchemas": "Schemata neu laden",
 	"Tooltip.EditName": "Maschinename bearbeiten",
 	"Tooltip.SettingsMenu": "Benutzereinstellungen und Info",
+	"Tooltip.ShowReferences": "Abhängigkeiten anzeigen",
 	"Tooltip.ReloadStreams": "Streams laden und validieren",
 	"Tooltip.FormatHAlignHeader": "Horizontale Textausrichtung",
 	"Tooltip.FormatHAlignMessage": "Die horizontale Textausrichtung des Zellinhaltes festlegen",

@@ -654,6 +654,7 @@
   "Tooltip.ReloadSchemas": "Reload Schemas",
   "Tooltip.EditName": "Edit App Name",
   "Tooltip.SettingsMenu": "User Settings and Info",
+  "Tooltip.ShowReferences": "Show Dependencies",
   "Tooltip.ReloadStreams": "Reload Streams and validate Streams",
   "Tooltip.FormatHAlignHeader": "Horizontal Text Alignment",
   "Tooltip.FormatHAlignMessage": "The horizontal text alignment of the cell content can be defined.",
