@@ -97,8 +97,8 @@ export default class CellsView extends NodeView {
 			this.drawCopyMarker(graphics, rect);
 		}
 
-		this.drawPredecessors(graphics);
-		this.drawDependants(graphics);
+		this.drawPredecessors(graphics, rect);
+		this.drawDependants(graphics, rect);
 		this.drawSearchResult(graphics);
 	}
 
@@ -1643,25 +1643,24 @@ export default class CellsView extends NodeView {
 		}
 	}
 
-	drawTextBox(graphics, text, rect, extOffset) {
+	drawTextBox(graphics, text, rect, extOffsetX, extOffsetY) {
 		const width = graphics
 			.getCoordinateSystem()
 			.deviceToLogX(graphics.measureText(text).width, true);
 		const height = graphics.getCoordinateSystem().deviceToLogYNoZoom(GraphUtils.getFontMetricsEx('Verdana', 7).baselinePx, true);
-		// const height = graphics.getCoordinateSystem().deviceToLogYNoZoom(graphics.measureText('H').actualBoundingBoxAscent, true);
 
 		graphics.setLineColor(JSG.theme.border);
 		graphics.setFillColor(JSG.theme.fill);
 
-		graphics.fillRectangle(rect.x + rect.width, rect.y + extOffset - height, width + 150, height + 150);
-		graphics.drawRectangle(rect.x + rect.width, rect.y + extOffset - height, width + 150, height + 150);
+		graphics.fillRectangle(rect.x + extOffsetX, rect.y + extOffsetY - height, width + 150, height + 150);
+		graphics.drawRectangle(rect.x + extOffsetX, rect.y + extOffsetY - height, width + 150, height + 150);
 
 		graphics.setFillColor(JSG.theme.text);
 
-		graphics.fillText(text, rect.x + rect.width + 75, rect.y + extOffset);
+		graphics.fillText(text, rect.x + extOffsetX + 75, rect.y + extOffsetY);
 	}
 
-	drawPredecessors(graphics) {
+	drawPredecessors(graphics, rectCells) {
 		if (!this._wsItem.predecessors) {
 			return;
 		}
@@ -1677,7 +1676,8 @@ export default class CellsView extends NodeView {
 			const rectActive = this._wsItem.getCellRect(pre.cell);
 			rectActive.x += 200;
 			rectActive.y += 200;
-			let extOffset = 2000;
+			const extOffsetX = rectCells.getRight() > rectActive.x + 4000 ? rectActive.width : -3000;
+			let extOffsetY = rectCells.getBottom() > rectActive.y + 4000 ? 2000 : -2000;
 			pre.cells.forEach(range => {
 				range.shiftFromSheet();
 				const rect = this._wsItem.getCellRect(range);
@@ -1689,14 +1689,14 @@ export default class CellsView extends NodeView {
 					rect.x += 200;
 					rect.y += 200;
 					// graphics.circle(rectActive.x + rectActive.width, rectActive.y + extOffset, 75);
-					graphics.moveTo(rectActive.x + rectActive.width, rectActive.y + extOffset);
+					graphics.moveTo(rectActive.x + extOffsetX, rectActive.y + extOffsetY);
 					graphics.lineTo(rectActive.x, rectActive.y);
 					graphics.stroke();
 					graphics.fill();
-					graphics.drawArrow({ x: rectActive.x + rectActive.width, y: rectActive.y + extOffset}, { x: rectActive.x, y: rectActive.y },
+					graphics.drawArrow({ x: rectActive.x + extOffsetX, y: rectActive.y + extOffsetY}, { x: rectActive.x, y: rectActive.y },
 						FormatAttributes.ArrowStyle.SIZEABLE_FILLEDARROW, 150, 150);
-					this.drawTextBox(graphics, range.toString({item: this._wsItem, forceName: true, useName: true}), rectActive, extOffset);
-					extOffset += 500;
+					this.drawTextBox(graphics, range.toString({item: this._wsItem, forceName: true, useName: true}), rectActive, extOffsetX, extOffsetY);
+					extOffsetY += 500;
 				} else {
 					graphics.setLineColor(JSG.theme.theme === 'Dark' ? '#6fa8dc' : '#0000FF');
 					graphics.setFillColor(JSG.theme.theme === 'Dark' ? '#6fa8dc' : '#0000FF');
@@ -1721,7 +1721,7 @@ export default class CellsView extends NodeView {
 		});
 	}
 
-	drawDependants(graphics) {
+	drawDependants(graphics, rectCells) {
 		if (!this._wsItem.dependants) {
 			return;
 		}
@@ -1737,7 +1737,8 @@ export default class CellsView extends NodeView {
 			const rectActive = this._wsItem.getCellRect(pre.cell);
 			rectActive.x += 200;
 			rectActive.y += 200;
-			let extOffset = 2000;
+			const extOffsetX = rectCells.getRight() > rectActive.x + 4000 ? rectActive.width : -3000;
+			let extOffsetY = rectCells.getBottom() > rectActive.y + 4000 ? 2000 : -2000;
 			pre.cells.forEach(range => {
 				const rect = this._wsItem.getCellRect(range);
 				if (range.getSheet() !== this._wsItem) {
@@ -1748,17 +1749,17 @@ export default class CellsView extends NodeView {
 					rect.y += 200;
 					graphics.circle(rectActive.x, rectActive.y, 75);
 					graphics.moveTo(rectActive.x, rectActive.y);
-					graphics.lineTo(rectActive.x + rectActive.width, rectActive.y + extOffset);
+					graphics.lineTo(rectActive.x + extOffsetX, rectActive.y + extOffsetY);
 					graphics.stroke();
 					graphics.fill();
 					graphics.drawArrow(
 						{ x: rectActive.x, y: rectActive.y},
-						{ x: rectActive.x + rectActive.width, y: rectActive.y + extOffset },
+						{ x: rectActive.x + extOffsetX, y: rectActive.y + extOffsetY },
 						FormatAttributes.ArrowStyle.SIZEABLE_FILLEDARROW, 150, 150);
 					range.shiftToSheet();
-					this.drawTextBox(graphics, range.toString({item: this._wsItem, forceName: true, useName: true}), rectActive, extOffset);
+					this.drawTextBox(graphics, range.toString({item: this._wsItem, forceName: true, useName: true}), rectActive, extOffsetX, extOffsetY);
 					range.shiftFromSheet();
-					extOffset += 500;
+					extOffsetY += 500;
 				} else {
 					graphics.setLineColor(JSG.theme.theme === 'Dark' ? '#6fa8dc' : '#0000FF');
 					graphics.setFillColor(JSG.theme.theme === 'Dark' ? '#6fa8dc' : '#0000FF');

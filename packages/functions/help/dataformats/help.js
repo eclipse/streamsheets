@@ -13,7 +13,7 @@ module.exports = {
 		'PARSE.CSV': {
 			default: {
 				category: 'Dataformats',
-				description: 'TODO',
+				description: 'Parses a string to CSV',
 				inlineDescription: 'Parses a string to CSV',
 				arguments: [{
 					type: '',
@@ -39,7 +39,7 @@ module.exports = {
 		'PARSE.XML': {
 			default: {
 				category: 'Dataformats',
-				description: 'TODO',
+				description: 'Parses a string to XML',
 				inlineDescription: 'Parses a string to XML',
 				arguments: [{
 					type: '',
