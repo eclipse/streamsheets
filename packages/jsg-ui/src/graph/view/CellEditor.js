@@ -19,7 +19,7 @@ let functionInfo;
 let showFuncInfo = localStorage.getItem('funcinfo') !== 'false';
 let showParamInfo = localStorage.getItem('paraminfo') !== 'false';
 
-const VERSION = process.env.REACT_APP_VERSION || '2.4.0';
+const VERSION = process.env.REACT_APP_VERSION || '2.5.0';
 const semverRegExp = /(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.*(?<patch>0|[1-9]\d*)*/i;
 const versionObject = VERSION.match(semverRegExp);
 const versionLink = `${versionObject.groups.major}.${versionObject.groups.minor}`
