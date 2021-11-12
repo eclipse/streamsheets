@@ -50,7 +50,7 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: '=HTTP.DELETE("<span />www.example.api",,,INBOX())',
+							formula: '=HTTP.DELETE("www.example.api",,,INBOX())',
 							result: 'Request to the API',
 							comment: 'A request has been made and put the response into the inbox.'
 						}
@@ -98,7 +98,7 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: '=HTTP.GET(" h<span />ttps://anapioficeandfire.com/api/characters/583 ",,,INBOX())',
+							formula: '=HTTP.GET("https://anapioficeandfire.com/api/characters/583",,,INBOX())',
 							result: 'Request to the API',
 							comment: 'A request has been made and put the response into the inbox.'
 						}
@@ -146,7 +146,7 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: '=HTTP.HEAD(" h<span />ttps://anapioficeandfire.com/api/characters/583 ",,,INBOX())',
+							formula: '=HTTP.HEAD("https://anapioficeandfire.com/api/characters/583",,,INBOX())',
 							result: 'Request to the API',
 							comment: 'A request has been made and put the response into the inbox. the response will only return header.'
 						}
@@ -194,7 +194,7 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: '=HTTP.OPTIONS("w<span />ww.example.api" ,,,INBOX())',
+							formula: '=HTTP.OPTIONS("www.example.api" ,,,INBOX())',
 							result: 'Request to the API',
 							comment: 'A request has been made and put the response into the inbox.'
 						}
@@ -450,18 +450,18 @@ module.exports = {
 			arguments: [{
 				type: '',
 				name: 'URL',
-				description: '',
+				description: 'The URL.',
 				optional: false
 			}, {
 				type: '',
 				name: 'Target',
-				description: '',
+				description: 'The target where to write the hash to.',
 				optional: false
 			},
 			],
 			return: {
 				type: '',
-				description: ''
+				description: 'The hash'
 			},
 			examples: {
 				infoStart: '',
@@ -482,12 +482,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the host to.',
 					optional: false
 				},
 				],
@@ -514,12 +514,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the hostname to.',
 					optional: false
 				},
 				],
@@ -546,12 +546,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the origin to.',
 					optional: false
 				},
 				],
@@ -578,12 +578,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the password to.',
 					optional: false
 				},
 				],
@@ -610,12 +610,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the pathname to.',
 					optional: false
 				},
 				],
@@ -642,12 +642,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the port to.',
 					optional: false
 				},
 				],
@@ -674,12 +674,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the protocol to.',
 					optional: false
 				},
 				],
@@ -706,12 +706,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the query string to.',
 					optional: false
 				},
 				],
@@ -738,12 +738,12 @@ module.exports = {
 				arguments: [{
 					type: '',
 					name: 'URL',
-					description: '',
+					description: 'The URL.',
 					optional: false
 				}, {
 					type: '',
 					name: 'Target',
-					description: '',
+					description: 'The target where to write the username to.',
 					optional: false
 				},
 				],
