@@ -619,7 +619,7 @@ module.exports = {
 				}
 			}
 		},
-		Text: {
+		TEXT: {
 			default: {
 				category: 'Text',
 				description: 'Formats a number and converts it to text.',
