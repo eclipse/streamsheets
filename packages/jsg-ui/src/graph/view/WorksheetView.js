@@ -310,6 +310,7 @@ export default class WorksheetView extends ContentNodeView {
 				event.consume();
 				return true;
 			}
+			doDefault();
 			break;
 		case 'j':
 			if (event.event.ctrlKey) {
