@@ -71,6 +71,10 @@ class ErrorInfo {
 	setParamIndex(index) {
 		return new ErrorInfo({ ...this, paramIndex: index });
 	}
+
+	toString() {
+		return this.code;
+	}
 }
 
 module.exports = ErrorInfo;
