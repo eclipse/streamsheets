@@ -181,7 +181,12 @@ export default class PasteFunctionDialog extends React.Component {
 	};
 
 	handleFunctionHelp = (key) => {
-		const url = `https://docs.cedalo.com/functions/${tableData[key].category}/${
+		const VERSION = process.env.REACT_APP_VERSION || '2.5.0';
+		const semverRegExp = /(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.*(?<patch>0|[1-9]\d*)*/i;
+		const versionObject = VERSION.match(semverRegExp);
+		const versionLink = `${versionObject.groups.major}.${versionObject.groups.minor}`
+
+		const url = `https://docs.cedalo.com/streamsheets/${versionLink}/functions/${tableData[key].category}/${
 			tableData[key].name.replace(/\./g, '')
 		}.html`;
 		window.open(url.toLowerCase(), '_blank');

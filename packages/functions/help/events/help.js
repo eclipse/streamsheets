@@ -24,6 +24,12 @@ module.exports = {
 				examples: {
 					infoStart: '',
 					infoEnd: '',
+					formulas: [
+						{
+							formula: '=SHOWDIALOG()',
+							comment: 'Open the App File Dialog via event assigned to a shape.'
+						}
+					]
 				}
 			}
 		},
@@ -57,7 +63,7 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: 'SHOWVALUES(C6,K2:N7)',
+							formula: '=SHOWVALUES(C6,K2:N7)',
 							comment: 'If this formula is assigned to a shape event, queried data from C6 will be shown in a table covering K2:N7.'
 						}
 					]

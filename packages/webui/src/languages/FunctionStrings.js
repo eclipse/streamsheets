@@ -99,7 +99,7 @@ export default class FunctionStrings {
 				callback.call(
 					this,
 					item,
-					category,
+					cats[0],
 					this.getParameters(item, data, locale),
 					this.getDescriptor(data, locale, 'inlineDescriptor'),
 					false, // data.experimental

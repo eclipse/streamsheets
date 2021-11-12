@@ -79,15 +79,15 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: 'AWAIT(A1)',
+							formula: '=AWAIT(A1)',
 							comment: 'Waits for the request in A1 to resolve'
 						},
 						{
-							formula: 'AWAIT(A1, C4, F8)',
+							formula: '=AWAIT(A1, C4, F8)',
 							comment: 'Waits for all requests to resolve'
 						},
 						{
-							formula: 'AWAIT(A1, B2:C3)',
+							formula: '=AWAIT(A1, B2:C3)',
 							comment: 'Waits for the request in A1 and all requests in specified range to resolve'
 						}
 					]
@@ -116,15 +116,15 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: 'AWAIT.ONE(A1)',
+							formula: '=AWAIT.ONE(A1)',
 							comment: 'Waits for the request in A1 to resolve'
 						},
 						{
-							formula: 'AWAIT.ONE(A1, C4, F8)',
+							formula: '=AWAIT.ONE(A1, C4, F8)',
 							comment: 'Waits for one request to resolve'
 						},
 						{
-							formula: 'AWAIT.ONE(A1, B2:C3)',
+							formula: '=AWAIT.ONE(A1, B2:C3)',
 							comment: 'Waits for request in A1 and or one of the requests in specified range to resolve'
 						}
 					]

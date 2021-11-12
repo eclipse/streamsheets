@@ -866,12 +866,14 @@ export default class WorksheetView extends ContentNodeView {
 		const start = new Point(0, 0);
 		const end = new Point(0, 0);
 		let cell;
+		const rectCells = this.getRangeRect(new CellRange(item, item.getColumnCount() - 1, item.getRowCount() - 1));
 
 		const predecessor = item.predecessors.find(pre => {
 			const rectActive = this.getRangeRect(pre.cell);
 			rectActive.x += 200;
 			rectActive.y += 200;
-			let extOffset = 2000;
+			const extOffsetX = rectCells.getRight() > rectActive.x + 4000 ? rectActive.width : -3000;
+			let extOffsetY = rectCells.getBottom() > rectActive.y + 4000 ? 2000 : -2000;
 			cell = pre.cells.find(range => {
 				range.shiftFromSheet();
 				const rect = this.getRangeRect(range);
@@ -879,9 +881,9 @@ export default class WorksheetView extends ContentNodeView {
 				rect.y += 200;
 				range.shiftToSheet();
 				if (range.getSheet() !== item) {
-					start.x = rectActive.x + rectActive.width;
-					start.y = rectActive.y + extOffset;
-					extOffset += 400;
+					start.x = rectActive.x + extOffsetX;
+					start.y = rectActive.y + extOffsetY;
+					extOffsetY += 500;
 				} else {
 					start.x = rect.x;
 					start.y = rect.y;
@@ -903,13 +905,15 @@ export default class WorksheetView extends ContentNodeView {
 
 		const start = new Point(0, 0);
 		const end = new Point(0, 0);
+		const rectCells = this.getRangeRect(new CellRange(item, item.getColumnCount() - 1, item.getRowCount() - 1));
 		let cell;
 
 		const dependant = item.dependants.find(pre => {
 			const rectActive = this.getRangeRect(pre.cell);
 			rectActive.x += 200;
 			rectActive.y += 200;
-			let extOffset = 2000;
+			const extOffsetX = rectCells.getRight() > rectActive.x + 4000 ? rectActive.width : -3000;
+			let extOffsetY = rectCells.getBottom() > rectActive.y + 4000 ? 2000 : -2000;
 			cell = pre.cells.find(range => {
 				const rect = this.getRangeRect(range);
 				rect.x += 200;
@@ -917,9 +921,9 @@ export default class WorksheetView extends ContentNodeView {
 				if (range.getSheet() !== item) {
 					start.x = rectActive.x;
 					start.y = rectActive.y;
-					end.x = rectActive.x + rectActive.width;
-					end.y = rectActive.y + extOffset;
-					extOffset += 400;
+					end.x = rectActive.x + extOffsetX;
+					end.y = rectActive.y + extOffsetY;
+					extOffsetY += 500;
 				} else {
 					start.x = rect.x;
 					start.y = rect.y;

@@ -924,7 +924,7 @@ module.exports = {
 					infoEnd: '',
 					formulas: [
 						{
-							formula: 'QRCODE("Text)',
+							formula: '=QRCODE("Text)',
 							result: '"qrcode:Test"',
 							comment: 'The return as fill pattern to indicate the desired image.'
 						}
