@@ -124,10 +124,6 @@ const receiveCycleTime = (cycletime) => ({
 	type: ActionTypes.RECEIVE_CYCLE_TIME,
 	cycletime,
 });
-const receiveCycleTimeFromMachine = (cycletime) => ({
-	type: ActionTypes.RECEIVE_CYCLE_TIME_FROM_MACHINE,
-	cycletime,
-});
 const receiveViewSettingsFromMachine = (view) => ({
 	type: ActionTypes.RECEIVE_VIEW_SETTINGS_FROM_MACHINE,
 	view,
@@ -356,7 +352,7 @@ function handleMachineLocaleChanged(event) {
 }
 
 function handleMachineCycleTime(event) {
-	store.dispatch(receiveCycleTimeFromMachine(event.cycletime));
+	store.dispatch(receiveCycleTime(event.cycletime));
 }
 
 function handleMachineViewSettings(event) {
@@ -854,8 +850,9 @@ export function setStreamSheetStepInterval(machineId, streamSheetStepInterval) {
 export function setCycleTime(machineId, cycleTime) {
 	return async (dispatch) => {
 		dispatch(sendCycleTime(cycleTime));
-		await gatewayClient.setCycleTime(machineId, cycleTime);
-		return dispatch(receiveCycleTime(cycleTime));
+		const res = await gatewayClient.setCycleTime(machineId, cycleTime);
+		const newCycleTime = res.machineserver.machine.cycletime || cycleTime; 
+		return dispatch(receiveCycleTime(newCycleTime));
 	};
 }
 
