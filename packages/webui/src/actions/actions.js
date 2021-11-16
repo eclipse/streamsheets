@@ -744,21 +744,22 @@ export function reloadDashboard() {
 	updateMachines();
 }
 
-export function createStreamSheet(machineId, activeItemId, position, sheetType) {
+export function createStreamSheet(machineId, activeItemId, options = {}) {
 	return (dispatch) => {
 		dispatch(sendCreateStreamSheet());
+		const { position, scope, type } = options;
 		return gatewayClient
-			.createStreamSheet(machineId, activeItemId, position, sheetType)
+			.createStreamSheet(machineId, activeItemId, position, type, scope)
 			.then((response) => dispatch(receiveCreateStreamSheet(response)))
 			.catch((error) => dispatch(requestFailed(messageTypes.STREAMSHEET_CREATE, error)));
 	};
 }
 
-export function deleteStreamSheet(machineId, streamsheetId) {
+export function deleteStreamSheet(machineId, streamsheetId, scope) {
 	return (dispatch) => {
 		dispatch(sendDeleteStreamSheet());
 		return gatewayClient
-			.deleteStreamSheet(machineId, streamsheetId)
+			.deleteStreamSheet(machineId, streamsheetId, scope)
 			.then((response) => dispatch(receiveDeleteTranscator(response)))
 			.catch((error) => dispatch(requestFailed(messageTypes.STREAMSHEET_DELETE, error)));
 	};
@@ -873,11 +874,11 @@ export function updateMachineSettings(machineId, settings) {
 	};
 }
 
-export function start(machineId) {
+export function start(machineId, scope) {
 	return async (dispatch) => {
 		dispatch(sendStartMachine(machineId));
 		try {
-			await gatewayClient.openMachine(machineId);
+			await gatewayClient.openMachine(machineId, scope);
 			const response = await gatewayClient.startMachine(machineId);
 			dispatch(receiveStartMachine(response.machineserver.machine.state));
 			graphManager.setRunMode(true);
@@ -898,11 +899,11 @@ export function stop(machineId) {
 	};
 }
 
-export function pause(machineId) {
+export function pause(machineId, scope) {
 	return (dispatch) => {
 		dispatch(sendPauseMachine(machineId));
 		return gatewayClient
-			.openMachine(machineId)
+			.openMachine(machineId, scope)
 			.then(() => gatewayClient.pauseMachine(machineId))
 			.then((response) => dispatch(receivePauseMachine(response.machineserver.machine.state)))
 			.catch((error) => dispatch(requestFailed(messageTypes.MACHINE_PAUSE, error)));
@@ -948,11 +949,11 @@ export function redoCommand(machineId) {
 	};
 }
 
-export function deleteMachine(machineId) {
+export function deleteMachine(machineId, scope) {
 	return (dispatch) => {
 		dispatch(sendDeleteMachine(machineId));
 		return gatewayClient
-			.deleteMachine(machineId)
+			.deleteMachine(machineId, scope)
 			.then(() => dispatch(receiveDeleteMachine(machineId)))
 			.catch((error) => dispatch(requestFailed(messageTypes.MACHINE_DELETE, error)));
 	};
