@@ -61,6 +61,7 @@ import ThemeButton from './ThemeButton';
 import TourButton from './TourButton';
 // import { ResizeHandler } from './ResizeHandler';
 import { Path } from '../helper/Path';
+import Utils from '../helper/Utils';
 import { DialogExtensions } from '@cedalo/webui-extensions';
 import Joyride from 'react-joyride';
 import steps from '../tutorial/machine-steps';
@@ -68,8 +69,6 @@ import steps from '../tutorial/machine-steps';
 const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
 };
-
-const scopeFromHash = (hash = '') => hash.startsWith('#scope=') ? hash.substring(7) : undefined;
 
 export function MachineDetailPage(props) {
 	const {
@@ -168,7 +167,7 @@ export function MachineDetailPage(props) {
 			name: query.streamName
 		};
 		const newMachineName = query.machineName;
-		const scope = { id: query.scope || scopeFromHash(location.hash) };
+		const scope = { id: query.scope || Utils.scopeFromLocation(location) };
 		try {
 			const response = await props.loadSubscribeMachine(machineId, {
 				settings: { locale },

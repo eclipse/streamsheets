@@ -34,4 +34,9 @@ export default class Utils {
 		const available = Utils.getAvailableSheetsCount(licenseInfo);
 		return available < 0 || available > 0;
 	}
+
+	static scopeFromLocation(location = {}) {
+		const hash = location.hash || '';
+		return hash.startsWith('#scope=') ? hash.substring(7) : undefined;
+	};
 }

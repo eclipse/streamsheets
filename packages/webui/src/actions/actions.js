@@ -20,6 +20,7 @@ import ConfigManager from '../helper/ConfigManager';
 import gatewayClient from '../helper/GatewayClient';
 import { intl } from '../helper/IntlGlobalProvider';
 import { Path } from '../helper/Path';
+import Utils from '../helper/Utils';
 import { functionStrings } from '../languages/FunctionStrings';
 import SheetParserContext from '../SheetParserContext';
 import store from '../store';
@@ -555,7 +556,7 @@ function reloadCurrentMachine() {
 export async function getMetaInformationAndDispatch(dispatch = store.dispatch) {
 	dispatch({ type: ActionTypes.FETCH_META_INFORMATION });
 	try {
-		const metaInformation = await gatewayClient.getMetaInformation();
+		const metaInformation = await gatewayClient.getMetaInformation({ id: Utils.scopeFromLocation(location) });
 		dispatch(receiveMetaInformation(metaInformation));
 	} catch (error) {
 		if (error.status === 401) {
