@@ -375,12 +375,13 @@ class UnsubscribeGraphWebSocketRequest extends WebSocketRequest {
  */
 
 class CreateStreamSheetWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, activeItemId, position, sheetType) {
+	constructor(ws, machineId, activeItemId, position, sheetType, scope) {
 		super(ws, CREATE_STREAMSHEET_MESSAGE_TYPE);
 		this._machineId = machineId;
 		this._activeItemId = activeItemId;
 		this._position = position;
 		this._sheetType = sheetType;
+		this._scope = scope;
 	}
 
 	_getConfig() {
@@ -388,20 +389,23 @@ class CreateStreamSheetWebSocketRequest extends WebSocketRequest {
 			machineId: this._machineId,
 			activeItemId: this._activeItemId,
 			position: this._position,
-			sheetType: this._sheetType
+			sheetType: this._sheetType,
+			scope: this._scope
 		};
 	}
 }
 
 class DeleteMachineWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId) {
+	constructor(ws, machineId, scope) {
 		super(ws, DELETE_MACHINE_MESSAGE_TYPE);
 		this._machineId = machineId;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
-			machineId: this._machineId
+			machineId: this._machineId,
+			scope: this._scope
 		};
 	}
 }
@@ -420,16 +424,18 @@ class UnloadMachineWebSocketRequest extends WebSocketRequest {
 }
 
 class DeleteStreamSheetWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, streamsheetId) {
+	constructor(ws, machineId, streamsheetId, scope) {
 		super(ws, DELETE_STREAMSHEET_MESSAGE_TYPE);
 		this._machineId = machineId;
 		this._streamsheetId = streamsheetId;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
 			machineId: this._machineId,
-			streamsheetId: this._streamsheetId
+			streamsheetId: this._streamsheetId,
+			scope: this._scope
 		};
 	}
 }
@@ -458,16 +464,18 @@ class GetMachinesWebSocketRequest extends WebSocketRequest {
 }
 
 class LoadMachineWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, settings) {
+	constructor(ws, machineId, settings, scope) {
 		super(ws, LOAD_MACHINE_MESSAGE_TYPE);
 		this._machineId = machineId;
 		this._settings = settings;
+		this._scope = scope;
 	}
-
+	
 	_getConfig() {
 		return {
 			machineId: this._machineId,
-			settings: this._settings
+			settings: this._settings,
+			scope: this._scope
 		};
 	}
 }
@@ -490,14 +498,16 @@ class LoadSubscribeMachineWebSocketRequest extends WebSocketRequest {
 }
 
 class OpenMachineWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId) {
+	constructor(ws, machineId, scope) {
 		super(ws, OPEN_MACHINE_MESSAGE_TYPE);
 		this._machineId = machineId;
+		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
-			machineId: this._machineId
+			machineId: this._machineId,
+			scope: this._scope
 		};
 	}
 }
