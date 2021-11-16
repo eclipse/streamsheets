@@ -630,8 +630,8 @@ module.exports = class BaseGatewayClient {
 	 * *********************************************
 	 */
 
-	getMetaInformation() {
-		return this.http.getMetaInformation();
+	getMetaInformation(scope) {
+		return this.http.getMetaInformation(scope);
 	}
 
 	/**
