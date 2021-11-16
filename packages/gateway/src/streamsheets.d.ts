@@ -90,6 +90,7 @@ export interface IWSRequest {
 	requestId?: number;
 	session?: Session;
 	machineId?: string;
+	scope?: Scope;
 }
 
 export interface IWSEvent {
@@ -115,6 +116,7 @@ export interface IWSResponse {
 	requestId: number;
 	machineserver?: any;
 	graphserver?: any;
+	scope?: Scope;
 }
 
 export interface IServiceResponse {
