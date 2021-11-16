@@ -69,6 +69,8 @@ const useExperimental = (setAppState) => {
 	useEffect(() => setAppState({ experimental: localStorage.getItem('experimental') === 'true' }), []);
 };
 
+const scopeFromHash = (hash = '') => hash.startsWith('#scope=') ? hash.substring(7) : undefined;
+
 export function MachineDetailPage(props) {
 	const {
 		locale,
@@ -166,7 +168,7 @@ export function MachineDetailPage(props) {
 			name: query.streamName
 		};
 		const newMachineName = query.machineName;
-		const scope = { id: query.scope };
+		const scope = { id: query.scope || scopeFromHash(location.hash) };
 		try {
 			const response = await props.loadSubscribeMachine(machineId, {
 				settings: { locale },

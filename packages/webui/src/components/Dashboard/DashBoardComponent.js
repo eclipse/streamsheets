@@ -248,7 +248,7 @@ class DashBoardComponent extends Component {
 				this.props.setMachineActive(findMachineToActivate(resourceId));
 				this.forceUpdate();
 				this.props
-					.start(resourceId)
+					.start(resourceId, { id: this.props.scopeId })
 					.then(() => {
 						this.props.openDashboard(resourceId);
 						this.props.setMachineActive(findMachineToActivate(resourceId));
@@ -274,7 +274,7 @@ class DashBoardComponent extends Component {
 				this.props.setMachineActive(findMachineToActivate(resourceId));
 				this.forceUpdate();
 				this.props
-					.pause(resourceId)
+					.pause(resourceId, { id: this.props.scopeId })
 					.then(() => this.props.openDashboard(resourceId))
 					.catch((/* error */) => {
 						// TODO: handle error
@@ -782,6 +782,7 @@ function mapStateToProps(state) {
 		machine: state.monitor.machine,
 		machines: state.machines.data,
 		rights: state.user.rights,
+		scopeId: state.user.user.scope.id,
 		licenseInfo: state.meta.licenseInfo
 	};
 }
