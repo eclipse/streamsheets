@@ -334,8 +334,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 	 * *********************************************
 	 */
 
-	getMetaInformation() {
-		return this._proxy('getMetaInformation');
+	getMetaInformation(scope) {
+		return this._proxy('getMetaInformation', scope);
 	}
 
 	/**
