@@ -134,7 +134,7 @@ describe('Machine', () => {
 		await machine.start();
 		await wait(120);
 		await machine.pause();
-		expect(machine.stats.steps).toBeGreaterThanOrEqual(6);
+		expect(machine.stats.steps).toBeGreaterThan(4);
 		await machine.stop();
 	});
 	describe('IO', () => {
