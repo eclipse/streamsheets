@@ -244,9 +244,9 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 		);
 	}
 
-	openMachine(machineId, scope) {
+	openMachine(machineId) {
 		return this.sendRequest(
-			new OpenMachineWebSocketRequest(this._ws, machineId, scope)
+			new OpenMachineWebSocketRequest(this._ws, machineId)
 			);
 	}
 

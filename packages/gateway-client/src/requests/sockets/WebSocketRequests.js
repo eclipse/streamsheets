@@ -498,16 +498,14 @@ class LoadSubscribeMachineWebSocketRequest extends WebSocketRequest {
 }
 
 class OpenMachineWebSocketRequest extends WebSocketRequest {
-	constructor(ws, machineId, scope) {
+	constructor(ws, machineId) {
 		super(ws, OPEN_MACHINE_MESSAGE_TYPE);
 		this._machineId = machineId;
-		this._scope = scope;
 	}
 
 	_getConfig() {
 		return {
-			machineId: this._machineId,
-			scope: this._scope
+			machineId: this._machineId
 		};
 	}
 }
