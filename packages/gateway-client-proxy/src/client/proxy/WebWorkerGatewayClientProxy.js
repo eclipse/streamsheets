@@ -176,8 +176,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('getMachines');
 	}
 
-	deleteMachine(machineId) {
-		return this._proxy('deleteMachine', machineId);
+	deleteMachine(machineId, scope) {
+		return this._proxy('deleteMachine', machineId, scope);
 	}
 
 	deleteMachines() {
@@ -200,8 +200,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('deleteAllMachines', singleMachineDeletedCallback);
 	}
 
-	loadMachine(machineId, settings) {
-		return this._proxy('loadMachine', machineId, settings);
+	loadMachine(machineId, settings, scope) {
+		return this._proxy('loadMachine', machineId, settings, scope);
 	}
 
 	unloadMachine(machineId, settings) {
@@ -212,8 +212,8 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('loadSubscribeMachine', machineId, settings, scope);
 	}
 
-	openMachine(machineId) {
-		return this._proxy('openMachine', machineId);
+	openMachine(machineId, scope) {
+		return this._proxy('openMachine', machineId, scope);
 	}
 
 	pauseMachine(machineId) {
@@ -232,18 +232,19 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('renameMachine', machineId, newName);
 	}
 
-	createStreamSheet(machineId, activeItemId, position, sheetType) {
+	createStreamSheet(machineId, activeItemId, position, sheetType, scope) {
 		return this._proxy(
 			'createStreamSheet',
 			machineId,
 			activeItemId,
 			position,
-			sheetType
+			sheetType,
+			scope
 		);
 	}
 
-	deleteStreamSheet(machineId, streamsheetId) {
-		return this._proxy('deleteStreamSheet', machineId, streamsheetId);
+	deleteStreamSheet(machineId, streamsheetId, scope) {
+		return this._proxy('deleteStreamSheet', machineId, streamsheetId, scope);
 	}
 
 	updateStreamSheetStreams(machineId, streamsheetId, streams) {
