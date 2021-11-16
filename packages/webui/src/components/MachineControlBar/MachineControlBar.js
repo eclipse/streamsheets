@@ -97,8 +97,7 @@ class MachineControlBar extends React.Component {
 	}
 
 	onStart = async () => {
-		const scope = { id: this.props.scopeId };
-		this.props.start(this.props.machineId, scope);
+		this.props.start(this.props.machineId);
 	};
 
 	onStopMachine = () => {
@@ -108,8 +107,7 @@ class MachineControlBar extends React.Component {
 	};
 
 	onPauseMachine = () => {
-		const scope = { id: this.props.scopeId };
-		this.props.pause(this.props.machineId, scope);
+		this.props.pause(this.props.machineId);
 	};
 
 	onStepMachine = () => {
@@ -691,8 +689,7 @@ function mapStateToProps(state) {
 		cycletime: state.monitor.cycletime,
 		regulatedCycle: state.monitor.performance.regulatedCycle,
 		disabled: !state.monitor.machine.id || !MachineHelper.currentMachineCan(RESOURCE_ACTIONS.CONTROL),
-		adminSecurity: state.adminSecurity,
-		scopeId: state.user.user.scope.id
+		adminSecurity: state.adminSecurity
 	};
 }
 

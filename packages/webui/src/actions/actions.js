@@ -874,11 +874,11 @@ export function updateMachineSettings(machineId, settings) {
 	};
 }
 
-export function start(machineId, scope) {
+export function start(machineId) {
 	return async (dispatch) => {
 		dispatch(sendStartMachine(machineId));
 		try {
-			await gatewayClient.openMachine(machineId, scope);
+			await gatewayClient.openMachine(machineId);
 			const response = await gatewayClient.startMachine(machineId);
 			dispatch(receiveStartMachine(response.machineserver.machine.state));
 			graphManager.setRunMode(true);
@@ -899,11 +899,11 @@ export function stop(machineId) {
 	};
 }
 
-export function pause(machineId, scope) {
+export function pause(machineId) {
 	return (dispatch) => {
 		dispatch(sendPauseMachine(machineId));
 		return gatewayClient
-			.openMachine(machineId, scope)
+			.openMachine(machineId)
 			.then(() => gatewayClient.pauseMachine(machineId))
 			.then((response) => dispatch(receivePauseMachine(response.machineserver.machine.state)))
 			.catch((error) => dispatch(requestFailed(messageTypes.MACHINE_PAUSE, error)));
