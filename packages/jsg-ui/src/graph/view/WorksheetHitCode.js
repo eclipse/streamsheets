@@ -15,7 +15,9 @@ const WorksheetHitCode = {
 	COLUMNOUTLINE: 13,
 	ROWOUTLINE: 14,
 	DATAVIEW: 15,
-	ERRORVIEW: 16
+	ERRORVIEW: 16,
+	PREDECESSOR: 17,
+	DEPENDANT: 18
 };
 
 export default WorksheetHitCode;

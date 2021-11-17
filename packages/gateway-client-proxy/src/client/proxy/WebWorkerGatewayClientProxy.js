@@ -212,6 +212,10 @@ module.exports = class WebWorkerGatewayClientProxy {
 		return this._proxy('loadSubscribeMachine', machineId, settings, scope);
 	}
 
+	openMachine(machineId) {
+		return this._proxy('openMachine', machineId);
+	}
+
 	pauseMachine(machineId) {
 		return this._proxy('pauseMachine', machineId);
 	}

@@ -19,7 +19,7 @@ let functionInfo;
 let showFuncInfo = localStorage.getItem('funcinfo') !== 'false';
 let showParamInfo = localStorage.getItem('paraminfo') !== 'false';
 
-const VERSION = process.env.REACT_APP_VERSION || '2.4.0';
+const VERSION = process.env.REACT_APP_VERSION || '2.5.0';
 const semverRegExp = /(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.*(?<patch>0|[1-9]\d*)*/i;
 const versionObject = VERSION.match(semverRegExp);
 const versionLink = `${versionObject.groups.major}.${versionObject.groups.minor}`
@@ -220,6 +220,8 @@ export default class CellEditor {
 			return undefined;
 		}
 
+		const cell = this.formulaSheet.getOwnSelection().getActiveCell();
+
 		// DL-2461: cursor position can be behind last character:
 		if (cursorPosition > text.length) cursorPosition = text.length;
 
@@ -243,16 +245,21 @@ export default class CellEditor {
 			return undefined;
 		}
 
-		if (info.identifier) {
-			const fnName = info.identifier;
-			if (fnName.length) {
+		const showAll = text === '=*';
+
+		if (info.identifier || showAll) {
+			const fnName = showAll ? '*' : info.identifier;
+			if (fnName.length || showAll) {
 				// check for dot notation
 				if (text[info.start] === '.') {
 					return undefined;
 				} else {
-					const functions = funcInfos.filter((entry) => entry[0].startsWith(fnName));
+					let functions = funcInfos.filter((entry) => (entry[0].startsWith(fnName) || showAll) &&
+						(entry[1].cellEditor === undefined || !cell));
 					if (functions.length) {
-						this.replaceInfo = { start: info.start, length: fnName.length };
+						functions = functions.sort((a, b) => a[0].localeCompare(b[0]));
+						this.replaceInfo = showAll ? { start: 0, length: fnName.length } :
+							{ start: info.start, length: fnName.length };
 						return functions;
 					}
 				}
@@ -270,6 +277,17 @@ export default class CellEditor {
 		return functionInfo ? Object.entries(functionInfo.getStrings()) : undefined;
 	}
 
+	getDescriptor(info, name) {
+		if (!info[1].default) {
+			return '';
+		}
+		const desc =  info[1][JSG.locale] && info[1][JSG.locale][name] ?
+			info[1][JSG.locale][name] :
+			info[1].default[name];
+
+		return desc || '';
+	}
+
 	generateFunctionListHTML(candidates) {
 		return candidates
 			.map((info, index) => {
@@ -277,7 +295,7 @@ export default class CellEditor {
 				if (index === this.funcIndex) {
 					html = `<div id="func${index}" style="padding: 3px;background-color: #DDDDDD">`;
 					html += `<p style="">${info[0]}</p>`;
-					html += `<p style="">${info[1][JSG.locale].description}</p>`;
+					html += `<p style="">${this.getDescriptor(info, 'inlineDescription')}</p>`;
 				} else {
 					html = `<div id="func${index}" style="padding: 3px;background-color: white">`;
 					html += `<p style="">${info[0]}</p>`;
@@ -293,43 +311,85 @@ export default class CellEditor {
 			.map((info) => {
 				let html;
 				let parameters;
+				let paramHighlight;
+				let params;
 				html = '<div style="padding: 3px;background-color: #DDDDDD">';
 				const width = this.propertyPage ? '235px' : '305px';
 
-				if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
-					parameters = `<p style="width:${width}">${info[0]}(${info[1][JSG.locale].argumentList})</p>`;
+				if (info.length && info[1].default) {
+					params = info[1][JSG.locale] && info[1][JSG.locale].arguments ?
+						info[1][JSG.locale].arguments :
+						info[1].default.arguments;
+
+					if (this.funcInfo === undefined || this.funcInfo.paramIndex === undefined) {
+							let paramList = '';
+							if (params) {
+								params.forEach((param, paramIndex) => {
+									paramList += param.name;
+									if (paramIndex < params.length - 1) {
+										paramList += ',';
+									}
+								});
+							}
+							parameters = `<p style="width:${width}">${info[0]}(${paramList})</p>`;
+					} else {
+						// const params = info[1][JSG.locale].argumentList.split(',');
+						parameters = `<p style="width:${width}">${info[0]}(`;
+						if (params) {
+							params.forEach((param, paramIndex) => {
+								if (param.name) {
+									if (paramIndex === this.funcInfo.paramIndex) {
+										paramHighlight = param;
+										parameters += `<span style="font-weight: bold">${param.name}</span>`;
+									} else {
+										parameters += `${param.name}`;
+									}
+									if (paramIndex !== params.length - 1) {
+										parameters += ', ';
+									}
+								}
+							});
+						}
+						parameters += `)</p>`;
+					}
+					if (parameters) {
+						parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
+					}
+					html += parameters;
 				} else {
-					const params = info[1][JSG.locale].argumentList.split(',');
-					parameters = `<p style="width:${width}">${info[0]}(`;
-					params.forEach((param, paramIndex) => {
-						if (paramIndex === this.funcInfo.paramIndex) {
-							parameters  += `<span style="font-weight: bold">${param}</span>`;
-						} else {
-							parameters  += `${param}`;
-						}
-						if (paramIndex !== params.length - 1) {
-							parameters  += ', ';
-						}
-					});
-					parameters  += `)</p>`;
+					html += `<p style="margin: 10px 0px 4px 0px;">Inline Help not available yet</p>`;
 				}
-				parameters = parameters.replace(/,/gi, JSG.getParserLocaleSettings().separators.parameter);
-				html += parameters;
 				html += `<div id="expandFunc" style="width:15px;height:15px;position: absolute; top: 6px; right: 15px; transform: scale(2.0,1.0); font-size: 7pt; color: #777777;cursor: pointer">${showParamInfo ? '&#x2C4' : '&#x2C5'}</div>`;
 				if (!this.propertyPage) {
 					html +=
 						`<div id='closeFunc' style='width:13px;height:15px;position: absolute; top: 3px; right: 2px; transform: scale(1.3,1.0); font-size: 11pt; color: #777777;cursor: pointer'>x</div>`;
 				}
 				if (showParamInfo) {
-					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
-						'Summary'
-					)}</p>`;
-					html += `<p>${info[1][JSG.locale].description}</p>`;
-					html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
-					html += `<a href="https://docs.cedalo.com/streamsheets/${versionLink}/functions/${info[1].category}/${info[0]
-						.toLowerCase()
-						.replace(/\./g, '')}" target="_blank">`;
-					html += `${JSG.getLocalizedString('More Info')}</a></p>`;
+					let category = this.getDescriptor(info, 'category');
+					if (category && category.length) {
+						category = category.split(',')[0];
+						if (paramHighlight) {
+							html += `<p style="margin: 10px 0px 4px 0px;font-weight: bold;">${paramHighlight.name}</p>`;
+							html += `<p style="margin: 10px 0px 4px 0px;">${paramHighlight.description}</p>`;
+						} else {
+							html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">${JSG.getLocalizedString(
+								'Summary'
+							)}</p>`;
+							html += `<p>${this.getDescriptor(info, 'inlineDescription')}</p>`;
+							if (params) {
+								params.forEach((param, paramIndex) => {
+									html += `<p style="margin: 10px 0px 4px 0px;font-weight: bold;">${param.name}</p>`;
+									html += `<p style="margin: 10px 0px 4px 0px;">${param.description}</p>`;
+								});
+							}
+
+							html += `<p style="margin: 10px 0px 4px 0px;font-style: italic">`;
+							html += `<a href="https://docs.cedalo.com/streamsheets/${versionLink}/functions/${category}/${info[0]
+								.toLowerCase()
+								.replace(/\./g, '')}" target="_blank">`;
+							html += `${JSG.getLocalizedString('More Info')}</a></p>`;
+						}
+					}
 				}
 				html += '</div>';
 				return html;
@@ -338,8 +398,10 @@ export default class CellEditor {
 	}
 
 	handleFunctionListKey(event, view) {
-		if (this.isReferenceByKeyAllowed(view) || !this.funcs || !this.funcs.length) {
-			return false;
+		if (!this.funcs || this.funcs.length < 2) {
+			if (this.isReferenceByKeyAllowed(view) || !this.funcs || !this.funcs.length) {
+				return false;
+			}
 		}
 		switch (event.key) {
 			case 'ArrowUp':
@@ -464,7 +526,7 @@ export default class CellEditor {
 			return;
 		}
 
-		this.funcs = this.getPotentialFunctionsUnderCursor();
+		// this.funcs = this.getPotentialFunctionsUnderCursor();
 		if (this.funcs && this.funcs.length) {
 			let html;
 			if (this.funcs.length === 1) {
@@ -483,7 +545,7 @@ export default class CellEditor {
 					this.funcDiv.style.maxHeight = '350px';
 				}
 				this.funcDiv.style.zIndex = '1000';
-				this.funcDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y}px`;
+				this.funcDiv.style.maxHeight = `${this.div.parentNode.clientHeight - y - 3}px`;
 				this.funcDiv.style.overflowY = 'auto';
 				this.funcDiv.style.color = '#333333';
 				this.funcDiv.style.cursor = 'default';
@@ -778,11 +840,15 @@ export default class CellEditor {
 
 		// simply replace
 		if (this.alwaysReplace) {
-			this.div.innerHTML = this.allowNoEqual ? refText : `=${refText}`;
+			this.div.innerHTML = `=${refText}`;
 			this.updateEditRangesView();
 			this.selectedRangeByIndex(0);
 		} else {
-			if (this.oldContent === undefined) {
+			if (this.allowNoEqual && this.div.innerHTML === '') {
+				this.div.innerHTML = '=';
+				this.oldContent = this.div.innerHTML;
+				this.oldContentPos = {start: 1, end: 1};
+			} else if (this.oldContent === undefined) {
 				this.oldContent = this.div.innerHTML;
 				this.oldContentPos = this.saveSelection();
 			}
@@ -1024,7 +1090,7 @@ export default class CellEditor {
 
 	getTextAtCursor(offset) {
 		const pos = this.saveSelection();
-		if (pos) {
+		if (pos && this.div) {
 			return this.div.textContent.length + offset >= 0 ? this.div.textContent[pos.start + offset] : '';
 		}
 

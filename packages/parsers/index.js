@@ -10,22 +10,9 @@
  ********************************************************************************/
 
 // const postcss = require('postcss');
-const css = require('css');
-const esprima = require('esprima');
 const xml2js = require('xml2js');
 const csv = require('csv-parse');
-const yaml = require('js-yaml');
-const Markdown = require('markdown-it');
 const mime = require('mime-types');
-
-const parseCSS = async (input) => {
-	// return postcss.parse(input);
-	return css.parse(input);
-};
-
-const parseJavaScript = async (input) => {
-	return esprima.parse(input);
-};
 
 const parseXML = (input) => {
 	return new Promise((resolve, reject) => {
@@ -55,29 +42,10 @@ const parseCSV = (input) => {
 	});
 };
 
-const parseYAML = (input) => {
-	return new Promise((resolve, reject) => {
-		const result = yaml.safeLoad(input);
-		resolve(result);
-	});
-}
-
-const md = new Markdown();
-const parseMarkdown = (input) => {
-	return new Promise((resolve, reject) => {
-		const result = md.parse(input);
-		resolve(result);
-	});
-}
 const parserMap = new Map();
-parserMap.set('js', parseJavaScript);
 parserMap.set('xml', parseXML);
-parserMap.set('svg', parseXML);
 // parserMap.set('json', parseJSON);
-parserMap.set('css', parseCSS);
 parserMap.set('csv', parseCSV);
-parserMap.set('yaml', parseYAML);
-parserMap.set('markdown', parseMarkdown);
 
 const parse = async (content, mimeType) => {
 	const extension = mime.extension(mimeType);
@@ -98,10 +66,6 @@ const parse = async (content, mimeType) => {
 
 module.exports = {
 	parse,
-	parseCSS,
 	parseCSV,
-	parseJavaScript,
-	parseMarkdown,
-	parseXML,
-	parseYAML
+	parseXML
 };

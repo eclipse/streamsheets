@@ -220,28 +220,40 @@ export default function doRequest(state = defState, reqaction) {
 			});
 			break;
 		case ActionTypes.RECEIVE_SAVE_PROCESS_SETTINGS: {
-			const { streamsheetId, preferences } = reqaction.settings;
+			const { settings = {} } = reqaction;
+			const streamsheetId = settings.streamsheetId;
 			newstate.machine.streamsheets.map((streamsheet) => {
 				if (streamsheet.id === streamsheetId) {
-					// note: settings and preferences are different, so currently for maxchars only
-					streamsheet.sheet.settings.maxchars = preferences.maxchars;
+					// update state:
+					streamsheet.name = settings.name;
+					streamsheet.loop = { ...streamsheet.loop, ...settings.loop };
+					streamsheet.trigger = { ...streamsheet.trigger, ...settings.trigger };
+					streamsheet.inbox.stream = { ...streamsheet.inbox.stream, ...settings.inbox.stream };
+					streamsheet.sheet.settings = { ...streamsheet.sheet.settings, ...settings.sheet };
+					// update inbox title and loop:
+					graphManager.updateStream(streamsheetId, streamsheet.inbox.stream);
+					graphManager.updateLoopElement(streamsheetId, streamsheet.loop);
+					// graphManager.getGraphEditor().invalidate();
 				}
 				return streamsheet;
 			});
 			break;
 		}
 		case ActionTypes.RECEIVE_MACHINE_STEP:
+			newstate.performance.regulatedCycle = reqaction.event.stats.regulatedCycle;
 			newstate.performance.cyclesPerSecond = reqaction.event.stats.cyclesPerSecond;
 			newstate.performance.events.add({});
 			break;
 		case ActionTypes.RECEIVE_MACHINE_LOCALE:
+		case ActionTypes.RECEIVE_MACHINE_UPDATE_SETTINGS:
 			newstate.machine.locale = applyNewLocale(reqaction.locale, newstate.machine.locale);
 			break;
-		case ActionTypes.RECEIVE_MACHINE_UPDATE_SETTINGS: {
-			newstate.machine.isOPCUA = reqaction.settings.isOPCUA;
-			newstate.machine.locale = applyNewLocale(reqaction.locale, newstate.machine.locale);
-			break;
-		}
+			// newstate.machine.isOPCUA = reqaction.settings.isOPCUA;
+			// newstate.machine.isCycleRegulated = reqaction.settings.isCycleRegulated;
+			// newstate.machine.locale = applyNewLocale(reqaction.locale, newstate.machine.locale);
+			// applyNewLocale(reqaction.locale, newstate.machine.locale);
+			// break;
+		// }
 
 		default:
 			return state;

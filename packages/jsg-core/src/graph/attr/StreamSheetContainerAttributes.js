@@ -70,7 +70,7 @@ const StreamSheetContainerAttributes = class StreamSheetContainerAttributes exte
 		addAttribute(new StringAttribute(ATTR.LOOPELEMENT), '');
 		addAttribute(new StringAttribute(ATTR.REPLACEKEY), '');
 		addAttribute(new NumberAttribute(ATTR.LOOPINDEX), 0);
-		addAttribute(new NumberAttribute(ATTR.STREAM), 'None');
+		addAttribute(new StringAttribute(ATTR.STREAM), 'None');
 		addAttribute(new StringAttribute(ATTR.INBOXID), '');
 		addAttribute(new StringAttribute(ATTR.SHEETID), '');
 		addAttribute(new StringAttribute(ATTR.STEP), '1');

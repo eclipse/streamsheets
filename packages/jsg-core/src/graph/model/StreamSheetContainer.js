@@ -87,7 +87,7 @@ module.exports = class StreamSheetContainer extends Node {
 		layoutNode.setSize(20000, 10000);
 		layoutNode.getPin().setLocalPoint(0, 0);
 		layoutNode.setOrigin(0, 0);
-		layoutNode.getItemAttributes().setMoveable(false);
+		layoutNode.getItemAttributes().setMoveable(ItemAttributes.Moveable.NONE);
 		layoutNode.getItemAttributes().setDeleteable(false);
 		this._processSheet.getCells().addItem(layoutNode);
 	}

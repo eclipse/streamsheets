@@ -218,6 +218,9 @@ module.exports = class MongoDBMachineRepository extends mix(
 	updateMachineCycleTime(id, cycletime) {
 		return this.updateDocument(this.collection, id, { 'settings.cycletime': cycletime });
 	}
+	updateMachineCycleRegulated(id, isCycleRegulated) {
+		return this.updateDocument(this.collection, id, { 'settings.isCycleRegulated': isCycleRegulated });
+	}
 	updateMachineOPCUA(id, isOPCUA) {
 		return this.updateDocument(this.collection, id, { 'settings.isOPCUA': isOPCUA });
 	}

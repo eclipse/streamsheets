@@ -8,10 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const help = require('./help');
 const url = require('./url');
 
 module.exports = {
-	help,
 	functions: { ...url }
 };

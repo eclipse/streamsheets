@@ -23,8 +23,14 @@ Operation.register(new BinaryOperator(DOT_REF_SYMBOL, (/* left, right */) => '#C
 const isFunctionParam = (node, parent) =>
 	parent && parent.type === 'function' && (node.type === 'string');
 
-const checkPrefix = (prefix, expr, index) => (name) =>
-	name.startsWith(prefix) && expr.charAt(index + name.length) === '(';
+const checkPrefix = (prefix, expr, index) => (name) => {
+	if (name.startsWith(prefix)) {
+		const charAt = expr.charAt(index + name.length);
+		// relax prefix check, because it is used on function input
+		return charAt === '(' || !charAt;
+	}
+	return false;;
+};
 
 const isFirst = (node, parent) => node.start === parent.left.start && parent.left.operator == null;
 

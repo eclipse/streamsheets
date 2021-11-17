@@ -52,7 +52,7 @@ export default class PasteFunctionDialog extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			category: 'all',
+			category: 'All',
 			filter: '',
 		};
 	}
@@ -123,15 +123,13 @@ export default class PasteFunctionDialog extends React.Component {
 			},
 		);
 
-		console.log('Undocumented Functions:');
-
-		Object.keys(JSG.FormulaParser.context.functions).forEach((func) => {
-			if (functionStrings.getStrings()[func] === undefined) {
-				if (!func.startsWith('OLAP')) {
-					console.log(func);
-				}
-			}
-		});
+		// Object.keys(JSG.FormulaParser.context.functions).forEach((func) => {
+		// 	if (functionStrings.getStrings()[func] === undefined) {
+		// 		if (!func.startsWith('OLAP')) {
+		// 			console.log(func);
+		// 		}
+		// 	}
+		// });
 	}
 
 	handleCancel = () => {
@@ -183,7 +181,12 @@ export default class PasteFunctionDialog extends React.Component {
 	};
 
 	handleFunctionHelp = (key) => {
-		const url = `https://docs.cedalo.com/functions/${tableData[key].category}/${
+		const VERSION = process.env.REACT_APP_VERSION || '2.5.0';
+		const semverRegExp = /(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.*(?<patch>0|[1-9]\d*)*/i;
+		const versionObject = VERSION.match(semverRegExp);
+		const versionLink = `${versionObject.groups.major}.${versionObject.groups.minor}`
+
+		const url = `https://docs.cedalo.com/streamsheets/${versionLink}/functions/${tableData[key].category}/${
 			tableData[key].name.replace(/\./g, '')
 		}.html`;
 		window.open(url.toLowerCase(), '_blank');

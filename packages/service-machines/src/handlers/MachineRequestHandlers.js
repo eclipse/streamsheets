@@ -90,6 +90,13 @@
 	 throw handler.reject(request, `No machine found with id '${request.machineId}'!`);
  };
 
+ const loadMachineFromDB = (machineId, repositoryManager, scope) => async () => {
+		const machine = await repositoryManager.machineRepository.findMachine(machineId);
+		if (machine.isTemplate) machine.scope = scope;
+		return machine;
+ };
+ 
+
  class GetMachineRequestHandler extends RequestHandler {
 	 constructor() {
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.GET_MACHINE_MESSAGE_TYPE);
@@ -294,7 +301,7 @@
 
 	 async handle(request, machineserver, repositoryManager) {
 		 const { settings = {} } = request;
-		 const { cycleTime, isOPCUA, locale, newName, view } = settings;
+		 const { cycleTime, isCycleRegulated, isOPCUA, locale, newName, view } = settings;
 		 if (newName != null) {
 			 // check if we already have a machine with newName => its not allowed
 			 const nameInUse = await repositoryManager.machineRepository.machineWithNameExists(
@@ -309,6 +316,7 @@
 		 return handleRequest(this, machineserver, request, 'update', {
 			 props: {
 				 cycleTime,
+				 isCycleRegulated,
 				 isOPCUA,
 				 locale,
 				 newName,
@@ -387,16 +395,20 @@
 		 super(MachineServerMessagingProtocol.MESSAGE_TYPES.OPEN_MACHINE_MESSAGE_TYPE);
 	 }
 
-	 async handle(request, machineserver) {
+	 async handle(request, machineserver, repositoryManager) {
 		 logger.info(`open machine: ${request.machineId}...`);
+		 const { machineId, session } = request;
 		 try {
-			 // we always need a machine definition in request!
-			 const result = await machineserver.openMachine(request.machineDefinition, request.session);
-			 logger.info(`open machine ${request.machineId} successful`);
+			 const result = await machineserver.openMachine(
+					machineId,
+					session,
+					loadMachineFromDB(machineId, repositoryManager, session)
+				);
+			 logger.info(`open machine ${machineId} successful`);
 			 return this.confirm(request, result);
 		 } catch (err) {
-			 logger.error(`open machine ${request.machineId} failed:`, err);
-			 throw this.reject(request, `Failed to open machine with id '${request.machineId}'!`);
+			 logger.error(`open machine ${machineId} failed:`, err);
+			 throw this.reject(request, `Failed to open machine with id '${machineId}'!`);
 		 }
 	 }
  }
@@ -410,11 +422,11 @@
 		 logger.info(`load machine: ${request.machineId}...`);
 		 const { machineId, migrations, scope } = request;
 		 try {
-			 const result = await machineserver.loadMachine(machineId, scope, async () => {
-				 const machine = await repositoryManager.machineRepository.findMachine(machineId);
-				 if (machine.isTemplate) machine.scope = scope;
-				 return machine;
-			 });
+			 const result = await machineserver.loadMachine(
+					machineId,
+					scope,
+					loadMachineFromDB(machineId, repositoryManager, scope)
+				);
 			 if (migrations) {
 				 const migrated = await machineserver.applyMigrations(machineId, scope, migrations);
 				 result.machine = migrated.machine;

@@ -157,8 +157,8 @@ const trace = (sheet, ...terms) =>
 			config.url = url;
 			config.method = 'TRACE';
 			config.headers = headers;
-			return AsyncRequest.create(sheet, request.context)
-				.request(() => getInstance().request(config))
+			return AsyncRequest.create(sheet, trace.context)
+				.request(() => getInstance().request('', headers, config))
 				.response(createRequestCallback(sheet, target))
 				.reqId();
 		});

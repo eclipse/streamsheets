@@ -11,7 +11,15 @@
 /* eslint-disable react/no-unused-state */
 /* eslint-disable react/prop-types */
 import React, { Component } from 'react';
-import { Button, Typography, Slide } from '@material-ui/core';
+import {
+	Button,
+	Typography,
+	Slide,
+	TextField,
+	IconButton,
+	FormControlLabel,
+	Checkbox, FormGroup
+} from '@material-ui/core';
 import { connect } from 'react-redux';
 import AddIcon from '@material-ui/icons/Add';
 import SheetIcon from '@material-ui/icons/GridOn';
@@ -27,6 +35,10 @@ import Fab from '@material-ui/core/Fab';
 import SpeedDial from '@material-ui/lab/SpeedDial';
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Paper from '@material-ui/core/Paper';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 
 import * as Actions from '../../actions/actions';
 import { graphManager } from '../../GraphManager';
@@ -65,8 +77,9 @@ const SpeedDialDisabledStyles = {
 		};
 	}
 };
-const getAddSheetActionStyle = (enabled) => {
-	if (enabled) return undefined;
+
+const getAddSheetActionStyle = (state) => {
+	if (state === 'yes') return undefined;
 	const style = SpeedDialDisabledStyles[localStorage.getItem('theme') || 'Default'];
 	return { style, disableRipple: true };
 };
@@ -106,10 +119,31 @@ export class CanvasComponent extends Component {
 			loaded: false,
 			loading: 1,
 			speedOpen: false,
+			searchOpen: false,
+			searchOptions: false,
+			searchCaps: false,
+			searchFormulas: false,
+			searchActiveSheet: false,
+			searchText: '',
 			dummy: ''
 		};
 	}
 
+	getAddSheetButtonActionStyle(state) {
+		if (state === 'yes') return undefined;
+		const theme = localStorage.getItem('theme') || 'Default';
+
+		return {
+			visibility: this.props.showTools ? 'visible' : 'hidden',
+			position: 'absolute',
+			zIndex: 1200,
+			right: '30px',
+			bottom: '26px',
+			boxShadow: 'none',
+			color: theme === 'Dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.26)',
+			backgroundColor: theme === 'Dark' ?  'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+		}
+	}
 
 	componentDidMount() {
 		const graphEditor = this.initGraphEditor();
@@ -125,6 +159,8 @@ export class CanvasComponent extends Component {
 			JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION,
 			'onButtonClicked',
 		);
+		JSG.NotificationCenter.getInstance()
+			.register(this, JSG.WorksheetView.SHEET_SEARCH_NOTIFICATION, 'onSheetSearch');
 		/* eslint-disable react/no-did-mount-set-state */
 		this.setState({ graphEditor });
 		/* eslint-enable react/no-did-mount-set-state */
@@ -135,6 +171,7 @@ export class CanvasComponent extends Component {
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ZOOM_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.NotificationCenter.ADD_SHEET_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.StreamSheetView.SHEET_DROP_FROM_OUTBOX);
+		JSG.NotificationCenter.getInstance().unregister(this, JSG.WorksheetView.SHEET_SEARCH_NOTIFICATION);
 		JSG.NotificationCenter.getInstance().unregister(this, JSG.ButtonNode.BUTTON_CLICKED_NOTIFICATION);
 		canvas._jsgEditor.destroy();
 		delete canvas._jsgEditor;
@@ -170,6 +207,165 @@ export class CanvasComponent extends Component {
 			}
 		}
 	}
+
+	onSheetSearch() {
+		this.setState({ searchOpen: true });
+		setTimeout(() => {
+			document.getElementById('sheet-search').focus();
+		}, 100);
+	};
+
+	handleSearch = (event) => {
+
+		graphManager.getGraph().collectSearchResult(event.target.value, {
+			matchCase: this.state.searchCaps,
+			formulas: this.state.searchFormulas,
+			activeSheet: this.state.searchActiveSheet,
+			sheet: graphManager.getActiveSheetView() ? graphManager.getActiveSheetView().getItem() : undefined,
+		});
+
+		this.setState({
+			searchText: event.target.value,
+		})
+		this.showSearchCell();
+		graphManager.redraw();
+	};
+
+	handleSearchKeyDown = (event) => {
+		switch (event.key) {
+		case 'Enter':
+		case 'ArrowDown':
+			this.handleSearchNext();
+			break;
+		case 'Escape':
+			this.handleSearchClose();
+			break;
+		case 'ArrowUp':
+			this.handleSearchPrevious();
+			break;
+		default:
+			break;
+		}
+	}
+
+	handleSearchPrevious = () => {
+		graphManager.getGraph().getPreviousSearchResult();
+		this.showSearchCell();
+		graphManager.redraw();
+	};
+
+	handleSearchNext = () => {
+		graphManager.getGraph().getNextSearchResult();
+		this.showSearchCell();
+		graphManager.redraw();
+	};
+
+	showSearchCell() {
+		const graph = graphManager.getGraph();
+		if (!graph.searchResult || graph.activeSearchIndex === -1) {
+			return;
+		}
+		const viewer = graphManager.getGraphViewer();
+		const graphController = viewer.getGraphController();
+		const searchRange = graph.searchResult[graph.activeSearchIndex];
+		if (!searchRange) {
+			return;
+		}
+		const controller = graphController.getControllerByModelId(searchRange.getSheet().getId());
+		if (!controller) {
+			return;
+		}
+		const view = controller.getView();
+
+		if (view.getItem().getParent() instanceof JSG.StreamSheetContainer) {
+			view.getParent().moveSheetToTop(viewer);
+		}
+		viewer.getGraphView().setFocus(controller);
+		view.showCell({x: searchRange.getX1(), y: searchRange.getY1()});
+
+		this.setState({
+			searchCount: graphManager.getGraph.searchResult ? graphManager.getGraph.searchResult.length : 0
+		})
+	}
+
+	handleSearchOptions = () => {
+		this.setState({ searchOptions: !this.state.searchOptions });
+	}
+
+	handleSearchCaps = (event, state) => {
+		this.setState({searchCaps: state});
+		graphManager.getGraph().collectSearchResult(this.state.searchText, {
+			matchCase: state,
+			formulas: this.state.searchFormulas,
+			activeSheet: this.state.searchActiveSheet,
+			sheet: graphManager.getActiveSheetView() ? graphManager.getActiveSheetView().getItem() : undefined,
+		});
+		this.showSearchCell();
+		graphManager.redraw();
+	};
+
+	handleSearchFormulas = (event, state) => {
+		this.setState({searchFormulas: state});
+		graphManager.getGraph().collectSearchResult(this.state.searchText, {
+			matchCase: this.state.searchCaps,
+			formulas: state,
+			activeSheet: this.state.searchActiveSheet,
+			sheet: graphManager.getActiveSheetView() ? graphManager.getActiveSheetView().getItem() : undefined,
+		});
+		this.showSearchCell();
+		graphManager.redraw();
+	};
+
+	handleSearchActiveSheet = (event, state) => {
+		this.setState({searchActiveSheet: state});
+		graphManager.getGraph().collectSearchResult(this.state.searchText, {
+			matchCase: this.state.searchCaps,
+			formulas: this.state.searchFormulas,
+			activeSheet: state,
+			sheet: graphManager.getActiveSheetView() ? graphManager.getActiveSheetView().getItem() : undefined,
+		});
+		this.showSearchCell();
+		graphManager.redraw();
+	};
+
+	handleSearchClose = () => {
+		this.setState({
+			searchOpen: false,
+			searchText: '',
+		});
+
+		const graph = graphManager.getGraph();
+		if (!graph.searchResult || graph.activeSearchIndex === -1) {
+			return;
+		}
+		const viewer = graphManager.getGraphViewer();
+		const graphController = viewer.getGraphController();
+		const searchRange = graph.searchResult[graph.activeSearchIndex];
+		if (!searchRange) {
+			return;
+		}
+		const controller = graphController.getControllerByModelId(searchRange.getSheet().getId());
+		if (!controller) {
+			return;
+		}
+		const view = controller.getView();
+
+		if (view.getItem().getParent() instanceof JSG.StreamSheetContainer) {
+			view.getParent().moveSheetToTop(viewer);
+		}
+		viewer.getGraphView().setFocus(controller);
+
+		const selection = view.getOwnSelection();
+		selection.selectRange(searchRange.copy());
+		view.showCell(selection.getActiveCell());
+		view.notifySelectionChange(viewer);
+
+		graphManager.getGraph().clearSearchResult();
+		graphManager.redraw();
+		setTimeout(() => {
+			graphManager.getCanvas().focus();
+		}, 100);
+	};
 
 	onZoom() {
 		const { canvas } = this;
@@ -234,6 +430,23 @@ export class CanvasComponent extends Component {
 		this.setState({ graph: sheet.getGraph() });
 	};
 
+	addSheetAllowed() {
+		const graph = graphManager.getGraph();
+		if (!graph) {
+			return false;
+		}
+
+		const license = Utils.areSheetsAvailable(this.props.licenseInfo);
+		const cnt = graph.getStreamSheetContainerCount();
+
+		if (!license) {
+			return 'lic';
+		} else if (cnt > 5) {
+			return 'max';
+		}
+		return 'yes';
+	}
+
 	onAddDashboardSheet() {
 		const graph = graphManager.getGraph();
 		const cnt = graph.getStreamSheetContainerCount() % 8;
@@ -247,27 +460,32 @@ export class CanvasComponent extends Component {
 		let cnt = graph.getStreamSheetContainerCount();
 		this.setState({speedOpen: false});
 
-		if (cnt > 9) {
-			JSG.NotificationCenter.getInstance().send(
-				new JSG.Notification(JSG.WorksheetView.SHEET_MESSAGE_NOTIFICATION, {
-					view: this,
-					message: { message: intl.formatMessage({ id: 'Alert.SheetMaximum' }, {}) },
-				}),
-			);
-
+		if (cnt > 5) {
+			// JSG.NotificationCenter.getInstance().send(
+			// 	new JSG.Notification(JSG.WorksheetView.SHEET_MESSAGE_NOTIFICATION, {
+			// 		view: this,
+			// 		message: { message: intl.formatMessage({ id: 'Alert.SheetMaximum' }, {}) },
+			// 	}),
+			// );
 			return;
 		}
 
-		graphManager
-			.getGraphViewer()
-			.getSelectionProvider()
-			.clearSelection();
+		graphManager.getGraphViewer().getSelectionProvider().clearSelection();
 
 		cnt %= 8;
 
 		graph.setViewMode(undefined, 0);
 
 		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, type);
+
+		setTimeout(() => {
+			this.props.setAppState({ viewMode: {
+					dummy: Math.random(),
+					...this.props.viewMode
+				}
+			});
+		}, 200);
+
 	};
 
 	initGraphEditor() {
@@ -286,6 +504,32 @@ export class CanvasComponent extends Component {
 		return null;
 	}
 
+	getAddTipTitle(addAllowed, sheet) {
+		switch (addAllowed) {
+		default:
+		case 'yes':
+			return sheet ?
+				<FormattedMessage
+					id="Tooltip.AddStreamSheet"
+					defaultMessage="Add StreamSheet"
+				/> :
+				<FormattedMessage
+					id="Tooltip.AddDashboard"
+					defaultMessage="Add Dashboard"
+				/>
+		case 'lic':
+			return <FormattedMessage
+				id="License.Info.Streamsheets.max.reached"
+				defaultMessage="Maximum number of Streamsheets reached!"
+			/>
+		case 'max':
+			return <FormattedMessage
+				id="Alert.SheetMaximum"
+				defaultMessage="Maximum number of 6 Sheet per Machine allowed!"
+			/>
+		}
+	}
+
 	updateDimensions() {
 		graphManager.updateDimensions();
 		graphManager.updateControls();
@@ -293,7 +537,7 @@ export class CanvasComponent extends Component {
 
 	render() {
 		const canEdit = this.props.canEditMachine;
-		const canAddStreamsheet = Utils.areSheetsAvailable(this.props.licenseInfo);
+		const canAddStreamsheet = this.addSheetAllowed();
 		const sheets = [];
 		const graph = graphManager.getGraph();
 		if (graph) {
@@ -352,6 +596,115 @@ export class CanvasComponent extends Component {
 						<GraphContextMenu />
 						<LayoutContextMenu />
 						<EditPointsContextMenu />
+						<Paper
+							elevation={4}
+							style={{
+								position: 'absolute',
+								top: '10px',
+								right: '10px',
+								visibility: this.state.searchOpen ? 'visible' : 'hidden',
+								paddingBottom: '6px',
+							}}
+						>
+							<div
+								style={{
+									display: 'inline-flex',
+									alignItems: 'center'
+								}}
+							>
+								<TextField
+									variant="outlined"
+									inputProps={{
+										id: "sheet-search"
+									}}
+									size="small"
+									margin="normal"
+									style={{
+										width: '180px',
+										display: 'inline-block',
+										marginLeft: '8px',
+									}}
+									label={
+										graphManager.getGraph().searchResult ?
+											intl.formatMessage({ id: 'SearchResult' },
+												{count: graphManager.getGraph().searchResult.length,
+												index: graphManager.getGraph().activeSearchIndex + 1}) :
+											<FormattedMessage id="SearchText" defaultMessage="SearchText"/>
+									}
+									value={this.state.searchText}
+									onKeyUp={this.handleSearchKeyDown}
+									onChange={this.handleSearch}
+								/>
+								<IconButton
+									style= {{
+										margin: '5px',
+									}}
+									size='small'
+									onClick={(e) => this.handleSearchPrevious(e)}
+									disabled={!graphManager.getGraph().searchResult}
+								>
+									<KeyboardArrowUpIcon />
+								</IconButton>
+								<IconButton
+									style= {{
+										margin: '5px',
+									}}
+									size='small'
+									onClick={(e) => this.handleSearchNext(e)}
+									disabled={!graphManager.getGraph().searchResult}
+								>
+									<KeyboardArrowDownIcon />
+								</IconButton>
+								<IconButton
+									style= {{
+										margin: '5px',
+									}}
+									size='small'
+									onClick={(e) => this.handleSearchOptions(e)} disabled={false}
+								>
+									<MoreVertIcon />
+								</IconButton>
+								<IconButton
+									style= {{
+										margin: '5px',
+									}}
+									size='small'
+									onClick={(e) => this.handleSearchClose(e)} disabled={false}
+								>
+									<CloseIcon />
+								</IconButton>
+							</div>
+							{this.state.searchOptions ? (
+								<FormGroup
+									style={ {
+										marginLeft: '6px'
+									}}
+								>
+									<FormControlLabel
+										control={<Checkbox
+											checked={this.state.searchCaps}
+											onChange={(event, state) => this.handleSearchCaps(event, state)}
+										/>}
+										label={<FormattedMessage id="SearchCaps" defaultMessage="Match Case" />}
+									/>
+									<FormControlLabel
+										control={<Checkbox
+											checked={this.state.searchFormulas}
+											onChange={(event, state) => this.handleSearchFormulas(event, state)}
+										/>}
+										label={<FormattedMessage id="SearchFormulas" defaultMessage="Search in Formulas" />}
+									/>
+									<FormControlLabel
+										control={<Checkbox
+											checked={this.state.searchActiveSheet}
+											onChange={(event, state) => this.handleSearchActiveSheet(event, state)}
+										/>}
+										label={<FormattedMessage id="SearchActiveSheet" defaultMessage="Search in active Sheet" />}
+									/>
+								</FormGroup>
+								) : null
+							}
+						</Paper>
 					</React.Fragment>
 				)}
 				<canvas
@@ -380,26 +733,18 @@ export class CanvasComponent extends Component {
 				)}
 
 				{viewMode.active === true || !canEdit ? null : (
-					<div>
+					<React.Fragment>
 						{graph.getDashboardContainer() ? (
 							<Tooltip
 								enterDelay={300}
-								title={
-									<FormattedMessage id="Tooltip.AddStreamSheet" defaultMessage="Add StreamSheet" />
-								}
+								title={this.getAddTipTitle(canAddStreamsheet, true)}
 							>
 								<Fab
 									id="addSheet"
 									aria-label="add"
 									color="primary"
 									size="medium"
-									style={{
-										visibility: this.props.showTools ? 'visible' : 'hidden',
-										position: 'absolute',
-										zIndex: 1200,
-										right: '30px',
-										bottom: '26px'
-									}}
+									style={this.getAddSheetButtonActionStyle()}
 									onClick={() => this.onAdd('sheet')}
 								>
 									<AddIcon
@@ -432,20 +777,8 @@ export class CanvasComponent extends Component {
 								<SpeedDialAction
 									key="sheet"
 									icon={<SheetIcon />}
-									tooltipTitle={
-										canAddStreamsheet ? (
-											<FormattedMessage
-												id="Tooltip.AddStreamSheet"
-												defaultMessage="Add StreamSheet"
-											/>
-										) : (
-											<FormattedMessage
-												id="License.Info.Streamsheets.max.reached"
-												defaultMessage="Maximum number of Streamsheets reached!"
-											/>
-										)
-									}
-									onClick={canAddStreamsheet ? () => this.onAdd('sheet') : undefined}
+									tooltipTitle={this.getAddTipTitle(canAddStreamsheet, true)}
+									onClick={canAddStreamsheet === 'yes' ? () => this.onAdd('sheet') : undefined}
 									// disabled
 									// failed to get tooltip work if action is disabled
 									// => so fake it by setting similar styles:
@@ -454,14 +787,13 @@ export class CanvasComponent extends Component {
 								<SpeedDialAction
 									key="dash"
 									icon={<DashboardIcon />}
-									tooltipTitle={
-										<FormattedMessage id="Tooltip.AddDashboard" defaultMessage="Add Dashboard" />
-									}
-									onClick={() => this.onAdd('dashboard')}
+									tooltipTitle={this.getAddTipTitle(canAddStreamsheet, false)}
+									onClick={canAddStreamsheet === 'yes' ? () => this.onAdd('dashboard') : undefined}
+									FabProps={getAddSheetActionStyle(canAddStreamsheet)}
 								/>
 							</SpeedDial>
 						)}
-					</div>
+					</React.Fragment>
 				)}
 				{viewMode.active === true && canEdit
 					? [

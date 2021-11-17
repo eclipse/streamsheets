@@ -1232,6 +1232,100 @@ module.exports = class WorksheetNode extends ContentNode {
 		};
 	}
 
+	collectDependants() {
+		const pos = this.getOwnSelection().getActiveCell();
+		if (!pos) {
+			return;
+		}
+
+		const graph = this.getGraph();
+		const cont = graph.getStreamSheetsContainer();
+		const cells = [];
+
+		cont.enumerateStreamSheetContainers((container) => {
+			const sheet = container.getStreamSheet();
+			const data = sheet.getDataProvider();
+			const shift = sheet.getColumns().getInitialSection()
+
+			data.enumerate((column, row, cell) => {
+				const term = cell.getTerm();
+				if (term) {
+					term.traverse((lterm) => {
+						const { operand } = lterm;
+						if (operand && operand instanceof SheetReference) {
+							if (operand._range) {
+								let range = operand._range;
+								range = range.copy();
+								if (range.getSheet() === this &&
+									pos.x >= range._x1 - shift && pos.x <= range._x2 - shift &&
+									pos.y >= range._y1 && pos.y <= range._y2) {
+									cells.push(new CellRange(sheet, column, row));
+								}
+							}
+						}
+						return true;
+					});
+				}
+			});
+		});
+
+		if (cells.length) {
+			if (!this.dependants) {
+				this.dependants = [];
+			}
+			this.dependants.push({
+				cell: new CellRange(this, pos.x, pos.y),
+				cells
+			});
+		}
+	}
+
+	collectPredecessors() {
+		const pos = this.getOwnSelection().getActiveCell();
+		if (!pos) {
+			return;
+		}
+		const data = this.getDataProvider();
+		const cell = data.get(pos);
+		if (!cell) {
+			return;
+		}
+
+		const term = cell.getTerm();
+		if (!term) {
+			return;
+		}
+
+		const cells = [];
+
+		term.traverse((lterm) => {
+			const { operand } = lterm;
+			if (operand && operand instanceof SheetReference) {
+				if (operand._range) {
+					const range = operand._range;
+					cells.push(range.copy());
+				}
+			}
+			return true;
+		});
+
+		if (cells.length) {
+			if (!this.predecessors) {
+				this.predecessors = [];
+			}
+
+			this.predecessors.push({
+				cell: new CellRange(this, pos.x, pos.y),
+				cells
+			});
+		}
+	}
+
+	removeArrows() {
+		this.predecessors = undefined;
+		this.dependants = undefined;
+	}
+
 	static get SelectionMode() {
 		return SelectionMode;
 	}

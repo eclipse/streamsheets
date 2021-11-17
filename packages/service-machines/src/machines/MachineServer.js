@@ -66,7 +66,7 @@ module.exports = class MachineServer {
 	constructor() {
 		this.machinerunners = new Map();
 		this.machineservice = undefined;
-		// TODO: replace this to handle other requests too
+		// prevent creating same machine twice on simultaneously requests
 		this._pendingLoads = new Map();
 		this._functionDefinitions = [];
 	}
@@ -79,9 +79,7 @@ module.exports = class MachineServer {
 
 	shutdown() {
 		const promises = [];
-		this.machinerunners.forEach((runner) =>
-			promises.push(runner.dispose())
-		);
+		this.machinerunners.forEach((runner) => promises.push(runner.dispose()));
 		return Promise.all(promises);
 	}
 
@@ -93,9 +91,7 @@ module.exports = class MachineServer {
 
 	stopMachines() {
 		const promises = [];
-		this.machinerunners.forEach((runner) =>
-			promises.push(this._doRemoveMachine(runner))
-		);
+		this.machinerunners.forEach((runner) => promises.push(this._doRemoveMachine(runner)));
 		return Promise.all(promises);
 	}
 
@@ -107,37 +103,13 @@ module.exports = class MachineServer {
 		return this.machinerunners.has(id);
 	}
 
-	async openMachine(definition, session) {
-		const runner = this.machinerunners.get(definition.id);
-		return (await runner) != null
-			? runner.getDefinition()
-			: this._doLoadMachine(definition, session);
+	async openMachine(machineId, session, loadMachineDefinition) {
+		if (!this.isMachineLoaded(machineId)) await this.loadMachine(machineId, session, loadMachineDefinition);
+		return true;
 	}
-
-	// include editable-web-component:
-	// async loadMachine(machineId, session) {
-	// 	let result;
-	// 	if (this.isMachineLoaded(machineId)) {
-	// 		// we simply return definition from running machine...
-	// 		const runner = this.getMachineRunner(machineId);
-	// 		result = await runner.getDefinition();
-	// 	} else {
-	// 		const definition = await loadMachineDefinition(machineId);
-	// 		result = await this._doLoadMachine(definition, session);
-	// 	}
-	// 	result.machine.metadata.machineservice = {
-	// 		id: this.machineservice.id
-	// 	};
-	// 	return result;
-	// }
-	// ~
 
 	// delete editable-web-component
 	async loadMachine(machineId, session, loadMachineDefinition) {
-		// TODO actually this should be enough if we distinguish between open & load:
-		// const runner = this.machinerunners.get(definition.id);
-		// return await runner != null ? runner.load(definition) : this._doLoadMachine(definition, session);
-
 		let result;
 		if (this.isMachineLoaded(machineId)) {
 			// we simply return definition from running machine...
@@ -152,16 +124,6 @@ module.exports = class MachineServer {
 			id: this.machineservice.id
 		};
 		return result;
-
-		// TODO: replacing machine must preserve all registered clients!!!
-		// => isn't it enough to simply load machine definition?
-		// => we need an open-machine-request! since we not always want to replace a machine when client simply open it
-		//
-		// const machineId = definition.id;
-		// const loadIt = await this.machinerunners.has(machineId) ? this.unloadMachine(machineId) : true;
-		// if (loadIt) return this._doLoadMachine(definition, session);
-		// // if machine could not be replaced throw an error:
-		// throw new Error(`Failed to unload machine with id: ${machineId}!`);
 	}
 	// ~
 	async applyMigrations(machineId, session, migrations) {
@@ -177,31 +139,36 @@ module.exports = class MachineServer {
 	_doLoadMachine(definition, session) {
 		if (!this._pendingLoads.has(definition.id)) {
 			const promise = new Promise(async (resolve, reject) => {
-				try {
-					// create a new runner and load definition
-					const options = {
-						service: this.machineservice,
-						execArgs: { debug: isDebug },
-						machineArgs: { session, log: LOG_LEVEL }
-					};
-					const runner = await MachineTaskRunner.create(options);
-					const result = await runner.load(
-						definition,
-						this._functionDefinitions
+				// create a new runner and load definition
+				const options = {
+					service: this.machineservice,
+					execArgs: { debug: isDebug },
+					machineArgs: { session, log: LOG_LEVEL }
+				};
+				const runner = await MachineTaskRunner.create(options);
+				if (runner) {
+					try {
+						const result = await runner.load(definition, this._functionDefinitions);
+						runner.onDispose = () => {
+							this.machinerunners.delete(runner.id);
+							runner.onDispose = undefined;
+						};
+						this.machinerunners.set(runner.id, runner);
+						// additionally pass template ID if machine was newly created...
+						result.templateId = runner.id !== definition.id ? definition.id : undefined;
+						resolve(result);
+					} catch (err) {
+						await runner.shutdown();
+						reject(err);
+					} finally {
+						this._pendingLoads.delete(definition.id);
+					}
+				} else {
+					reject(
+						new Error(
+							`Failed to create new MachineTaskRunner for machine ${definition.name}(${definition.id})`
+						)
 					);
-					runner.onDispose = () => {
-						this.machinerunners.delete(runner.id);
-						runner.onDispose = undefined;
-					};
-					this.machinerunners.set(runner.id, runner);
-					// additionally pass template ID if machine was newly created...
-					result.templateId =
-						runner.id !== definition.id ? definition.id : undefined;
-					resolve(result);
-				} catch (err) {
-					reject(err);
-				} finally {
-					this._pendingLoads.delete(definition.id);
 				}
 			});
 			this._pendingLoads.set(definition.id, promise);
@@ -216,8 +183,7 @@ module.exports = class MachineServer {
 		return runner && this._doRemoveMachine(runner, deleted);
 	}
 	async _doRemoveMachine(runner, deleted) {
-		await runner.stop();
-		await runner.dispose(deleted);
+		await runner.shutdown(deleted);
 		this.machinerunners.delete(runner.id);
 		return true; // always return true => runner might be removed from map during dispose...
 	}

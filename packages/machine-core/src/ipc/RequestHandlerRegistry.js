@@ -203,8 +203,7 @@ const deleteCellsFromRanges = (ranges, sheet) => {
 	const cells = [];
 	if (ranges) {
 		ranges.forEach((rangeStr) => {
-			const sheetRange = SheetRange.fromRangeStr(rangeStr);
-			sheetRange.sheet = sheet;
+			const sheetRange = SheetRange.fromRangeStr(rangeStr, sheet);
 			sheetRange.iterate((cell, index) => {
 				if (sheet.setCellAt(index, undefined)) {
 					cells.push(cellDescriptor(undefined, index));
@@ -393,7 +392,7 @@ class Delete extends ARequestHandler {
 		if (sheet) {
 			const updateHandler = disableSheetUpdate(sheet);
 			try {
-				const cellrange = SheetRange.fromRangeStr(range);
+				const cellrange = SheetRange.fromRangeStr(range, sheet);
 				switch (type) {
 				case 'rows':
 					sheet.deleteRowsAt(cellrange.start.row, cellrange.height);
@@ -559,7 +558,7 @@ class Insert extends ARequestHandler {
 		if (sheet) {
 			const updateHandler = disableSheetUpdate(sheet);
 			try {
-				const cellrange = SheetRange.fromRangeStr(range);
+				const cellrange = SheetRange.fromRangeStr(range, sheet);
 				const properties = sheet.properties;
 				switch (type) {
 				case 'rows':
@@ -686,9 +685,8 @@ class PasteCells extends ARequestHandler {
 		const sheet = streamsheet && streamsheet.sheet;
 		const trgtsheet = targetStreamsheet && targetStreamsheet.sheet;
 		if (sheet && trgtsheet) {
-			const trgtrange = SheetRange.fromRangeStr(fixRangeStr(targetrange));
+			const trgtrange = SheetRange.fromRangeStr(fixRangeStr(targetrange), trgtsheet);
 			if (trgtrange) {
-				trgtrange.sheet = trgtsheet;
 				// action =  'all' || 'values' || 'formulas' || 'formats'
 				const updateHandler = disableSheetUpdate(sheet);
 				const trgtUpdateHandler = disableSheetUpdate(trgtsheet);
@@ -992,8 +990,8 @@ class Unsubscribe extends ARequestHandler {
 class Update extends ARequestHandler {
 	handle(msg) {
 		this.machine.update(msg.props);
-		const { cycletime, id, isOPCUA, locale, name, state, view } = this.machine;
-		return Promise.resolve({ machine: { cycletime, id, isOPCUA, locale, name, state, view } });
+		const { cycletime, id, isCycleRegulated, isOPCUA, locale, name, state, view } = this.machine;
+		return Promise.resolve({ machine: { cycletime, id, isCycleRegulated, isOPCUA, locale, name, state, view } });
 	}
 }
 
@@ -1052,6 +1050,15 @@ class UpdateStreamSheet extends ARequestHandler {
 	}
 }
 
+class HealthCheck extends ARequestHandler {
+	get isModifying() {
+		return false;
+	}
+	handle(msg) {
+		return Promise.resolve();
+	}
+}
+
 class RequestHandlerRegistry {
 	static of(monitor) {
 		const machine = monitor.machine;
@@ -1099,6 +1106,7 @@ class RequestHandlerRegistry {
 		registry.handlers.set('updateMachine', new UpdateMachine(machine, monitor));
 		registry.handlers.set('updateMachineMonitor', new UpdateMachineMonitor(machine, monitor));
 		registry.handlers.set('updateStreamSheet', new UpdateStreamSheet(machine, monitor));
+		registry.handlers.set('healthcheck', new HealthCheck(machine, monitor));
 		return registry;
 	}
 

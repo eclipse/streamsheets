@@ -243,7 +243,11 @@ class Cell {
 		if (this._term) {
 			const value = this._value;
 			// fix value after load if it failed during load
-			if (value == null || FunctionErrors.isError(value)) this._value = checkNaN(this._term.value);
+			if (value == null || FunctionErrors.isError(value)) {
+				this._value = checkNaN(this._term.value);
+				this._cellValue = this._term.cellValue != null ? checkNaN(this._term.cellValue) : undefined;
+				this._info.error = this._value != null && this._value.isErrorInfo ? this._value : undefined;
+			}
 		}
 	}
 }

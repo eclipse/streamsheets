@@ -9,7 +9,6 @@
  *
  ********************************************************************************/
 const bar = require('./bar');
-const help = require('./help');
 const { Functions } = require('@cedalo/parser');
 
 const {
@@ -38,7 +37,6 @@ const {
 } = Functions;
 
 module.exports = {
-	help,
 	functions: {
 		ATTRIBUTES,
 		BAR: bar,

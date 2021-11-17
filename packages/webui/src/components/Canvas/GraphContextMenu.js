@@ -69,10 +69,11 @@ const Submenu = withStyles(submenuStyles)(// Unfortunately, MUI <Menu> injects r
 								selected={popupState.isOpen}
 								ref={ref}
 							>
-								<ListItemIcon>
+								<ListItemIcon key="iconSGM">
 									<SvgIcon style={styles.menuItem} />
 								</ListItemIcon>
 								<ListItemText
+									key={title}
 									primary={title}
 								/>
 								<ChevronRight className={classes.moreArrow} />
@@ -320,97 +321,97 @@ class GraphContextComponent extends Component {
 								{...bindMenu(popupState)}
 							>
 								{this.isLayoutSectionSelected() ? [
-										<MenuItem onClick={this.onShowLayoutSectionProperties} dense>
-											<ListItemIcon>
+										<MenuItem key="1" onClick={this.onShowLayoutSectionProperties} dense>
+											<ListItemIcon key="iconGCM">
 												<SettingsIcon style={styles.menuItem} />
 											</ListItemIcon>
-											<ListItemText
+											<ListItemText key="textGCM"
 												primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
 											/>
 										</MenuItem>,
-										<Divider />
+										<Divider key="30"/>
 									] : null}
 								{!this.isMultiSelection() ? [
-										<MenuItem onClick={this.onShowChartProperties} dense>
-											{item instanceof JSG.SheetPlotNode ? [<ListItemIcon>
+										<MenuItem key="2" onClick={this.onShowChartProperties} dense>
+											{item instanceof JSG.SheetPlotNode ? [<ListItemIcon key="iconGCM">
 												<SvgIcon style={styles.menuItem}>
 													<path d='M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z' />
 												</SvgIcon>
-											</ListItemIcon>, <ListItemText
+											</ListItemIcon>, <ListItemText key="textGCM"
 												primary={<FormattedMessage id='EditChart' defaultMessage='Edit Chart' />}
-											/>] : [<ListItemIcon>
+											/>] : [<ListItemIcon key="iconGCM">
 												<SettingsIcon style={styles.menuItem} />
-											</ListItemIcon>, <ListItemText
+											</ListItemIcon>, <ListItemText key="textGCM"
 												primary={<FormattedMessage id='EditGraphItem' defaultMessage='Edit Object' />}
 											/>]}
 										</MenuItem>,
-										<Divider />
+										<Divider key="31"/>
 									] : null}
-								<MenuItem onClick={this.onCut} dense>
-									<ListItemIcon>
+								<MenuItem key="3" onClick={this.onCut} dense>
+									<ListItemIcon key="iconGCM">
 										<IconCut style={styles.menuItem} />
 									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id='Cut' defaultMessage='Cut' />} />
+									<ListItemText  key="textGCM" primary={<FormattedMessage id='Cut' defaultMessage='Cut' />} />
 								</MenuItem>
-								<MenuItem onClick={this.onCopy} dense>
-									<ListItemIcon>
+								<MenuItem key="4" onClick={this.onCopy} dense>
+									<ListItemIcon key="iconGCM">
 										<IconCopy style={styles.menuItem} />
 									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id='Copy' defaultMessage='Copy' />} />
+									<ListItemText key="textGCM" primary={<FormattedMessage id='Copy' defaultMessage='Copy' />} />
 								</MenuItem>
-								<MenuItem onClick={this.onDelete} dense>
-									<ListItemIcon>
+								<MenuItem key="24" onClick={this.onDelete} dense>
+									<ListItemIcon key="iconGCM">
 										<DeleteIcon style={styles.menuItem} />
 									</ListItemIcon>
-									<ListItemText primary={<FormattedMessage id='Delete' defaultMessage='Delete' />} />
+									<ListItemText key="textGCM" primary={<FormattedMessage id='Delete' defaultMessage='Delete' />} />
 								</MenuItem>
-								<Divider />
+								<Divider key="35"/>
 								<Submenu
 									popupId='drawingOrderMenu' title={<FormattedMessage id='Shapes.ChangeOrder'
 																					   defaultMessage='Drawing Order' />}
 								>
-									<MenuItem
-										onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.TOTOP)}
+									<MenuItem key="5"
+											  onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.TOTOP)}
 										dense>
-										<ListItemIcon>
+										<ListItemIcon key="iconGCM">
 											<SvgIcon style={styles.menuItem}>
 												<path
 													d='M2,2H11V6H9V4H4V9H6V11H2V2M22,13V22H13V18H15V20H20V15H18V13H22M8,8H16V16H8V8Z' />
 											</SvgIcon>
 										</ListItemIcon>
-										<ListItemText primary={<FormattedMessage id='Shapes.MoveToTop'
+										<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.MoveToTop'
 																				 defaultMessage='Move to Top' />} />
 									</MenuItem>
-									<MenuItem onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.UP)}
+									<MenuItem key="6" onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.UP)}
 											  dense>
-										<ListItemIcon>
+										<ListItemIcon key="iconGCM">
 											<SvgIcon style={styles.menuItem}>
 												<path d='M2,2H16V16H2V2M22,8V22H8V18H10V20H20V10H18V8H22Z' />
 											</SvgIcon>
 										</ListItemIcon>
-										<ListItemText
+										<ListItemText key="textGCM"
 											primary={<FormattedMessage id='Shapes.MoveUp' defaultMessage='Move up' />} />
 									</MenuItem>
-									<MenuItem onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.DOWN)}
+									<MenuItem key="7" onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.DOWN)}
 											  dense>
-										<ListItemIcon>
+										<ListItemIcon key="iconGCM">
 											<SvgIcon style={styles.menuItem}>
 												<path d='M2,2H16V16H2V2M22,8V22H8V18H18V8H22M4,4V14H14V4H4Z' />
 											</SvgIcon>
 										</ListItemIcon>
-										<ListItemText
+										<ListItemText key="textGCM"
 											primary={<FormattedMessage id='Shapes.MoveDown' defaultMessage='Move down' />} />
 									</MenuItem>
-									<MenuItem
-										onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.TOBOTTOM)}
+									<MenuItem key="8"
+											  onClick={() => this.onChangeOrder(popupState, JSG.ChangeItemOrderCommand.Action.TOBOTTOM)}
 										dense>
-										<ListItemIcon>
+										<ListItemIcon key="iconGCM">
 											<SvgIcon style={styles.menuItem}>
 												<path
 													d='M2,2H11V11H2V2M9,4H4V9H9V4M22,13V22H13V13H22M15,20H20V15H15V20M16,8V11H13V8H16M11,16H8V13H11V16Z' />
 											</SvgIcon>
 										</ListItemIcon>
-										<ListItemText
+										<ListItemText key="textGCM"
 											primary={<FormattedMessage id='Shapes.MoveToBottom'
 																	   defaultMessage='Move to Bottom' />}
 										/>
@@ -421,77 +422,77 @@ class GraphContextComponent extends Component {
 										popupId='AlignMenu' title={<FormattedMessage id='Shapes.Align'
 																						   defaultMessage='Align Shapes' />}
 									>
-										<MenuItem
-											onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.LEFT)}
+										<MenuItem key="9"
+												  onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.LEFT)}
 											dense>
-											<ListItemIcon>
+											<ListItemIcon key="iconGCM">
 												<SvgIcon style={styles.menuItem}>
 													<path
 														d="M22 13V19H6V13H22M6 5V11H16V5H6M2 2V22H4V2H2" />
 												</SvgIcon>
 											</ListItemIcon>
-											<ListItemText primary={<FormattedMessage id='Shapes.AlignLeft'
+											<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.AlignLeft'
 																					 defaultMessage='Align Left' />} />
 										</MenuItem>
-										<MenuItem
-											onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.CENTER)}
+										<MenuItem key="10"
+												  onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.CENTER)}
 											dense>
-											<ListItemIcon>
+											<ListItemIcon key="iconGCM">
 												<SvgIcon style={styles.menuItem}>
 													<path
 														d="M20 19H13V22H11V19H4V13H11V11H7V5H11V2H13V5H17V11H13V13H20V19Z" />
 												</SvgIcon>
 											</ListItemIcon>
-											<ListItemText primary={<FormattedMessage id='Shapes.AlignCentered'
+											<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.AlignCentered'
 																					 defaultMessage='Align Centered' />} />
 										</MenuItem>
-										<MenuItem
-											onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.RIGHT)}
+										<MenuItem key="11"
+												  onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.RIGHT)}
 											dense>
-											<ListItemIcon>
+											<ListItemIcon key="iconGCM">
 												<SvgIcon style={styles.menuItem}>
 													<path
 														d="M18 13V19H2V13H18M8 5V11H18V5H8M20 2V22H22V2H20Z" />
 												</SvgIcon>
 											</ListItemIcon>
-											<ListItemText primary={<FormattedMessage id='Shapes.AlignRight'
+											<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.AlignRight'
 																					 defaultMessage='Align Right' />} />
 										</MenuItem>
-										<Divider />
-										<MenuItem
-											onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.TOP)}
+										<Divider key="36" />
+										<MenuItem key="12"
+												  onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.TOP)}
 											dense>
-											<ListItemIcon>
+											<ListItemIcon key="iconGCM">
 												<SvgIcon style={styles.menuItem}>
 													<path
 														d="M11 22H5V6H11V22M19 6H13V16H19V6M22 2H2V4H22V2Z" />
 												</SvgIcon>
 											</ListItemIcon>
-											<ListItemText primary={<FormattedMessage id='Shapes.AlignTop'
+											<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.AlignTop'
 																					 defaultMessage='Align Top' />} />
 										</MenuItem>
-										<MenuItem
-											onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.MIDDLE)}
+										<MenuItem key="13"
+												  onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.MIDDLE)}
 											dense>
-											<ListItemIcon>
+											<ListItemIcon key="iconGCM">
 												<SvgIcon style={styles.menuItem}>
 													<path
 														d="M5 20V13H2V11H5V4H11V11H13V7H19V11H22V13H19V17H13V13H11V20H5Z" />
 												</SvgIcon>
 											</ListItemIcon>
-											<ListItemText primary={<FormattedMessage id='Shapes.AlignMiddle'
+											<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.AlignMiddle'
 																					 defaultMessage='Align Middle' />} />
 										</MenuItem>
-										<MenuItem
-											onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.BOTTOM)}
+										<MenuItem key="14"
+												  onClick={() => this.onAlignShapes(popupState, JSG.AlignItemsCommand.Alignment.BOTTOM)}
 											dense>
-											<ListItemIcon>
+											<ListItemIcon key="iconGCM">
 												<SvgIcon style={styles.menuItem}>
 													<path
 														d="M11 18H5V2H11V18M19 8H13V18H19V8M22 20H2V22H22V20Z" />
 												</SvgIcon>
 											</ListItemIcon>
-											<ListItemText primary={<FormattedMessage id='Shapes.AlignBottom'
+											<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.AlignBottom'
 																					 defaultMessage='Align Bottom' />} />
 										</MenuItem>
 									</Submenu>) : null
@@ -500,47 +501,47 @@ class GraphContextComponent extends Component {
 									popupId='DistMenu' title={<FormattedMessage id='Shapes.Distribute'
 																				 defaultMessage='Distribute Shapes' />}
 								>
-									<MenuItem
-										onClick={() => this.onAlignShapes(popupState,
+									<MenuItem key="15"
+											  onClick={() => this.onAlignShapes(popupState,
 											JSG.AlignItemsCommand.Alignment.HDISTRIBUTE)}
 										dense>
-										<ListItemIcon>
+										<ListItemIcon key="iconGCM">
 											<SvgIcon style={styles.menuItem}>
 												<path
 													d="M9,11H15V8L19,12L15,16V13H9V16L5,12L9,8V11M2,20V4H4V20H2M20,20V4H22V20H20Z" />
 											</SvgIcon>
 										</ListItemIcon>
-										<ListItemText primary={<FormattedMessage id='Shapes.DistributeHorz'
+										<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.DistributeHorz'
 																				 defaultMessage='Horizontal' />} />
 									</MenuItem>
-									<MenuItem
-										onClick={() => this.onAlignShapes(popupState,
+									<MenuItem key="16"
+											  onClick={() => this.onAlignShapes(popupState,
 											JSG.AlignItemsCommand.Alignment.VDISTRIBUTE)}
 										dense>
-										<ListItemIcon>
+										<ListItemIcon key="iconGCM">
 											<SvgIcon style={styles.menuItem}>
 												<path
 													d="M13,9V15H16L12,19L8,15H11V9H8L12,5L16,9H13M4,2H20V4H4V2M4,20H20V22H4V20Z" />
 											</SvgIcon>
 										</ListItemIcon>
-										<ListItemText primary={<FormattedMessage id='Shapes.DistributeVert'
+										<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.DistributeVert'
 																				 defaultMessage='Vertical' />} />
 									</MenuItem>
 								</Submenu>) : null}
-								{showEdit ? <Divider /> : null}
-								{showEdit ? (<MenuItem onClick={() => this.onEditPoints()} dense>
-										<ListItemIcon>
+								{showEdit ? <Divider  key="33"/> : null}
+								{showEdit ? (<MenuItem key="17" onClick={() => this.onEditPoints()} dense>
+										<ListItemIcon key="iconGCM">
 											<TimelineIcon style={styles.menuItem} />
 										</ListItemIcon>
-										<ListItemText primary={<FormattedMessage id='Shapes.EditPoints'
+										<ListItemText key="textGCM" primary={<FormattedMessage id='Shapes.EditPoints'
 																				 defaultMessage='Edit Points' />} />
 									</MenuItem>) : null}
-								{showAddText ? <Divider /> : null}
-								{showAddText ? (<MenuItem onClick={() => this.onAddText()} dense>
-										<ListItemIcon>
+								{showAddText ? <Divider  key="34"/> : null}
+								{showAddText ? (<MenuItem key="18" onClick={() => this.onAddText()} dense>
+										<ListItemIcon key="iconGCM">
 											<ShortTextIcon style={styles.menuItem} />
 										</ListItemIcon>
-										<ListItemText
+										<ListItemText key="textGCM"
 											primary={<FormattedMessage id='Shapes.AddText' defaultMessage='Add Text' />} />
 									</MenuItem>) : null}
 							</MenuList>

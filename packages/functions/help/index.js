@@ -8,44 +8,47 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const crypto = require('../src/functions/crypto/help');
-const database = require('../src/functions/database/help');
-const date = require('../src/functions/date/help');
-const shape = require('../src/functions/drawing/help');
-const engineering = require('../src/functions/engineering/help');
-const http = require('../src/functions/http/help');
-const info = require('../src/functions/info/help');
-const logical = require('../src/functions/logical/help');
-const lookup = require('../src/functions/lookup/help');
-const math = require('../src/functions/math/help');
+const chart = require('./chart/help');
+const crypto = require('./crypto/help');
+const date = require('./date/help');
+const databases = require('./databases/help');
+const dataformats = require('./dataformats/help');
+const engineering = require('./engineering/help');
+const events = require('./events/help');
+const http = require('./http/help');
+const info = require('./info/help');
+const logical = require('./logical/help');
+const lookup = require('./lookup/help');
+const math = require('./math/help');
+const shape = require('./shape/help');
+const stack = require('./stack/help');
+const statistical = require('./statistical/help');
+const streams = require('./streams/help');
+const streamsheet = require('./streamsheet/help');
+const text = require('./text/help');
+const timeseries = require('./timeseries/help');
+
 // const olap = require('../src/functions/olap/help');
-const parse = require('../src/functions/parse/help');
-const stack = require('../src/functions/stack/help');
-const statistical = require('../src/functions/statistical/help');
-const streams = require('../src/functions/streams/help');
-const streamsheet = require('../src/functions/streamsheet/help');
-const text = require('../src/functions/text/help');
-const timeseries = require('../src/functions/timeseries/help');
-const url = require('../src/functions/url/help');
 
 module.exports = {
+	chart,
 	crypto,
-	database,
+	databases,
+	dataformats,
 	date,
-	shape,
+	events,
 	engineering,
 	http,
 	info,
+	shape,
 	logical,
 	lookup,
 	math,
 	// olap,
-	parse,
 	stack,
 	statistical,
 	streams,
 	streamsheet,
 	text,
 	timeseries,
-	url
 };

@@ -1,0 +1,93 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Gateway Service OS",
+			"program": "${workspaceRoot}/streamsheets/packages/gateway/out/start.js",
+			"outFiles": ["${workspaceRoot}/streamsheets/packages/gateway/out/**/*.js"],
+			"skipFiles": ["<node_internals>/**"],
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"WS_PORT": "8088",
+      			"HTTP_PORT": "8080",
+      			"HTTP_HOST": "0.0.0.0",
+      			"GATEWAY_HTTP_PORT": "8080",
+      			"GATEWAY_HTTP_HOST": "0.0.0.0",
+				"MONGO_DATABASE": "streamsheets",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379"
+            }
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Machine Service OS",
+			"program": "${workspaceRoot}/streamsheets/packages/service-machines/start.js",
+			"autoAttachChildProcesses": true,
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"MESSAGE_BROKER_KEEP_ALIVE": "20",
+				"MONGO_DATABASE": "streamsheets",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379"
+			}
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Graph Service OS",
+			"program": "${workspaceRoot}/streamsheets/packages/service-graphs/start.js",
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379",
+      			"GATEWAY_HTTP_PORT": "8080",
+      			"GATEWAY_HOST": "localhost",
+				"MONGO_DATABASE": "streamsheets",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018"
+            }
+		},
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Streams Service OS",
+			"program": "${workspaceRoot}/streamsheets/packages/service-streams/start.js",
+			"env": {
+				"MESSAGE_BROKER_URL": "mqtt://localhost:1884",
+				"MESSAGE_BROKER_USERNAME": "cedalo",
+				"MESSAGE_BROKER_PASSWORD": "r35aJkR!&dz",
+				"MONGO_DATABASE": "streamsheets",
+				"MONGO_HOST": "localhost",
+				"MONGO_PORT": "27018",
+				"REDIS_HOST": "localhost",
+				"REDIS_PORT": "6379",
+				"RESTSERVER_PORT": "8083"
+			},
+			"outputCapture": "std"
+		},
+    ],
+    "compounds": [
+        {
+            "name": "Streamsheets OS",
+            "configurations": [
+				"Gateway Service OS",
+				"Machine Service OS",
+				"Graph Service OS",
+				"Streams Service OS"
+			]
+		}
+    ]
+}

@@ -11,12 +11,12 @@
 const BaseTrigger = require('./BaseTrigger');
 const RepeatedMessageLoopCycle = require('./RepeatedMessageLoopCycle');
 const { ManualMessageLoopCycle, TimerMessageLoopCycle } = require('./MessageLoopCycle');
-const { ManualCycle, TimerCycle } = require('./cycles');
+const { ManualCycle, TimerCycle, MIN_CYCLETIME } = require('./cycles');
 
 const RepeatedOnMessageCycle = (BaseClass) =>
 	class extends RepeatedMessageLoopCycle.withBaseClass(BaseClass) {
 		getCycleTime() {
-			return 1;
+			return MIN_CYCLETIME;
 		}
 		schedule() {
 			if (this.streamsheet.hasNewMessage()) super.schedule();
@@ -24,7 +24,7 @@ const RepeatedOnMessageCycle = (BaseClass) =>
 	};
 class OnMessageLoopCycle extends TimerMessageLoopCycle {
 	getCycleTime() {
-		return 1;
+		return MIN_CYCLETIME;
 	}
 }
 class OnMessageCycle extends RepeatedOnMessageCycle(TimerCycle) {

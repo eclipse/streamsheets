@@ -57,7 +57,6 @@ import {
 const VERSION = process.env.REACT_APP_VERSION || '2.5';
 const BUILD_NUMBER = process.env.REACT_APP_BUILD_NUMBER || 'unknown';
 
-
 /**
  * A modal dialog can only be closed by selecting one of the actions.
  */
@@ -498,7 +497,6 @@ export class SettingsMenu extends React.Component {
 								<TableRow>
 									<TableCell><strong>Web UI</strong></TableCell>
 									<TableCell>{VERSION}</TableCell>
-									{/* <TableCell>{BUILD_NUMBER}</TableCell> */}
 									<TableCell>
 										<CheckCircleIcon style={{color: 'green'}}/>
 									</TableCell>

@@ -31,6 +31,7 @@ export default function machineReducer(state = defaultMachineState, action) {
 			data: action.data,
 			id: action.response.machineserver.machine.id,
 			isOPCUA: action.response.machineserver.machine.settings.isOPCUA,
+			isCycleRegulated: action.response.machineserver.machine.settings.isCycleRegulated,
 			locale: action.response.machineserver.machine.settings.locale,
 			receivedAt: action.receivedAt,
 		};
@@ -44,6 +45,7 @@ export default function machineReducer(state = defaultMachineState, action) {
 			...state,
 			locale: action.settings.locale,
 			isOPCUA: action.settings.isOPCUA,
+			isCycleRegulated: action.settings.isCycleRegulated
 		};
 	default:
 		return state;

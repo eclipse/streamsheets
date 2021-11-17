@@ -51,7 +51,8 @@ export class MachineSettingsDialog extends React.Component {
 			maximizeSheet: 'none',
 			machineLocale: 'de',
 			toolBarVisibleSize: 1000,
-			exposeViaOPCUA: true
+			exposeViaOPCUA: true,
+			isCycleRegulated: false
 		};
 	}
 
@@ -68,7 +69,8 @@ export class MachineSettingsDialog extends React.Component {
 				showOutbox: attr.getOutboxVisible().getValue(),
 				maximizeSheet: attr.getMaximizeSheet().getValue(),
 				machineLocale: props.machine.locale,
-				exposeViaOPCUA: props.machine.isOPCUA
+				exposeViaOPCUA: props.machine.isOPCUA,
+				isCycleRegulated: props.machine.isCycleRegulated
 			};
 		}
 
@@ -83,11 +85,13 @@ export class MachineSettingsDialog extends React.Component {
 	handleSettingsSubmit = () => {
 		if (
 			this.state.machineLocale !== this.props.machine.locale ||
-			this.state.exposeViaOPCUA !== this.props.machine.isOPCUA
+			this.state.exposeViaOPCUA !== this.props.machine.isOPCUA ||
+			this.state.isCycleRegulated !== this.props.machine.isCycleRegulated
 		) {
 			this.props.updateMachineSettings(this.props.machine.id, {
 				locale: this.state.machineLocale,
-				isOPCUA: this.state.exposeViaOPCUA
+				isOPCUA: this.state.exposeViaOPCUA,
+				isCycleRegulated: this.state.isCycleRegulated
 			});
 		}
 
@@ -133,6 +137,10 @@ export class MachineSettingsDialog extends React.Component {
 	handleMaximizeChange(event) {
 		this.setState({ maximizeSheet: event.target.value });
 	}
+
+	handleRegulateCycle = (event, state) => {
+		this.setState({ isCycleRegulated: state });
+	};
 
 	handleShowOutbox = (event, state) => {
 		this.setState({ showOutbox: state });
@@ -225,6 +233,14 @@ export class MachineSettingsDialog extends React.Component {
 										))}
 									</TextField>
 								</FormControl>
+								<FormControlLabel
+									control={
+										<Checkbox checked={this.state.isCycleRegulated} onChange={this.handleRegulateCycle} />
+									}
+									label={
+										<FormattedMessage id="DialogSettings.regulateCycleTime" defaultMessage="Regulate Cycle Time" />
+									}
+								/>
 								<FormControlLabel
 									control={
 										<Checkbox checked={this.state.showOutbox} onChange={this.handleShowOutbox} />

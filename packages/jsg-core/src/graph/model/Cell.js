@@ -192,6 +192,14 @@ module.exports = class Cell {
 		this.clearContent();
 	}
 
+	getTerm() {
+		return this._expr ? this._expr.getTerm() : undefined;
+	}
+
+	getFormula() {
+		return this._expr && this._expr.hasFormula() ? this._expr.getFormula() : undefined;
+	}
+
 	getExpression() {
 		return this._expr;
 	}

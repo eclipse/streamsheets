@@ -21,6 +21,7 @@ const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
 const TaskQueue = require('./TaskQueue');
 const autoexit = require('../utils/autoexit');
+const { DEF_CYCLETIME, MIN_CYCLETIME } = require('./sheettrigger/cycles');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -61,7 +62,8 @@ const DEF_CONF = {
 		},
 		locale: 'en',
 		isOPCUA: false,
-		cycletime: 100
+		cycletime: DEF_CYCLETIME,
+		isCycleRegulated: false
 	}
 };
 
@@ -72,10 +74,6 @@ const DEF_CONF = {
  * @public
  */
 class Machine {
-	static get DEF_CYCLETIME() {
-		return DEF_CONF.settings.cycletime;
-	}
-
 	constructor() {
 		this._id = IdGenerator.generate();
 		this.namedCells = new NamedCells();
@@ -151,14 +149,11 @@ class Machine {
 		this._settings.view = { ...this.settings.view, ...settings.view };
 		this.titleImage = definition.titleImage;
 		this.previewImage = definition.previewImage;
-
-		// first time load named cells so that reference to named cells are resolved on streamsheets load
-		this.namedCells.load(this, def.namedCells);
+		this.removeAllStreamSheets();
 		// at least one streamsheet (required by graph-service!!):
 		if (!streamsheets.length) streamsheets.push({});
-
-		// load streamsheets:
-		this.removeAllStreamSheets();
+		
+		// preload streamsheets:
 		streamsheets.forEach((sheetdef) => {
 			const streamsheet = new StreamSheet(sheetdef);
 			sheetdef.id = streamsheet.id;
@@ -166,6 +161,8 @@ class Machine {
 			// support to preload additions which might be referenced across sheets, e.g. shapes
 			streamsheet.preload(sheetdef);
 		});
+		// first time load named cells so that reference to named cells are resolved on streamsheets load
+		this.namedCells.load(this, def.namedCells);
 		// then load all
 		streamsheets.forEach((sheetdef) => this.getStreamSheet(sheetdef.id).load(sheetdef, this));
 		// second time load named cells so that references from named cells are resolved correctly
@@ -246,7 +243,7 @@ class Machine {
 
 	set cycletime(newtime) {
 		const oldtime = this.cycletime;
-		newtime = Math.max(1, convert.toNumber(newtime, oldtime));
+		newtime = Math.max(MIN_CYCLETIME, convert.toNumber(newtime, oldtime));
 		if (oldtime !== newtime) {
 			this.settings.cycletime = newtime;
 			this._emitter.emit('update', 'cycletime');
@@ -277,6 +274,16 @@ class Machine {
 		if (itIs !== this.isOPCUA) {
 			this.settings.isOPCUA = itIs;
 			this._emitter.emit('update', 'opcua');
+		}
+	}
+
+	get isCycleRegulated() {
+		return this.settings.isCycleRegulated;
+	}
+	set isCycleRegulated(itIs) {
+		if (itIs !== this.isCycleRegulated) {
+			this.settings.isCycleRegulated = itIs;
+			this._emitter.emit('update', 'cycleregulated');
 		}
 	}
 
@@ -338,6 +345,7 @@ class Machine {
 		this.titleImage = props.titleImage || this.titleImage;
 		this.previewImage = props.previewImage || this.previewImage;
 		if (props.isOPCUA != null) this.isOPCUA = props.isOPCUA;
+		if (props.isCycleRegulated != null) this.isCycleRegulated = props.isCycleRegulated;
 	}
 
 	addStreamSheet(streamsheet) {
@@ -559,20 +567,27 @@ class Machine {
 		}
 	}
 	_scheduleNextCycle(t0, t1) {
-		const last = this.cyclemonitor.last;
-		const cycletime = this.cycletime;
-		// if we were called after desired cycletime we try to speed up...
-		const delay = Math.max(0, t0 - last - cycletime);
-		const speedUp = last > 0 && delay > 0 ? delay : 0;
+		this._calcCyclesPerSecond(t1);
+		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
+		this.cyclemonitor.id = setTimeout(this.cycle, this._calcNextCycle(t1 - t0));
+	}
+	_calcCyclesPerSecond(t1) {
 		const perSecond = t1 - this.cyclemonitor.lastSecond;
 		if (perSecond >= 1000) {
 			this.stats.cyclesPerSecond = Math.ceil(this.cyclemonitor.counterSecond / (perSecond / 1000));
 			this.cyclemonitor.lastSecond = t1;
 			this.cyclemonitor.counterSecond = 0;
 		}
-		const nextcycle = Math.max(1, cycletime - (t1 - t0) - speedUp);
-		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
-		this.cyclemonitor.id = setTimeout(this.cycle, nextcycle);
+	}
+	_calcNextCycle(delta) {
+		const cycletime = this.cycletime;
+		if (delta > cycletime && this.isCycleRegulated) {
+			const step = cycletime < 100 ? 10 : 100;
+			this.stats.regulatedCycle = (Math.trunc(delta / step) * step) + step;
+			return this.stats.regulatedCycle - delta;
+		}
+		this.stats.regulatedCycle = -1;
+		return Math.max(MIN_CYCLETIME, cycletime - delta);
 	}
 	_clearCycle() {
 		if (this.cyclemonitor.id) {
