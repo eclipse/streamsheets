@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+ import qs from 'query-string';
+
 export default class Utils {
 	static deepCopy(o) {
 		const output = Array.isArray(o) ? [] : {};
@@ -36,7 +38,7 @@ export default class Utils {
 	}
 
 	static scopeFromLocation(location = {}) {
-		const hash = location.hash || '';
-		return hash.startsWith('#scope=') ? hash.substring(7) : undefined;
+		const hash = qs.parse(location.hash) || {};
+		return hash.scope;
 	};
 }
