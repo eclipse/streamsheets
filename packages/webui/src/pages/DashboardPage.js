@@ -96,6 +96,7 @@ export function DashboardPageComponent(props) {
 
 	useEffect(() => {
 		if (scopeId) {
+			props.getMetaInformation();
 			props.getMachines(DASHBOARD_QUERY, { scope: { id: scopeId } });
 			props.getDataStores();
 		}
