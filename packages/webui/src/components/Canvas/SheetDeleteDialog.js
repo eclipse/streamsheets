@@ -93,7 +93,7 @@ class SheetDeleteDialog extends React.Component {
 			.getStreamSheetContainerAttributes()
 			.getSheetId()
 			.getValue();
-		this.props.deleteStreamSheet(this.props.machineId, streamsheetId);
+		this.props.deleteStreamSheet(this.props.machineId, streamsheetId, { id: this.props.scopeId });
 		this.props.closeDialog();
 
 		// force add button to rerender
@@ -152,6 +152,7 @@ function mapStateToProps(state) {
 		machineId: state.monitor.machine.id,
 		open: state.appState.showDeleteSheetDialog,
 		viewMode: state.appState.viewMode,
+		scopeId: state.user.user.scope.id
 	};
 }
 

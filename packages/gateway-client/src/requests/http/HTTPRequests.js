@@ -41,12 +41,17 @@ class AuthenticatePathHTTPRequest extends AuthenticateHTTPRequest {
 }
 
 class GetMetaInformationHTTPRequest extends HTTPRequest {
+	constructor(baseEndpoint, token, scope) {
+		super(baseEndpoint, token);
+		this._scopeId = scope ? scope.id : undefined;
+	}
+
 	_getPath() {
 		return '/meta';
 	}
 
 	_getConfig() {
-		return this._createGETConfig({}, this._createAuthHeader(this._token));
+		return this._createGETConfig({ scope: this._scopeId }, this._createAuthHeader(this._token));
 	}
 }
 

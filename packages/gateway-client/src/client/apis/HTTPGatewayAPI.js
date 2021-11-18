@@ -44,11 +44,12 @@ module.exports = class HTTPGatewayAPI extends GatewayAPI {
 		return this.sendRequest(new Request(this._restEndpointURL, authRequest));
 	}
 
-	getMetaInformation() {
+	getMetaInformation(scope) {
 		return this.sendRequest(
 			new GetMetaInformationHTTPRequest(
 				this._restEndpointURL,
-				this._token
+				this._token,
+				scope
 			)
 		);
 	}

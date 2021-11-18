@@ -8,7 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
-const Machine = require('../Machine');
+const { convert } = require('@cedalo/commons');
+
+const DEF_CYCLETIME = Math.max(1, convert.toNumber(process.env.DEF_CYCLETIME, 1000));
+const MIN_CYCLETIME = Math.max(1, convert.toNumber(process.env.MIN_CYCLETIME, 1));
+const MIN_CYCLEDELAY = Math.max(1, convert.toNumber(process.env.MIN_CYCLEDELAY, 1));
 
 class TriggerCycle {
 	constructor(trigger, parent) {
@@ -87,7 +91,7 @@ class TimerCycle extends TriggerCycle {
 	}
 
 	getCycleTime() {
-		return Machine.DEF_CYCLETIME;
+		return DEF_CYCLETIME;
 	}
 }
 
@@ -111,12 +115,10 @@ class NoOpCycle extends TriggerCycle {
 	}
 }
 
-const DEF_CYCLETIME = 1000;
-const MIN_CYCLETIME = 5;
-
 module.exports = {
 	DEF_CYCLETIME,
 	MIN_CYCLETIME,
+	MIN_CYCLEDELAY,
 	ManualCycle,
 	NoOpCycle,
 	TimerCycle,

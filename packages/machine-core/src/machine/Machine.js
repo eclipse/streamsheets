@@ -21,7 +21,7 @@ const Streams = require('../streams/Streams');
 const FunctionRegistry = require('../FunctionRegistry');
 const TaskQueue = require('./TaskQueue');
 const autoexit = require('../utils/autoexit');
-const { DEF_CYCLETIME, MIN_CYCLETIME } = require('./sheettrigger/cycles');
+const { DEF_CYCLETIME, MIN_CYCLETIME, MIN_CYCLEDELAY } = require('./sheettrigger/cycles');
 
 // REVIEW: move to streamsheet!
 const defaultStreamSheetName = (streamsheet) => {
@@ -567,8 +567,8 @@ class Machine {
 		}
 	}
 	_scheduleNextCycle(t0, t1) {
+		this._clearCycle();
 		this._calcCyclesPerSecond(t1);
-		if (this.cyclemonitor.id) clearTimeout(this.cyclemonitor.id);
 		this.cyclemonitor.id = setTimeout(this.cycle, this._calcNextCycle(t1 - t0));
 	}
 	_calcCyclesPerSecond(t1) {
@@ -587,7 +587,7 @@ class Machine {
 			return this.stats.regulatedCycle - delta;
 		}
 		this.stats.regulatedCycle = -1;
-		return Math.max(MIN_CYCLETIME, cycletime - delta);
+		return Math.max(MIN_CYCLEDELAY, cycletime - delta);
 	}
 	_clearCycle() {
 		if (this.cyclemonitor.id) {

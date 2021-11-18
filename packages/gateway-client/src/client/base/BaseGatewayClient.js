@@ -409,8 +409,8 @@ module.exports = class BaseGatewayClient {
 		return this.socket.getMachines();
 	}
 
-	deleteMachine(machineId) {
-		return this.socket.deleteMachine(machineId);
+	deleteMachine(machineId, scope) {
+		return this.socket.deleteMachine(machineId, scope);
 	}
 
 	// async deleteMachines() {
@@ -479,8 +479,8 @@ module.exports = class BaseGatewayClient {
 		});
 	}
 
-	loadMachine(machineId, settings) {
-		return this.socket.loadMachine(machineId, settings);
+	loadMachine(machineId, settings, scope) {
+		return this.socket.loadMachine(machineId, settings, scope);
 	}
 
 	unloadMachine(machineId) {
@@ -511,12 +511,12 @@ module.exports = class BaseGatewayClient {
 		return this.socket.renameMachine(machineId, newName);
 	}
 
-	createStreamSheet(machineId, activeItemId, position, sheetType) {
-		return this.socket.createStreamSheet(machineId, activeItemId, position, sheetType);
+	createStreamSheet(machineId, activeItemId, position, sheetType, scope) {
+		return this.socket.createStreamSheet(machineId, activeItemId, position, sheetType, scope);
 	}
 
-	deleteStreamSheet(machineId, streamsheetId) {
-		return this.socket.deleteStreamSheet(machineId, streamsheetId);
+	deleteStreamSheet(machineId, streamsheetId, scope) {
+		return this.socket.deleteStreamSheet(machineId, streamsheetId, scope);
 	}
 
 	updateStreamSheetStreams(machineId, streamsheetId, streams) {
@@ -630,8 +630,8 @@ module.exports = class BaseGatewayClient {
 	 * *********************************************
 	 */
 
-	getMetaInformation() {
-		return this.http.getMetaInformation();
+	getMetaInformation(scope) {
+		return this.http.getMetaInformation(scope);
 	}
 
 	/**

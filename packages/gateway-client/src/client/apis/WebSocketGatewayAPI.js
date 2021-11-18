@@ -192,9 +192,9 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 		return this.sendRequest(new GetMachinesWebSocketRequest(this._ws));
 	}
 
-	deleteMachine(machineId) {
+	deleteMachine(machineId, scope) {
 		return this.sendRequest(
-			new DeleteMachineWebSocketRequest(this._ws, machineId)
+			new DeleteMachineWebSocketRequest(this._ws, machineId, scope)
 		);
 	}
 
@@ -224,9 +224,9 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 		// TODO: implement
 	}
 
-	loadMachine(machineId, settings) {
+	loadMachine(machineId, settings, scope) {
 		return this.sendRequest(
-			new LoadMachineWebSocketRequest(this._ws, machineId, settings),
+			new LoadMachineWebSocketRequest(this._ws, machineId, settings, scope),
 			180000
 		);
 	}
@@ -305,24 +305,26 @@ module.exports = class WebSocketGatewayAPI extends GatewayAPI {
 		);
 	}
 
-	createStreamSheet(machineId, activeItemId, position, sheetType) {
+	createStreamSheet(machineId, activeItemId, position, sheetType, scope) {
 		return this.sendRequest(
 			new CreateStreamSheetWebSocketRequest(
 				this._ws,
 				machineId,
 				activeItemId,
 				position,
-				sheetType
+				sheetType,
+				scope
 			)
 		);
 	}
 
-	deleteStreamSheet(machineId, streamsheetId) {
+	deleteStreamSheet(machineId, streamsheetId, scope) {
 		return this.sendRequest(
 			new DeleteStreamSheetWebSocketRequest(
 				this._ws,
 				machineId,
-				streamsheetId
+				streamsheetId,
+				scope
 			)
 		);
 	}

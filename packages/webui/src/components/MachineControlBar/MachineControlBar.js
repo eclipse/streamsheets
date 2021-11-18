@@ -129,9 +129,6 @@ class MachineControlBar extends React.Component {
 
 	onChangeSpeed = (intervalInMilliseconds) => {
 		intervalInMilliseconds = transformSpeed(intervalInMilliseconds);
-		this.setState({
-			speed: intervalInMilliseconds,
-		});
 		this.props.setCycleTime(this.props.machineId, intervalInMilliseconds);
 	};
 
@@ -182,7 +179,6 @@ class MachineControlBar extends React.Component {
 	};
 
 	handleSpeed = (intervalInMilliseconds) => () => {
-		this.setState({ speed: intervalInMilliseconds });
 		this.props.setCycleTime(this.props.machineId, intervalInMilliseconds);
 	};
 
@@ -693,7 +689,7 @@ function mapStateToProps(state) {
 		cycletime: state.monitor.cycletime,
 		regulatedCycle: state.monitor.performance.regulatedCycle,
 		disabled: !state.monitor.machine.id || !MachineHelper.currentMachineCan(RESOURCE_ACTIONS.CONTROL),
-		adminSecurity: state.adminSecurity,
+		adminSecurity: state.adminSecurity
 	};
 }
 

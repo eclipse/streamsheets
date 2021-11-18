@@ -263,7 +263,8 @@ export default class ProxyConnection {
 		const response: WSResponse = {
 			type: 'response',
 			requestId: message.requestId || 0,
-			requestType: message.type
+			requestType: message.type,
+			scope: message.scope
 			// TODO: Is this in use?
 			// result: context.result || undefined
 		};

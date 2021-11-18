@@ -61,6 +61,7 @@ import ThemeButton from './ThemeButton';
 import TourButton from './TourButton';
 // import { ResizeHandler } from './ResizeHandler';
 import { Path } from '../helper/Path';
+import Utils from '../helper/Utils';
 import { DialogExtensions } from '@cedalo/webui-extensions';
 import Joyride from 'react-joyride';
 import steps from '../tutorial/machine-steps';
@@ -166,7 +167,7 @@ export function MachineDetailPage(props) {
 			name: query.streamName
 		};
 		const newMachineName = query.machineName;
-		const scope = { id: query.scope };
+		const scope = { id: query.scope || Utils.scopeFromLocation(location) };
 		try {
 			const response = await props.loadSubscribeMachine(machineId, {
 				settings: { locale },

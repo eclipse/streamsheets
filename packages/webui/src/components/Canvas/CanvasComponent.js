@@ -450,9 +450,13 @@ export class CanvasComponent extends Component {
 	onAddDashboardSheet() {
 		const graph = graphManager.getGraph();
 		const cnt = graph.getStreamSheetContainerCount() % 8;
+		const options = {
+			type: 'cellsheet',
+			scope: { id: this.props.scopeId },
+			position: { x: 1000 * cnt, y: 1000 * cnt }
+		};
 		this.setState({speedOpen: false});
-
-		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, 'cellsheet');
+		this.props.createStreamSheet(this.props.machineId, 0, options);
 	}
 
 	onAdd = (type) => {
@@ -476,7 +480,12 @@ export class CanvasComponent extends Component {
 
 		graph.setViewMode(undefined, 0);
 
-		this.props.createStreamSheet(this.props.machineId, 0, { x: 1000 * cnt, y: 1000 * cnt }, type);
+		const options = {
+			type,
+			scope: { id: this.props.scopeId},
+			position: { x: 1000 * cnt, y: 1000 * cnt }, 
+		};
+		this.props.createStreamSheet(this.props.machineId, 0, options);
 
 		setTimeout(() => {
 			this.props.setAppState({ viewMode: {
@@ -923,6 +932,7 @@ export class CanvasComponent extends Component {
 function mapStateToProps(state, ownProps) {
 	return {
 		showMachine: MachineHelper.showMachine(state) && ownProps.machineLoaded,
+		scopeId: state.user.user.scope.id,
 		machineId: state.monitor.machine.id,
 		viewMode: state.appState.viewMode,
 		showViewModeProperties: state.appState.showViewModeProperties,

@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  ********************************************************************************/
+ import qs from 'query-string';
+
 export default class Utils {
 	static deepCopy(o) {
 		const output = Array.isArray(o) ? [] : {};
@@ -34,4 +36,9 @@ export default class Utils {
 		const available = Utils.getAvailableSheetsCount(licenseInfo);
 		return available < 0 || available > 0;
 	}
+
+	static scopeFromLocation(location = {}) {
+		const hash = qs.parse(location.hash) || {};
+		return hash.scope;
+	};
 }

@@ -20,6 +20,7 @@ import ConfigManager from '../helper/ConfigManager';
 import gatewayClient from '../helper/GatewayClient';
 import { intl } from '../helper/IntlGlobalProvider';
 import { Path } from '../helper/Path';
+import Utils from '../helper/Utils';
 import { functionStrings } from '../languages/FunctionStrings';
 import SheetParserContext from '../SheetParserContext';
 import store from '../store';
@@ -122,10 +123,6 @@ const sendCycleTime = (cycletime) => ({
 });
 const receiveCycleTime = (cycletime) => ({
 	type: ActionTypes.RECEIVE_CYCLE_TIME,
-	cycletime,
-});
-const receiveCycleTimeFromMachine = (cycletime) => ({
-	type: ActionTypes.RECEIVE_CYCLE_TIME_FROM_MACHINE,
 	cycletime,
 });
 const receiveViewSettingsFromMachine = (view) => ({
@@ -356,7 +353,7 @@ function handleMachineLocaleChanged(event) {
 }
 
 function handleMachineCycleTime(event) {
-	store.dispatch(receiveCycleTimeFromMachine(event.cycletime));
+	store.dispatch(receiveCycleTime(event.cycletime));
 }
 
 function handleMachineViewSettings(event) {
@@ -559,7 +556,7 @@ function reloadCurrentMachine() {
 export async function getMetaInformationAndDispatch(dispatch = store.dispatch) {
 	dispatch({ type: ActionTypes.FETCH_META_INFORMATION });
 	try {
-		const metaInformation = await gatewayClient.getMetaInformation();
+		const metaInformation = await gatewayClient.getMetaInformation({ id: Utils.scopeFromLocation(location) });
 		dispatch(receiveMetaInformation(metaInformation));
 	} catch (error) {
 		if (error.status === 401) {
@@ -748,21 +745,22 @@ export function reloadDashboard() {
 	updateMachines();
 }
 
-export function createStreamSheet(machineId, activeItemId, position, sheetType) {
+export function createStreamSheet(machineId, activeItemId, options = {}) {
 	return (dispatch) => {
 		dispatch(sendCreateStreamSheet());
+		const { position, scope, type } = options;
 		return gatewayClient
-			.createStreamSheet(machineId, activeItemId, position, sheetType)
+			.createStreamSheet(machineId, activeItemId, position, type, scope)
 			.then((response) => dispatch(receiveCreateStreamSheet(response)))
 			.catch((error) => dispatch(requestFailed(messageTypes.STREAMSHEET_CREATE, error)));
 	};
 }
 
-export function deleteStreamSheet(machineId, streamsheetId) {
+export function deleteStreamSheet(machineId, streamsheetId, scope) {
 	return (dispatch) => {
 		dispatch(sendDeleteStreamSheet());
 		return gatewayClient
-			.deleteStreamSheet(machineId, streamsheetId)
+			.deleteStreamSheet(machineId, streamsheetId, scope)
 			.then((response) => dispatch(receiveDeleteTranscator(response)))
 			.catch((error) => dispatch(requestFailed(messageTypes.STREAMSHEET_DELETE, error)));
 	};
@@ -854,8 +852,9 @@ export function setStreamSheetStepInterval(machineId, streamSheetStepInterval) {
 export function setCycleTime(machineId, cycleTime) {
 	return async (dispatch) => {
 		dispatch(sendCycleTime(cycleTime));
-		await gatewayClient.setCycleTime(machineId, cycleTime);
-		return dispatch(receiveCycleTime(cycleTime));
+		const res = await gatewayClient.setCycleTime(machineId, cycleTime);
+		const newCycleTime = res.machineserver.machine.cycletime || cycleTime; 
+		return dispatch(receiveCycleTime(newCycleTime));
 	};
 }
 
@@ -951,11 +950,11 @@ export function redoCommand(machineId) {
 	};
 }
 
-export function deleteMachine(machineId) {
+export function deleteMachine(machineId, scope) {
 	return (dispatch) => {
 		dispatch(sendDeleteMachine(machineId));
 		return gatewayClient
-			.deleteMachine(machineId)
+			.deleteMachine(machineId, scope)
 			.then(() => dispatch(receiveDeleteMachine(machineId)))
 			.catch((error) => dispatch(requestFailed(messageTypes.MACHINE_DELETE, error)));
 	};

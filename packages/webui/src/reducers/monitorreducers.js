@@ -136,19 +136,8 @@ export default function doRequest(state = defState, reqaction) {
 		}
 		// Set cycle time without waiting for server
 		// response to have a fluent user experience
-		case ActionTypes.SEND_CYCLE_TIME: {
-			const { cycletime } = reqaction;
-			newstate.cycletime = cycletime;
-			break;
-		}
+		case ActionTypes.SEND_CYCLE_TIME:
 		case ActionTypes.RECEIVE_CYCLE_TIME: {
-			// if we would enable this, the slider
-			// of the cycle speed reacts double
-			// const { cycletime } = reqaction;
-			// newstate.cycletime = cycletime;
-			break;
-		}
-		case ActionTypes.RECEIVE_CYCLE_TIME_FROM_MACHINE: {
 			const { cycletime } = reqaction;
 			newstate.cycletime = cycletime;
 			break;
@@ -240,6 +229,7 @@ export default function doRequest(state = defState, reqaction) {
 			break;
 		}
 		case ActionTypes.RECEIVE_MACHINE_STEP:
+			// newstate.cycletime = reqaction.event.stats.cycletime;
 			newstate.performance.regulatedCycle = reqaction.event.stats.regulatedCycle;
 			newstate.performance.cyclesPerSecond = reqaction.event.stats.cyclesPerSecond;
 			newstate.performance.events.add({});

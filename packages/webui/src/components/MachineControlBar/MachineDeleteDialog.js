@@ -21,7 +21,7 @@ import { connect } from 'react-redux';
 import { deleteMachine, openDashboard, setAppState } from '../../actions/actions';
 
 function MachineDeleteDialog(props) {
-	const { open, machineId, machineName } = props;
+	const { open, machineId, machineName, scopeId } = props;
 
 	if (!open) {
 		return null;
@@ -29,7 +29,7 @@ function MachineDeleteDialog(props) {
 
 	const handleSubmitDeleteMachine = async () => {
 		try {
-			await props.deleteMachine(machineId);
+			await props.deleteMachine(machineId, { id: scopeId });
 			props.closeDialog();
 			props.openDashboard(machineId);
 		} catch (error) {
@@ -98,6 +98,7 @@ function mapStateToProps(state) {
 		open: state.appState.showDeleteMachineDialog,
 		machineName: state.monitor.machine.name,
 		machineId: state.monitor.machine.id,
+		scopeId: state.user.user.scope.id
 	};
 }
 
