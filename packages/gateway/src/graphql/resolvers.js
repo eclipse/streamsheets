@@ -177,6 +177,17 @@ const resolvers = {
 				return Payload.createFailure(error);
 			}
 		},
+		setHadAppTour: async (obj, { userId }, { api }) => {
+			try {
+				await api.user.setHadAppTour(userId);
+				return Payload.createSuccess({
+					code: 'USER_HAD_TOUR',
+					message: 'Set user had tour successfully'
+				});
+			} catch (error) {
+				return Payload.createFailure(error);
+			}
+		},
 		scoped: async (obj, args, { auth }) => {
 			if (!auth.isValidScope(args.scope)) {
 				throw new Error('NOT_ALLOWED');

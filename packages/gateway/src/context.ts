@@ -28,7 +28,8 @@ const {
 const { MongoDBStreamsRepository } = require('@cedalo/service-streams');
 const logger = LoggerFactory.createLogger('gateway - context', process.env.STREAMSHEETS_LOG_LEVEL || 'info');
 
-const STREAMSHEETS_EXIT_ON_PLUGIN_INIT_ERROR = (process.env.STREAMSHEETS_EXIT_ON_PLUGIN_INIT_ERROR || '').toLocaleLowerCase() === 'true';
+const STREAMSHEETS_EXIT_ON_PLUGIN_INIT_ERROR =
+	(process.env.STREAMSHEETS_EXIT_ON_PLUGIN_INIT_ERROR || '').toLocaleLowerCase() === 'true';
 
 const encryptionContext = {
 	hash: async (string: string) => {
@@ -69,7 +70,7 @@ const applyPlugins = async (context: GenericGlobalContext<RawAPI, BaseAuth>, plu
 			return appliedPlugin;
 		} catch (error) {
 			logger.error(`Failed load plugin: ${mod}`, error.message);
-			if(STREAMSHEETS_EXIT_ON_PLUGIN_INIT_ERROR){
+			if (STREAMSHEETS_EXIT_ON_PLUGIN_INIT_ERROR) {
 				process.exit(1);
 			}
 		}
@@ -125,7 +126,8 @@ export const init = async (config: any, plugins: string[]) => {
 			username: 'admin',
 			password: pwhash,
 			settings: { locale: 'en' },
-			admin: true
+			admin: true,
+			hadAppTour: false
 		});
 	}
 
