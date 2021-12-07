@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/cedalo/streamsheets/issues"
   },
-  "dependencies": {
+  "devDependencies": {
     "eslint-config-airbnb": "18.0.1",
     "eslint-config-airbnb-base": "14.0.0",
     "eslint-config-prettier": "6.7.0",
