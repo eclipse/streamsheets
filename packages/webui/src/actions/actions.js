@@ -442,11 +442,12 @@ export function getMe() {
 						locale
 					}
 					rights
+					hadAppTour
 				}
 			}`
 		);
 		const user = result.me;
-		const { id, displayName, settings  } = user;
+		const { id, displayName, settings } = user;
 		const urlHash = qs.parse(window.location.hash);
 		const currentScope = urlHash.scope;
 		localStorage.setItem('user', JSON.stringify({ id, displayName, settings }));

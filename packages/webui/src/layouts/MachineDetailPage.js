@@ -206,6 +206,8 @@ export function MachineDetailPage(props) {
 			);
 			if (sharedMachine || query.preview) {
 				props.setAppState({ showViewMode: true });
+			} else if (!props.hadAppTour) {
+				props.setAppState({ tour: 'stream-app' });
 			}
 			if (!sharedMachine) {
 				setCanEditMachine(scopedByMachine.machine.canEdit);
@@ -263,7 +265,34 @@ export function MachineDetailPage(props) {
 					showProgress
 					showSkipButton
 					steps={steps}
-					// callback={onTourStateChange}
+					callback={
+						!props.hadAppTour
+							? async (ev) => {
+									if (ev.index === 0 && ev.lifecycle === 'complete') {
+										try {
+											const {
+												setHadAppTour: { success, message }
+											} = await gatewayClient.graphql(
+												`
+												mutation SetHadAppTour($userId: ID!) {
+													setHadAppTour(userId: $userId){
+														success
+														message
+													}
+												}
+												`,
+												{ userId: props.userId }
+											);
+											if (!success) {
+												console.log(message);
+											}
+										} catch (error) {
+											console.log(error);
+										}
+									}
+							  }
+							: undefined
+					}
 					styles={{
 						options: {
 							zIndex: 10000
@@ -449,7 +478,9 @@ function mapStateToProps(state) {
 		showEditNamesDialog: state.appState.showEditNamesDialog,
 		experimental: state.appState.experimental,
 		showViewMode: state.appState.showViewMode,
-		adminSecurity: state.adminSecurity
+		adminSecurity: state.adminSecurity,
+		hadAppTour: state.user.user ? state.user.user.hadAppTour : false,
+		userId: state.user.user ? state.user.user.id : undefined
 	};
 }
 

@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -39,6 +39,7 @@ export interface UserRepository {
 	getPassword(username: string): Promise<string>;
 	updatePassword(id: ID, password: string): Promise<boolean>;
 	updateSettings(id: ID, settingsUpdate: Partial<UserSettings>): Promise<UserFromRepo>;
+	setHadAppTour(id: ID): Promise<UserFromRepo>;
 }
 
 type InternalUser = Omit<UserFromRepo, 'id' | 'settings'> & {
@@ -57,7 +58,7 @@ function toExternal(user: InternalUser | null | undefined): UserFromRepo | null 
 	if (!user) {
 		return null;
 	}
-	const { _id, password, ...copy } = { ...user, id: user._id };
+	const { _id, password, ...copy } = { hadAppTour: false, ...user, id: user._id };
 	return copy;
 }
 
@@ -229,6 +230,24 @@ const UserRepository = {
 		const userDocument = beforeWrite(applyUpdate(dbUser, { password }));
 		const { result } = await collection.replaceOne({ _id: id }, userDocument, hidePassword());
 		return result.nModified === 1;
+	},
+	setHadAppTour: async (collection: UserCollection, id: ID, auth: Authorizer<User> = noop) => {
+		try {
+			const dbUser = await collection.findOne({ _id: id });
+			if (!dbUser) {
+				throw InputError.notFound('User does not exist', ErrorCodes.USER_NOT_FOUND);
+			}
+			await auth(toExternal(dbUser));
+			const update = { $set: { hadAppTour: true } };
+			const result = await collection.findOneAndUpdate(
+				{ _id: id },
+				update,
+				hidePassword({ returnOriginal: false })
+			);
+			return toExternal(result.value);
+		} catch (error) {
+			throw error;
+		}
 	}
 };
 
