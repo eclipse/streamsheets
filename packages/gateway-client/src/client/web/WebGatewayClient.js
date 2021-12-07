@@ -1,7 +1,7 @@
 /********************************************************************************
  * Copyright (c) 2020 Cedalo AG
  *
- * This program and the accompanying materials are made available under the 
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0.
  *
@@ -14,16 +14,20 @@
 
 const BaseGatewayClient = require('../base/BaseGatewayClient');
 
+const logger = {
+	...console,
+	debug: () => {}
+};
+
 module.exports = class WebGatewayClient extends BaseGatewayClient {
 	constructor({ name = 'Web Gateway Client', defaultListener } = {}) {
-		super({ name, logger: console, defaultListener });
+		super({ name, logger, defaultListener });
 	}
 
 	_connectSocketServer(url) {
 		return new Promise((resolve, reject) => {
 			const ws = new WebSocket(url);
-			ws.onopen = () =>
-				this._handleOpenedSocketConnection().then(() => resolve(ws));
+			ws.onopen = () => this._handleOpenedSocketConnection().then(() => resolve(ws));
 			ws.onmessage = (event) => this._handleSocketMessage(event.data);
 			ws.onerror = (event) => {
 				this._handleSocketError(event);

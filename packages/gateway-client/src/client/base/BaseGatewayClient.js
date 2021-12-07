@@ -29,7 +29,7 @@ module.exports = class BaseGatewayClient {
 			warn() {},
 			error() {}
 		};
-		this._eventHandler = (event) => this.logger.info(event);
+		this._eventHandler = (event) => this.logger.debug(event);
 		this._closeHandler = () => this.logger.info('Close Gateway Client');
 		this._eventListeners = new Map();
 		this._initDefaultEventListeners(defaultListener);
@@ -733,7 +733,7 @@ module.exports = class BaseGatewayClient {
 
 	_initDefaultEventListeners(defaultListener) {
 		Object.values(GatewayMessagingProtocol.EVENTS).forEach((eventType) => {
-			this.on(eventType, (event) => this.logger.info('Got event', event));
+			this.on(eventType, (event) => this.logger.debug('Got event', event));
 			if (defaultListener) {
 				this.on(eventType, (event) => defaultListener(event));
 			}

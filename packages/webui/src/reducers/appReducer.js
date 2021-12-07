@@ -41,7 +41,7 @@ const defaultState = {
 	openHelp: false,
 	openSettings: false,
 	openPreferences: false,
-	debug: false,
+	debug: localStorage.getItem('DLDEBUG'),
 	page: '/',
 	addStreamDialogOpen: false,
 	popupMenuE: null,
