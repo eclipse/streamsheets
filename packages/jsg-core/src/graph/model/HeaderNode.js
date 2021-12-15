@@ -64,6 +64,7 @@ module.exports = class HeaderNode extends Node {
 
 	clear() {
 		this._sectionData = [];
+		this._sectionDataSource = undefined;
 	}
 
 	getMinSize() {
