@@ -38,5 +38,18 @@ module.exports = class ToitProviderConfiguration extends sdk.ProviderConfigurati
 			},
 			type: sdk.ProviderConfiguration.FIELDTYPES.TEXT
 		});
+		this.addProducerDefinition({
+			id: 'publisherName',
+			label: {
+				en: 'Publisher',
+				de: 'Absender'
+			},
+			help: {
+				en: 'Name that is used as sender of messages',
+				de: 'Name, der als Absender von Nachrichten verwendet wird'
+			},
+			defaultValue: "Streamsheets",
+			type: sdk.ProviderConfiguration.FIELDTYPES.TEXT
+		});
 	}
 };
