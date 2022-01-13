@@ -9,8 +9,8 @@
  *
  ********************************************************************************/
 const sdk = require('@cedalo/sdk-streams');
-const url = require('url');
 const ToitConsumer = require('./ToitConsumer');
+const ToitProducer = require('./ToitProducer');
 const ToitProviderConfiguration = require('./ToitProviderConfiguration');
 
 module.exports = class ToitProvider extends sdk.Provider {
@@ -22,7 +22,7 @@ module.exports = class ToitProvider extends sdk.Provider {
 		return ToitConsumer;
 	}
 
-  get canProduce() {
-		return false;
+  get Producer() {
+		return ToitProducer;
 	}
 };
