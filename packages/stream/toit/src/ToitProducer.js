@@ -15,20 +15,24 @@ const toitPublishModel = require("@toit/api/src/toit/api/pubsub/publish_pb");
 
 module.exports = class ToitProducer extends ProducerMixin(ToitConnector) {
 
-	constructor(config) {
-		super({ ...config, type: Connector.TYPE.PRODUCER });
-	}
+  constructor(config) {
+    super({ ...config, type: Connector.TYPE.PRODUCER });
+  }
 
-	async initialize() {
-		this.currentConfig = JSON.parse(JSON.stringify(this.config));
-	}
+  async initialize() {
+    this.currentConfig = JSON.parse(JSON.stringify(this.config));
+  }
 
-	async produce(config) {
+  async produce(config) {
     console.log(config);
-    let {topic, publisherName} = config;
-		const { deviceId, message } = config;
-    if (typeof deviceId !== "undefined") topic += `?device-id=${deviceId}`;
-    if (typeof publisherName === "undefined") publisherName = this.config.publisherName;
+    let { topic, publisherName } = config;
+    const { deviceId, message } = config;
+    if (typeof deviceId !== "undefined") {
+      topic += `?device-id=${deviceId}`;
+    }
+    if (typeof publisherName === "undefined") {
+      publisherName = this.config.publisherName;
+    }
 
     const client = new toitPublish.PublishClient("", null, { channelOverride: this._channel });
     const request = new toitPublishModel.PublishRequest();
@@ -45,6 +49,6 @@ module.exports = class ToitProducer extends ProducerMixin(ToitConnector) {
     } catch (e) {
       this.handleError(e);
     }
-	}
+  }
 
 };

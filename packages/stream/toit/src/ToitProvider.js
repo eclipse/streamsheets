@@ -22,7 +22,7 @@ module.exports = class ToitProvider extends sdk.Provider {
 		return ToitConsumer;
 	}
 
-  get Producer() {
+	get Producer() {
 		return ToitProducer;
 	}
 };
