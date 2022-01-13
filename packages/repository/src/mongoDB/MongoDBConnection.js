@@ -13,7 +13,7 @@ const logger = require('@cedalo/logger').create({ name: 'MongoDBConnection' });
 
 const defaultOptions = {
 	host: process.env.MONGO_HOST || 'localhost',
-	port: parseInt(process.env.MONGO_PORT, 10) || 27017,
+	port: !!process.env.MONGO_PORT ? parseInt(process.env.MONGO_PORT, 10) : 27017,
 	database: process.env.MONGO_DATABASE || 'test',
 	username: process.env.MONGO_USERNAME,
 	password: process.env.MONGO_PASSWORD
@@ -47,10 +47,16 @@ const mapLegacyOptions = ({
 
 const authMechanism = `authMechanism=SCRAM-SHA-1`;
 
-const buildUrl = ({ host, port, database }, auth) =>
-	auth
-		? `mongodb://${auth}@${host}:${port}/${database}?${authMechanism}`
-		: `mongodb://${host}:${port}/${database}`;
+const buildUrl = ({ host, port, database }, auth) => {
+	/* port === 0 means options.host is a unix socket */
+	const hostPath = port
+		? `${host}:${port}`
+		: encodeURIComponent(host);
+	const url = auth
+		? `mongodb://${auth}@${hostPath}/${database}?${authMechanism}`
+		: `mongodb://${hostPath}/${database}`;
+	return url;
+}
 
 const buildAuth = (username, password) =>
 	username && password ? `${username}:${password}` : undefined;
