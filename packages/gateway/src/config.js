@@ -39,7 +39,7 @@ const config = convict({
 			arg: 'GATEWAY_HTTP_PORT'
 		},
 		ipaddress: {
-			doc: 'The port to bind.',
+			doc: 'The ip address/host/socket path to bind.',
 			format: 'url',
 			default: 'localhost',
 			env: 'GATEWAY_HTTP_HOST',
