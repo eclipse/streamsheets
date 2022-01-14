@@ -13,7 +13,7 @@ const logger = require('@cedalo/logger').create({ name: 'MongoDBConnection' });
 
 const defaultOptions = {
 	host: process.env.MONGO_HOST || 'localhost',
-	port: !!process.env.MONGO_PORT ? parseInt(process.env.MONGO_PORT, 10) : 27017,
+	port: process.env.MONGO_PORT ? parseInt(process.env.MONGO_PORT, 10) : 27017,
 	database: process.env.MONGO_DATABASE || 'test',
 	username: process.env.MONGO_USERNAME,
 	password: process.env.MONGO_PASSWORD
