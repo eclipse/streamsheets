@@ -63,7 +63,7 @@
     "supertest": "^4.0.2",
     "swagger-express-middleware": "^2.0.2",
     "uuid": "3.3.2",
-    "ws": "7.1.0"
+    "ws": "7.4.6"
   },
   "devDependencies": {
     "@cedalo/jsg-core": "2.4.0",

@@ -19,7 +19,7 @@
   "dependencies": {
     "@cedalo/gateway-client": "2.4.0",
     "@cedalo/protocols": "2.4.0",
-    "ws": "7.1.0"
+    "ws": "7.4.6"
   },
   "devDependencies": {
     "babel-core": "6.25.0",
