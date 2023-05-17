@@ -83,7 +83,7 @@ Also, visit us on our [website](https://cedalo.com/) or check out the [Streamshe
 
 ## 🚀 Quick start
 
-The easiest way to install Streamsheets is to use the [official installer](https://docs.cedalo.com/streamsheets/installation/). After successfully running the installer navigate to the install directory and run the start script (depending on the target platform).
+The easiest way to install Streamsheets is to use the [official installer](https://docs.cedalo.com/streamsheets/2.5/installation/). After successfully running the installer navigate to the install directory and run the start script (depending on the target platform).
 
 For Linux:
 ```
